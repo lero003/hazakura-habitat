@@ -15,10 +15,10 @@
 - Basic package manager inference from lockfiles and project files.
 - Runtime mismatch warnings and command-policy guards when `.nvmrc` or `.node-version` differs from the active Node major version, or `.python-version` differs from active Python major/minor.
 - Project `.venv` detection that tells agents to prefer `.venv/bin/python` before system `python3`.
-- Missing preferred package-manager warning when project files point to a tool that is not on `PATH`.
+- Missing preferred tool warnings when project files point to a tool that is not on `PATH`, including SwiftPM-specific guidance when `swift` is unavailable.
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.
 - Command-policy guard that tells agents to ask before modifying lockfiles.
-- Tests for package manager detection, missing tools, artifact generation, runtime mismatch policy guidance, package-manager substitution guidance, lockfile mutation guidance, generated Markdown snapshots, secret avoidance, and uv missing-tool fallback guards.
+- Tests for package manager detection, missing tools, artifact generation, runtime mismatch policy guidance, package-manager substitution guidance, lockfile mutation guidance, generated Markdown snapshots, secret avoidance, uv missing-tool fallback guards, and SwiftPM missing-tool guards.
 - GitHub CI and release artifact workflows.
 
 ## Not Yet Implemented
@@ -31,5 +31,5 @@
 
 ## Next Useful Improvements
 
-- Add fixture projects that cover npm, SwiftPM, and missing-tool cases.
+- Add fixture projects that cover npm and remaining missing-tool cases.
 - Add focused Python and Node scanner summaries only where they change AI command choices.

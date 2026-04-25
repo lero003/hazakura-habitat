@@ -402,6 +402,29 @@ struct HabitatCoreTests {
         #expect(result.diagnostics.count == result.commands.count)
     }
 
+    @Test
+    func scanGuardsSwiftPMCommandsWhenSwiftIsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift package"
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.policy.preferredCommands == ["swift test", "swift build"])
+        #expect(result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
+        #expect(result.warnings.contains("Project files prefer SwiftPM, but swift was not found on PATH; ask before running SwiftPM commands."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running SwiftPM commands before swift is available`."))
+        #expect(context.contains("Project files prefer SwiftPM, but swift was not found on PATH; ask before running SwiftPM commands."))
+        #expect(policy.contains("`running SwiftPM commands before swift is available`"))
+    }
+
     private func makeProject(files: [String: String]) throws -> URL {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)

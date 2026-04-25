@@ -138,7 +138,7 @@ public struct HabitatScanner {
 
         if let packageManager = project.packageManager,
            shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
-            commands.insert("substituting another package manager for \(packageManager)", at: 0)
+            commands.insert(missingPreferredToolAskFirstCommand(packageManager: packageManager), at: 0)
         }
 
         return commands
@@ -185,7 +185,7 @@ public struct HabitatScanner {
 
         if let packageManager = project.packageManager,
            shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
-            warnings.append("Project files prefer \(packageManager), but \(packageManager) was not found on PATH; ask before substituting another package manager.")
+            warnings.append(missingPreferredToolWarning(packageManager: packageManager))
         }
 
         return warnings
@@ -201,6 +201,28 @@ public struct HabitatScanner {
         }
 
         return resolvedPaths.first(where: { $0.name == toolName })?.paths.isEmpty ?? true
+    }
+
+    private func missingPreferredToolAskFirstCommand(packageManager: String) -> String {
+        switch packageManager {
+        case "swiftpm":
+            return "running SwiftPM commands before swift is available"
+        case "python":
+            return "running Python commands before python3 is available"
+        default:
+            return "substituting another package manager for \(packageManager)"
+        }
+    }
+
+    private func missingPreferredToolWarning(packageManager: String) -> String {
+        switch packageManager {
+        case "swiftpm":
+            return "Project files prefer SwiftPM, but swift was not found on PATH; ask before running SwiftPM commands."
+        case "python":
+            return "Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."
+        default:
+            return "Project files prefer \(packageManager), but \(packageManager) was not found on PATH; ask before substituting another package manager."
+        }
     }
 
     private func nodeVersionNeedsVerification(project: ProjectInfo, versions: [ToolVersion]) -> Bool {
