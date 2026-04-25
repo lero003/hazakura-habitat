@@ -13,7 +13,7 @@
 - Missing commands and scanner failures are represented as scan data instead of fatal errors.
 - Project signal detection for common JavaScript, Python, Swift, Ruby, Go, Rust, Homebrew, and version-manager files.
 - Basic package manager inference from lockfiles and project files.
-- Runtime mismatch warnings and command-policy guards when `.nvmrc` differs from the active Node major version or `.python-version` differs from active Python major/minor.
+- Runtime mismatch warnings and command-policy guards when `.nvmrc` or `.node-version` differs from the active Node major version, or `.python-version` differs from active Python major/minor.
 - Project `.venv` detection that tells agents to prefer `.venv/bin/python` before system `python3`.
 - Missing preferred package-manager warning when project files point to a tool that is not on `PATH`.
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.

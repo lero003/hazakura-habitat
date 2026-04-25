@@ -62,6 +62,27 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanUsesNodeVersionFileForRuntimeInstallGuard() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+            ".node-version": "24.0.0\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".node-version"))
+        #expect(result.project.runtimeHints.node == "24.0.0")
+        #expect(result.warnings.contains("Active Node is v22.15.0, but project requests 24.0.0; ask before dependency installs (/opt/homebrew/bin/node)."))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+    }
+
+    @Test
     func scanWarnsBeforeSubstitutingMissingPreferredPackageManager() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",

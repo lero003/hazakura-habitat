@@ -42,7 +42,10 @@ public struct ProjectDetector {
             detectedFiles: detectedFiles,
             packageManager: detectPackageManager(files: detectedFiles),
             runtimeHints: RuntimeHints(
-                node: firstLineIfSafe(projectURL.appendingPathComponent(".nvmrc")),
+                node: firstAvailableLineIfSafe(
+                    projectURL.appendingPathComponent(".nvmrc"),
+                    projectURL.appendingPathComponent(".node-version")
+                ),
                 python: firstLineIfSafe(projectURL.appendingPathComponent(".python-version"))
             )
         )
@@ -59,10 +62,20 @@ public struct ProjectDetector {
         return nil
     }
 
+    private func firstAvailableLineIfSafe(_ urls: URL...) -> String? {
+        for url in urls {
+            if let line = firstLineIfSafe(url) {
+                return line
+            }
+        }
+
+        return nil
+    }
+
     private func firstLineIfSafe(_ url: URL) -> String? {
         guard FileManager.default.fileExists(atPath: url.path) else { return nil }
         let lastPath = url.lastPathComponent
-        guard lastPath == ".nvmrc" || lastPath == ".python-version" else { return nil }
+        guard lastPath == ".nvmrc" || lastPath == ".node-version" || lastPath == ".python-version" else { return nil }
         guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
         return content
             .split(whereSeparator: \.isNewline)
