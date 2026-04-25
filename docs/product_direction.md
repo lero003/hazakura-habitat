@@ -69,4 +69,3 @@ Avoid that by prioritizing:
 - `command_policy.md`
 - stable `scan_result.json`
 - concise warnings with concrete implications
-

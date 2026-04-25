@@ -177,4 +177,3 @@ An AI agent reading only `agent_context.md` and `command_policy.md` should know 
 - scan comparison
 - environment change logs
 - package install/update/delete helpers
-

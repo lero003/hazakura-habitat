@@ -162,4 +162,3 @@ Before accepting a report format, ask:
 - Can an agent ignore irrelevant global inventory?
 
 If not, the artifact is not useful enough.
-

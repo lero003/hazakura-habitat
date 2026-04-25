@@ -47,4 +47,3 @@ Allowed scanner commands must be read-only, bounded, and timeout-protected.
 - Does this create false certainty?
 - Does this reveal secret values?
 - Does this make the CLI or schema unstable?
-

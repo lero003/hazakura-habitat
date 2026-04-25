@@ -48,4 +48,3 @@ Tradeoffs:
 - Human-facing polish is delayed.
 - Some broad inventory features are deferred.
 - Report design must stay disciplined and concise.
-

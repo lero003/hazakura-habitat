@@ -27,4 +27,3 @@ if [[ -z "$(find "$DIST_DIR" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
 fi
 
 echo "Artifacts written to $DIST_DIR"
-
