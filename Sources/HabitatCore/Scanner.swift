@@ -28,7 +28,7 @@ public struct HabitatScanner {
             runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
         }
 
-        let toolNames = ["python3", "node", "npm", "pnpm", "yarn", "bun", "swift", "git", "brew"]
+        let toolNames = ["python3", "node", "npm", "pnpm", "yarn", "bun", "uv", "swift", "git", "brew"]
         let resolvedPaths = toolNames.map { tool in
             let result = runner.run(executable: "/usr/bin/which", arguments: ["-a", tool], timeout: 2.0)
             let paths = result.available && !result.stdout.isEmpty
@@ -68,16 +68,7 @@ public struct HabitatScanner {
             ),
             policy: PolicySummary(
                 preferredCommands: preferredCommands(project: project),
-                askFirstCommands: [
-                    "brew install",
-                    "pip install",
-                    "npm install",
-                    "pnpm install",
-                    "yarn install",
-                    "bundle install",
-                    "python -m venv",
-                    "rm -rf"
-                ],
+                askFirstCommands: askFirstCommands(project: project, resolvedPaths: resolvedPaths),
                 forbiddenCommands: [
                     "sudo",
                     "brew upgrade",
@@ -124,6 +115,26 @@ public struct HabitatScanner {
         }
     }
 
+    private func askFirstCommands(project: ProjectInfo, resolvedPaths: [ResolvedTool]) -> [String] {
+        var commands = [
+            "brew install",
+            "pip install",
+            "npm install",
+            "pnpm install",
+            "yarn install",
+            "bundle install",
+            "python -m venv",
+            "rm -rf"
+        ]
+
+        if let packageManager = project.packageManager,
+           shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
+            commands.insert("substituting another package manager for \(packageManager)", at: 0)
+        }
+
+        return commands
+    }
+
     private func makeWarnings(project: ProjectInfo, resolvedPaths: [ResolvedTool], versions: [ToolVersion]) -> [String] {
         var warnings: [String] = []
 
@@ -146,7 +157,33 @@ public struct HabitatScanner {
             warnings.append("No primary package manager signal detected; prefer read-only inspection before mutation.")
         }
 
+        if let packageManager = project.packageManager,
+           shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
+            warnings.append("Project files prefer \(packageManager), but \(packageManager) was not found on PATH; ask before substituting another package manager.")
+        }
+
         return warnings
+    }
+
+    private func shouldWarnAboutMissingPreferredTool(packageManager: String, resolvedPaths: [ResolvedTool]) -> Bool {
+        guard let toolName = executableName(forPackageManager: packageManager) else {
+            return false
+        }
+
+        return resolvedPaths.first(where: { $0.name == toolName })?.paths.isEmpty ?? true
+    }
+
+    private func executableName(forPackageManager packageManager: String) -> String? {
+        switch packageManager {
+        case "npm", "pnpm", "yarn", "bun", "uv":
+            return packageManager
+        case "swiftpm":
+            return "swift"
+        case "python":
+            return "python3"
+        default:
+            return nil
+        }
     }
 
     private func versionsDiffer(requested: String, active: String) -> Bool {
