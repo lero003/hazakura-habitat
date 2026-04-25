@@ -45,6 +45,8 @@ habitat-report/
 
 ### M0: Bootstrap
 
+Status: implemented.
+
 - Create SwiftPM package
 - Add `HabitatCore` library target
 - Add `habitat-scan` executable target
@@ -53,12 +55,16 @@ habitat-report/
 
 ### M1: Command Runner
 
+Status: implemented at MVP depth.
+
 - Implement bounded read-only command execution
 - Capture stdout, stderr, exit code, timeout, duration, and availability
 - Provide fake command runner for tests
 - Treat missing commands and failures as data, not fatal scan errors
 
 ### M2: System and Command Resolution
+
+Status: partially implemented.
 
 Collect:
 
@@ -80,6 +86,8 @@ Resolve with `which -a`:
 - `swift`, `git`, `brew`
 
 ### M3: Project Detector
+
+Status: partially implemented.
 
 Detect dependency signals:
 
@@ -113,6 +121,8 @@ Detect dependency signals:
 Read only safe metadata. Never read `.env` values.
 
 ### M4: Focused Tool Scanners
+
+Status: not yet implemented beyond basic command/version capture.
 
 Collect enough information to guide AI behavior.
 
@@ -148,6 +158,8 @@ Swift/Xcode:
 
 ### M5: AI-Facing Outputs
 
+Status: implemented at MVP depth.
+
 Generate:
 
 - `scan_result.json`
@@ -160,6 +172,8 @@ Acceptance test:
 An AI agent reading only `agent_context.md` and `command_policy.md` should know what to use, what to avoid, and what to ask before doing.
 
 ### M6: Hardening
+
+Status: in progress.
 
 - Fixture tests for missing tools
 - Tests for partial scanner failures

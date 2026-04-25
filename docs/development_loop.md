@@ -39,6 +39,14 @@ Do not implement or run:
 
 Allowed scanner commands must be read-only, bounded, and timeout-protected.
 
+## Current Repository Convention
+
+- Commit small, tested changes directly to `main`.
+- Prefer `swift test` before committing core changes.
+- Push after each complete development slice.
+- Use feature branches only when a change is large, risky, or needs review before landing.
+- Keep generated reports, build output, and release artifacts out of git unless they are intentional fixtures.
+
 ## Review Checklist
 
 - Is this for AI behavior or just human curiosity?

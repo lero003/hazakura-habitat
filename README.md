@@ -33,16 +33,15 @@ The MVP does not generate separate `env_changes.md` or `project_dependency_summa
 
 - [Product Direction](docs/product_direction.md)
 - [MVP Plan](docs/mvp_plan.md)
+- [Current Status](docs/current_status.md)
 - [Agent Contract](docs/agent_contract.md)
 - [Development Loop](docs/development_loop.md)
+- [GitHub Workflow](docs/github_workflow.md)
 - [ADR 0001](docs/adr/0001-ai-first-core-cli.md)
 
 ## Current Status
 
-The repository now contains an initial SwiftPM implementation of the AI-first CLI:
-
-- `HabitatCore`: scanner and report generation logic
-- `habitat-scan`: executable that writes the four MVP artifacts
+The repository contains an initial SwiftPM implementation of the AI-first CLI. See [Current Status](docs/current_status.md) for what is implemented and what should come next.
 
 ## Run
 
@@ -60,11 +59,7 @@ Generated files:
 
 ## GitHub
 
-This project is intended to be backed by the GitHub repository `lero003/hazakura-habitat`.
-
-- CI runs on pushes to `main` and on pull requests.
-- Release artifacts can be downloaded from GitHub Actions or from GitHub Releases.
-- The release workflow packages the `habitat-scan` binary today and will also upload any generated `.app` or `.dmg` files once those exist in the repository build flow.
+This project is backed by `lero003/hazakura-habitat`. See [GitHub Workflow](docs/github_workflow.md) for commit, CI, and artifact release conventions.
 
 Manual artifact build:
 
