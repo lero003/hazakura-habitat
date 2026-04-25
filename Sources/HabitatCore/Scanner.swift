@@ -68,7 +68,7 @@ public struct HabitatScanner {
             ),
             policy: PolicySummary(
                 preferredCommands: preferredCommands(project: project),
-                askFirstCommands: askFirstCommands(project: project, resolvedPaths: resolvedPaths),
+                askFirstCommands: askFirstCommands(project: project, resolvedPaths: resolvedPaths, versions: versions),
                 forbiddenCommands: [
                     "sudo",
                     "brew upgrade",
@@ -115,7 +115,7 @@ public struct HabitatScanner {
         }
     }
 
-    private func askFirstCommands(project: ProjectInfo, resolvedPaths: [ResolvedTool]) -> [String] {
+    private func askFirstCommands(project: ProjectInfo, resolvedPaths: [ResolvedTool], versions: [ToolVersion]) -> [String] {
         var commands = [
             "brew install",
             "pip install",
@@ -126,6 +126,10 @@ public struct HabitatScanner {
             "python -m venv",
             "rm -rf"
         ]
+
+        if nodeVersionNeedsVerification(project: project, versions: versions) {
+            commands.insert("dependency installs before matching active Node to project version hints", at: 0)
+        }
 
         if let packageManager = project.packageManager,
            shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
@@ -171,6 +175,18 @@ public struct HabitatScanner {
         }
 
         return resolvedPaths.first(where: { $0.name == toolName })?.paths.isEmpty ?? true
+    }
+
+    private func nodeVersionNeedsVerification(project: ProjectInfo, versions: [ToolVersion]) -> Bool {
+        guard let nodeHint = project.runtimeHints.node else {
+            return false
+        }
+
+        guard let activeVersion = versions.first(where: { $0.name == "node" })?.version else {
+            return true
+        }
+
+        return versionsDiffer(requested: nodeHint, active: activeVersion)
     }
 
     private func executableName(forPackageManager packageManager: String) -> String? {

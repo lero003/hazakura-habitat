@@ -58,6 +58,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.warnings.contains("Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node)."))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
     }
 
     @Test
@@ -126,6 +127,32 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(context.contains("Active Node is v25.9.0, but project requests v20; ask before dependency installs"))
+    }
+
+    @Test
+    func commandPolicyIncludesRuntimeMismatchInstallGuard() throws {
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let result = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: [".nvmrc", "pnpm-lock.yaml"], packageManager: "pnpm", runtimeHints: .init(node: "v20", python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["pnpm"],
+                askFirstCommands: ["dependency installs before matching active Node to project version hints", "pnpm install"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: ["Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node)."],
+            diagnostics: []
+        )
+
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(policy.contains("`dependency installs before matching active Node to project version hints`"))
     }
 
     @Test
