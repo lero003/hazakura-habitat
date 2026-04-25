@@ -131,6 +131,10 @@ public struct HabitatScanner {
             commands.insert("dependency installs before matching active Node to project version hints", at: 0)
         }
 
+        if pythonVersionNeedsVerification(project: project, versions: versions) {
+            commands.insert("dependency installs before matching active Python to project version hints", at: 0)
+        }
+
         if let packageManager = project.packageManager,
            shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
             commands.insert("substituting another package manager for \(packageManager)", at: 0)
@@ -150,6 +154,17 @@ public struct HabitatScanner {
                 warnings.append("Active Node is \(activeVersion), but project requests \(nodeHint); ask before dependency installs (\(activeNode)).")
             } else {
                 warnings.append("Project requests Node \(nodeHint); verify active node before installs (\(activeNode)).")
+            }
+        }
+
+        if let pythonHint = project.runtimeHints.python {
+            let activePython = resolvedPaths.first(where: { $0.name == "python3" })?.paths.first ?? "missing"
+            let activeVersion = versions.first(where: { $0.name == "python3" })?.version
+
+            if let activeVersion, pythonVersionsDiffer(requested: pythonHint, active: activeVersion) {
+                warnings.append("Active Python is \(activeVersion), but project requests \(pythonHint); ask before dependency installs (\(activePython)).")
+            } else {
+                warnings.append("Project requests Python \(pythonHint); verify active python before installs (\(activePython)).")
             }
         }
 
@@ -199,6 +214,18 @@ public struct HabitatScanner {
         return versionsDiffer(requested: nodeHint, active: activeVersion)
     }
 
+    private func pythonVersionNeedsVerification(project: ProjectInfo, versions: [ToolVersion]) -> Bool {
+        guard let pythonHint = project.runtimeHints.python else {
+            return false
+        }
+
+        guard let activeVersion = versions.first(where: { $0.name == "python3" })?.version else {
+            return true
+        }
+
+        return pythonVersionsDiffer(requested: pythonHint, active: activeVersion)
+    }
+
     private func executableName(forPackageManager packageManager: String) -> String? {
         switch packageManager {
         case "npm", "pnpm", "yarn", "bun", "uv":
@@ -220,6 +247,26 @@ public struct HabitatScanner {
         }
 
         return requestedMajor != activeMajor
+    }
+
+    private func pythonVersionsDiffer(requested: String, active: String) -> Bool {
+        guard let requestedComponents = versionComponents(from: requested),
+              let activeComponents = versionComponents(from: active)
+        else {
+            return false
+        }
+
+        return requestedComponents != activeComponents
+    }
+
+    private func versionComponents(from value: String) -> [Int]? {
+        let numericVersion = value.drop { !$0.isNumber }
+            .prefix { $0.isNumber || $0 == "." }
+        let components = numericVersion
+            .split(separator: ".")
+            .prefix(2)
+            .compactMap { Int($0) }
+        return components.isEmpty ? nil : Array(components)
     }
 
     private func majorVersion(from value: String) -> Int? {

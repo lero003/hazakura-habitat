@@ -143,6 +143,32 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanWarnsWhenActivePythonDiffersFromPythonVersion() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            ".python-version": "3.12\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.11.9", stderr: ""),
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(result.project.runtimeHints.python == "3.12")
+        #expect(result.warnings.contains("Active Python is Python 3.11.9, but project requests 3.12; ask before dependency installs (/opt/homebrew/bin/python3)."))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Python to project version hints"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(policy.contains("`dependency installs before matching active Python to project version hints`"))
+    }
+
+    @Test
     func reportWriterCreatesAllArtifacts() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(
