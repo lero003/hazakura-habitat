@@ -58,7 +58,11 @@ public struct ProjectDetector {
         if files.contains("package-lock.json") { return "npm" }
         if files.contains("Package.swift") { return "swiftpm" }
         if files.contains("uv.lock") { return "uv" }
-        if files.contains("pyproject.toml") || files.contains("requirements.txt") { return "python" }
+        if files.contains("pyproject.toml")
+            || files.contains("requirements.txt")
+            || files.contains("requirements-dev.txt")
+            || files.contains("Pipfile")
+            || files.contains("Pipfile.lock") { return "python" }
         return nil
     }
 
