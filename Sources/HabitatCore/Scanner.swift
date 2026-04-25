@@ -43,7 +43,7 @@ public struct HabitatScanner {
             return ToolVersion(name: spec.0, version: output, available: result.available && !result.timedOut)
         }
 
-        let warnings = makeWarnings(project: project, resolvedPaths: resolvedPaths)
+        let warnings = makeWarnings(project: project, resolvedPaths: resolvedPaths, versions: versions)
         let diagnostics = commands.compactMap { command -> String? in
             if command.timedOut { return "\(command.args.joined(separator: " ")) timed out" }
             if !command.available { return "\(command.args.joined(separator: " ")) unavailable: \(command.stderr)" }
@@ -124,12 +124,18 @@ public struct HabitatScanner {
         }
     }
 
-    private func makeWarnings(project: ProjectInfo, resolvedPaths: [ResolvedTool]) -> [String] {
+    private func makeWarnings(project: ProjectInfo, resolvedPaths: [ResolvedTool], versions: [ToolVersion]) -> [String] {
         var warnings: [String] = []
 
         if let nodeHint = project.runtimeHints.node {
             let activeNode = resolvedPaths.first(where: { $0.name == "node" })?.paths.first ?? "missing"
-            warnings.append("Project requests Node \(nodeHint); verify active node before installs (\(activeNode)).")
+            let activeVersion = versions.first(where: { $0.name == "node" })?.version
+
+            if let activeVersion, versionsDiffer(requested: nodeHint, active: activeVersion) {
+                warnings.append("Active Node is \(activeVersion), but project requests \(nodeHint); ask before dependency installs (\(activeNode)).")
+            } else {
+                warnings.append("Project requests Node \(nodeHint); verify active node before installs (\(activeNode)).")
+            }
         }
 
         if project.detectedFiles.contains(".env.example") {
@@ -141,5 +147,22 @@ public struct HabitatScanner {
         }
 
         return warnings
+    }
+
+    private func versionsDiffer(requested: String, active: String) -> Bool {
+        guard let requestedMajor = majorVersion(from: requested),
+              let activeMajor = majorVersion(from: active)
+        else {
+            return false
+        }
+
+        return requestedMajor != activeMajor
+    }
+
+    private func majorVersion(from value: String) -> Int? {
+        let digits = value
+            .drop { !$0.isNumber }
+            .prefix { $0.isNumber }
+        return Int(digits)
     }
 }
