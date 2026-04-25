@@ -153,7 +153,9 @@ public struct HabitatScanner {
             }
         }
 
-        if project.detectedFiles.contains(".env.example") {
+        if project.detectedFiles.contains(".env") {
+            warnings.append("Environment file exists; do not read .env values.")
+        } else if project.detectedFiles.contains(".env.example") {
             warnings.append("Environment examples exist; do not read real .env values.")
         }
 

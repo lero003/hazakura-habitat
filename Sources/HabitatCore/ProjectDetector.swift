@@ -28,6 +28,7 @@ public struct ProjectDetector {
         ".python-version",
         ".node-version",
         ".nvmrc",
+        ".env",
         ".env.example",
         "README.md",
     ]

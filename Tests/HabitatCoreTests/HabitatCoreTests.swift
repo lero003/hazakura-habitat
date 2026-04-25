@@ -85,6 +85,36 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanDoesNotReadOrEmitSecretFileValues() throws {
+        let secretValue = "sk-habitat-test-secret-123"
+        let privateKeyMarker = "-----BEGIN OPENSSH PRIVATE KEY-----"
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            ".nvmrc": "v20\n",
+            ".env": "OPENAI_API_KEY=\(secretValue)\n",
+            ".env.example": "OPENAI_API_KEY=\n",
+            "id_rsa": "\(privateKeyMarker)\n\(secretValue)\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".env"))
+        #expect(result.project.detectedFiles.contains(".env.example"))
+        #expect(result.project.runtimeHints.node == "v20")
+        #expect(result.warnings.contains("Environment file exists; do not read .env values."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("OPENAI_API_KEY"))
+            #expect(!artifact.contains(privateKeyMarker))
+        }
+    }
+
+    @Test
     func reportWriterCreatesAllArtifacts() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(
