@@ -1,0 +1,145 @@
+import Foundation
+
+public struct HabitatScanner {
+    private let runner: CommandRunning
+    private let detector: ProjectDetector
+
+    public init(runner: CommandRunning = ProcessCommandRunner(), detector: ProjectDetector = ProjectDetector()) {
+        self.runner = runner
+        self.detector = detector
+    }
+
+    public func scan(projectURL: URL) -> ScanResult {
+        let project = detector.detect(projectURL: projectURL)
+        let pathEntries = (ProcessInfo.processInfo.environment["PATH"] ?? "")
+            .split(separator: ":")
+            .map(String.init)
+            .filter { !$0.isEmpty }
+
+        let commandSpecs: [(String, String, [String])] = [
+            ("swift", "/usr/bin/env", ["swift", "--version"]),
+            ("git", "/usr/bin/env", ["git", "--version"]),
+            ("node", "/usr/bin/env", ["node", "--version"]),
+            ("python3", "/usr/bin/env", ["python3", "--version"]),
+            ("xcode-select", "/usr/bin/xcrun", ["xcode-select", "-p"]),
+        ]
+
+        let commands = commandSpecs.map { spec in
+            runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
+        }
+
+        let toolNames = ["python3", "node", "npm", "pnpm", "yarn", "bun", "swift", "git", "brew"]
+        let resolvedPaths = toolNames.map { tool in
+            let result = runner.run(executable: "/usr/bin/which", arguments: ["-a", tool], timeout: 2.0)
+            let paths = result.available && !result.stdout.isEmpty
+                ? result.stdout.split(whereSeparator: \.isNewline).map(String.init)
+                : []
+            return ResolvedTool(name: tool, paths: Array(NSOrderedSet(array: paths)) as? [String] ?? paths)
+        }
+
+        let versions = commandSpecs.map { spec in
+            let result = commands.first(where: { $0.args == spec.2 })!
+            let output = [result.stdout, result.stderr].first(where: { !$0.isEmpty })
+            return ToolVersion(name: spec.0, version: output, available: result.available && !result.timedOut)
+        }
+
+        let warnings = makeWarnings(project: project, resolvedPaths: resolvedPaths)
+        let diagnostics = commands.compactMap { command -> String? in
+            if command.timedOut { return "\(command.args.joined(separator: " ")) timed out" }
+            if !command.available { return "\(command.args.joined(separator: " ")) unavailable: \(command.stderr)" }
+            return nil
+        }
+
+        return ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: ISO8601DateFormatter().string(from: Date()),
+            projectPath: projectURL.path,
+            system: SystemInfo(
+                operatingSystemVersion: ProcessInfo.processInfo.operatingSystemVersionString,
+                architecture: hostArchitecture(),
+                shell: ProcessInfo.processInfo.environment["SHELL"],
+                path: pathEntries
+            ),
+            commands: commands,
+            project: project,
+            tools: ToolSummary(
+                resolvedPaths: resolvedPaths,
+                versions: versions
+            ),
+            policy: PolicySummary(
+                preferredCommands: preferredCommands(project: project),
+                askFirstCommands: [
+                    "brew install",
+                    "pip install",
+                    "npm install",
+                    "pnpm install",
+                    "yarn install",
+                    "bundle install",
+                    "python -m venv",
+                    "rm -rf"
+                ],
+                forbiddenCommands: [
+                    "sudo",
+                    "brew upgrade",
+                    "brew uninstall",
+                    "npm install -g",
+                    "pip install --user",
+                    "read .env values",
+                    "read SSH private keys"
+                ]
+            ),
+            warnings: warnings,
+            diagnostics: diagnostics
+        )
+    }
+
+    private func hostArchitecture() -> String {
+        #if arch(arm64)
+        return "arm64"
+        #elseif arch(x86_64)
+        return "x86_64"
+        #else
+        return "unknown"
+        #endif
+    }
+
+    private func preferredCommands(project: ProjectInfo) -> [String] {
+        switch project.packageManager {
+        case "pnpm":
+            return ["pnpm", "pnpm test", "pnpm build"]
+        case "yarn":
+            return ["yarn", "yarn test", "yarn build"]
+        case "bun":
+            return ["bun", "bun test", "bun run build"]
+        case "npm":
+            return ["npm run test", "npm run build"]
+        case "swiftpm":
+            return ["swift test", "swift build"]
+        case "uv":
+            return ["uv run"]
+        case "python":
+            return ["python3 -m pytest"]
+        default:
+            return ["Use read-only inspection first"]
+        }
+    }
+
+    private func makeWarnings(project: ProjectInfo, resolvedPaths: [ResolvedTool]) -> [String] {
+        var warnings: [String] = []
+
+        if let nodeHint = project.runtimeHints.node {
+            let activeNode = resolvedPaths.first(where: { $0.name == "node" })?.paths.first ?? "missing"
+            warnings.append("Project requests Node \(nodeHint); verify active node before installs (\(activeNode)).")
+        }
+
+        if project.detectedFiles.contains(".env.example") {
+            warnings.append("Environment examples exist; do not read real .env values.")
+        }
+
+        if project.packageManager == nil {
+            warnings.append("No primary package manager signal detected; prefer read-only inspection before mutation.")
+        }
+
+        return warnings
+    }
+}
