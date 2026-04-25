@@ -115,6 +115,34 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanPrefersProjectVenvForPythonCommands() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            ".python-version": "3.12\n",
+        ])
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent(".venv"), withIntermediateDirectories: true)
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".venv"))
+        #expect(result.project.packageManager == "python")
+        #expect(result.project.runtimeHints.python == "3.12")
+        #expect(result.policy.preferredCommands.first == ".venv/bin/python -m pytest")
+        #expect(result.warnings.contains("Project .venv exists; use .venv/bin/python for Python commands before system python3."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Prefer `.venv/bin/python -m pytest`."))
+        #expect(context.contains("Project .venv exists; use .venv/bin/python for Python commands before system python3."))
+    }
+
+    @Test
     func reportWriterCreatesAllArtifacts() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(

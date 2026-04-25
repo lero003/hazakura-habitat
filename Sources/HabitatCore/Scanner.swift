@@ -107,9 +107,9 @@ public struct HabitatScanner {
         case "swiftpm":
             return ["swift test", "swift build"]
         case "uv":
-            return ["uv run"]
+            return hasProjectVirtualEnvironment(project) ? ["uv run", ".venv/bin/python -m pytest"] : ["uv run"]
         case "python":
-            return ["python3 -m pytest"]
+            return hasProjectVirtualEnvironment(project) ? [".venv/bin/python -m pytest", ".venv/bin/python"] : ["python3 -m pytest"]
         default:
             return ["Use read-only inspection first"]
         }
@@ -163,12 +163,20 @@ public struct HabitatScanner {
             warnings.append("No primary package manager signal detected; prefer read-only inspection before mutation.")
         }
 
+        if hasProjectVirtualEnvironment(project) {
+            warnings.append("Project .venv exists; use .venv/bin/python for Python commands before system python3.")
+        }
+
         if let packageManager = project.packageManager,
            shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
             warnings.append("Project files prefer \(packageManager), but \(packageManager) was not found on PATH; ask before substituting another package manager.")
         }
 
         return warnings
+    }
+
+    private func hasProjectVirtualEnvironment(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains(".venv")
     }
 
     private func shouldWarnAboutMissingPreferredTool(packageManager: String, resolvedPaths: [ResolvedTool]) -> Bool {

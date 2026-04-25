@@ -15,6 +15,7 @@ public struct ProjectDetector {
         "uv.lock",
         "Pipfile",
         "Pipfile.lock",
+        ".venv",
         "Gemfile",
         "go.mod",
         "Cargo.toml",
