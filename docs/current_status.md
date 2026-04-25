@@ -17,18 +17,18 @@
 - Project `.venv` detection that tells agents to prefer `.venv/bin/python` before system `python3`.
 - Missing preferred package-manager warning when project files point to a tool that is not on `PATH`.
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.
-- Tests for package manager detection, missing tools, artifact generation, runtime mismatch policy guidance, package-manager substitution guidance, generated Markdown snapshots, and secret avoidance.
+- Tests for package manager detection, missing tools, artifact generation, runtime mismatch policy guidance, package-manager substitution guidance, generated Markdown snapshots, secret avoidance, and uv missing-tool fallback guards.
 - GitHub CI and release artifact workflows.
 
 ## Not Yet Implemented
 
 - Detailed Homebrew scanner.
-- Detailed pyenv, uv, and pip policy detail.
+- Detailed pyenv and pip policy detail.
 - Node package manager version checks beyond active Node detection.
 - Swift/Xcode scanner detail beyond basic command capture.
 - GUI, MCP server, scan comparison, and redaction modes.
 
 ## Next Useful Improvements
 
-- Add fixture projects that cover npm, SwiftPM, uv, and missing-tool cases.
+- Add fixture projects that cover npm, SwiftPM, and missing-tool cases.
 - Add focused Python and Node scanner summaries only where they change AI command choices.

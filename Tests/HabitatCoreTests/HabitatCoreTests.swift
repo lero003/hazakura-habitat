@@ -143,6 +143,42 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanGuardsUvProjectsWhenUvIsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            "uv.lock": "version = 1\n",
+            ".python-version": "3.12\n",
+        ])
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent(".venv"), withIntermediateDirectories: true)
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.12.4", stderr: ""),
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+            "/usr/bin/which -a pip3": .init(name: "/usr/bin/which", args: ["-a", "pip3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pip3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "uv")
+        #expect(result.project.detectedFiles.contains("uv.lock"))
+        #expect(result.policy.preferredCommands == ["uv run", ".venv/bin/python -m pytest"])
+        #expect(result.policy.askFirstCommands.contains("substituting another package manager for uv"))
+        #expect(result.warnings.contains("Project files prefer uv, but uv was not found on PATH; ask before substituting another package manager."))
+        #expect(result.warnings.contains("Project .venv exists; use .venv/bin/python for Python commands before system python3."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `uv` because project files point to it."))
+        #expect(context.contains("Prefer `uv run`."))
+        #expect(context.contains("Ask before `substituting another package manager for uv`."))
+        #expect(policy.contains("`uv run`"))
+        #expect(policy.contains("`substituting another package manager for uv`"))
+    }
+
+    @Test
     func scanWarnsWhenActivePythonDiffersFromPythonVersion() throws {
         let projectURL = try makeProject(files: [
             "pyproject.toml": "[project]\nname = \"demo\"\n",
