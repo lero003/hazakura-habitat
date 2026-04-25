@@ -156,6 +156,78 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func agentContextMarkdownSnapshotStaysActionable() throws {
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let result = markdownSnapshotScanResult()
+
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context == """
+        # Agent Context
+
+        ## Freshness
+        - Scanned at: 2026-04-25T00:00:00Z
+        - Project: /tmp/project
+
+        ## Use
+        - Use `pnpm` because project files point to it.
+        - Prefer `pnpm`.
+        - Prefer `pnpm test`.
+
+        ## Avoid
+        - Do not run `sudo`.
+        - Do not run `brew upgrade`.
+
+        ## Ask First
+        - Ask before `substituting another package manager for pnpm`.
+        - Ask before `dependency installs before matching active Node to project version hints`.
+        - Ask before `pnpm install`.
+
+        ## Mismatches
+        - Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node).
+        - Project files prefer pnpm, but pnpm was not found on PATH; ask before substituting another package manager.
+
+        ## Notes
+        - node --version unavailable: missing
+        """)
+    }
+
+    @Test
+    func commandPolicyMarkdownSnapshotKeepsInstallGuardsVisible() throws {
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let result = markdownSnapshotScanResult()
+
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(policy == """
+        # Command Policy
+
+        ## Allowed
+        - `pnpm`
+        - `pnpm test`
+        - `read-only project inspection`
+        - `test commands for the selected project`
+        - `build commands for the selected project`
+
+        ## Ask First
+        - `substituting another package manager for pnpm`
+        - `dependency installs before matching active Node to project version hints`
+        - `pnpm install`
+
+        ## Forbidden
+        - `sudo`
+        - `brew upgrade`
+
+        ## If Dependency Installation Seems Necessary
+        - Re-check lockfiles and version hints first.
+        - Prefer the project-specific package manager from `agent_context.md`.
+        - Ask before any install, upgrade, uninstall, or global mutation.
+        """)
+    }
+
+    @Test
     func scanKeepsGoingWhenCommandsAreMissing() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift package"
@@ -178,5 +250,31 @@ struct HabitatCoreTests {
         }
 
         return root
+    }
+
+    private func markdownSnapshotScanResult() -> ScanResult {
+        ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: [".nvmrc", "package.json", "pnpm-lock.yaml"], packageManager: "pnpm", runtimeHints: .init(node: "v20", python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["pnpm", "pnpm test"],
+                askFirstCommands: [
+                    "substituting another package manager for pnpm",
+                    "dependency installs before matching active Node to project version hints",
+                    "pnpm install"
+                ],
+                forbiddenCommands: ["sudo", "brew upgrade"]
+            ),
+            warnings: [
+                "Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node).",
+                "Project files prefer pnpm, but pnpm was not found on PATH; ask before substituting another package manager."
+            ],
+            diagnostics: ["node --version unavailable: missing"]
+        )
     }
 }
