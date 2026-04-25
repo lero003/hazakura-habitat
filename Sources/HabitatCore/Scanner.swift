@@ -124,6 +124,7 @@ public struct HabitatScanner {
             "yarn install",
             "bundle install",
             "python -m venv",
+            "modifying lockfiles",
             "rm -rf"
         ]
 

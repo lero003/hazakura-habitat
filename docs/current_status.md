@@ -17,7 +17,8 @@
 - Project `.venv` detection that tells agents to prefer `.venv/bin/python` before system `python3`.
 - Missing preferred package-manager warning when project files point to a tool that is not on `PATH`.
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.
-- Tests for package manager detection, missing tools, artifact generation, runtime mismatch policy guidance, package-manager substitution guidance, generated Markdown snapshots, secret avoidance, and uv missing-tool fallback guards.
+- Command-policy guard that tells agents to ask before modifying lockfiles.
+- Tests for package manager detection, missing tools, artifact generation, runtime mismatch policy guidance, package-manager substitution guidance, lockfile mutation guidance, generated Markdown snapshots, secret avoidance, and uv missing-tool fallback guards.
 - GitHub CI and release artifact workflows.
 
 ## Not Yet Implemented

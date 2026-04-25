@@ -85,6 +85,25 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeLockfileMutation() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.askFirstCommands.contains("modifying lockfiles"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(policy.contains("`modifying lockfiles`"))
+    }
+
+    @Test
     func scanDoesNotReadOrEmitSecretFileValues() throws {
         let secretValue = "sk-habitat-test-secret-123"
         let privateKeyMarker = "-----BEGIN OPENSSH PRIVATE KEY-----"
@@ -303,6 +322,7 @@ struct HabitatCoreTests {
         - Ask before `substituting another package manager for pnpm`.
         - Ask before `dependency installs before matching active Node to project version hints`.
         - Ask before `pnpm install`.
+        - Ask before `modifying lockfiles`.
 
         ## Mismatches
         - Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node).
@@ -335,6 +355,7 @@ struct HabitatCoreTests {
         - `substituting another package manager for pnpm`
         - `dependency installs before matching active Node to project version hints`
         - `pnpm install`
+        - `modifying lockfiles`
 
         ## Forbidden
         - `sudo`
@@ -386,7 +407,8 @@ struct HabitatCoreTests {
                 askFirstCommands: [
                     "substituting another package manager for pnpm",
                     "dependency installs before matching active Node to project version hints",
-                    "pnpm install"
+                    "pnpm install",
+                    "modifying lockfiles"
                 ],
                 forbiddenCommands: ["sudo", "brew upgrade"]
             ),
