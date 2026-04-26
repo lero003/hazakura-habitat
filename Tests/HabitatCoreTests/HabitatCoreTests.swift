@@ -268,6 +268,26 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanForbidsDestructiveDeletionOutsideSelectedProject() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.policy.forbiddenCommands.contains("destructive file deletion outside the selected project"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not run `destructive file deletion outside the selected project`."))
+        #expect(policy.contains("`destructive file deletion outside the selected project`"))
+    }
+
+    @Test
     func scanTreatsPackageJsonOnlyAsNpmProjectAndGuardsMissingNpm() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",

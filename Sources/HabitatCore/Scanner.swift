@@ -81,6 +81,7 @@ public struct HabitatScanner {
                 askFirstCommands: askFirstCommands(project: project, resolvedPaths: resolvedPaths, versions: versions),
                 forbiddenCommands: [
                     "sudo",
+                    "destructive file deletion outside the selected project",
                     "brew upgrade",
                     "brew uninstall",
                     "npm install -g",

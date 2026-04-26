@@ -152,6 +152,7 @@ public struct ReportWriter {
         var commands: [String] = []
 
         append("sudo", to: &commands, from: result.policy.forbiddenCommands)
+        append("destructive file deletion outside the selected project", to: &commands, from: result.policy.forbiddenCommands)
 
         if hasSecretDotEnvFile(result.project) || result.project.detectedFiles.contains(".env.example") {
             append("read .env values", to: &commands, from: result.policy.forbiddenCommands)
