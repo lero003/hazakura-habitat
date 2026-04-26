@@ -154,6 +154,32 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanTreatsPackageJsonOnlyAsNpmProjectAndGuardsMissingNpm() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.preferredCommands == ["npm run test", "npm run build"])
+        #expect(result.policy.askFirstCommands.contains("substituting another package manager for npm"))
+        #expect(result.warnings.contains("Project files prefer npm, but npm was not found on PATH; ask before substituting another package manager."))
+        #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `npm` because project files point to it."))
+        #expect(context.contains("Prefer `npm run test`."))
+        #expect(context.contains("Ask before `substituting another package manager for npm`."))
+        #expect(policy.contains("`npm run test`"))
+        #expect(policy.contains("`substituting another package manager for npm`"))
+    }
+
+    @Test
     func scanDoesNotReadOrEmitSecretFileValues() throws {
         let secretValue = "sk-habitat-test-secret-123"
         let privateKeyMarker = "-----BEGIN OPENSSH PRIVATE KEY-----"

@@ -13,6 +13,7 @@
 - Missing commands and scanner failures are represented as scan data instead of fatal errors.
 - Project signal detection for common JavaScript, Python, Swift, Ruby, Go, Rust, Homebrew, and version-manager files.
 - Basic package manager inference from lockfiles and project files.
+- JavaScript projects with `package.json` but no lockfile now default to npm run/build guidance while still requiring approval for installs.
 - Runtime mismatch warnings and command-policy guards when `.nvmrc` or `.node-version` differs from the active Node major version, or `.python-version` differs from active Python major/minor.
 - Project `.venv` detection that tells agents to prefer `.venv/bin/python` before system `python3`.
 - Python command guidance from secondary Python signals such as `requirements-dev.txt`, `Pipfile`, and `Pipfile.lock`.
@@ -21,7 +22,7 @@
 - Multiple JavaScript lockfile warnings that tell agents to ask before dependency installs when package-manager signals conflict.
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.
 - Command-policy guard that tells agents to ask before modifying lockfiles.
-- Tests for package manager detection, missing tools, artifact generation, runtime mismatch policy guidance, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, secret avoidance, common env file warnings, uv missing-tool fallback guards, and SwiftPM missing-tool guards.
+- Tests for package manager detection, package.json-only npm guidance, missing tools, artifact generation, runtime mismatch policy guidance, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, secret avoidance, common env file warnings, uv missing-tool fallback guards, and SwiftPM missing-tool guards.
 - GitHub CI and release artifact workflows.
 
 ## Not Yet Implemented
