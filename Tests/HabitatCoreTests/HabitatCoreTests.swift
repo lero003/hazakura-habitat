@@ -1126,6 +1126,38 @@ struct HabitatCoreTests {
         #expect(policy.contains("`running SwiftPM commands before swift is available`"))
     }
 
+    @Test
+    func scanTreatsPackageResolvedAsSwiftPMSignal() throws {
+        let projectURL = try makeProject(files: [
+            "Package.resolved": """
+            {
+              "pins": [],
+              "version": 2
+            }
+            """
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.project.detectedFiles.contains("Package.resolved"))
+        #expect(result.policy.preferredCommands == ["swift test", "swift build"])
+        #expect(result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
+        #expect(result.policy.askFirstCommands.contains("swift package resolve"))
+        #expect(result.policy.askFirstCommands.contains("swift package update"))
+        #expect(result.warnings.contains("Project files prefer SwiftPM, but swift was not found on PATH; ask before running SwiftPM commands."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `swiftpm` because project files point to it."))
+        #expect(context.contains("Prefer `swift test`."))
+        #expect(context.contains("Ask before `running SwiftPM commands before swift is available`."))
+        #expect(policy.contains("`swift package resolve`"))
+    }
+
     private func makeProject(files: [String: String]) throws -> URL {
         let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)

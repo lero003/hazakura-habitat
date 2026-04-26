@@ -92,7 +92,7 @@ public struct ProjectDetector {
             return declaredPackageManager.name
         }
         if files.contains("package.json") { return "npm" }
-        if files.contains("Package.swift") { return "swiftpm" }
+        if files.contains("Package.swift") || files.contains("Package.resolved") { return "swiftpm" }
         if files.contains("go.mod") { return "go" }
         if files.contains("Cargo.toml") { return "cargo" }
         if files.contains("Podfile") || files.contains("Podfile.lock") { return "cocoapods" }
