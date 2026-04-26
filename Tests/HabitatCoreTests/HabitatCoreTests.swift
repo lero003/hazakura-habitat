@@ -808,6 +808,8 @@ struct HabitatCoreTests {
         #expect(result.project.packageManager == "swiftpm")
         #expect(result.policy.preferredCommands == ["swift test", "swift build"])
         #expect(result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
+        #expect(result.policy.askFirstCommands.contains("swift package update"))
+        #expect(result.policy.askFirstCommands.contains("swift package resolve"))
         #expect(result.warnings.contains("Project files prefer SwiftPM, but swift was not found on PATH; ask before running SwiftPM commands."))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -816,6 +818,9 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(context.contains("Ask before `running SwiftPM commands before swift is available`."))
+        #expect(context.contains("Ask before `swift package update`."))
+        #expect(policy.contains("`swift package update`"))
+        #expect(policy.contains("`swift package resolve`"))
         #expect(context.contains("Project files prefer SwiftPM, but swift was not found on PATH; ask before running SwiftPM commands."))
         #expect(policy.contains("`running SwiftPM commands before swift is available`"))
     }

@@ -229,6 +229,8 @@ public struct HabitatScanner {
             return ["pip install"]
         case "bundler":
             return ["bundle install"]
+        case "swiftpm":
+            return ["swift package update", "swift package resolve"]
         case "go":
             return ["go get", "go mod tidy"]
         case "cargo":

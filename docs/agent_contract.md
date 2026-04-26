@@ -97,6 +97,8 @@ Ask First:
 - `bun install`
 - `uv sync`
 - `bundle install`
+- `swift package update`
+- `swift package resolve`
 - `go get`
 - `go mod tidy`
 - `cargo add`
