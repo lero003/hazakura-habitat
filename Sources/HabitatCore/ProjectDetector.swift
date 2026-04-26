@@ -7,6 +7,7 @@ public struct ProjectDetector {
         "package.json",
         "package-lock.json",
         "pnpm-lock.yaml",
+        "pnpm-workspace.yaml",
         "yarn.lock",
         "bun.lock",
         "bun.lockb",
@@ -91,6 +92,7 @@ public struct ProjectDetector {
         if files.contains("package.json"), let declaredPackageManager {
             return declaredPackageManager.name
         }
+        if files.contains("pnpm-workspace.yaml") { return "pnpm" }
         if files.contains("package.json") { return "npm" }
         if files.contains("Package.swift") || files.contains("Package.resolved") { return "swiftpm" }
         if files.contains("go.mod") { return "go" }

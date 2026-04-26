@@ -207,6 +207,48 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanPrefersPnpmWhenWorkspaceFileExists() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "workspace-root",
+              "scripts": {
+                "build": "pnpm -r build",
+                "test": "pnpm -r test"
+              }
+            }
+            """,
+            "pnpm-workspace.yaml": """
+            packages:
+              - "packages/*"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("pnpm-workspace.yaml"))
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.policy.preferredCommands == ["pnpm run test", "pnpm run build"])
+        #expect(result.policy.askFirstCommands.contains("pnpm install"))
+        #expect(!result.policy.askFirstCommands.contains("substituting another package manager for pnpm"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `pnpm` because project files point to it."))
+        #expect(context.contains("Prefer `pnpm run test`."))
+        #expect(!context.contains("Use `npm`"))
+        #expect(policy.contains("`pnpm run build`"))
+        #expect(policy.contains("`pnpm install`"))
+    }
+
+    @Test
     func scanAsksBeforeLockfileMutation() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",

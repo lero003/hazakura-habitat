@@ -96,6 +96,7 @@ Detect dependency signals:
 - `package.json`
 - `package-lock.json`
 - `pnpm-lock.yaml`
+- `pnpm-workspace.yaml`
 - `yarn.lock`
 - `bun.lock`
 - `bun.lockb`
