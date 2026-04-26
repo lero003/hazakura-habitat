@@ -31,7 +31,7 @@ public struct HabitatScanner {
             runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
         }
 
-        let toolNames = ["python3", "node", "npm", "pnpm", "yarn", "bun", "uv", "bundle", "go", "cargo", "rustc", "swift", "git", "brew"]
+        let toolNames = ["python3", "node", "npm", "pnpm", "yarn", "bun", "uv", "bundle", "go", "cargo", "rustc", "swift", "git", "brew", "pod"]
         let resolvedPaths = toolNames.map { tool in
             let result = runner.run(executable: "/usr/bin/which", arguments: ["-a", tool], timeout: 2.0)
             let paths = result.available && !result.stdout.isEmpty
@@ -120,6 +120,8 @@ public struct HabitatScanner {
             return ["go test ./...", "go build ./..."]
         case "cargo":
             return ["cargo test", "cargo build"]
+        case "cocoapods":
+            return ["pod --version"]
         case "uv":
             return hasProjectVirtualEnvironment(project) ? ["uv run", ".venv/bin/python -m pytest"] : ["uv run"]
         case "python":
@@ -183,6 +185,10 @@ public struct HabitatScanner {
             "go mod tidy",
             "cargo add",
             "cargo update",
+            "pod install",
+            "pod update",
+            "pod repo update",
+            "pod deintegrate",
             "python -m venv",
             "modifying lockfiles",
             "rm -rf"
@@ -243,6 +249,8 @@ public struct HabitatScanner {
             return ["go get", "go mod tidy"]
         case "cargo":
             return ["cargo add", "cargo update"]
+        case "cocoapods":
+            return ["pod install", "pod update", "pod repo update", "pod deintegrate"]
         default:
             return []
         }
@@ -363,6 +371,8 @@ public struct HabitatScanner {
             return "running Cargo commands before cargo is available"
         case "homebrew":
             return "running Homebrew Bundle commands before brew is available"
+        case "cocoapods":
+            return "running CocoaPods commands before pod is available"
         case "python":
             return "running Python commands before python3 is available"
         default:
@@ -382,6 +392,8 @@ public struct HabitatScanner {
             return "Project files prefer Cargo, but cargo was not found on PATH; ask before running Cargo commands."
         case "homebrew":
             return "Project files include Brewfile, but brew was not found on PATH; ask before running Homebrew Bundle commands."
+        case "cocoapods":
+            return "Project files prefer CocoaPods, but pod was not found on PATH; ask before running CocoaPods commands."
         case "python":
             return "Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."
         default:
@@ -450,6 +462,8 @@ public struct HabitatScanner {
             return "cargo"
         case "homebrew":
             return "brew"
+        case "cocoapods":
+            return "pod"
         case "python":
             return "python3"
         default:

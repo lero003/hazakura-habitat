@@ -107,6 +107,10 @@ Ask First:
 - `go mod tidy`
 - `cargo add`
 - `cargo update`
+- `pod install`
+- `pod update`
+- `pod repo update`
+- `pod deintegrate`
 - dependency installs before matching the selected JavaScript package manager to `package.json` `packageManager` version
 - creating or deleting virtual environments
 - modifying lockfiles

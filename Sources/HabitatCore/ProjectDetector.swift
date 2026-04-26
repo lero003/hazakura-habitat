@@ -23,6 +23,7 @@ public struct ProjectDetector {
         "Package.swift",
         "Package.resolved",
         "Podfile",
+        "Podfile.lock",
         "Cartfile",
         "Brewfile",
         "mise.toml",
@@ -75,6 +76,7 @@ public struct ProjectDetector {
         if files.contains("Package.swift") { return "swiftpm" }
         if files.contains("go.mod") { return "go" }
         if files.contains("Cargo.toml") { return "cargo" }
+        if files.contains("Podfile") || files.contains("Podfile.lock") { return "cocoapods" }
         if files.contains("Brewfile") { return "homebrew" }
         if files.contains("uv.lock") { return "uv" }
         if files.contains("pyproject.toml")

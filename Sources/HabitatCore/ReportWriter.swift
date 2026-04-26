@@ -175,6 +175,8 @@ public struct ReportWriter {
             return "bundle"
         case "homebrew":
             return "brew"
+        case "cocoapods":
+            return "pod"
         case "swiftpm":
             return "swift"
         case "python":
