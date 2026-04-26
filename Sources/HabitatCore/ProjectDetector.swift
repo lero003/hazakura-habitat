@@ -48,8 +48,7 @@ public struct ProjectDetector {
     ]
 
     public func detect(projectURL: URL) -> ProjectInfo {
-        let manager = FileManager.default
-        let detectedFiles = candidateFiles.filter { manager.fileExists(atPath: projectURL.appendingPathComponent($0).path) }
+        let detectedFiles = detectedProjectFiles(projectURL: projectURL)
         let packageJSON = packageJSONMetadata(projectURL.appendingPathComponent("package.json"))
         let toolVersions = toolVersionsMetadata(projectURL.appendingPathComponent(".tool-versions"))
         let packageManager = detectPackageManager(files: detectedFiles, declaredPackageManager: packageJSON.declaredPackageManager)
@@ -67,6 +66,20 @@ public struct ProjectDetector {
                 python: firstLineIfSafe(projectURL.appendingPathComponent(".python-version")) ?? toolVersions.python
             )
         )
+    }
+
+    private func detectedProjectFiles(projectURL: URL) -> [String] {
+        let manager = FileManager.default
+        let explicitFiles = candidateFiles.filter {
+            manager.fileExists(atPath: projectURL.appendingPathComponent($0).path)
+        }
+        let directoryEntries = (try? manager.contentsOfDirectory(atPath: projectURL.path)) ?? []
+        let extraSecretEnvironmentFiles = directoryEntries
+            .filter(isSecretEnvironmentFilename)
+            .filter { !candidateFiles.contains($0) }
+            .sorted()
+
+        return orderedUnique(explicitFiles + extraSecretEnvironmentFiles)
     }
 
     private func detectPackageManager(files: [String], declaredPackageManager: DeclaredPackageManager?) -> String? {
@@ -92,6 +105,10 @@ public struct ProjectDetector {
             || files.contains("Pipfile.lock") { return "python" }
         if files.contains("Gemfile") || files.contains("Gemfile.lock") { return "bundler" }
         return nil
+    }
+
+    private func isSecretEnvironmentFilename(_ name: String) -> Bool {
+        name == ".env" || (name.hasPrefix(".env.") && name != ".env.example")
     }
 
     private func packageJSONMetadata(_ url: URL) -> PackageJSONMetadata {
@@ -188,6 +205,11 @@ public struct ProjectDetector {
             .first
             .map(String.init)?
             .trimmingCharacters(in: .whitespacesAndNewlines)
+    }
+
+    private func orderedUnique(_ values: [String]) -> [String] {
+        var seen = Set<String>()
+        return values.filter { seen.insert($0).inserted }
     }
 }
 

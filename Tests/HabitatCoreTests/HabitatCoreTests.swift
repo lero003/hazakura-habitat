@@ -467,6 +467,39 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanDetectsArbitrarySecretEnvironmentFilesWithoutReadingValues() throws {
+        let secretValue = "hh_secret_value_from_stage_env"
+        let projectURL = try makeProject(files: [
+            ".env.staging": "STAGING_TOKEN=\(secretValue)\n",
+            ".env.preview.local": "PREVIEW_TOKEN=\(secretValue)\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".env.preview.local"))
+        #expect(result.project.detectedFiles.contains(".env.staging"))
+        #expect(result.warnings.contains("Environment file exists; do not read .env values."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("STAGING_TOKEN"))
+            #expect(!artifact.contains("PREVIEW_TOKEN"))
+        }
+
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains(".env.staging"))
+        #expect(report.contains(".env.staging"))
+        #expect(context.contains("Do not run `read .env values`."))
+    }
+
+    @Test
     func scanPrefersProjectVenvForPythonCommands() throws {
         let projectURL = try makeProject(files: [
             "pyproject.toml": "[project]\nname = \"demo\"\n",
