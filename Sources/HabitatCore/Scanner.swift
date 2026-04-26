@@ -28,7 +28,7 @@ public struct HabitatScanner {
             runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
         }
 
-        let toolNames = ["python3", "node", "npm", "pnpm", "yarn", "bun", "uv", "swift", "git", "brew"]
+        let toolNames = ["python3", "node", "npm", "pnpm", "yarn", "bun", "uv", "bundle", "swift", "git", "brew"]
         let resolvedPaths = toolNames.map { tool in
             let result = runner.run(executable: "/usr/bin/which", arguments: ["-a", tool], timeout: 2.0)
             let paths = result.available && !result.stdout.isEmpty
@@ -110,6 +110,8 @@ public struct HabitatScanner {
             return hasProjectVirtualEnvironment(project) ? ["uv run", ".venv/bin/python -m pytest"] : ["uv run"]
         case "python":
             return hasProjectVirtualEnvironment(project) ? [".venv/bin/python -m pytest", ".venv/bin/python"] : ["python3 -m pytest"]
+        case "bundler":
+            return ["bundle exec"]
         default:
             return ["Use read-only inspection first"]
         }
@@ -122,11 +124,19 @@ public struct HabitatScanner {
             "npm install",
             "pnpm install",
             "yarn install",
+            "bun install",
+            "uv sync",
             "bundle install",
             "python -m venv",
             "modifying lockfiles",
             "rm -rf"
         ]
+
+        if let packageManager = project.packageManager,
+           let installCommand = dependencyInstallCommand(forPackageManager: packageManager) {
+            commands.removeAll { $0 == installCommand }
+            commands.insert(installCommand, at: 0)
+        }
 
         if hasMultipleJavaScriptLockfiles(project) {
             commands.insert("dependency installs when multiple JavaScript lockfiles exist", at: 0)
@@ -146,6 +156,27 @@ public struct HabitatScanner {
         }
 
         return commands
+    }
+
+    private func dependencyInstallCommand(forPackageManager packageManager: String) -> String? {
+        switch packageManager {
+        case "npm":
+            return "npm install"
+        case "pnpm":
+            return "pnpm install"
+        case "yarn":
+            return "yarn install"
+        case "bun":
+            return "bun install"
+        case "uv":
+            return "uv sync"
+        case "python":
+            return "pip install"
+        case "bundler":
+            return "bundle install"
+        default:
+            return nil
+        }
     }
 
     private func makeWarnings(project: ProjectInfo, resolvedPaths: [ResolvedTool], versions: [ToolVersion]) -> [String] {
@@ -230,6 +261,8 @@ public struct HabitatScanner {
 
     private func missingPreferredToolAskFirstCommand(packageManager: String) -> String {
         switch packageManager {
+        case "bundler":
+            return "running Bundler commands before bundle is available"
         case "swiftpm":
             return "running SwiftPM commands before swift is available"
         case "python":
@@ -241,6 +274,8 @@ public struct HabitatScanner {
 
     private func missingPreferredToolWarning(packageManager: String) -> String {
         switch packageManager {
+        case "bundler":
+            return "Project files prefer Bundler, but bundle was not found on PATH; ask before running Bundler commands."
         case "swiftpm":
             return "Project files prefer SwiftPM, but swift was not found on PATH; ask before running SwiftPM commands."
         case "python":
@@ -278,6 +313,8 @@ public struct HabitatScanner {
         switch packageManager {
         case "npm", "pnpm", "yarn", "bun", "uv":
             return packageManager
+        case "bundler":
+            return "bundle"
         case "swiftpm":
             return "swift"
         case "python":

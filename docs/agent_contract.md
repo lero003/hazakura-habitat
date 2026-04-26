@@ -94,6 +94,8 @@ Ask First:
 - `npm install`
 - `pnpm install`
 - `yarn install`
+- `bun install`
+- `uv sync`
 - `bundle install`
 - creating or deleting virtual environments
 - modifying lockfiles

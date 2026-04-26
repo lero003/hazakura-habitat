@@ -17,6 +17,7 @@ public struct ProjectDetector {
         "Pipfile.lock",
         ".venv",
         "Gemfile",
+        "Gemfile.lock",
         "go.mod",
         "Cargo.toml",
         "Package.swift",
@@ -75,6 +76,7 @@ public struct ProjectDetector {
             || files.contains("requirements-dev.txt")
             || files.contains("Pipfile")
             || files.contains("Pipfile.lock") { return "python" }
+        if files.contains("Gemfile") || files.contains("Gemfile.lock") { return "bundler" }
         return nil
     }
 
