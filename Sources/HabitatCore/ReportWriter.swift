@@ -35,7 +35,10 @@ public struct ReportWriter {
         let avoidLines = result.policy.forbiddenCommands.prefix(4).map { "Do not run `\($0)`." }
         let askLines = result.policy.askFirstCommands.prefix(4).map { "Ask before `\($0)`." }
         let mismatchLines = result.warnings.isEmpty ? ["- None detected."] : result.warnings.map { "- \($0)" }
-        let noteLines = result.diagnostics.isEmpty ? ["- Scan completed without command diagnostics."] : result.diagnostics.map { "- \($0)" }
+        let relevantDiagnostics = agentRelevantDiagnostics(result)
+        let noteLines = relevantDiagnostics.isEmpty
+            ? ["- Scan completed without relevant command diagnostics."]
+            : relevantDiagnostics.map { "- \($0)" }
 
         return """
         # Agent Context
@@ -132,5 +135,50 @@ public struct ReportWriter {
     private func bulletList(_ items: [String], fallback: String) -> String {
         guard !items.isEmpty else { return fallback }
         return items.map { "- \($0)" }.joined(separator: "\n")
+    }
+
+    private func agentRelevantDiagnostics(_ result: ScanResult) -> [String] {
+        let relevantCommands = agentRelevantCommandNames(result)
+        guard !relevantCommands.isEmpty else { return [] }
+
+        return result.diagnostics.filter { diagnostic in
+            relevantCommands.contains { commandName in
+                diagnostic == commandName || diagnostic.hasPrefix("\(commandName) ")
+            }
+        }
+    }
+
+    private func agentRelevantCommandNames(_ result: ScanResult) -> Set<String> {
+        var names = Set<String>()
+
+        if let packageManager = result.project.packageManager,
+           let executable = executableName(forPackageManager: packageManager) {
+            names.insert(executable)
+        }
+
+        if result.project.runtimeHints.node != nil {
+            names.insert("node")
+        }
+
+        if result.project.runtimeHints.python != nil {
+            names.insert("python3")
+        }
+
+        return names
+    }
+
+    private func executableName(forPackageManager packageManager: String) -> String? {
+        switch packageManager {
+        case "npm", "pnpm", "yarn", "bun", "uv", "go", "cargo":
+            return packageManager
+        case "bundler":
+            return "bundle"
+        case "swiftpm":
+            return "swift"
+        case "python":
+            return "python3"
+        default:
+            return nil
+        }
     }
 }

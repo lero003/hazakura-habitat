@@ -267,6 +267,32 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeInstallsWhenPackageManagerVersionCommandFails() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "packageManager": "pnpm@9.15.4"
+            }
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 127, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "env: pnpm: No such file or directory"),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.tools.versions.contains(where: { $0.name == "pnpm" && !$0.available && $0.version == nil }))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+        #expect(result.warnings.contains("Project requests pnpm 9.15.4 via package.json; verify active pnpm before dependency installs."))
+        #expect(result.diagnostics.contains("pnpm --version failed with exit code 127: env: pnpm: No such file or directory"))
+    }
+
+    @Test
     func scanDoesNotReadOrEmitSecretFileValues() throws {
         let secretValue = "sk-habitat-test-secret-123"
         let privateKeyMarker = "-----BEGIN OPENSSH PRIVATE KEY-----"
@@ -521,6 +547,29 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeInstallsWhenNodeVersionCommandFails() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+            ".nvmrc": "v20\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 127, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "env: node: No such file or directory"),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.tools.versions.contains(where: { $0.name == "node" && !$0.available && $0.version == nil }))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(result.warnings.contains("Project requests Node v20; verify active node before installs (/opt/homebrew/bin/node)."))
+        #expect(result.diagnostics.contains("node --version failed with exit code 127: env: node: No such file or directory"))
+    }
+
+    @Test
     func reportWriterCreatesAllArtifacts() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(
@@ -663,6 +712,34 @@ struct HabitatCoreTests {
         - Prefer the project-specific package manager from `agent_context.md`.
         - Ask before any install, upgrade, uninstall, or global mutation.
         """)
+    }
+
+    @Test
+    func agentContextOmitsUnrelatedCommandDiagnostics() throws {
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let result = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["swift test"], askFirstCommands: [], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: [
+                "go version failed with exit code 127: env: go: No such file or directory",
+                "swift --version failed with exit code 1: swift unavailable"
+            ]
+        )
+
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(!context.contains("go version failed"))
+        #expect(context.contains("swift --version failed with exit code 1"))
+        #expect(report.contains("go version failed with exit code 127"))
     }
 
     @Test

@@ -9,6 +9,7 @@
   - `agent_context.md`
   - `command_policy.md`
   - `environment_report.md`
+- `agent_context.md` filters command diagnostics to project-relevant tools while detailed diagnostics remain in the machine and environment reports.
 - Read-only command execution with timeout, duration, stdout, stderr, exit code, and availability capture.
 - Missing commands and scanner failures are represented as scan data instead of fatal errors.
 - Project signal detection for common JavaScript, Python, Swift, Ruby, Go, Rust, Homebrew, and version-manager files.
@@ -16,6 +17,7 @@
 - JavaScript projects with `package.json` but no lockfile now default to npm run/build guidance while still requiring approval for installs.
 - JavaScript projects with a `packageManager` field in `package.json` use that package manager when no lockfile is present.
 - JavaScript `packageManager` versions from `package.json` are captured in `scan_result.json` and dependency installs require confirmation when the active package-manager version differs or cannot be verified.
+- Non-zero version command exits are treated as unverifiable tool versions, recorded in diagnostics, and used to keep dependency-install guards active.
 - Runtime mismatch warnings and command-policy guards when `.nvmrc` or `.node-version` differs from the active Node major version, or `.python-version` differs from active Python major/minor.
 - Project `.venv` detection that tells agents to prefer `.venv/bin/python` before system `python3`.
 - Python command guidance from secondary Python signals such as `requirements-dev.txt`, `Pipfile`, and `Pipfile.lock`.
@@ -28,7 +30,7 @@
 - Multiple JavaScript lockfile warnings that tell agents to ask before dependency installs when package-manager signals conflict.
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.
 - Command-policy guard that tells agents to ask before modifying lockfiles.
-- Tests for package manager detection, package.json-only npm guidance, `packageManager` field/version guidance, missing tools, artifact generation, runtime mismatch policy guidance, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, secret avoidance, common env file warnings, uv missing-tool fallback guards, Bundler missing-tool guards, SwiftPM missing-tool guards, Go missing-tool guards, and Cargo missing-tool guards.
+- Tests for package manager detection, package.json-only npm guidance, `packageManager` field/version guidance, missing tools, non-zero version command failures, artifact generation, runtime mismatch policy guidance, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, secret avoidance, common env file warnings, uv missing-tool fallback guards, Bundler missing-tool guards, SwiftPM missing-tool guards, Go missing-tool guards, and Cargo missing-tool guards.
 - GitHub CI and release artifact workflows.
 
 ## Not Yet Implemented

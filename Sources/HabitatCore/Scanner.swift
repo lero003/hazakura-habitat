@@ -42,14 +42,21 @@ public struct HabitatScanner {
 
         let versions = commandSpecs.map { spec in
             let result = commands.first(where: { $0.args == spec.2 })!
-            let output = [result.stdout, result.stderr].first(where: { !$0.isEmpty })
-            return ToolVersion(name: spec.0, version: output, available: result.available && !result.timedOut)
+            let versionCommandSucceeded = result.available && !result.timedOut && result.exitCode == 0
+            let output = versionCommandSucceeded
+                ? [result.stdout, result.stderr].first(where: { !$0.isEmpty })
+                : nil
+            return ToolVersion(name: spec.0, version: output, available: versionCommandSucceeded)
         }
 
         let warnings = makeWarnings(project: project, resolvedPaths: resolvedPaths, versions: versions)
         let diagnostics = commands.compactMap { command -> String? in
             if command.timedOut { return "\(command.args.joined(separator: " ")) timed out" }
             if !command.available { return "\(command.args.joined(separator: " ")) unavailable: \(command.stderr)" }
+            if let exitCode = command.exitCode, exitCode != 0 {
+                let detail = [command.stderr, command.stdout].first(where: { !$0.isEmpty })
+                return "\(command.args.joined(separator: " ")) failed with exit code \(exitCode)\(detail.map { ": \($0)" } ?? "")"
+            }
             return nil
         }
 
@@ -341,7 +348,10 @@ public struct HabitatScanner {
             return false
         }
 
-        guard let activeVersion = versions.first(where: { $0.name == "node" })?.version else {
+        guard let activeToolVersion = versions.first(where: { $0.name == "node" }),
+              activeToolVersion.available,
+              let activeVersion = activeToolVersion.version
+        else {
             return true
         }
 
@@ -353,7 +363,10 @@ public struct HabitatScanner {
             return false
         }
 
-        guard let activeVersion = versions.first(where: { $0.name == "python3" })?.version else {
+        guard let activeToolVersion = versions.first(where: { $0.name == "python3" }),
+              activeToolVersion.available,
+              let activeVersion = activeToolVersion.version
+        else {
             return true
         }
 
