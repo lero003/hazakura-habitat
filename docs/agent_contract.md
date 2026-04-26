@@ -111,6 +111,10 @@ Ask First:
 - `pod update`
 - `pod repo update`
 - `pod deintegrate`
+- `carthage bootstrap`
+- `carthage update`
+- `carthage checkout`
+- `carthage build`
 - dependency installs before matching the selected JavaScript package manager to `package.json` `packageManager` version
 - creating or deleting virtual environments
 - modifying lockfiles

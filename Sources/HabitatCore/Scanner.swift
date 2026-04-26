@@ -31,7 +31,7 @@ public struct HabitatScanner {
             runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
         }
 
-        let toolNames = ["python3", "node", "npm", "pnpm", "yarn", "bun", "uv", "bundle", "go", "cargo", "rustc", "swift", "git", "brew", "pod"]
+        let toolNames = ["python3", "node", "npm", "pnpm", "yarn", "bun", "uv", "bundle", "go", "cargo", "rustc", "swift", "git", "brew", "pod", "carthage"]
         let resolvedPaths = toolNames.map { tool in
             let result = runner.run(executable: "/usr/bin/which", arguments: ["-a", tool], timeout: 2.0)
             let paths = result.available && !result.stdout.isEmpty
@@ -122,6 +122,8 @@ public struct HabitatScanner {
             return ["cargo test", "cargo build"]
         case "cocoapods":
             return ["pod --version"]
+        case "carthage":
+            return ["carthage version"]
         case "uv":
             return hasProjectVirtualEnvironment(project) ? ["uv run", ".venv/bin/python -m pytest"] : ["uv run"]
         case "python":
@@ -189,6 +191,10 @@ public struct HabitatScanner {
             "pod update",
             "pod repo update",
             "pod deintegrate",
+            "carthage bootstrap",
+            "carthage update",
+            "carthage checkout",
+            "carthage build",
             "python -m venv",
             "modifying lockfiles",
             "rm -rf"
@@ -251,6 +257,8 @@ public struct HabitatScanner {
             return ["cargo add", "cargo update"]
         case "cocoapods":
             return ["pod install", "pod update", "pod repo update", "pod deintegrate"]
+        case "carthage":
+            return ["carthage bootstrap", "carthage update", "carthage checkout", "carthage build"]
         default:
             return []
         }
@@ -373,6 +381,8 @@ public struct HabitatScanner {
             return "running Homebrew Bundle commands before brew is available"
         case "cocoapods":
             return "running CocoaPods commands before pod is available"
+        case "carthage":
+            return "running Carthage commands before carthage is available"
         case "python":
             return "running Python commands before python3 is available"
         default:
@@ -394,6 +404,8 @@ public struct HabitatScanner {
             return "Project files include Brewfile, but brew was not found on PATH; ask before running Homebrew Bundle commands."
         case "cocoapods":
             return "Project files prefer CocoaPods, but pod was not found on PATH; ask before running CocoaPods commands."
+        case "carthage":
+            return "Project files prefer Carthage, but carthage was not found on PATH; ask before running Carthage commands."
         case "python":
             return "Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."
         default:
@@ -464,6 +476,8 @@ public struct HabitatScanner {
             return "brew"
         case "cocoapods":
             return "pod"
+        case "carthage":
+            return "carthage"
         case "python":
             return "python3"
         default:

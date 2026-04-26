@@ -85,6 +85,7 @@ Resolve with `which -a`:
 - `rustc`, `cargo`
 - `swift`, `git`, `brew`
 - `pod`
+- `carthage`
 
 ### M3: Project Detector
 
@@ -111,6 +112,7 @@ Detect dependency signals:
 - `Podfile`
 - `Podfile.lock`
 - `Cartfile`
+- `Cartfile.resolved`
 - `Brewfile`
 - `mise.toml`
 - `.tool-versions`

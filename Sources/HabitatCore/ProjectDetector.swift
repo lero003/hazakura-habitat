@@ -25,6 +25,7 @@ public struct ProjectDetector {
         "Podfile",
         "Podfile.lock",
         "Cartfile",
+        "Cartfile.resolved",
         "Brewfile",
         "mise.toml",
         ".tool-versions",
@@ -77,6 +78,7 @@ public struct ProjectDetector {
         if files.contains("go.mod") { return "go" }
         if files.contains("Cargo.toml") { return "cargo" }
         if files.contains("Podfile") || files.contains("Podfile.lock") { return "cocoapods" }
+        if files.contains("Cartfile") || files.contains("Cartfile.resolved") { return "carthage" }
         if files.contains("Brewfile") { return "homebrew" }
         if files.contains("uv.lock") { return "uv" }
         if files.contains("pyproject.toml")

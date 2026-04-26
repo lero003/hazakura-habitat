@@ -169,7 +169,7 @@ public struct ReportWriter {
 
     private func executableName(forPackageManager packageManager: String) -> String? {
         switch packageManager {
-        case "npm", "pnpm", "yarn", "bun", "uv", "go", "cargo":
+        case "npm", "pnpm", "yarn", "bun", "uv", "go", "cargo", "carthage":
             return packageManager
         case "bundler":
             return "bundle"

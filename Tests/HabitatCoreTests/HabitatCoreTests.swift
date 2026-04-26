@@ -599,6 +599,44 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanTreatsCartfileAsCarthageProjectAndGuardsCarthageMutation() throws {
+        for signal in ["Cartfile", "Cartfile.resolved"] {
+            let projectURL = try makeProject(files: [
+                signal: "github \"Alamofire/Alamofire\"\n",
+            ])
+
+            let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+            #expect(result.project.packageManager == "carthage", "Expected \(signal) to select Carthage guidance")
+            #expect(result.project.detectedFiles.contains(signal))
+            #expect(result.policy.preferredCommands == ["carthage version"])
+            #expect(result.policy.askFirstCommands.contains("running Carthage commands before carthage is available"))
+            #expect(result.policy.askFirstCommands.contains("carthage bootstrap"))
+            #expect(result.policy.askFirstCommands.contains("carthage update"))
+            #expect(result.policy.askFirstCommands.contains("carthage checkout"))
+            #expect(result.policy.askFirstCommands.contains("carthage build"))
+            #expect(result.warnings.contains("Project files prefer Carthage, but carthage was not found on PATH; ask before running Carthage commands."))
+            #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+            let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+            let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+            #expect(context.contains("Use `carthage` because project files point to it."))
+            #expect(context.contains("Prefer `carthage version`."))
+            #expect(context.contains("Ask before `running Carthage commands before carthage is available`."))
+            #expect(context.contains("Ask before `carthage bootstrap`."))
+            #expect(context.contains("Project files prefer Carthage, but carthage was not found on PATH; ask before running Carthage commands."))
+            #expect(policy.contains("`carthage version`"))
+            #expect(policy.contains("`carthage bootstrap`"))
+            #expect(policy.contains("`carthage update`"))
+            #expect(policy.contains("`carthage checkout`"))
+            #expect(policy.contains("`carthage build`"))
+        }
+    }
+
+    @Test
     func scanGuardsUvProjectsWhenUvIsMissing() throws {
         let projectURL = try makeProject(files: [
             "pyproject.toml": "[project]\nname = \"demo\"\n",
