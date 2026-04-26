@@ -751,6 +751,39 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanGuardsPythonPipInstallAliases() throws {
+        let projectURL = try makeProject(files: [
+            "requirements.txt": "pytest\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        for command in ["pip install", "pip3 install", "python -m pip install", "python3 -m pip install"] {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        for command in ["pip install --user", "pip3 install --user", "python -m pip install --user", "python3 -m pip install --user"] {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `pip install`."))
+        #expect(context.contains("Ask before `python3 -m pip install`."))
+        #expect(policy.contains("`pip3 install`"))
+        #expect(policy.contains("`python -m pip install`"))
+        #expect(policy.contains("`python3 -m pip install --user`"))
+    }
+
+    @Test
     func scanTreatsBundlerSignalsAsRubyProjectsAndGuardsMissingBundle() throws {
         for signal in ["Gemfile", "Gemfile.lock"] {
             let projectURL = try makeProject(files: [

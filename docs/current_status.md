@@ -28,6 +28,7 @@
 - `.tool-versions` Node/Python runtime hints are captured without reading secret files and feed the same dependency-install verification guards.
 - Project `.venv` detection that tells agents to prefer `.venv/bin/python` before system `python3`.
 - Python command guidance from secondary Python signals such as `requirements-dev.txt`, `Pipfile`, and `Pipfile.lock`.
+- Python dependency install aliases such as `pip3 install` and `python3 -m pip install` are classified as Ask First, with `--user` variants forbidden.
 - Ruby Bundler command guidance from `Gemfile` and `Gemfile.lock`, including a missing `bundle` guard.
 - SwiftPM command guidance from `Package.swift` and `Package.resolved`, including a missing `swift` guard and `swift package update` / `swift package resolve` mutation guards.
 - Go command guidance from `go.mod`, including missing `go` and `go get`/`go mod tidy` guards.

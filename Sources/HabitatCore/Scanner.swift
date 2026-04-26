@@ -86,6 +86,9 @@ public struct HabitatScanner {
                     "brew uninstall",
                     "npm install -g",
                     "pip install --user",
+                    "pip3 install --user",
+                    "python -m pip install --user",
+                    "python3 -m pip install --user",
                     "read .env values",
                     "read .envrc values",
                     "read package manager auth config values",
@@ -176,6 +179,9 @@ public struct HabitatScanner {
         var commands = [
             "brew install",
             "pip install",
+            "pip3 install",
+            "python -m pip install",
+            "python3 -m pip install",
             "npm install",
             "npm ci",
             "npm update",
@@ -259,7 +265,7 @@ public struct HabitatScanner {
         case "uv":
             return ["uv sync"]
         case "python":
-            return ["pip install"]
+            return ["pip install", "pip3 install", "python -m pip install", "python3 -m pip install"]
         case "bundler":
             return ["bundle install"]
         case "homebrew":

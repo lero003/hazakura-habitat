@@ -92,6 +92,9 @@ Ask First:
 
 - `brew install`
 - `pip install`
+- `pip3 install`
+- `python -m pip install`
+- `python3 -m pip install`
 - `npm install`
 - `npm ci`
 - `npm update`
@@ -136,6 +139,10 @@ Forbidden in MVP-generated policy:
 - `brew uninstall`
 - `npm install -g`
 - global `pip install`
+- `pip install --user`
+- `pip3 install --user`
+- `python -m pip install --user`
+- `python3 -m pip install --user`
 - destructive file deletion outside the selected project
 - reading secret values
 - reading `.envrc` values
