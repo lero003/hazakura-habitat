@@ -26,18 +26,19 @@
 - SwiftPM command guidance from `Package.swift`, including a missing `swift` guard and `swift package update` / `swift package resolve` mutation guards.
 - Go command guidance from `go.mod`, including missing `go` and `go get`/`go mod tidy` guards.
 - Rust Cargo command guidance from `Cargo.toml`, including missing `cargo` and `cargo add`/`cargo update` guards.
+- Homebrew Bundle guidance from `Brewfile`, including `brew bundle check` as the safe preferred command plus missing `brew` and `brew bundle` mutation guards.
 - Secret-bearing env file detection for common variants such as `.env.local`, `.env.development`, `.env.test`, and `.env.production` without reading their values.
 - Missing preferred tool warnings when project files point to a tool that is not on `PATH`, including SwiftPM-specific guidance when `swift` is unavailable.
 - Selected package-manager install guards are prioritized so the short `agent_context.md` shows the relevant install command first.
 - Multiple JavaScript lockfile warnings that tell agents to ask before dependency installs when package-manager signals conflict.
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.
 - Command-policy guard that tells agents to ask before modifying lockfiles.
-- Tests for package manager detection, package.json-only npm guidance, package script guidance, `packageManager` field/version guidance, missing tools, non-zero version command failures, artifact generation, runtime mismatch policy guidance, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, secret avoidance, common env file warnings, uv missing-tool fallback guards, Bundler missing-tool guards, SwiftPM missing-tool and dependency-mutation guards, Go missing-tool guards, and Cargo missing-tool guards.
+- Tests for package manager detection, package.json-only npm guidance, package script guidance, `packageManager` field/version guidance, missing tools, non-zero version command failures, artifact generation, runtime mismatch policy guidance, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, secret avoidance, common env file warnings, uv missing-tool fallback guards, Bundler missing-tool guards, SwiftPM missing-tool and dependency-mutation guards, Go missing-tool guards, Cargo missing-tool guards, and Brewfile Homebrew Bundle guards.
 - GitHub CI and release artifact workflows.
 
 ## Not Yet Implemented
 
-- Detailed Homebrew scanner.
+- Detailed Homebrew scanner beyond Brewfile command guidance.
 - Detailed pyenv and pip policy detail.
 - Detailed Node package manager version checks beyond `package.json` `packageManager`.
 - Swift/Xcode scanner detail beyond basic command capture.

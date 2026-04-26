@@ -173,6 +173,8 @@ public struct ReportWriter {
             return packageManager
         case "bundler":
             return "bundle"
+        case "homebrew":
+            return "brew"
         case "swiftpm":
             return "swift"
         case "python":

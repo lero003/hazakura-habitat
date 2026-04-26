@@ -97,6 +97,10 @@ Ask First:
 - `bun install`
 - `uv sync`
 - `bundle install`
+- `brew bundle`
+- `brew bundle install`
+- `brew bundle cleanup`
+- `brew bundle dump`
 - `swift package update`
 - `swift package resolve`
 - `go get`

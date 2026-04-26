@@ -126,6 +126,8 @@ public struct HabitatScanner {
             return hasProjectVirtualEnvironment(project) ? [".venv/bin/python -m pytest", ".venv/bin/python"] : ["python3 -m pytest"]
         case "bundler":
             return ["bundle exec"]
+        case "homebrew":
+            return ["brew bundle check"]
         default:
             return ["Use read-only inspection first"]
         }
@@ -173,6 +175,10 @@ public struct HabitatScanner {
             "bun install",
             "uv sync",
             "bundle install",
+            "brew bundle",
+            "brew bundle install",
+            "brew bundle cleanup",
+            "brew bundle dump",
             "go get",
             "go mod tidy",
             "cargo add",
@@ -229,6 +235,8 @@ public struct HabitatScanner {
             return ["pip install"]
         case "bundler":
             return ["bundle install"]
+        case "homebrew":
+            return ["brew bundle", "brew bundle install", "brew bundle cleanup", "brew bundle dump"]
         case "swiftpm":
             return ["swift package update", "swift package resolve"]
         case "go":
@@ -353,6 +361,8 @@ public struct HabitatScanner {
             return "running Go commands before go is available"
         case "cargo":
             return "running Cargo commands before cargo is available"
+        case "homebrew":
+            return "running Homebrew Bundle commands before brew is available"
         case "python":
             return "running Python commands before python3 is available"
         default:
@@ -370,6 +380,8 @@ public struct HabitatScanner {
             return "Project files prefer Go, but go was not found on PATH; ask before running Go commands."
         case "cargo":
             return "Project files prefer Cargo, but cargo was not found on PATH; ask before running Cargo commands."
+        case "homebrew":
+            return "Project files include Brewfile, but brew was not found on PATH; ask before running Homebrew Bundle commands."
         case "python":
             return "Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."
         default:
@@ -436,6 +448,8 @@ public struct HabitatScanner {
             return "go"
         case "cargo":
             return "cargo"
+        case "homebrew":
+            return "brew"
         case "python":
             return "python3"
         default:

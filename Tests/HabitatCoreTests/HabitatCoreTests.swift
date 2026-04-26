@@ -527,6 +527,40 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanTreatsBrewfileAsHomebrewProjectAndGuardsBundleMutation() throws {
+        let projectURL = try makeProject(files: [
+            "Brewfile": "brew \"swiftlint\"\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "homebrew")
+        #expect(result.policy.preferredCommands == ["brew bundle check"])
+        #expect(result.policy.askFirstCommands.contains("running Homebrew Bundle commands before brew is available"))
+        #expect(result.policy.askFirstCommands.contains("brew bundle"))
+        #expect(result.policy.askFirstCommands.contains("brew bundle install"))
+        #expect(result.policy.askFirstCommands.contains("brew bundle cleanup"))
+        #expect(result.policy.askFirstCommands.contains("brew bundle dump"))
+        #expect(result.warnings.contains("Project files include Brewfile, but brew was not found on PATH; ask before running Homebrew Bundle commands."))
+        #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `homebrew` because project files point to it."))
+        #expect(context.contains("Prefer `brew bundle check`."))
+        #expect(context.contains("Ask before `running Homebrew Bundle commands before brew is available`."))
+        #expect(context.contains("Ask before `brew bundle`."))
+        #expect(context.contains("Project files include Brewfile, but brew was not found on PATH; ask before running Homebrew Bundle commands."))
+        #expect(policy.contains("`brew bundle check`"))
+        #expect(policy.contains("`brew bundle install`"))
+        #expect(policy.contains("`brew bundle cleanup`"))
+        #expect(policy.contains("`brew bundle dump`"))
+    }
+
+    @Test
     func scanGuardsUvProjectsWhenUvIsMissing() throws {
         let projectURL = try makeProject(files: [
             "pyproject.toml": "[project]\nname = \"demo\"\n",
