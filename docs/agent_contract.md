@@ -158,6 +158,8 @@ Top-level shape:
     "detectedFiles": [],
     "packageManager": "pnpm",
     "packageManagerVersion": "9.15.4",
+    "declaredPackageManager": "pnpm",
+    "declaredPackageManagerVersion": "9.15.4",
     "packageScripts": ["build", "test"],
     "runtimeHints": {}
   },
@@ -174,6 +176,7 @@ Compatibility:
 - Do not rename or remove fields without documenting a schema change.
 - Generate Markdown from this JSON when possible.
 - `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions`.
+- `declaredPackageManager` records the safe `package.json` `packageManager` hint even when a lockfile selects a different package manager.
 - Secret-bearing environment files such as `.env`, `.env.*`, `.envrc`, and `.envrc.*` may be detected by filename, but values must not be read or emitted.
 - Package-manager auth config files such as `.npmrc`, `.yarnrc`, and `.yarnrc.yml` may be detected by filename, but token values must not be read or emitted.
 

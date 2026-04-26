@@ -412,6 +412,49 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeInstallsWhenPackageManagerFieldConflictsWithLockfile() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "packageManager": "pnpm@9.15.4",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "yarn.lock": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a yarn": .init(name: "/usr/bin/which", args: ["-a", "yarn"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/yarn", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "yarn")
+        #expect(result.project.packageManagerVersion == nil)
+        #expect(result.project.declaredPackageManager == "pnpm")
+        #expect(result.project.declaredPackageManagerVersion == "9.15.4")
+        #expect(result.policy.preferredCommands == ["yarn run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs when package.json packageManager conflicts with lockfiles"))
+        #expect(result.warnings.contains("package.json requests pnpm, but project lockfiles select yarn; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"declaredPackageManager\" : \"pnpm\""))
+        #expect(scanResult.contains("\"declaredPackageManagerVersion\" : \"9.15.4\""))
+        #expect(context.contains("Use `yarn` because project files point to it."))
+        #expect(context.contains("Ask before `dependency installs when package.json packageManager conflicts with lockfiles`."))
+        #expect(context.contains("package.json requests pnpm, but project lockfiles select yarn; ask before dependency installs."))
+        #expect(policy.contains("`dependency installs when package.json packageManager conflicts with lockfiles`"))
+    }
+
+    @Test
     func scanAsksBeforeInstallsWhenPackageManagerVersionDiffers() throws {
         let projectURL = try makeProject(files: [
             "package.json": """

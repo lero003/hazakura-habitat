@@ -221,6 +221,10 @@ public struct HabitatScanner {
             commands.insert("dependency installs when multiple JavaScript lockfiles exist", at: 0)
         }
 
+        if declaredPackageManagerConflictsWithSelected(project) {
+            commands.insert("dependency installs when package.json packageManager conflicts with lockfiles", at: 0)
+        }
+
         if nodeVersionNeedsVerification(project: project, versions: versions) {
             commands.insert("dependency installs before matching active Node to project version hints", at: 0)
         }
@@ -334,6 +338,10 @@ public struct HabitatScanner {
             warnings.append("Multiple JavaScript lockfiles detected (\(lockfiles.joined(separator: ", "))); ask before dependency installs.")
         }
 
+        if let warning = declaredPackageManagerConflictWarning(project) {
+            warnings.append(warning)
+        }
+
         if hasProjectVirtualEnvironment(project) {
             warnings.append("Project .venv exists; use .venv/bin/python for Python commands before system python3.")
         }
@@ -376,6 +384,29 @@ public struct HabitatScanner {
         ["package-lock.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb"].filter {
             project.detectedFiles.contains($0)
         }
+    }
+
+    private func declaredPackageManagerConflictsWithSelected(_ project: ProjectInfo) -> Bool {
+        guard let declaredPackageManager = project.declaredPackageManager,
+              let selectedPackageManager = project.packageManager,
+              ["npm", "pnpm", "yarn", "bun"].contains(selectedPackageManager)
+        else {
+            return false
+        }
+
+        return declaredPackageManager != selectedPackageManager
+            && javaScriptLockfiles(project).isEmpty == false
+    }
+
+    private func declaredPackageManagerConflictWarning(_ project: ProjectInfo) -> String? {
+        guard declaredPackageManagerConflictsWithSelected(project),
+              let declaredPackageManager = project.declaredPackageManager,
+              let selectedPackageManager = project.packageManager
+        else {
+            return nil
+        }
+
+        return "package.json requests \(declaredPackageManager), but project lockfiles select \(selectedPackageManager); ask before dependency installs."
     }
 
     private func packageManagerVersionCommandSpecs(project: ProjectInfo) -> [(String, String, [String])] {

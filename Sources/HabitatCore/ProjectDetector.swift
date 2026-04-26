@@ -68,7 +68,9 @@ public struct ProjectDetector {
                     projectURL.appendingPathComponent(".node-version")
                 ) ?? toolVersions.node,
                 python: firstLineIfSafe(projectURL.appendingPathComponent(".python-version")) ?? toolVersions.python
-            )
+            ),
+            declaredPackageManager: packageJSON.declaredPackageManager?.name,
+            declaredPackageManagerVersion: packageJSON.declaredPackageManager?.version
         )
     }
 

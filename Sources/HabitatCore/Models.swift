@@ -37,6 +37,26 @@ public struct ProjectInfo: Codable {
     public let packageManagerVersion: String?
     public let packageScripts: [String]
     public let runtimeHints: RuntimeHints
+    public let declaredPackageManager: String?
+    public let declaredPackageManagerVersion: String?
+
+    public init(
+        detectedFiles: [String],
+        packageManager: String?,
+        packageManagerVersion: String?,
+        packageScripts: [String],
+        runtimeHints: RuntimeHints,
+        declaredPackageManager: String? = nil,
+        declaredPackageManagerVersion: String? = nil
+    ) {
+        self.detectedFiles = detectedFiles
+        self.packageManager = packageManager
+        self.packageManagerVersion = packageManagerVersion
+        self.packageScripts = packageScripts
+        self.runtimeHints = runtimeHints
+        self.declaredPackageManager = declaredPackageManager
+        self.declaredPackageManagerVersion = declaredPackageManagerVersion
+    }
 }
 
 public struct RuntimeHints: Codable {
