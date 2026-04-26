@@ -175,9 +175,17 @@ public struct HabitatScanner {
             "brew install",
             "pip install",
             "npm install",
+            "npm ci",
+            "npm update",
             "pnpm install",
+            "pnpm add",
+            "pnpm update",
             "yarn install",
+            "yarn add",
+            "yarn up",
             "bun install",
+            "bun add",
+            "bun update",
             "uv sync",
             "bundle install",
             "brew bundle",
@@ -235,13 +243,13 @@ public struct HabitatScanner {
     private func dependencyMutationCommands(forPackageManager packageManager: String) -> [String] {
         switch packageManager {
         case "npm":
-            return ["npm install"]
+            return ["npm install", "npm ci", "npm update"]
         case "pnpm":
-            return ["pnpm install"]
+            return ["pnpm install", "pnpm add", "pnpm update"]
         case "yarn":
-            return ["yarn install"]
+            return ["yarn install", "yarn add", "yarn up"]
         case "bun":
-            return ["bun install"]
+            return ["bun install", "bun add", "bun update"]
         case "uv":
             return ["uv sync"]
         case "python":

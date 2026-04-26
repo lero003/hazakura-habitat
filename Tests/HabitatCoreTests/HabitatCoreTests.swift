@@ -197,6 +197,8 @@ struct HabitatCoreTests {
         #expect(result.project.packageManager == "npm")
         #expect(result.project.packageScripts.isEmpty)
         #expect(result.policy.preferredCommands == ["npm run"])
+        #expect(result.policy.askFirstCommands.contains("npm ci"))
+        #expect(result.policy.askFirstCommands.contains("npm update"))
         #expect(result.policy.askFirstCommands.contains("substituting another package manager for npm"))
         #expect(result.warnings.contains("Project files prefer npm, but npm was not found on PATH; ask before substituting another package manager."))
         #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
@@ -209,8 +211,46 @@ struct HabitatCoreTests {
         #expect(context.contains("Use `npm` because project files point to it."))
         #expect(context.contains("Prefer `npm run`."))
         #expect(context.contains("Ask before `substituting another package manager for npm`."))
+        #expect(context.contains("Ask before `npm ci`."))
         #expect(policy.contains("`npm run`"))
+        #expect(policy.contains("`npm ci`"))
+        #expect(policy.contains("`npm update`"))
         #expect(policy.contains("`substituting another package manager for npm`"))
+    }
+
+    @Test
+    func scanGuardsJavaScriptDependencyMutationCommands() throws {
+        let cases: [(lockfile: String, packageManager: String, commands: [String])] = [
+            ("package-lock.json", "npm", ["npm install", "npm ci", "npm update"]),
+            ("pnpm-lock.yaml", "pnpm", ["pnpm install", "pnpm add", "pnpm update"]),
+            ("yarn.lock", "yarn", ["yarn install", "yarn add", "yarn up"]),
+            ("bun.lockb", "bun", ["bun install", "bun add", "bun update"]),
+        ]
+
+        for testCase in cases {
+            let projectURL = try makeProject(files: [
+                "package.json": "{}",
+                testCase.lockfile: "lockfile",
+            ])
+
+            let result = HabitatScanner(runner: FakeCommandRunner(results: [
+                "/usr/bin/which -a \(testCase.packageManager)": .init(name: "/usr/bin/which", args: ["-a", testCase.packageManager], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/\(testCase.packageManager)", stderr: ""),
+            ])).scan(projectURL: projectURL)
+
+            #expect(result.project.packageManager == testCase.packageManager)
+
+            for command in testCase.commands {
+                #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+            }
+
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+            let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+            for command in testCase.commands {
+                #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+            }
+        }
     }
 
     @Test

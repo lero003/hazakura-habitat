@@ -93,9 +93,17 @@ Ask First:
 - `brew install`
 - `pip install`
 - `npm install`
+- `npm ci`
+- `npm update`
 - `pnpm install`
+- `pnpm add`
+- `pnpm update`
 - `yarn install`
+- `yarn add`
+- `yarn up`
 - `bun install`
+- `bun add`
+- `bun update`
 - `uv sync`
 - `bundle install`
 - `brew bundle`
