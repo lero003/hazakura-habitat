@@ -106,6 +106,35 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeInstallsWhenMultipleJavaScriptLockfilesExist() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "npm lockfile",
+            "pnpm-lock.yaml": "pnpm lockfile",
+            "yarn.lock": "yarn lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.policy.askFirstCommands.contains("dependency installs when multiple JavaScript lockfiles exist"))
+        #expect(result.warnings.contains("Multiple JavaScript lockfiles detected (package-lock.json, pnpm-lock.yaml, yarn.lock); ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `dependency installs when multiple JavaScript lockfiles exist`."))
+        #expect(context.contains("Multiple JavaScript lockfiles detected (package-lock.json, pnpm-lock.yaml, yarn.lock); ask before dependency installs."))
+        #expect(policy.contains("`dependency installs when multiple JavaScript lockfiles exist`"))
+    }
+
+    @Test
     func scanAsksBeforeLockfileMutation() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",

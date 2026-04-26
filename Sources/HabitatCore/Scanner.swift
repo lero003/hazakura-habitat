@@ -128,6 +128,10 @@ public struct HabitatScanner {
             "rm -rf"
         ]
 
+        if hasMultipleJavaScriptLockfiles(project) {
+            commands.insert("dependency installs when multiple JavaScript lockfiles exist", at: 0)
+        }
+
         if nodeVersionNeedsVerification(project: project, versions: versions) {
             commands.insert("dependency installs before matching active Node to project version hints", at: 0)
         }
@@ -179,6 +183,11 @@ public struct HabitatScanner {
             warnings.append("No primary package manager signal detected; prefer read-only inspection before mutation.")
         }
 
+        let lockfiles = javaScriptLockfiles(project)
+        if lockfiles.count > 1 {
+            warnings.append("Multiple JavaScript lockfiles detected (\(lockfiles.joined(separator: ", "))); ask before dependency installs.")
+        }
+
         if hasProjectVirtualEnvironment(project) {
             warnings.append("Project .venv exists; use .venv/bin/python for Python commands before system python3.")
         }
@@ -198,6 +207,16 @@ public struct HabitatScanner {
     private func hasSecretEnvironmentFile(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
             file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
+        }
+    }
+
+    private func hasMultipleJavaScriptLockfiles(_ project: ProjectInfo) -> Bool {
+        javaScriptLockfiles(project).count > 1
+    }
+
+    private func javaScriptLockfiles(_ project: ProjectInfo) -> [String] {
+        ["package-lock.json", "pnpm-lock.yaml", "yarn.lock", "bun.lockb"].filter {
+            project.detectedFiles.contains($0)
         }
     }
 
