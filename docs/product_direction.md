@@ -51,6 +51,7 @@ Default reports may include local paths, project names, and installed tool/packa
 The tool must not read or emit secret values:
 
 - `.env` values
+- `.envrc` values
 - API keys
 - tokens
 - SSH private keys

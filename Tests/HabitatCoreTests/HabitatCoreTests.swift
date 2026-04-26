@@ -582,6 +582,59 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanDetectsEnvrcFilesWithoutReadingValues() throws {
+        let secretValue = "hh_secret_value_from_envrc"
+        let projectURL = try makeProject(files: [
+            ".envrc": "export HABITAT_TOKEN=\(secretValue)\n",
+            ".envrc.private": "export PRIVATE_TOKEN=\(secretValue)\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".envrc"))
+        #expect(result.project.detectedFiles.contains(".envrc.private"))
+        #expect(result.warnings.contains("Direnv environment file exists; do not read .envrc values."))
+        #expect(result.policy.forbiddenCommands.contains("read .envrc values"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("HABITAT_TOKEN"))
+            #expect(!artifact.contains("PRIVATE_TOKEN"))
+        }
+
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not run `read .envrc values`."))
+        #expect(!context.contains("Do not run `read .env values`."))
+        #expect(policy.contains("`read .envrc values`"))
+    }
+
+    @Test
+    func scanUsesCleanReadOnlyFallbackWhenNoPackageManagerSignalExists() throws {
+        let projectURL = try makeProject(files: [:])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == nil)
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("- Use read-only inspection first."))
+        #expect(!context.contains("Prefer `Use read-only inspection first`."))
+        #expect(policy.contains("`read-only project inspection`"))
+    }
+
+    @Test
     func scanPrefersProjectVenvForPythonCommands() throws {
         let projectURL = try makeProject(files: [
             "pyproject.toml": "[project]\nname = \"demo\"\n",

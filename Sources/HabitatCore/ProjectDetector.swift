@@ -46,6 +46,8 @@ public struct ProjectDetector {
         ".env.production",
         ".env.production.local",
         ".env.example",
+        ".envrc",
+        ".envrc.local",
         "README.md",
     ]
 
@@ -111,7 +113,10 @@ public struct ProjectDetector {
     }
 
     private func isSecretEnvironmentFilename(_ name: String) -> Bool {
-        name == ".env" || (name.hasPrefix(".env.") && name != ".env.example")
+        name == ".env"
+            || (name.hasPrefix(".env.") && name != ".env.example")
+            || name == ".envrc"
+            || (name.hasPrefix(".envrc.") && name != ".envrc.example")
     }
 
     private func packageJSONMetadata(_ url: URL) -> PackageJSONMetadata {

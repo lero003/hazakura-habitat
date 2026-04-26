@@ -153,8 +153,12 @@ public struct ReportWriter {
 
         append("sudo", to: &commands, from: result.policy.forbiddenCommands)
 
-        if hasSecretEnvironmentFile(result.project) || result.project.detectedFiles.contains(".env.example") {
+        if hasSecretDotEnvFile(result.project) || result.project.detectedFiles.contains(".env.example") {
             append("read .env values", to: &commands, from: result.policy.forbiddenCommands)
+        }
+
+        if hasSecretEnvrcFile(result.project) || result.project.detectedFiles.contains(".envrc.example") {
+            append("read .envrc values", to: &commands, from: result.policy.forbiddenCommands)
         }
 
         if hasPackageManagerAuthConfig(result.project) {
@@ -175,9 +179,15 @@ public struct ReportWriter {
         commands.append(command)
     }
 
-    private func hasSecretEnvironmentFile(_ project: ProjectInfo) -> Bool {
+    private func hasSecretDotEnvFile(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
             file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
+        }
+    }
+
+    private func hasSecretEnvrcFile(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains { file in
+            file == ".envrc" || (file.hasPrefix(".envrc.") && file != ".envrc.example")
         }
     }
 

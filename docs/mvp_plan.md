@@ -125,9 +125,11 @@ Detect dependency signals:
 - `.yarnrc`
 - `.yarnrc.yml`
 - `.env.example`
+- `.envrc`
+- `.envrc.local`
 - `README.md`
 
-Read only safe metadata such as `package.json` package manager hints and script names, plus Node/Python version hints from `.tool-versions`. Never read `.env` values or package-manager auth token values.
+Read only safe metadata such as `package.json` package manager hints and script names, plus Node/Python version hints from `.tool-versions`. Never read `.env` / `.envrc` values or package-manager auth token values.
 
 ### M4: Focused Tool Scanners
 

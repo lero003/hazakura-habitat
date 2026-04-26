@@ -86,6 +86,7 @@ public struct HabitatScanner {
                     "npm install -g",
                     "pip install --user",
                     "read .env values",
+                    "read .envrc values",
                     "read package manager auth config values",
                     "read SSH private keys"
                 ]
@@ -134,7 +135,7 @@ public struct HabitatScanner {
         case "homebrew":
             return ["brew bundle check"]
         default:
-            return ["Use read-only inspection first"]
+            return []
         }
     }
 
@@ -310,10 +311,14 @@ public struct HabitatScanner {
             }
         }
 
-        if hasSecretEnvironmentFile(project) {
+        if hasSecretDotEnvFile(project) {
             warnings.append("Environment file exists; do not read .env values.")
         } else if project.detectedFiles.contains(".env.example") {
             warnings.append("Environment examples exist; do not read real .env values.")
+        }
+
+        if hasSecretEnvrcFile(project) {
+            warnings.append("Direnv environment file exists; do not read .envrc values.")
         }
 
         if hasPackageManagerAuthConfig(project) {
@@ -345,9 +350,15 @@ public struct HabitatScanner {
         project.detectedFiles.contains(".venv")
     }
 
-    private func hasSecretEnvironmentFile(_ project: ProjectInfo) -> Bool {
+    private func hasSecretDotEnvFile(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
             file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
+        }
+    }
+
+    private func hasSecretEnvrcFile(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains { file in
+            file == ".envrc" || (file.hasPrefix(".envrc.") && file != ".envrc.example")
         }
     }
 
