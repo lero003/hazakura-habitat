@@ -21,6 +21,9 @@ public struct HabitatScanner {
             ("git", "/usr/bin/env", ["git", "--version"]),
             ("node", "/usr/bin/env", ["node", "--version"]),
             ("python3", "/usr/bin/env", ["python3", "--version"]),
+            ("go", "/usr/bin/env", ["go", "version"]),
+            ("cargo", "/usr/bin/env", ["cargo", "--version"]),
+            ("rustc", "/usr/bin/env", ["rustc", "--version"]),
             ("xcode-select", "/usr/bin/xcrun", ["xcode-select", "-p"]),
         ]
 
@@ -28,7 +31,7 @@ public struct HabitatScanner {
             runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
         }
 
-        let toolNames = ["python3", "node", "npm", "pnpm", "yarn", "bun", "uv", "bundle", "swift", "git", "brew"]
+        let toolNames = ["python3", "node", "npm", "pnpm", "yarn", "bun", "uv", "bundle", "go", "cargo", "rustc", "swift", "git", "brew"]
         let resolvedPaths = toolNames.map { tool in
             let result = runner.run(executable: "/usr/bin/which", arguments: ["-a", tool], timeout: 2.0)
             let paths = result.available && !result.stdout.isEmpty
@@ -106,6 +109,10 @@ public struct HabitatScanner {
             return ["npm run test", "npm run build"]
         case "swiftpm":
             return ["swift test", "swift build"]
+        case "go":
+            return ["go test ./...", "go build ./..."]
+        case "cargo":
+            return ["cargo test", "cargo build"]
         case "uv":
             return hasProjectVirtualEnvironment(project) ? ["uv run", ".venv/bin/python -m pytest"] : ["uv run"]
         case "python":
@@ -127,15 +134,20 @@ public struct HabitatScanner {
             "bun install",
             "uv sync",
             "bundle install",
+            "go get",
+            "go mod tidy",
+            "cargo add",
+            "cargo update",
             "python -m venv",
             "modifying lockfiles",
             "rm -rf"
         ]
 
-        if let packageManager = project.packageManager,
-           let installCommand = dependencyInstallCommand(forPackageManager: packageManager) {
-            commands.removeAll { $0 == installCommand }
-            commands.insert(installCommand, at: 0)
+        if let packageManager = project.packageManager {
+            for command in dependencyMutationCommands(forPackageManager: packageManager).reversed() {
+                commands.removeAll { $0 == command }
+                commands.insert(command, at: 0)
+            }
         }
 
         if hasMultipleJavaScriptLockfiles(project) {
@@ -158,24 +170,28 @@ public struct HabitatScanner {
         return commands
     }
 
-    private func dependencyInstallCommand(forPackageManager packageManager: String) -> String? {
+    private func dependencyMutationCommands(forPackageManager packageManager: String) -> [String] {
         switch packageManager {
         case "npm":
-            return "npm install"
+            return ["npm install"]
         case "pnpm":
-            return "pnpm install"
+            return ["pnpm install"]
         case "yarn":
-            return "yarn install"
+            return ["yarn install"]
         case "bun":
-            return "bun install"
+            return ["bun install"]
         case "uv":
-            return "uv sync"
+            return ["uv sync"]
         case "python":
-            return "pip install"
+            return ["pip install"]
         case "bundler":
-            return "bundle install"
+            return ["bundle install"]
+        case "go":
+            return ["go get", "go mod tidy"]
+        case "cargo":
+            return ["cargo add", "cargo update"]
         default:
-            return nil
+            return []
         }
     }
 
@@ -265,6 +281,10 @@ public struct HabitatScanner {
             return "running Bundler commands before bundle is available"
         case "swiftpm":
             return "running SwiftPM commands before swift is available"
+        case "go":
+            return "running Go commands before go is available"
+        case "cargo":
+            return "running Cargo commands before cargo is available"
         case "python":
             return "running Python commands before python3 is available"
         default:
@@ -278,6 +298,10 @@ public struct HabitatScanner {
             return "Project files prefer Bundler, but bundle was not found on PATH; ask before running Bundler commands."
         case "swiftpm":
             return "Project files prefer SwiftPM, but swift was not found on PATH; ask before running SwiftPM commands."
+        case "go":
+            return "Project files prefer Go, but go was not found on PATH; ask before running Go commands."
+        case "cargo":
+            return "Project files prefer Cargo, but cargo was not found on PATH; ask before running Cargo commands."
         case "python":
             return "Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."
         default:
@@ -317,6 +341,10 @@ public struct HabitatScanner {
             return "bundle"
         case "swiftpm":
             return "swift"
+        case "go":
+            return "go"
+        case "cargo":
+            return "cargo"
         case "python":
             return "python3"
         default:

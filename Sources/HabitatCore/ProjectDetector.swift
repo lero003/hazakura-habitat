@@ -70,6 +70,8 @@ public struct ProjectDetector {
         }
         if files.contains("package.json") { return "npm" }
         if files.contains("Package.swift") { return "swiftpm" }
+        if files.contains("go.mod") { return "go" }
+        if files.contains("Cargo.toml") { return "cargo" }
         if files.contains("uv.lock") { return "uv" }
         if files.contains("pyproject.toml")
             || files.contains("requirements.txt")

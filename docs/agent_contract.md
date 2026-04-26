@@ -97,6 +97,10 @@ Ask First:
 - `bun install`
 - `uv sync`
 - `bundle install`
+- `go get`
+- `go mod tidy`
+- `cargo add`
+- `cargo update`
 - creating or deleting virtual environments
 - modifying lockfiles
 - modifying version manager files
