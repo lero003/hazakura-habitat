@@ -132,6 +132,7 @@ struct HabitatCoreTests {
             "package.json": "{}",
             ".nvmrc": "v20\n",
             ".env": "OPENAI_API_KEY=\(secretValue)\n",
+            ".env.local": "LOCAL_TOKEN=\(secretValue)\n",
             ".env.example": "OPENAI_API_KEY=\n",
             "id_rsa": "\(privateKeyMarker)\n\(secretValue)\n",
         ])
@@ -139,6 +140,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
         #expect(result.project.detectedFiles.contains(".env"))
+        #expect(result.project.detectedFiles.contains(".env.local"))
         #expect(result.project.detectedFiles.contains(".env.example"))
         #expect(result.project.runtimeHints.node == "v20")
         #expect(result.warnings.contains("Environment file exists; do not read .env values."))
@@ -150,7 +152,22 @@ struct HabitatCoreTests {
             let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
             #expect(!artifact.contains(secretValue))
             #expect(!artifact.contains("OPENAI_API_KEY"))
+            #expect(!artifact.contains("LOCAL_TOKEN"))
             #expect(!artifact.contains(privateKeyMarker))
+        }
+    }
+
+    @Test
+    func scanWarnsForCommonSecretEnvironmentFiles() throws {
+        for envFile in [".env.local", ".env.development", ".env.development.local", ".env.test", ".env.test.local", ".env.production", ".env.production.local"] {
+            let projectURL = try makeProject(files: [
+                envFile: "SECRET=value\n",
+            ])
+
+            let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+            #expect(result.project.detectedFiles.contains(envFile), "Expected \(envFile) to be detected")
+            #expect(result.warnings.contains("Environment file exists; do not read .env values."), "Expected \(envFile) to trigger secret env guidance")
         }
     }
 

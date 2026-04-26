@@ -30,6 +30,13 @@ public struct ProjectDetector {
         ".node-version",
         ".nvmrc",
         ".env",
+        ".env.local",
+        ".env.development",
+        ".env.development.local",
+        ".env.test",
+        ".env.test.local",
+        ".env.production",
+        ".env.production.local",
         ".env.example",
         "README.md",
     ]

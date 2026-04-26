@@ -169,7 +169,7 @@ public struct HabitatScanner {
             }
         }
 
-        if project.detectedFiles.contains(".env") {
+        if hasSecretEnvironmentFile(project) {
             warnings.append("Environment file exists; do not read .env values.")
         } else if project.detectedFiles.contains(".env.example") {
             warnings.append("Environment examples exist; do not read real .env values.")
@@ -193,6 +193,12 @@ public struct HabitatScanner {
 
     private func hasProjectVirtualEnvironment(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains(".venv")
+    }
+
+    private func hasSecretEnvironmentFile(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains { file in
+            file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
+        }
     }
 
     private func shouldWarnAboutMissingPreferredTool(packageManager: String, resolvedPaths: [ResolvedTool]) -> Bool {
