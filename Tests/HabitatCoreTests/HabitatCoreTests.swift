@@ -406,6 +406,10 @@ struct HabitatCoreTests {
             #expect(!artifact.contains("npmAuthToken"))
             #expect(!artifact.contains(privateKeyMarker))
         }
+
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        #expect(context.contains("Do not run `read .env values`."))
+        #expect(context.contains("Do not run `read package manager auth config values`."))
     }
 
     @Test

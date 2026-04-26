@@ -32,7 +32,7 @@ public struct ReportWriter {
         }
         let useLines = ([packageManagerUse] + result.policy.preferredCommands.prefix(2).map { "Prefer `\($0)`." })
             .compactMap { $0 }
-        let avoidLines = result.policy.forbiddenCommands.prefix(4).map { "Do not run `\($0)`." }
+        let avoidLines = prioritizedForbiddenCommands(result).prefix(4).map { "Do not run `\($0)`." }
         let askLines = result.policy.askFirstCommands.prefix(4).map { "Ask before `\($0)`." }
         let mismatchLines = result.warnings.isEmpty ? ["- None detected."] : result.warnings.map { "- \($0)" }
         let relevantDiagnostics = agentRelevantDiagnostics(result)
@@ -145,6 +145,45 @@ public struct ReportWriter {
             relevantCommands.contains { commandName in
                 diagnostic == commandName || diagnostic.hasPrefix("\(commandName) ")
             }
+        }
+    }
+
+    private func prioritizedForbiddenCommands(_ result: ScanResult) -> [String] {
+        var commands: [String] = []
+
+        append("sudo", to: &commands, from: result.policy.forbiddenCommands)
+
+        if hasSecretEnvironmentFile(result.project) || result.project.detectedFiles.contains(".env.example") {
+            append("read .env values", to: &commands, from: result.policy.forbiddenCommands)
+        }
+
+        if hasPackageManagerAuthConfig(result.project) {
+            append("read package manager auth config values", to: &commands, from: result.policy.forbiddenCommands)
+        }
+
+        append("read SSH private keys", to: &commands, from: result.policy.forbiddenCommands)
+
+        for command in result.policy.forbiddenCommands where !commands.contains(command) {
+            commands.append(command)
+        }
+
+        return commands
+    }
+
+    private func append(_ command: String, to commands: inout [String], from source: [String]) {
+        guard source.contains(command), !commands.contains(command) else { return }
+        commands.append(command)
+    }
+
+    private func hasSecretEnvironmentFile(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains { file in
+            file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
+        }
+    }
+
+    private func hasPackageManagerAuthConfig(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains { file in
+            file == ".npmrc" || file == ".yarnrc" || file == ".yarnrc.yml"
         }
     }
 

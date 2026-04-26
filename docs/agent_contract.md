@@ -42,6 +42,7 @@ Guidelines:
 - Prefer imperative guidance over narrative explanation.
 - Keep it short enough to paste into an AI prompt.
 - Mention only details that can affect project work.
+- Prioritize project-relevant secret-reading bans in `Avoid` when secret-bearing files are detected.
 - Do not dump full package inventories here.
 - Include scan freshness because environment data becomes stale quickly.
 
