@@ -107,13 +107,13 @@ public struct HabitatScanner {
     private func preferredCommands(project: ProjectInfo) -> [String] {
         switch project.packageManager {
         case "pnpm":
-            return ["pnpm", "pnpm test", "pnpm build"]
+            return javaScriptPreferredCommands(packageManager: "pnpm", project: project)
         case "yarn":
-            return ["yarn", "yarn test", "yarn build"]
+            return javaScriptPreferredCommands(packageManager: "yarn", project: project)
         case "bun":
-            return ["bun", "bun test", "bun run build"]
+            return javaScriptPreferredCommands(packageManager: "bun", project: project)
         case "npm":
-            return ["npm run test", "npm run build"]
+            return javaScriptPreferredCommands(packageManager: "npm", project: project)
         case "swiftpm":
             return ["swift test", "swift build"]
         case "go":
@@ -128,6 +128,38 @@ public struct HabitatScanner {
             return ["bundle exec"]
         default:
             return ["Use read-only inspection first"]
+        }
+    }
+
+    private func javaScriptPreferredCommands(packageManager: String, project: ProjectInfo) -> [String] {
+        let knownScriptOrder = ["test", "build", "lint", "typecheck", "check"]
+        let knownScripts = knownScriptOrder.filter { project.packageScripts.contains($0) }
+
+        if !knownScripts.isEmpty {
+            return knownScripts.map { javaScriptRunCommand(packageManager: packageManager, script: $0) }
+        }
+
+        if project.detectedFiles.contains("package.json") {
+            return [javaScriptRunCommand(packageManager: packageManager, script: nil)]
+        }
+
+        return [packageManager]
+    }
+
+    private func javaScriptRunCommand(packageManager: String, script: String?) -> String {
+        switch (packageManager, script) {
+        case ("bun", "test"):
+            return "bun test"
+        case ("bun", let script?):
+            return "bun run \(script)"
+        case ("npm", let script?):
+            return "npm run \(script)"
+        case ("npm", nil):
+            return "npm run"
+        case (_, let script?):
+            return "\(packageManager) run \(script)"
+        case (_, nil):
+            return "\(packageManager) run"
         }
     }
 

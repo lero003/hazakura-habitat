@@ -38,7 +38,7 @@ struct HabitatCoreTests {
 
         #expect(result.project.packageManager == "pnpm")
         #expect(result.project.runtimeHints.node == "v20")
-        #expect(result.policy.preferredCommands.contains("pnpm"))
+        #expect(result.policy.preferredCommands.contains("pnpm run"))
         #expect(result.warnings.contains(where: { $0.contains("do not read real .env values") }))
     }
 
@@ -162,7 +162,8 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "npm")
-        #expect(result.policy.preferredCommands == ["npm run test", "npm run build"])
+        #expect(result.project.packageScripts.isEmpty)
+        #expect(result.policy.preferredCommands == ["npm run"])
         #expect(result.policy.askFirstCommands.contains("substituting another package manager for npm"))
         #expect(result.warnings.contains("Project files prefer npm, but npm was not found on PATH; ask before substituting another package manager."))
         #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
@@ -173,10 +174,46 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(context.contains("Use `npm` because project files point to it."))
-        #expect(context.contains("Prefer `npm run test`."))
+        #expect(context.contains("Prefer `npm run`."))
         #expect(context.contains("Ask before `substituting another package manager for npm`."))
-        #expect(policy.contains("`npm run test`"))
+        #expect(policy.contains("`npm run`"))
         #expect(policy.contains("`substituting another package manager for npm`"))
+    }
+
+    @Test
+    func scanUsesPackageJsonScriptNamesForJavaScriptPreferredCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "build": "vite build",
+                "deploy": "secret deploy target",
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.project.packageScripts == ["build", "deploy", "test"])
+        #expect(result.policy.preferredCommands == ["npm run test", "npm run build"])
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Prefer `npm run test`."))
+        #expect(context.contains("Prefer `npm run build`."))
+        #expect(!context.contains("secret deploy target"))
+        #expect(!context.contains("npm run deploy"))
     }
 
     @Test
@@ -185,7 +222,11 @@ struct HabitatCoreTests {
             "package.json": """
             {
               "name": "demo",
-              "packageManager": "pnpm@9.15.4"
+              "packageManager": "pnpm@9.15.4",
+              "scripts": {
+                "build": "vite build",
+                "test": "vitest run"
+              }
             }
             """,
         ])
@@ -199,7 +240,8 @@ struct HabitatCoreTests {
 
         #expect(result.project.packageManager == "pnpm")
         #expect(result.project.packageManagerVersion == "9.15.4")
-        #expect(result.policy.preferredCommands == ["pnpm", "pnpm test", "pnpm build"])
+        #expect(result.project.packageScripts == ["build", "test"])
+        #expect(result.policy.preferredCommands == ["pnpm run test", "pnpm run build"])
         #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
         #expect(!result.policy.askFirstCommands.contains("substituting another package manager for pnpm"))
         #expect(!result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
@@ -210,8 +252,8 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(context.contains("Use `pnpm@9.15.4` because `package.json` packageManager points to it."))
-        #expect(context.contains("Prefer `pnpm`."))
-        #expect(policy.contains("`pnpm test`"))
+        #expect(context.contains("Prefer `pnpm run test`."))
+        #expect(policy.contains("`pnpm run build`"))
     }
 
     @Test
@@ -578,7 +620,7 @@ struct HabitatCoreTests {
             projectPath: "/tmp/project",
             system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
             commands: [],
-            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, runtimeHints: .init(node: nil, python: nil)),
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
             tools: .init(resolvedPaths: [], versions: []),
             policy: .init(preferredCommands: ["swift test"], askFirstCommands: ["pnpm install"], forbiddenCommands: ["sudo"]),
             warnings: [],
@@ -601,7 +643,7 @@ struct HabitatCoreTests {
             projectPath: "/tmp/project",
             system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
             commands: [],
-            project: .init(detectedFiles: [".nvmrc", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, runtimeHints: .init(node: "v20", python: nil)),
+            project: .init(detectedFiles: [".nvmrc", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: "v20", python: nil)),
             tools: .init(resolvedPaths: [], versions: []),
             policy: .init(preferredCommands: ["pnpm"], askFirstCommands: ["pnpm install"], forbiddenCommands: ["sudo"]),
             warnings: ["Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node)."],
@@ -623,7 +665,7 @@ struct HabitatCoreTests {
             projectPath: "/tmp/project",
             system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
             commands: [],
-            project: .init(detectedFiles: [".nvmrc", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, runtimeHints: .init(node: "v20", python: nil)),
+            project: .init(detectedFiles: [".nvmrc", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: "v20", python: nil)),
             tools: .init(resolvedPaths: [], versions: []),
             policy: .init(
                 preferredCommands: ["pnpm"],
@@ -723,7 +765,7 @@ struct HabitatCoreTests {
             projectPath: "/tmp/project",
             system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
             commands: [],
-            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, runtimeHints: .init(node: nil, python: nil)),
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
             tools: .init(resolvedPaths: [], versions: []),
             policy: .init(preferredCommands: ["swift test"], askFirstCommands: [], forbiddenCommands: ["sudo"]),
             warnings: [],
@@ -797,7 +839,7 @@ struct HabitatCoreTests {
             projectPath: "/tmp/project",
             system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
             commands: [],
-            project: .init(detectedFiles: [".nvmrc", "package.json", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, runtimeHints: .init(node: "v20", python: nil)),
+            project: .init(detectedFiles: [".nvmrc", "package.json", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: "v20", python: nil)),
             tools: .init(resolvedPaths: [], versions: []),
             policy: .init(
                 preferredCommands: ["pnpm", "pnpm test"],

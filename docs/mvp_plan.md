@@ -118,7 +118,7 @@ Detect dependency signals:
 - `.env.example`
 - `README.md`
 
-Read only safe metadata. Never read `.env` values.
+Read only safe metadata such as `package.json` package manager hints and script names. Never read `.env` values.
 
 ### M4: Focused Tool Scanners
 

@@ -35,6 +35,7 @@ public struct ProjectInfo: Codable {
     public let detectedFiles: [String]
     public let packageManager: String?
     public let packageManagerVersion: String?
+    public let packageScripts: [String]
     public let runtimeHints: RuntimeHints
 }
 

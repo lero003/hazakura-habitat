@@ -133,6 +133,7 @@ Top-level shape:
     "detectedFiles": [],
     "packageManager": "pnpm",
     "packageManagerVersion": "9.15.4",
+    "packageScripts": ["build", "test"],
     "runtimeHints": {}
   },
   "tools": {},

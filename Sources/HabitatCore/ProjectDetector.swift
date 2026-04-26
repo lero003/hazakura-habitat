@@ -45,13 +45,14 @@ public struct ProjectDetector {
     public func detect(projectURL: URL) -> ProjectInfo {
         let manager = FileManager.default
         let detectedFiles = candidateFiles.filter { manager.fileExists(atPath: projectURL.appendingPathComponent($0).path) }
-        let declaredPackageManager = packageManagerDeclaredInPackageJSON(projectURL.appendingPathComponent("package.json"))
-        let packageManager = detectPackageManager(files: detectedFiles, declaredPackageManager: declaredPackageManager)
+        let packageJSON = packageJSONMetadata(projectURL.appendingPathComponent("package.json"))
+        let packageManager = detectPackageManager(files: detectedFiles, declaredPackageManager: packageJSON.declaredPackageManager)
 
         return ProjectInfo(
             detectedFiles: detectedFiles,
             packageManager: packageManager,
-            packageManagerVersion: declaredPackageManager?.name == packageManager ? declaredPackageManager?.version : nil,
+            packageManagerVersion: packageJSON.declaredPackageManager?.name == packageManager ? packageJSON.declaredPackageManager?.version : nil,
+            packageScripts: packageJSON.scripts,
             runtimeHints: RuntimeHints(
                 node: firstAvailableLineIfSafe(
                     projectURL.appendingPathComponent(".nvmrc"),
@@ -84,16 +85,25 @@ public struct ProjectDetector {
         return nil
     }
 
-    private func packageManagerDeclaredInPackageJSON(_ url: URL) -> DeclaredPackageManager? {
-        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
-        guard fileSize(at: url) <= 512 * 1024 else { return nil }
+    private func packageJSONMetadata(_ url: URL) -> PackageJSONMetadata {
+        guard FileManager.default.fileExists(atPath: url.path) else { return .empty }
+        guard fileSize(at: url) <= 512 * 1024 else { return .empty }
         guard let data = try? Data(contentsOf: url),
-              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
-              let rawPackageManager = json["packageManager"] as? String
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
         else {
-            return nil
+            return .empty
         }
 
+        let declaredPackageManager = (json["packageManager"] as? String)
+            .flatMap(declaredPackageManager(from:))
+        let scripts = (json["scripts"] as? [String: Any])?
+            .compactMap { key, value in value is String ? key : nil }
+            .sorted() ?? []
+
+        return PackageJSONMetadata(declaredPackageManager: declaredPackageManager, scripts: scripts)
+    }
+
+    private func declaredPackageManager(from rawPackageManager: String) -> DeclaredPackageManager? {
         let value = rawPackageManager.trimmingCharacters(in: .whitespacesAndNewlines)
         for packageManager in ["pnpm", "yarn", "bun", "npm"] {
             if value == packageManager {
@@ -142,4 +152,11 @@ public struct ProjectDetector {
 private struct DeclaredPackageManager {
     let name: String
     let version: String?
+}
+
+private struct PackageJSONMetadata {
+    static let empty = PackageJSONMetadata(declaredPackageManager: nil, scripts: [])
+
+    let declaredPackageManager: DeclaredPackageManager?
+    let scripts: [String]
 }
