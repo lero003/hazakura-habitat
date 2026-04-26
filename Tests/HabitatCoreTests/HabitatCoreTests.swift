@@ -83,6 +83,39 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanUsesToolVersionsForNodeRuntimeInstallGuard() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+            ".tool-versions": """
+            nodejs 24.0.0
+            ruby 3.3.0
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".tool-versions"))
+        #expect(result.project.runtimeHints.node == "24.0.0")
+        #expect(result.warnings.contains("Active Node is v22.15.0, but project requests 24.0.0; ask before dependency installs (/opt/homebrew/bin/node)."))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Active Node is v22.15.0, but project requests 24.0.0; ask before dependency installs"))
+        #expect(policy.contains("`dependency installs before matching active Node to project version hints`"))
+    }
+
+    @Test
     func scanWarnsBeforeSubstitutingMissingPreferredPackageManager() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
@@ -695,6 +728,39 @@ struct HabitatCoreTests {
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
+        #expect(policy.contains("`dependency installs before matching active Python to project version hints`"))
+    }
+
+    @Test
+    func scanUsesToolVersionsForPythonRuntimeInstallGuard() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            ".tool-versions": """
+            # asdf-style runtime hints
+            python 3.12.4 3.11.9
+            ruby 3.3.0
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.11.9", stderr: ""),
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(result.project.detectedFiles.contains(".tool-versions"))
+        #expect(result.project.runtimeHints.python == "3.12.4")
+        #expect(result.warnings.contains("Active Python is Python 3.11.9, but project requests 3.12.4; ask before dependency installs (/opt/homebrew/bin/python3)."))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Python to project version hints"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Active Python is Python 3.11.9, but project requests 3.12.4; ask before dependency installs"))
         #expect(policy.contains("`dependency installs before matching active Python to project version hints`"))
     }
 

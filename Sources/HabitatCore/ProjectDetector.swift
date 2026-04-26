@@ -48,6 +48,7 @@ public struct ProjectDetector {
         let manager = FileManager.default
         let detectedFiles = candidateFiles.filter { manager.fileExists(atPath: projectURL.appendingPathComponent($0).path) }
         let packageJSON = packageJSONMetadata(projectURL.appendingPathComponent("package.json"))
+        let toolVersions = toolVersionsMetadata(projectURL.appendingPathComponent(".tool-versions"))
         let packageManager = detectPackageManager(files: detectedFiles, declaredPackageManager: packageJSON.declaredPackageManager)
 
         return ProjectInfo(
@@ -59,8 +60,8 @@ public struct ProjectDetector {
                 node: firstAvailableLineIfSafe(
                     projectURL.appendingPathComponent(".nvmrc"),
                     projectURL.appendingPathComponent(".node-version")
-                ),
-                python: firstLineIfSafe(projectURL.appendingPathComponent(".python-version"))
+                ) ?? toolVersions.node,
+                python: firstLineIfSafe(projectURL.appendingPathComponent(".python-version")) ?? toolVersions.python
             )
         )
     }
@@ -106,6 +107,39 @@ public struct ProjectDetector {
             .sorted() ?? []
 
         return PackageJSONMetadata(declaredPackageManager: declaredPackageManager, scripts: scripts)
+    }
+
+    private func toolVersionsMetadata(_ url: URL) -> ToolVersionsMetadata {
+        guard FileManager.default.fileExists(atPath: url.path) else { return .empty }
+        guard fileSize(at: url) <= 64 * 1024 else { return .empty }
+        guard let content = try? String(contentsOf: url, encoding: .utf8) else { return .empty }
+
+        var node: String?
+        var python: String?
+
+        for rawLine in content.split(whereSeparator: \.isNewline) {
+            let line = rawLine
+                .split(separator: "#", maxSplits: 1, omittingEmptySubsequences: false)
+                .first?
+                .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            let parts = line.split(whereSeparator: \.isWhitespace).map(String.init)
+            guard parts.count >= 2 else { continue }
+
+            switch parts[0] {
+            case "node", "nodejs":
+                if node == nil {
+                    node = parts[1]
+                }
+            case "python":
+                if python == nil {
+                    python = parts[1]
+                }
+            default:
+                continue
+            }
+        }
+
+        return ToolVersionsMetadata(node: node, python: python)
     }
 
     private func declaredPackageManager(from rawPackageManager: String) -> DeclaredPackageManager? {
@@ -164,4 +198,11 @@ private struct PackageJSONMetadata {
 
     let declaredPackageManager: DeclaredPackageManager?
     let scripts: [String]
+}
+
+private struct ToolVersionsMetadata {
+    static let empty = ToolVersionsMetadata(node: nil, python: nil)
+
+    let node: String?
+    let python: String?
 }

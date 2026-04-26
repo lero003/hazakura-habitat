@@ -162,6 +162,7 @@ Compatibility:
 - Add fields freely during `0.x`.
 - Do not rename or remove fields without documenting a schema change.
 - Generate Markdown from this JSON when possible.
+- `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions`.
 
 ## Secondary Artifact: environment_report.md
 
