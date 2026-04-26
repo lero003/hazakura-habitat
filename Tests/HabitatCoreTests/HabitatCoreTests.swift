@@ -192,23 +192,78 @@ struct HabitatCoreTests {
 
         let runner = FakeCommandRunner(results: [
             "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "9.15.4", stderr: ""),
         ])
 
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
         #expect(result.policy.preferredCommands == ["pnpm", "pnpm test", "pnpm build"])
         #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
         #expect(!result.policy.askFirstCommands.contains("substituting another package manager for pnpm"))
+        #expect(!result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Use `pnpm` because project files point to it."))
+        #expect(context.contains("Use `pnpm@9.15.4` because `package.json` packageManager points to it."))
         #expect(context.contains("Prefer `pnpm`."))
         #expect(policy.contains("`pnpm test`"))
+    }
+
+    @Test
+    func scanAsksBeforeInstallsWhenPackageManagerVersionDiffers() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "packageManager": "pnpm@9.15.4"
+            }
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "10.0.0", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+        #expect(result.warnings.contains("Project requests pnpm 9.15.4 via package.json; active pnpm is 10.0.0; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `pnpm@9.15.4` because `package.json` packageManager points to it."))
+        #expect(context.contains("Ask before `dependency installs before matching pnpm to packageManager version`."))
+        #expect(policy.contains("`dependency installs before matching pnpm to packageManager version`"))
+    }
+
+    @Test
+    func scanAsksBeforeInstallsWhenPackageManagerVersionCannotBeVerified() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "packageManager": "yarn@4.8.1"
+            }
+            """,
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "yarn")
+        #expect(result.project.packageManagerVersion == "4.8.1")
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching yarn to packageManager version"))
+        #expect(result.warnings.contains("Project requests yarn 4.8.1 via package.json; verify active yarn before dependency installs."))
     }
 
     @Test
@@ -474,7 +529,7 @@ struct HabitatCoreTests {
             projectPath: "/tmp/project",
             system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
             commands: [],
-            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", runtimeHints: .init(node: nil, python: nil)),
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, runtimeHints: .init(node: nil, python: nil)),
             tools: .init(resolvedPaths: [], versions: []),
             policy: .init(preferredCommands: ["swift test"], askFirstCommands: ["pnpm install"], forbiddenCommands: ["sudo"]),
             warnings: [],
@@ -497,7 +552,7 @@ struct HabitatCoreTests {
             projectPath: "/tmp/project",
             system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
             commands: [],
-            project: .init(detectedFiles: [".nvmrc", "pnpm-lock.yaml"], packageManager: "pnpm", runtimeHints: .init(node: "v20", python: nil)),
+            project: .init(detectedFiles: [".nvmrc", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, runtimeHints: .init(node: "v20", python: nil)),
             tools: .init(resolvedPaths: [], versions: []),
             policy: .init(preferredCommands: ["pnpm"], askFirstCommands: ["pnpm install"], forbiddenCommands: ["sudo"]),
             warnings: ["Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node)."],
@@ -519,7 +574,7 @@ struct HabitatCoreTests {
             projectPath: "/tmp/project",
             system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
             commands: [],
-            project: .init(detectedFiles: [".nvmrc", "pnpm-lock.yaml"], packageManager: "pnpm", runtimeHints: .init(node: "v20", python: nil)),
+            project: .init(detectedFiles: [".nvmrc", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, runtimeHints: .init(node: "v20", python: nil)),
             tools: .init(resolvedPaths: [], versions: []),
             policy: .init(
                 preferredCommands: ["pnpm"],
@@ -665,7 +720,7 @@ struct HabitatCoreTests {
             projectPath: "/tmp/project",
             system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
             commands: [],
-            project: .init(detectedFiles: [".nvmrc", "package.json", "pnpm-lock.yaml"], packageManager: "pnpm", runtimeHints: .init(node: "v20", python: nil)),
+            project: .init(detectedFiles: [".nvmrc", "package.json", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, runtimeHints: .init(node: "v20", python: nil)),
             tools: .init(resolvedPaths: [], versions: []),
             policy: .init(
                 preferredCommands: ["pnpm", "pnpm test"],

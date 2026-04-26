@@ -101,6 +101,7 @@ Ask First:
 - `go mod tidy`
 - `cargo add`
 - `cargo update`
+- dependency installs before matching the selected JavaScript package manager to `package.json` `packageManager` version
 - creating or deleting virtual environments
 - modifying lockfiles
 - modifying version manager files
@@ -128,7 +129,12 @@ Top-level shape:
   "projectPath": "/path/to/project",
   "system": {},
   "commands": [],
-  "project": {},
+  "project": {
+    "detectedFiles": [],
+    "packageManager": "pnpm",
+    "packageManagerVersion": "9.15.4",
+    "runtimeHints": {}
+  },
   "tools": {},
   "policy": {},
   "warnings": [],

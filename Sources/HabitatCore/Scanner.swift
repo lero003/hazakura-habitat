@@ -25,7 +25,7 @@ public struct HabitatScanner {
             ("cargo", "/usr/bin/env", ["cargo", "--version"]),
             ("rustc", "/usr/bin/env", ["rustc", "--version"]),
             ("xcode-select", "/usr/bin/xcrun", ["xcode-select", "-p"]),
-        ]
+        ] + packageManagerVersionCommandSpecs(project: project)
 
         let commands = commandSpecs.map { spec in
             runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
@@ -162,6 +162,10 @@ public struct HabitatScanner {
             commands.insert("dependency installs before matching active Python to project version hints", at: 0)
         }
 
+        if packageManagerVersionNeedsVerification(project: project, versions: versions) {
+            commands.insert("dependency installs before matching \(project.packageManager ?? "package manager") to packageManager version", at: 0)
+        }
+
         if let packageManager = project.packageManager,
            shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
             commands.insert(missingPreferredToolAskFirstCommand(packageManager: packageManager), at: 0)
@@ -220,6 +224,18 @@ public struct HabitatScanner {
             }
         }
 
+        if let packageManager = project.packageManager,
+           let requestedVersion = project.packageManagerVersion {
+            let activeToolVersion = versions.first(where: { $0.name == packageManager })
+            if let activeVersion = activeToolVersion?.version,
+               activeToolVersion?.available == true,
+               packageManagerVersionsDiffer(requested: requestedVersion, active: activeVersion) {
+                warnings.append("Project requests \(packageManager) \(requestedVersion) via package.json; active \(packageManager) is \(activeVersion); ask before dependency installs.")
+            } else if activeToolVersion?.available != true {
+                warnings.append("Project requests \(packageManager) \(requestedVersion) via package.json; verify active \(packageManager) before dependency installs.")
+            }
+        }
+
         if hasSecretEnvironmentFile(project) {
             warnings.append("Environment file exists; do not read .env values.")
         } else if project.detectedFiles.contains(".env.example") {
@@ -265,6 +281,17 @@ public struct HabitatScanner {
         ["package-lock.json", "pnpm-lock.yaml", "yarn.lock", "bun.lockb"].filter {
             project.detectedFiles.contains($0)
         }
+    }
+
+    private func packageManagerVersionCommandSpecs(project: ProjectInfo) -> [(String, String, [String])] {
+        guard project.packageManagerVersion != nil,
+              let packageManager = project.packageManager,
+              ["npm", "pnpm", "yarn", "bun"].contains(packageManager)
+        else {
+            return []
+        }
+
+        return [(packageManager, "/usr/bin/env", [packageManager, "--version"])]
     }
 
     private func shouldWarnAboutMissingPreferredTool(packageManager: String, resolvedPaths: [ResolvedTool]) -> Bool {
@@ -333,6 +360,23 @@ public struct HabitatScanner {
         return pythonVersionsDiffer(requested: pythonHint, active: activeVersion)
     }
 
+    private func packageManagerVersionNeedsVerification(project: ProjectInfo, versions: [ToolVersion]) -> Bool {
+        guard let packageManager = project.packageManager,
+              let packageManagerVersion = project.packageManagerVersion
+        else {
+            return false
+        }
+
+        guard let activeToolVersion = versions.first(where: { $0.name == packageManager }),
+              activeToolVersion.available,
+              let activeVersion = activeToolVersion.version
+        else {
+            return true
+        }
+
+        return packageManagerVersionsDiffer(requested: packageManagerVersion, active: activeVersion)
+    }
+
     private func executableName(forPackageManager packageManager: String) -> String? {
         switch packageManager {
         case "npm", "pnpm", "yarn", "bun", "uv":
@@ -372,12 +416,23 @@ public struct HabitatScanner {
         return requestedComponents != activeComponents
     }
 
-    private func versionComponents(from value: String) -> [Int]? {
+    private func packageManagerVersionsDiffer(requested: String, active: String) -> Bool {
+        guard let requestedComponents = versionComponents(from: requested, limit: 3),
+              let activeComponents = versionComponents(from: active, limit: 3),
+              activeComponents.count >= requestedComponents.count
+        else {
+            return false
+        }
+
+        return Array(activeComponents.prefix(requestedComponents.count)) != requestedComponents
+    }
+
+    private func versionComponents(from value: String, limit: Int = 2) -> [Int]? {
         let numericVersion = value.drop { !$0.isNumber }
             .prefix { $0.isNumber || $0 == "." }
         let components = numericVersion
             .split(separator: ".")
-            .prefix(2)
+            .prefix(limit)
             .compactMap { Int($0) }
         return components.isEmpty ? nil : Array(components)
     }

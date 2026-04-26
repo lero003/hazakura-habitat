@@ -45,10 +45,13 @@ public struct ProjectDetector {
     public func detect(projectURL: URL) -> ProjectInfo {
         let manager = FileManager.default
         let detectedFiles = candidateFiles.filter { manager.fileExists(atPath: projectURL.appendingPathComponent($0).path) }
+        let declaredPackageManager = packageManagerDeclaredInPackageJSON(projectURL.appendingPathComponent("package.json"))
+        let packageManager = detectPackageManager(files: detectedFiles, declaredPackageManager: declaredPackageManager)
 
         return ProjectInfo(
             detectedFiles: detectedFiles,
-            packageManager: detectPackageManager(files: detectedFiles, projectURL: projectURL),
+            packageManager: packageManager,
+            packageManagerVersion: declaredPackageManager?.name == packageManager ? declaredPackageManager?.version : nil,
             runtimeHints: RuntimeHints(
                 node: firstAvailableLineIfSafe(
                     projectURL.appendingPathComponent(".nvmrc"),
@@ -59,14 +62,13 @@ public struct ProjectDetector {
         )
     }
 
-    private func detectPackageManager(files: [String], projectURL: URL) -> String? {
+    private func detectPackageManager(files: [String], declaredPackageManager: DeclaredPackageManager?) -> String? {
         if files.contains("pnpm-lock.yaml") { return "pnpm" }
         if files.contains("yarn.lock") { return "yarn" }
         if files.contains("bun.lockb") { return "bun" }
         if files.contains("package-lock.json") { return "npm" }
-        if files.contains("package.json"),
-           let declaredPackageManager = packageManagerDeclaredInPackageJSON(projectURL.appendingPathComponent("package.json")) {
-            return declaredPackageManager
+        if files.contains("package.json"), let declaredPackageManager {
+            return declaredPackageManager.name
         }
         if files.contains("package.json") { return "npm" }
         if files.contains("Package.swift") { return "swiftpm" }
@@ -82,7 +84,7 @@ public struct ProjectDetector {
         return nil
     }
 
-    private func packageManagerDeclaredInPackageJSON(_ url: URL) -> String? {
+    private func packageManagerDeclaredInPackageJSON(_ url: URL) -> DeclaredPackageManager? {
         guard FileManager.default.fileExists(atPath: url.path) else { return nil }
         guard fileSize(at: url) <= 512 * 1024 else { return nil }
         guard let data = try? Data(contentsOf: url),
@@ -94,8 +96,15 @@ public struct ProjectDetector {
 
         let value = rawPackageManager.trimmingCharacters(in: .whitespacesAndNewlines)
         for packageManager in ["pnpm", "yarn", "bun", "npm"] {
-            if value == packageManager || value.hasPrefix("\(packageManager)@") {
-                return packageManager
+            if value == packageManager {
+                return DeclaredPackageManager(name: packageManager, version: nil)
+            }
+
+            if value.hasPrefix("\(packageManager)@") {
+                let version = String(value.dropFirst(packageManager.count + 1))
+                    .trimmingCharacters(in: .whitespacesAndNewlines)
+                guard !version.isEmpty else { return nil }
+                return DeclaredPackageManager(name: packageManager, version: version)
             }
         }
 
@@ -128,4 +137,9 @@ public struct ProjectDetector {
             .map(String.init)?
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
+}
+
+private struct DeclaredPackageManager {
+    let name: String
+    let version: String?
 }
