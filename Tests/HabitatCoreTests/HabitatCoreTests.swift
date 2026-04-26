@@ -180,6 +180,38 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanUsesPackageManagerFieldWhenNoJavaScriptLockfileExists() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "packageManager": "pnpm@9.15.4"
+            }
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.policy.preferredCommands == ["pnpm", "pnpm test", "pnpm build"])
+        #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+        #expect(!result.policy.askFirstCommands.contains("substituting another package manager for pnpm"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `pnpm` because project files point to it."))
+        #expect(context.contains("Prefer `pnpm`."))
+        #expect(policy.contains("`pnpm test`"))
+    }
+
+    @Test
     func scanDoesNotReadOrEmitSecretFileValues() throws {
         let secretValue = "sk-habitat-test-secret-123"
         let privateKeyMarker = "-----BEGIN OPENSSH PRIVATE KEY-----"

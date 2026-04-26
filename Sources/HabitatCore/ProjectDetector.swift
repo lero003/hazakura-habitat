@@ -47,7 +47,7 @@ public struct ProjectDetector {
 
         return ProjectInfo(
             detectedFiles: detectedFiles,
-            packageManager: detectPackageManager(files: detectedFiles),
+            packageManager: detectPackageManager(files: detectedFiles, projectURL: projectURL),
             runtimeHints: RuntimeHints(
                 node: firstAvailableLineIfSafe(
                     projectURL.appendingPathComponent(".nvmrc"),
@@ -58,11 +58,15 @@ public struct ProjectDetector {
         )
     }
 
-    private func detectPackageManager(files: [String]) -> String? {
+    private func detectPackageManager(files: [String], projectURL: URL) -> String? {
         if files.contains("pnpm-lock.yaml") { return "pnpm" }
         if files.contains("yarn.lock") { return "yarn" }
         if files.contains("bun.lockb") { return "bun" }
         if files.contains("package-lock.json") { return "npm" }
+        if files.contains("package.json"),
+           let declaredPackageManager = packageManagerDeclaredInPackageJSON(projectURL.appendingPathComponent("package.json")) {
+            return declaredPackageManager
+        }
         if files.contains("package.json") { return "npm" }
         if files.contains("Package.swift") { return "swiftpm" }
         if files.contains("uv.lock") { return "uv" }
@@ -72,6 +76,31 @@ public struct ProjectDetector {
             || files.contains("Pipfile")
             || files.contains("Pipfile.lock") { return "python" }
         return nil
+    }
+
+    private func packageManagerDeclaredInPackageJSON(_ url: URL) -> String? {
+        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+        guard fileSize(at: url) <= 512 * 1024 else { return nil }
+        guard let data = try? Data(contentsOf: url),
+              let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let rawPackageManager = json["packageManager"] as? String
+        else {
+            return nil
+        }
+
+        let value = rawPackageManager.trimmingCharacters(in: .whitespacesAndNewlines)
+        for packageManager in ["pnpm", "yarn", "bun", "npm"] {
+            if value == packageManager || value.hasPrefix("\(packageManager)@") {
+                return packageManager
+            }
+        }
+
+        return nil
+    }
+
+    private func fileSize(at url: URL) -> UInt64 {
+        let attributes = try? FileManager.default.attributesOfItem(atPath: url.path)
+        return (attributes?[.size] as? NSNumber)?.uint64Value ?? UInt64.max
     }
 
     private func firstAvailableLineIfSafe(_ urls: URL...) -> String? {
