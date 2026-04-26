@@ -8,6 +8,7 @@ public struct ProjectDetector {
         "package-lock.json",
         "pnpm-lock.yaml",
         "yarn.lock",
+        "bun.lock",
         "bun.lockb",
         "pyproject.toml",
         "requirements.txt",
@@ -85,7 +86,7 @@ public struct ProjectDetector {
     private func detectPackageManager(files: [String], declaredPackageManager: DeclaredPackageManager?) -> String? {
         if files.contains("pnpm-lock.yaml") { return "pnpm" }
         if files.contains("yarn.lock") { return "yarn" }
-        if files.contains("bun.lockb") { return "bun" }
+        if files.contains("bun.lock") || files.contains("bun.lockb") { return "bun" }
         if files.contains("package-lock.json") { return "npm" }
         if files.contains("package.json"), let declaredPackageManager {
             return declaredPackageManager.name

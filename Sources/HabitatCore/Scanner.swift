@@ -362,7 +362,7 @@ public struct HabitatScanner {
     }
 
     private func javaScriptLockfiles(_ project: ProjectInfo) -> [String] {
-        ["package-lock.json", "pnpm-lock.yaml", "yarn.lock", "bun.lockb"].filter {
+        ["package-lock.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb"].filter {
             project.detectedFiles.contains($0)
         }
     }

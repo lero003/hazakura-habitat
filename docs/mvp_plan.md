@@ -97,6 +97,7 @@ Detect dependency signals:
 - `package-lock.json`
 - `pnpm-lock.yaml`
 - `yarn.lock`
+- `bun.lock`
 - `bun.lockb`
 - `pyproject.toml`
 - `requirements.txt`

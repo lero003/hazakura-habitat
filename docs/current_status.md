@@ -13,6 +13,7 @@
 - Read-only command execution with timeout, duration, stdout, stderr, exit code, and availability capture.
 - Missing commands and scanner failures are represented as scan data instead of fatal errors.
 - Project signal detection for common JavaScript, Python, Swift, Ruby, Go, Rust, CocoaPods, Carthage, Homebrew, and version-manager files.
+- Bun projects are detected from both current `bun.lock` and legacy `bun.lockb` lockfiles.
 - Basic package manager inference from lockfiles and project files.
 - JavaScript projects with `package.json` but no lockfile now default to npm guidance while still requiring approval for installs.
 - JavaScript projects with a `packageManager` field in `package.json` use that package manager when no lockfile is present.
