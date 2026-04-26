@@ -86,6 +86,7 @@ public struct HabitatScanner {
                     "npm install -g",
                     "pip install --user",
                     "read .env values",
+                    "read package manager auth config values",
                     "read SSH private keys"
                 ]
             ),
@@ -307,6 +308,10 @@ public struct HabitatScanner {
             warnings.append("Environment examples exist; do not read real .env values.")
         }
 
+        if hasPackageManagerAuthConfig(project) {
+            warnings.append("Package manager auth config exists; do not read token values from .npmrc or yarn config files.")
+        }
+
         if project.packageManager == nil {
             warnings.append("No primary package manager signal detected; prefer read-only inspection before mutation.")
         }
@@ -335,6 +340,12 @@ public struct HabitatScanner {
     private func hasSecretEnvironmentFile(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
             file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
+        }
+    }
+
+    private func hasPackageManagerAuthConfig(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains { file in
+            file == ".npmrc" || file == ".yarnrc" || file == ".yarnrc.yml"
         }
     }
 

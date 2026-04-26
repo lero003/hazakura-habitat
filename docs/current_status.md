@@ -31,12 +31,13 @@
 - Carthage guidance from `Cartfile` and `Cartfile.resolved`, including missing `carthage` and `carthage bootstrap`/`carthage update` mutation guards.
 - Homebrew Bundle guidance from `Brewfile`, including `brew bundle check` as the safe preferred command plus missing `brew` and `brew bundle` mutation guards.
 - Secret-bearing env file detection for common variants such as `.env.local`, `.env.development`, `.env.test`, and `.env.production` without reading their values.
+- Package-manager auth config detection for `.npmrc`, `.yarnrc`, and `.yarnrc.yml` without reading token values.
 - Missing preferred tool warnings when project files point to a tool that is not on `PATH`, including SwiftPM-specific guidance when `swift` is unavailable.
 - Selected package-manager install guards are prioritized so the short `agent_context.md` shows the relevant install command first.
 - Multiple JavaScript lockfile warnings that tell agents to ask before dependency installs when package-manager signals conflict.
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.
 - Command-policy guard that tells agents to ask before modifying lockfiles.
-- Tests for package manager detection, package.json-only npm guidance, package script guidance, `packageManager` field/version guidance, missing tools, non-zero version command failures, artifact generation, runtime mismatch policy guidance, `.tool-versions` runtime hints, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, secret avoidance, common env file warnings, uv missing-tool fallback guards, Bundler missing-tool guards, SwiftPM missing-tool and dependency-mutation guards, Go missing-tool guards, Cargo missing-tool guards, CocoaPods missing-tool and mutation guards, Carthage missing-tool and mutation guards, and Brewfile Homebrew Bundle guards.
+- Tests for package manager detection, package.json-only npm guidance, package script guidance, `packageManager` field/version guidance, missing tools, non-zero version command failures, artifact generation, runtime mismatch policy guidance, `.tool-versions` runtime hints, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, secret avoidance, package-manager auth config warnings, common env file warnings, uv missing-tool fallback guards, Bundler missing-tool guards, SwiftPM missing-tool and dependency-mutation guards, Go missing-tool guards, Cargo missing-tool guards, CocoaPods missing-tool and mutation guards, Carthage missing-tool and mutation guards, and Brewfile Homebrew Bundle guards.
 - GitHub CI and release artifact workflows.
 
 ## Not Yet Implemented

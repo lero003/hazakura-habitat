@@ -119,10 +119,13 @@ Detect dependency signals:
 - `.python-version`
 - `.node-version`
 - `.nvmrc`
+- `.npmrc`
+- `.yarnrc`
+- `.yarnrc.yml`
 - `.env.example`
 - `README.md`
 
-Read only safe metadata such as `package.json` package manager hints and script names, plus Node/Python version hints from `.tool-versions`. Never read `.env` values.
+Read only safe metadata such as `package.json` package manager hints and script names, plus Node/Python version hints from `.tool-versions`. Never read `.env` values or package-manager auth token values.
 
 ### M4: Focused Tool Scanners
 

@@ -377,6 +377,8 @@ struct HabitatCoreTests {
             ".env": "OPENAI_API_KEY=\(secretValue)\n",
             ".env.local": "LOCAL_TOKEN=\(secretValue)\n",
             ".env.example": "OPENAI_API_KEY=\n",
+            ".npmrc": "//registry.npmjs.org/:_authToken=\(secretValue)\n",
+            ".yarnrc.yml": "npmAuthToken: \(secretValue)\n",
             "id_rsa": "\(privateKeyMarker)\n\(secretValue)\n",
         ])
 
@@ -385,8 +387,12 @@ struct HabitatCoreTests {
         #expect(result.project.detectedFiles.contains(".env"))
         #expect(result.project.detectedFiles.contains(".env.local"))
         #expect(result.project.detectedFiles.contains(".env.example"))
+        #expect(result.project.detectedFiles.contains(".npmrc"))
+        #expect(result.project.detectedFiles.contains(".yarnrc.yml"))
         #expect(result.project.runtimeHints.node == "v20")
         #expect(result.warnings.contains("Environment file exists; do not read .env values."))
+        #expect(result.warnings.contains("Package manager auth config exists; do not read token values from .npmrc or yarn config files."))
+        #expect(result.policy.forbiddenCommands.contains("read package manager auth config values"))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -396,6 +402,8 @@ struct HabitatCoreTests {
             #expect(!artifact.contains(secretValue))
             #expect(!artifact.contains("OPENAI_API_KEY"))
             #expect(!artifact.contains("LOCAL_TOKEN"))
+            #expect(!artifact.contains("_authToken"))
+            #expect(!artifact.contains("npmAuthToken"))
             #expect(!artifact.contains(privateKeyMarker))
         }
     }

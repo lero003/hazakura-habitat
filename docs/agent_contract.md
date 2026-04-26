@@ -129,6 +129,7 @@ Forbidden in MVP-generated policy:
 - global `pip install`
 - destructive file deletion outside the selected project
 - reading secret values
+- reading package manager auth config values such as `.npmrc` or yarn auth tokens
 
 ## Machine Artifact: scan_result.json
 
@@ -163,6 +164,7 @@ Compatibility:
 - Do not rename or remove fields without documenting a schema change.
 - Generate Markdown from this JSON when possible.
 - `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions`.
+- Package-manager auth config files such as `.npmrc`, `.yarnrc`, and `.yarnrc.yml` may be detected by filename, but token values must not be read or emitted.
 
 ## Secondary Artifact: environment_report.md
 
