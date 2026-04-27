@@ -30,6 +30,7 @@
 - Project `.venv` detection that tells agents to prefer `.venv/bin/python` before system `python3`.
 - Python command guidance from secondary Python signals such as `requirements-dev.txt`, `Pipfile`, and `Pipfile.lock`.
 - Python dependency install aliases such as `pip3 install` and `python3 -m pip install` are classified as Ask First, with `--user` variants forbidden.
+- Python projects that contain both `pyproject.toml` and `requirements*.txt` now ask before dependency installs until the dependency source of truth is clear.
 - Ruby Bundler command guidance from `Gemfile` and `Gemfile.lock`, including a missing `bundle` guard.
 - SwiftPM command guidance from `Package.swift` and `Package.resolved`, including a missing `swift` guard and `swift package update` / `swift package resolve` mutation guards.
 - Go command guidance from `go.mod`, including missing `go` and `go get`/`go mod tidy` guards.
@@ -48,13 +49,13 @@
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.
 - Command-policy guard that tells agents to ask before modifying lockfiles.
 - Command-policy guard that forbids destructive file deletion outside the selected project.
-- Tests for package manager detection, package.json-only npm guidance, pnpm workspace guidance, package script guidance, `packageManager` field/version and lockfile-conflict guidance, JavaScript dependency mutation guards, missing tools, non-zero version command failures, artifact generation, runtime mismatch policy guidance, `.tool-versions` runtime hints, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, no-signal read-only fallback, secret avoidance, arbitrary `.env.*` and `.envrc.*` detection without value emission, secret-aware `agent_context.md` Avoid guidance, package-manager auth config warnings, common env file warnings, uv missing-tool fallback guards, Bundler missing-tool guards, SwiftPM `Package.resolved`, missing-tool, and dependency-mutation guards, Go missing-tool guards, Cargo missing-tool guards, CocoaPods missing-tool and mutation guards, Carthage missing-tool and mutation guards, and Brewfile Homebrew Bundle guards.
+- Tests for package manager detection, package.json-only npm guidance, pnpm workspace guidance, package script guidance, `packageManager` field/version and lockfile-conflict guidance, JavaScript dependency mutation guards, missing tools, non-zero version command failures, artifact generation, runtime mismatch policy guidance, `.tool-versions` runtime hints, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, no-signal read-only fallback, secret avoidance, arbitrary `.env.*` and `.envrc.*` detection without value emission, secret-aware `agent_context.md` Avoid guidance, package-manager auth config warnings, common env file warnings, Python mixed-dependency signal guards, uv missing-tool fallback guards, Bundler missing-tool guards, SwiftPM `Package.resolved`, missing-tool, and dependency-mutation guards, Go missing-tool guards, Cargo missing-tool guards, CocoaPods missing-tool and mutation guards, Carthage missing-tool and mutation guards, and Brewfile Homebrew Bundle guards.
 - GitHub CI and release artifact workflows.
 
 ## Not Yet Implemented
 
 - Detailed Homebrew scanner beyond Brewfile command guidance.
-- Detailed pip policy beyond install guards.
+- Detailed pip policy beyond install and mixed-dependency signal guards.
 - Detailed Node package manager version checks beyond `package.json` `packageManager`.
 - Swift/Xcode scanner detail beyond basic command capture.
 - GUI, MCP server, scan comparison, and redaction modes.

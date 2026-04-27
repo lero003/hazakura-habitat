@@ -128,6 +128,7 @@ Ask First:
 - `carthage checkout`
 - `carthage build`
 - dependency installs before matching the selected JavaScript package manager to `package.json` `packageManager` version
+- dependency installs before choosing between `pyproject.toml` and `requirements*.txt` when both are present
 - creating or deleting virtual environments
 - modifying lockfiles
 - modifying version manager files

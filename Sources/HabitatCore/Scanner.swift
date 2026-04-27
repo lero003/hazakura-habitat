@@ -247,6 +247,10 @@ public struct HabitatScanner {
             commands.insert("dependency installs before matching active Python to project version hints", at: 0)
         }
 
+        if hasMixedPythonDependencyFiles(project) {
+            commands.insert("dependency installs before choosing between pyproject.toml and requirements files", at: 0)
+        }
+
         if packageManagerVersionNeedsVerification(project: project, versions: versions) {
             commands.insert("dependency installs before matching \(project.packageManager ?? "package manager") to packageManager version", at: 0)
         }
@@ -360,6 +364,10 @@ public struct HabitatScanner {
             warnings.append("Project .venv exists; use .venv/bin/python for Python commands before system python3.")
         }
 
+        if hasMixedPythonDependencyFiles(project) {
+            warnings.append("Python dependency files include both pyproject.toml and requirements files; ask before dependency installs until the source of truth is clear.")
+        }
+
         if let packageManager = project.packageManager,
            shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
             warnings.append(missingPreferredToolWarning(packageManager: packageManager))
@@ -370,6 +378,11 @@ public struct HabitatScanner {
 
     private func hasProjectVirtualEnvironment(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains(".venv")
+    }
+
+    private func hasMixedPythonDependencyFiles(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains("pyproject.toml")
+            && (project.detectedFiles.contains("requirements.txt") || project.detectedFiles.contains("requirements-dev.txt"))
     }
 
     private func hasSecretDotEnvFile(_ project: ProjectInfo) -> Bool {

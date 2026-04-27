@@ -784,6 +784,34 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeInstallsWhenPythonDependencySignalsAreMixed() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            "requirements.txt": "pytest\n",
+            "requirements-dev.txt": "ruff\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(result.policy.askFirstCommands.contains("dependency installs before choosing between pyproject.toml and requirements files"))
+        #expect(result.warnings.contains("Python dependency files include both pyproject.toml and requirements files; ask before dependency installs until the source of truth is clear."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `dependency installs before choosing between pyproject.toml and requirements files`."))
+        #expect(context.contains("Python dependency files include both pyproject.toml and requirements files; ask before dependency installs until the source of truth is clear."))
+        #expect(policy.contains("`dependency installs before choosing between pyproject.toml and requirements files`"))
+    }
+
+    @Test
     func scanResolvesPythonPipAndRubyTooling() throws {
         let projectURL = try makeProject(files: [
             "requirements.txt": "pytest\n",
