@@ -228,7 +228,7 @@ The goal is to prevent dangerous, mistaken, or wasteful commands before an agent
 
 Status: initial implementation complete.
 
-`habitat-scan scan --previous-scan /path/to/scan_result.json` compares the current scan with a previous machine artifact and records concise `changes` in `scan_result.json`. `agent_context.md` includes those changes in `Notes` only when they exist.
+`habitat-scan scan --previous-scan /path/to/habitat-report` compares the current scan with a previous machine artifact and records concise `changes` in `scan_result.json`. The option accepts either a previous report directory or a direct `scan_result.json` path. `agent_context.md` includes those changes in `Notes` only when they exist.
 
 Initial scope should be limited to AI-actionable deltas:
 

@@ -54,8 +54,10 @@ swift build
 Optional comparison against a previous scan:
 
 ```bash
-./.build/debug/habitat-scan scan --project . --output ./habitat-report --previous-scan ./old-habitat-report/scan_result.json
+./.build/debug/habitat-scan scan --project . --output ./habitat-report --previous-scan ./old-habitat-report
 ```
+
+`--previous-scan` accepts either a previous report directory or a direct `scan_result.json` path.
 
 Generated files:
 

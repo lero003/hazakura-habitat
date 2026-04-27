@@ -61,7 +61,7 @@ struct CLI {
 
         Usage:
           habitat-scan scan --project /path/to/project --output ./habitat-report
-          habitat-scan scan --project /path/to/project --output ./habitat-report --previous-scan ./old/scan_result.json
+          habitat-scan scan --project /path/to/project --output ./habitat-report --previous-scan ./old-habitat-report
           habitat-scan --help
           habitat-scan --version
         """
@@ -70,15 +70,14 @@ struct CLI {
     private func changes(fromPreviousScanAt path: String, current: ScanResult) -> [ScanChange] {
         do {
             let previousURL = URL(fileURLWithPath: path).standardizedFileURL
-            let data = try Data(contentsOf: previousURL)
-            let previous = try JSONDecoder().decode(ScanResult.self, from: data)
+            let previous = try PreviousScanLoader().load(from: previousURL)
             return ScanComparator().compare(previous: previous, current: current)
         } catch {
             return [
                 ScanChange(
                     category: "scan_comparison",
                     summary: "Previous scan could not be read.",
-                    impact: "Ignore scan deltas and rely on the current command policy."
+                    impact: "Pass a scan_result.json file or report directory; rely on the current command policy until comparison succeeds."
                 )
             ]
         }

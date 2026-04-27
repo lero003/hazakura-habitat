@@ -1901,6 +1901,22 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func previousScanLoaderAcceptsReportDirectoryOrScanResultFile() throws {
+        let result = markdownSnapshotScanResult()
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let loader = PreviousScanLoader()
+        let loadedFromDirectory = try loader.load(from: outputURL)
+        let loadedFromFile = try loader.load(from: outputURL.appendingPathComponent("scan_result.json"))
+
+        #expect(loader.scanResultURL(for: outputURL).lastPathComponent == "scan_result.json")
+        #expect(loadedFromDirectory.project.packageManager == "pnpm")
+        #expect(loadedFromFile.project.packageManager == "pnpm")
+        #expect(loadedFromDirectory.scannedAt == loadedFromFile.scannedAt)
+    }
+
+    @Test
     func agentContextOmitsUnrelatedCommandDiagnostics() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(
