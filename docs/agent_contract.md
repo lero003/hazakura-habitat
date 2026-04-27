@@ -158,6 +158,9 @@ Forbidden in MVP-generated policy:
 - `pip3 install --user`
 - `python -m pip install --user`
 - `python3 -m pip install --user`
+- `gem install`
+- `go install`
+- `cargo install`
 - destructive file deletion outside the selected project
 - reading secret values
 - reading `.envrc` values
