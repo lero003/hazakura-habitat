@@ -187,6 +187,12 @@ public struct ReportWriter {
             return []
         }
 
+        if projectRelevantVersionCheckGuardApplies(result) {
+            return result.policy.preferredCommands.filter {
+                isAvailableProjectLocalPreferredCommand($0, result: result)
+            }
+        }
+
         let isMissing = selectedExecutableIsMissing(result, executable: executable)
 
         if isMissing {
@@ -238,11 +244,30 @@ public struct ReportWriter {
         guard !result.policy.askFirstCommands.contains("running JavaScript commands before node is available") else {
             return false
         }
+        guard !projectRelevantVersionCheckGuardApplies(result) else {
+            return false
+        }
         guard !result.policy.askFirstCommands.contains("running Python commands before project .venv/bin/python exists") else {
             return false
         }
 
         return true
+    }
+
+    private func projectRelevantVersionCheckGuardApplies(_ result: ScanResult) -> Bool {
+        result.policy.askFirstCommands.contains { command in
+            command.contains("version check succeeds")
+                && (
+                    command.contains("running JavaScript commands")
+                        || command.contains("running SwiftPM commands")
+                        || command.contains("running Go commands")
+                        || command.contains("running Cargo commands")
+                        || command.contains("running Python commands")
+                        || command.contains("running Bundler commands")
+                        || command.contains("running Xcode build commands")
+                        || result.project.packageManager.map { command.contains("running \($0) commands") } == true
+                )
+        }
     }
 
     private func selectedExecutableIsMissing(_ result: ScanResult, executable: String) -> Bool {

@@ -1602,6 +1602,38 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeGoCommandsWhenGoVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "go.mod": "module example.com/demo\n\ngo 1.22\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env go version": .init(name: "/usr/bin/env", args: ["go", "version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "go: invalid toolchain"),
+            "/usr/bin/which -a go": .init(name: "/usr/bin/which", args: ["-a", "go"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/go", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "go")
+        #expect(result.policy.preferredCommands == ["go test ./...", "go build ./..."])
+        #expect(result.policy.askFirstCommands.contains("running Go commands before go version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running Go commands before go is available"))
+        #expect(result.diagnostics.contains("go version failed with exit code 1: go: invalid toolchain"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Go commands before go version check succeeds`."))
+        #expect(context.contains("go version failed with exit code 1: go: invalid toolchain"))
+        #expect(!context.contains("Prefer `go test ./...`."))
+        #expect(policy.contains("`running Go commands before go version check succeeds`"))
+        #expect(!policy.contains("`go test ./...`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
     func scanTreatsCargoTomlAsCargoProjectAndGuardsMissingCargo() throws {
         let projectURL = try makeProject(files: [
             "Cargo.toml": """

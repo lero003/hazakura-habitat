@@ -58,6 +58,34 @@ public struct HabitatScanner {
         }
 
         let warnings = makeWarnings(project: project, resolvedPaths: resolvedPaths, versions: versions)
+        let commandPolicy = PolicySummary(
+            preferredCommands: preferredCommands(project: project),
+            askFirstCommands: askFirstCommands(project: project, resolvedPaths: resolvedPaths, versions: versions, commands: commands),
+            forbiddenCommands: [
+                "sudo",
+                "destructive file deletion outside the selected project",
+                "brew upgrade",
+                "brew uninstall",
+                "npm install -g",
+                "pnpm add -g",
+                "pnpm add --global",
+                "yarn global add",
+                "yarn add -g",
+                "bun add -g",
+                "bun add --global",
+                "pip install --user",
+                "pip3 install --user",
+                "python -m pip install --user",
+                "python3 -m pip install --user",
+                "gem install",
+                "go install",
+                "cargo install",
+                "read .env values",
+                "read .envrc values",
+                "read package manager auth config values",
+                "read SSH private keys"
+            ]
+        )
         let diagnostics = commands.compactMap { command -> String? in
             let label = commandLabel(command)
             if command.timedOut { return "\(label) timed out" }
@@ -85,34 +113,7 @@ public struct HabitatScanner {
                 resolvedPaths: resolvedPaths,
                 versions: versions
             ),
-            policy: PolicySummary(
-                preferredCommands: preferredCommands(project: project),
-                askFirstCommands: askFirstCommands(project: project, resolvedPaths: resolvedPaths, versions: versions),
-                forbiddenCommands: [
-                    "sudo",
-                    "destructive file deletion outside the selected project",
-                    "brew upgrade",
-                    "brew uninstall",
-                    "npm install -g",
-                    "pnpm add -g",
-                    "pnpm add --global",
-                    "yarn global add",
-                    "yarn add -g",
-                    "bun add -g",
-                    "bun add --global",
-                    "pip install --user",
-                    "pip3 install --user",
-                    "python -m pip install --user",
-                    "python3 -m pip install --user",
-                    "gem install",
-                    "go install",
-                    "cargo install",
-                    "read .env values",
-                    "read .envrc values",
-                    "read package manager auth config values",
-                    "read SSH private keys"
-                ]
-            ),
+            policy: commandPolicy,
             warnings: warnings,
             diagnostics: diagnostics
         )
@@ -213,7 +214,7 @@ public struct HabitatScanner {
         }
     }
 
-    private func askFirstCommands(project: ProjectInfo, resolvedPaths: [ResolvedTool], versions: [ToolVersion]) -> [String] {
+    private func askFirstCommands(project: ProjectInfo, resolvedPaths: [ResolvedTool], versions: [ToolVersion], commands commandResults: [CommandInfo]) -> [String] {
         var commands = [
             "brew install",
             "brew update",
@@ -299,6 +300,11 @@ public struct HabitatScanner {
 
         if rubyVersionNeedsVerification(project: project, versions: versions) {
             commands.insert("dependency installs before matching active Ruby to project version hints", at: 0)
+        }
+
+        for command in projectRelevantVersionCheckAskFirstCommands(project: project, resolvedPaths: resolvedPaths, commands: commandResults).reversed() {
+            commands.removeAll { $0 == command }
+            commands.insert(command, at: 0)
         }
 
         if hasMixedPythonDependencyFiles(project) {
@@ -481,6 +487,80 @@ public struct HabitatScanner {
         return warnings
     }
 
+    private func projectRelevantVersionCheckAskFirstCommands(project: ProjectInfo, resolvedPaths: [ResolvedTool], commands: [CommandInfo]) -> [String] {
+        projectRelevantVersionCheckFailures(project: project, resolvedPaths: resolvedPaths, commands: commands).map {
+            versionCheckAskFirstCommand(packageManager: project.packageManager, executable: $0)
+        }
+    }
+
+    private func projectRelevantVersionCheckFailures(project: ProjectInfo, resolvedPaths: [ResolvedTool], commands: [CommandInfo]) -> [String] {
+        guard let packageManager = project.packageManager else { return [] }
+
+        var executables: [String] = []
+        if let selectedExecutable = executableName(forPackageManager: packageManager) {
+            executables.append(selectedExecutable)
+        }
+
+        if ["npm", "pnpm", "yarn", "bun"].contains(packageManager) {
+            executables.append("node")
+        }
+
+        if packageManager == "bundler" {
+            executables.append("ruby")
+        }
+
+        return orderedUnique(executables).filter { executable in
+            toolIsResolved(executable, resolvedPaths: resolvedPaths)
+                && versionCommandFailedForResolvedTool(executable, commands: commands)
+        }
+    }
+
+    private func toolIsResolved(_ executable: String, resolvedPaths: [ResolvedTool]) -> Bool {
+        resolvedPaths.first(where: { $0.name == executable })?.paths.isEmpty == false
+    }
+
+    private func versionCommandFailedForResolvedTool(_ executable: String, commands: [CommandInfo]) -> Bool {
+        guard let command = commands.first(where: { commandInfoMatchesTool($0, executable: executable) }) else {
+            return false
+        }
+
+        return command.available && (command.timedOut || command.exitCode != 0)
+    }
+
+    private func commandInfoMatchesTool(_ command: CommandInfo, executable: String) -> Bool {
+        switch executable {
+        case "go":
+            return command.args == ["go", "version"]
+        case "xcodebuild":
+            return command.args == ["xcodebuild", "-version"]
+        default:
+            return command.args == [executable, "--version"]
+        }
+    }
+
+    private func versionCheckAskFirstCommand(packageManager: String?, executable: String) -> String {
+        if ["npm", "pnpm", "yarn", "bun"].contains(packageManager ?? ""), executable == "node" {
+            return "running JavaScript commands before node version check succeeds"
+        }
+
+        switch packageManager {
+        case "swiftpm":
+            return "running SwiftPM commands before swift version check succeeds"
+        case "go":
+            return "running Go commands before go version check succeeds"
+        case "cargo":
+            return "running Cargo commands before cargo version check succeeds"
+        case "python":
+            return "running Python commands before python3 version check succeeds"
+        case "bundler":
+            return "running Bundler commands before ruby version check succeeds"
+        case "xcodebuild":
+            return "running Xcode build commands before xcodebuild version check succeeds"
+        default:
+            return "running \(executable) commands before \(executable) version check succeeds"
+        }
+    }
+
     private func hasProjectVirtualEnvironment(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains(".venv")
     }
@@ -525,6 +605,11 @@ public struct HabitatScanner {
         project.detectedFiles.contains { file in
             ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(file)
         }
+    }
+
+    private func orderedUnique(_ values: [String]) -> [String] {
+        var seen = Set<String>()
+        return values.filter { seen.insert($0).inserted }
     }
 
     private func hasMultipleJavaScriptLockfiles(_ project: ProjectInfo) -> Bool {
