@@ -1887,6 +1887,72 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanComparisonSeparatesCommandPolicyRiskTransitions() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["npm run"],
+                askFirstCommands: ["npm install", "npx"],
+                forbiddenCommands: ["sudo", "brew upgrade"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["npm run"],
+                askFirstCommands: ["brew upgrade", "npm install", "pnpm install"],
+                forbiddenCommands: ["sudo", "npx", "npm install -g"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.contains(where: {
+            $0.summary == "Commands changed from Ask First to Forbidden: npx."
+                && $0.impact == "Refuse these commands under the current scan policy."
+        }))
+        #expect(changes.contains(where: {
+            $0.summary == "Commands changed from Forbidden to Ask First: brew upgrade."
+                && $0.impact == "Ask before these commands; do not refuse solely because a previous scan did."
+        }))
+        #expect(changes.contains(where: {
+            $0.summary == "New Ask First commands: pnpm install."
+        }))
+        #expect(changes.contains(where: {
+            $0.summary == "New Forbidden commands: npm install -g."
+        }))
+        #expect(!changes.contains(where: {
+            $0.summary.contains("New Ask First commands") && $0.summary.contains("brew upgrade")
+        }))
+        #expect(!changes.contains(where: {
+            $0.summary.contains("New Forbidden commands") && $0.summary.contains("npx")
+        }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Commands changed from Ask First to Forbidden: npx. Refuse these commands under the current scan policy."))
+        #expect(context.contains("Commands changed from Forbidden to Ask First: brew upgrade. Ask before these commands; do not refuse solely because a previous scan did."))
+    }
+
+    @Test
     func scanResultDecodesOlderJsonWithoutChanges() throws {
         let result = markdownSnapshotScanResult()
         let data = try JSONEncoder().encode(result)

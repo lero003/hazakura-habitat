@@ -82,7 +82,28 @@ public struct ScanComparator {
         let currentForbidden = Set(current.policy.forbiddenCommands)
         var changes: [ScanChange] = []
 
-        let addedAskFirst = currentAskFirst.subtracting(previousAskFirst).sorted()
+        let escalatedToForbidden = currentForbidden.intersection(previousAskFirst).sorted()
+        if !escalatedToForbidden.isEmpty {
+            changes.append(ScanChange(
+                category: "command_policy",
+                summary: "Commands changed from Ask First to Forbidden: \(summarize(escalatedToForbidden)).",
+                impact: "Refuse these commands under the current scan policy."
+            ))
+        }
+
+        let downgradedToAskFirst = currentAskFirst.intersection(previousForbidden).sorted()
+        if !downgradedToAskFirst.isEmpty {
+            changes.append(ScanChange(
+                category: "command_policy",
+                summary: "Commands changed from Forbidden to Ask First: \(summarize(downgradedToAskFirst)).",
+                impact: "Ask before these commands; do not refuse solely because a previous scan did."
+            ))
+        }
+
+        let addedAskFirst = currentAskFirst
+            .subtracting(previousAskFirst)
+            .subtracting(previousForbidden)
+            .sorted()
         if !addedAskFirst.isEmpty {
             changes.append(ScanChange(
                 category: "command_policy",
@@ -91,7 +112,10 @@ public struct ScanComparator {
             ))
         }
 
-        let addedForbidden = currentForbidden.subtracting(previousForbidden).sorted()
+        let addedForbidden = currentForbidden
+            .subtracting(previousForbidden)
+            .subtracting(previousAskFirst)
+            .sorted()
         if !addedForbidden.isEmpty {
             changes.append(ScanChange(
                 category: "command_policy",

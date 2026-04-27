@@ -218,7 +218,7 @@ Compatibility:
 - `declaredPackageManager` records the safe `package.json` `packageManager` hint even when a lockfile selects a different package manager.
 - Secret-bearing environment files such as `.env`, `.env.*`, `.envrc`, and `.envrc.*` may be detected by filename, but values must not be read or emitted.
 - Package-manager auth config files such as `.npmrc`, `.yarnrc`, and `.yarnrc.yml` may be detected by filename, but token values must not be read or emitted.
-- `changes` is empty unless `--previous-scan` is supplied. `--previous-scan` may point to a previous report directory or a direct `scan_result.json` file. It is limited to AI-actionable deltas such as package-manager changes, lockfile changes, missing-tool changes, and command-policy risk changes.
+- `changes` is empty unless `--previous-scan` is supplied. `--previous-scan` may point to a previous report directory or a direct `scan_result.json` file. It is limited to AI-actionable deltas such as package-manager changes, lockfile changes, missing-tool changes, and command-policy risk classification changes.
 
 ## Secondary Artifact: environment_report.md
 
