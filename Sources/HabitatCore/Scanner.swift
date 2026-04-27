@@ -307,9 +307,9 @@ public struct HabitatScanner {
             let activeNode = resolvedPaths.first(where: { $0.name == "node" })?.paths.first ?? "missing"
             let activeVersion = versions.first(where: { $0.name == "node" })?.version
 
-            if let activeVersion, versionsDiffer(requested: nodeHint, active: activeVersion) {
+            if let activeVersion, nodeVersionsDiffer(requested: nodeHint, active: activeVersion) {
                 warnings.append("Active Node is \(activeVersion), but project requests \(nodeHint); ask before dependency installs (\(activeNode)).")
-            } else {
+            } else if activeVersion == nil {
                 warnings.append("Project requests Node \(nodeHint); verify active node before installs (\(activeNode)).")
             }
         }
@@ -526,7 +526,7 @@ public struct HabitatScanner {
             return true
         }
 
-        return versionsDiffer(requested: nodeHint, active: activeVersion)
+        return nodeVersionsDiffer(requested: nodeHint, active: activeVersion)
     }
 
     private func pythonVersionNeedsVerification(project: ProjectInfo, versions: [ToolVersion]) -> Bool {
@@ -594,6 +594,107 @@ public struct HabitatScanner {
         }
 
         return requestedMajor != activeMajor
+    }
+
+    private func nodeVersionsDiffer(requested: String, active: String) -> Bool {
+        if let satisfiesRange = nodeSatisfiesComparatorRange(requested: requested, active: active) {
+            return !satisfiesRange
+        }
+
+        return versionsDiffer(requested: requested, active: active)
+    }
+
+    private func nodeSatisfiesComparatorRange(requested: String, active: String) -> Bool? {
+        guard !requested.contains("||") else {
+            return nil
+        }
+        guard let activeVersion = semanticVersionComponents(from: active) else {
+            return nil
+        }
+
+        let tokens = comparatorTokens(from: requested)
+        guard !tokens.isEmpty else { return nil }
+
+        var sawComparator = false
+        for token in tokens {
+            guard let comparator = comparator(from: token) else {
+                continue
+            }
+
+            sawComparator = true
+            guard let requestedVersion = semanticVersionComponents(from: token) else {
+                return nil
+            }
+
+            let comparison = compareSemanticVersions(activeVersion, requestedVersion)
+            switch comparator {
+            case ">":
+                if comparison <= 0 { return false }
+            case ">=":
+                if comparison < 0 { return false }
+            case "<":
+                if comparison >= 0 { return false }
+            case "<=":
+                if comparison > 0 { return false }
+            case "=":
+                if comparison != 0 { return false }
+            default:
+                return nil
+            }
+        }
+
+        return sawComparator ? true : nil
+    }
+
+    private func comparatorTokens(from value: String) -> [String] {
+        let rawTokens = value
+            .split(whereSeparator: \.isWhitespace)
+            .map(String.init)
+        var tokens: [String] = []
+        var index = 0
+
+        while index < rawTokens.count {
+            let token = rawTokens[index]
+            if [">", ">=", "<", "<=", "="].contains(token),
+               index + 1 < rawTokens.count {
+                tokens.append(token + rawTokens[index + 1])
+                index += 2
+            } else {
+                tokens.append(token)
+                index += 1
+            }
+        }
+
+        return tokens
+    }
+
+    private func comparator(from token: String) -> String? {
+        for comparator in [">=", "<=", ">", "<", "="] where token.hasPrefix(comparator) {
+            return comparator
+        }
+
+        return nil
+    }
+
+    private func semanticVersionComponents(from value: String) -> [Int]? {
+        let numericVersion = value.drop { !$0.isNumber }
+            .prefix { $0.isNumber || $0 == "." }
+        let components = numericVersion
+            .split(separator: ".")
+            .prefix(3)
+            .compactMap { Int($0) }
+        guard !components.isEmpty else { return nil }
+
+        return Array(components) + Array(repeating: 0, count: max(0, 3 - components.count))
+    }
+
+    private func compareSemanticVersions(_ left: [Int], _ right: [Int]) -> Int {
+        for index in 0..<min(left.count, right.count) {
+            if left[index] < right[index] { return -1 }
+            if left[index] > right[index] { return 1 }
+        }
+
+        return 0
     }
 
     private func pythonVersionsDiffer(requested: String, active: String) -> Bool {
