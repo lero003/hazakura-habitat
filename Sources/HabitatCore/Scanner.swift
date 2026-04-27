@@ -623,13 +623,36 @@ public struct HabitatScanner {
     }
 
     private func nodeSatisfiesComparatorRange(requested: String, active: String) -> Bool? {
-        guard !requested.contains("||") else {
-            return nil
-        }
         guard let activeVersion = semanticVersionComponents(from: active) else {
             return nil
         }
 
+        let alternatives = requested
+            .components(separatedBy: "||")
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+            .filter { !$0.isEmpty }
+
+        if alternatives.count > 1 {
+            var sawUnsupportedAlternative = false
+
+            for alternative in alternatives {
+                guard let satisfies = nodeSatisfiesSingleComparatorRange(requested: alternative, activeVersion: activeVersion) else {
+                    sawUnsupportedAlternative = true
+                    continue
+                }
+
+                if satisfies {
+                    return true
+                }
+            }
+
+            return sawUnsupportedAlternative ? nil : false
+        }
+
+        return nodeSatisfiesSingleComparatorRange(requested: requested, activeVersion: activeVersion)
+    }
+
+    private func nodeSatisfiesSingleComparatorRange(requested: String, activeVersion: [Int]) -> Bool? {
         let tokens = comparatorTokens(from: requested)
         guard !tokens.isEmpty else { return nil }
 

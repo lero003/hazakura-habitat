@@ -199,6 +199,46 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAcceptsSatisfiedPackageJsonEnginesNodeOrRange() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "engines": {
+                "node": ">=18 <19 || >=20 <21"
+              },
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.project.runtimeHints.node == ">=18 <19 || >=20 <21")
+        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(!result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(!result.warnings.contains(where: { $0.contains(">=18 <19 || >=20 <21") }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(!context.contains("dependency installs before matching active Node to project version hints"))
+        #expect(!policy.contains("`dependency installs before matching active Node to project version hints`"))
+    }
+
+    @Test
     func scanWarnsBeforeSubstitutingMissingPreferredPackageManager() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
