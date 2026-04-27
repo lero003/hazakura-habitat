@@ -225,7 +225,7 @@ public struct ScanComparator {
 
     private func executableName(forPackageManager packageManager: String) -> String? {
         switch packageManager {
-        case "npm", "pnpm", "yarn", "bun", "uv", "go", "cargo", "carthage":
+        case "npm", "pnpm", "yarn", "bun", "uv", "go", "cargo", "carthage", "xcodebuild":
             return packageManager
         case "bundler":
             return "bundle"

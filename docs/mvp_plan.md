@@ -143,6 +143,8 @@ Detect dependency signals:
 - `Cargo.toml`
 - `Package.swift`
 - `Package.resolved`
+- `*.xcodeproj`
+- `*.xcworkspace`
 - `Podfile`
 - `Podfile.lock`
 - `Cartfile`
@@ -207,6 +209,9 @@ Swift/Xcode:
 - `xcodebuild -version`
 - `swift --version`
 - SwiftPM/Xcode project signals
+- `xcode-select -p` partial-failure guard for SwiftPM/Xcode build and test commands
+- `.xcodeproj` / `.xcworkspace` signals with `xcodebuild -list` as the safe first command
+- ask before scheme-specific `xcodebuild` build, test, or archive commands until the scheme is selected
 - avoid broad Xcode diagnostics unless they affect build/test command selection or safety
 
 ## Agent Safety Hardening

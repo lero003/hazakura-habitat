@@ -86,12 +86,15 @@ public struct ProjectDetector {
             manager.fileExists(atPath: projectURL.appendingPathComponent($0).path)
         }
         let directoryEntries = (try? manager.contentsOfDirectory(atPath: projectURL.path)) ?? []
+        let xcodeProjectContainers = directoryEntries
+            .filter(isXcodeProjectContainer)
+            .sorted()
         let extraSecretEnvironmentFiles = directoryEntries
             .filter(isSecretEnvironmentFilename)
             .filter { !candidateFiles.contains($0) }
             .sorted()
 
-        return orderedUnique(explicitFiles + extraSecretEnvironmentFiles)
+        return orderedUnique(explicitFiles + xcodeProjectContainers + extraSecretEnvironmentFiles)
     }
 
     private func detectPackageManager(files: [String], declaredPackageManager: DeclaredPackageManager?) -> String? {
@@ -104,11 +107,12 @@ public struct ProjectDetector {
         }
         if files.contains("pnpm-workspace.yaml") { return "pnpm" }
         if files.contains("package.json") { return "npm" }
+        if files.contains("Podfile") || files.contains("Podfile.lock") { return "cocoapods" }
+        if files.contains("Cartfile") || files.contains("Cartfile.resolved") { return "carthage" }
+        if hasXcodeProjectContainer(files) { return "xcodebuild" }
         if files.contains("Package.swift") || files.contains("Package.resolved") { return "swiftpm" }
         if files.contains("go.mod") { return "go" }
         if files.contains("Cargo.toml") { return "cargo" }
-        if files.contains("Podfile") || files.contains("Podfile.lock") { return "cocoapods" }
-        if files.contains("Cartfile") || files.contains("Cartfile.resolved") { return "carthage" }
         if files.contains("Brewfile") { return "homebrew" }
         if files.contains("uv.lock") { return "uv" }
         if files.contains("pyproject.toml")
@@ -125,6 +129,14 @@ public struct ProjectDetector {
             || (name.hasPrefix(".env.") && name != ".env.example")
             || name == ".envrc"
             || (name.hasPrefix(".envrc.") && name != ".envrc.example")
+    }
+
+    private func isXcodeProjectContainer(_ name: String) -> Bool {
+        name.hasSuffix(".xcworkspace") || name.hasSuffix(".xcodeproj")
+    }
+
+    private func hasXcodeProjectContainer(_ files: [String]) -> Bool {
+        files.contains(where: isXcodeProjectContainer)
     }
 
     private func packageJSONMetadata(_ url: URL) -> PackageJSONMetadata {

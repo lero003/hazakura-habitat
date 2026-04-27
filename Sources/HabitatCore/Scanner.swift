@@ -31,14 +31,15 @@ public struct HabitatScanner {
             ("go", "/usr/bin/env", ["go", "version"]),
             ("cargo", "/usr/bin/env", ["cargo", "--version"]),
             ("rustc", "/usr/bin/env", ["rustc", "--version"]),
-            ("xcode-select", "/usr/bin/xcrun", ["xcode-select", "-p"]),
+            ("xcode-select", "/usr/bin/xcode-select", ["-p"]),
+            ("xcodebuild", "/usr/bin/env", ["xcodebuild", "-version"]),
         ] + packageManagerVersionCommandSpecs(project: project)
 
         let commands = commandSpecs.map { spec in
             runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
         }
 
-        let toolNames = ["python", "python3", "pip", "pip3", "uv", "pyenv", "node", "npm", "pnpm", "yarn", "bun", "ruby", "gem", "bundle", "go", "cargo", "rustc", "swift", "git", "brew", "pod", "carthage"]
+        let toolNames = ["python", "python3", "pip", "pip3", "uv", "pyenv", "node", "npm", "pnpm", "yarn", "bun", "ruby", "gem", "bundle", "go", "cargo", "rustc", "swift", "xcode-select", "xcodebuild", "git", "brew", "pod", "carthage"]
         let resolvedPaths = toolNames.map { tool in
             let result = runner.run(executable: "/usr/bin/which", arguments: ["-a", tool], timeout: 2.0)
             let paths = result.available && !result.stdout.isEmpty
@@ -58,11 +59,12 @@ public struct HabitatScanner {
 
         let warnings = makeWarnings(project: project, resolvedPaths: resolvedPaths, versions: versions)
         let diagnostics = commands.compactMap { command -> String? in
-            if command.timedOut { return "\(command.args.joined(separator: " ")) timed out" }
-            if !command.available { return "\(command.args.joined(separator: " ")) unavailable: \(command.stderr)" }
+            let label = commandLabel(command)
+            if command.timedOut { return "\(label) timed out" }
+            if !command.available { return "\(label) unavailable: \(command.stderr)" }
             if let exitCode = command.exitCode, exitCode != 0 {
                 let detail = [command.stderr, command.stdout].first(where: { !$0.isEmpty })
-                return "\(command.args.joined(separator: " ")) failed with exit code \(exitCode)\(detail.map { ": \($0)" } ?? "")"
+                return "\(label) failed with exit code \(exitCode)\(detail.map { ": \($0)" } ?? "")"
             }
             return nil
         }
@@ -146,6 +148,8 @@ public struct HabitatScanner {
             return ["pod --version"]
         case "carthage":
             return ["carthage version"]
+        case "xcodebuild":
+            return xcodebuildPreferredCommands(project: project)
         case "uv":
             return hasProjectVirtualEnvironment(project) ? ["uv run", ".venv/bin/python -m pytest"] : ["uv run"]
         case "python":
@@ -157,6 +161,18 @@ public struct HabitatScanner {
         default:
             return []
         }
+    }
+
+    private func xcodebuildPreferredCommands(project: ProjectInfo) -> [String] {
+        if let workspace = project.detectedFiles.first(where: { $0.hasSuffix(".xcworkspace") }) {
+            return ["xcodebuild -list -workspace \(shellQuoted(workspace))"]
+        }
+
+        if let projectFile = project.detectedFiles.first(where: { $0.hasSuffix(".xcodeproj") }) {
+            return ["xcodebuild -list -project \(shellQuoted(projectFile))"]
+        }
+
+        return ["xcodebuild -list"]
     }
 
     private func javaScriptPreferredCommands(packageManager: String, project: ProjectInfo) -> [String] {
@@ -225,6 +241,9 @@ public struct HabitatScanner {
             "brew bundle install",
             "brew bundle cleanup",
             "brew bundle dump",
+            "xcodebuild build/test/archive before selecting a scheme",
+            "xcodebuild -resolvePackageDependencies",
+            "xcodebuild -allowProvisioningUpdates",
             "go get",
             "go mod tidy",
             "cargo add",
@@ -284,6 +303,10 @@ public struct HabitatScanner {
             commands.insert("running JavaScript commands before node is available", at: 0)
         }
 
+        if xcodeDeveloperDirectoryNeedsVerification(project: project, versions: versions) {
+            commands.insert("Swift/Xcode build commands before xcode-select -p succeeds", at: 0)
+        }
+
         if let packageManager = project.packageManager,
            shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
             commands.insert(missingPreferredToolAskFirstCommand(packageManager: packageManager), at: 0)
@@ -320,6 +343,12 @@ public struct HabitatScanner {
             return ["pod install", "pod update", "pod repo update", "pod deintegrate"]
         case "carthage":
             return ["carthage bootstrap", "carthage update", "carthage checkout", "carthage build"]
+        case "xcodebuild":
+            return [
+                "xcodebuild build/test/archive before selecting a scheme",
+                "xcodebuild -resolvePackageDependencies",
+                "xcodebuild -allowProvisioningUpdates",
+            ]
         default:
             return []
         }
@@ -403,6 +432,10 @@ public struct HabitatScanner {
 
         if hasUvRequirementsDependencyFiles(project) {
             warnings.append("Python dependency files include both uv.lock and requirements files; ask before dependency installs until the source of truth is clear.")
+        }
+
+        if xcodeDeveloperDirectoryNeedsVerification(project: project, versions: versions) {
+            warnings.append("xcode-select -p did not return a developer directory; ask before Swift/Xcode build or test commands.")
         }
 
         if let packageManager = project.packageManager,
@@ -517,6 +550,16 @@ public struct HabitatScanner {
         return resolvedPaths.first(where: { $0.name == "node" })?.paths.isEmpty ?? true
     }
 
+    private func xcodeDeveloperDirectoryNeedsVerification(project: ProjectInfo, versions: [ToolVersion]) -> Bool {
+        guard let packageManager = project.packageManager,
+              ["swiftpm", "xcodebuild"].contains(packageManager)
+        else {
+            return false
+        }
+
+        return versions.first(where: { $0.name == "xcode-select" })?.available != true
+    }
+
     private func missingPreferredToolAskFirstCommand(packageManager: String) -> String {
         switch packageManager {
         case "npm", "pnpm", "yarn", "bun", "uv":
@@ -535,6 +578,8 @@ public struct HabitatScanner {
             return "running CocoaPods commands before pod is available"
         case "carthage":
             return "running Carthage commands before carthage is available"
+        case "xcodebuild":
+            return "running Xcode build commands before xcodebuild is available"
         case "python":
             return "running Python commands before python3 is available"
         default:
@@ -560,6 +605,8 @@ public struct HabitatScanner {
             return "Project files prefer CocoaPods, but pod was not found on PATH; ask before running CocoaPods commands."
         case "carthage":
             return "Project files prefer Carthage, but carthage was not found on PATH; ask before running Carthage commands."
+        case "xcodebuild":
+            return "Project files prefer xcodebuild, but xcodebuild was not found on PATH; ask before running Xcode build commands."
         case "python":
             return "Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."
         default:
@@ -616,7 +663,7 @@ public struct HabitatScanner {
 
     private func executableName(forPackageManager packageManager: String) -> String? {
         switch packageManager {
-        case "npm", "pnpm", "yarn", "bun", "uv":
+        case "npm", "pnpm", "yarn", "bun", "uv", "xcodebuild":
             return packageManager
         case "bundler":
             return "bundle"
@@ -647,6 +694,22 @@ public struct HabitatScanner {
         }
 
         return requestedMajor != activeMajor
+    }
+
+    private func commandLabel(_ command: CommandInfo) -> String {
+        if command.name == "/usr/bin/xcode-select", command.args == ["-p"] {
+            return "xcode-select -p"
+        }
+
+        return command.args.joined(separator: " ")
+    }
+
+    private func shellQuoted(_ value: String) -> String {
+        if value.allSatisfy({ $0.isLetter || $0.isNumber || "-_./".contains($0) }) {
+            return value
+        }
+
+        return "'" + value.replacingOccurrences(of: "'", with: "'\\''") + "'"
     }
 
     private func nodeVersionsDiffer(requested: String, active: String) -> Bool {

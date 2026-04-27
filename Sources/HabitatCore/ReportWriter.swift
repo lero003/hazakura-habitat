@@ -77,7 +77,7 @@ public struct ReportWriter {
             "read-only project inspection"
         ]
 
-        if !preferredCommands.isEmpty {
+        if !preferredCommands.isEmpty && result.project.packageManager != "xcodebuild" {
             allowed.append(contentsOf: [
                 "test commands for the selected project",
                 "build commands for the selected project"
@@ -263,12 +263,17 @@ public struct ReportWriter {
             names.insert("python3")
         }
 
+        if let packageManager = result.project.packageManager,
+           ["swiftpm", "xcodebuild"].contains(packageManager) {
+            names.insert("xcode-select")
+        }
+
         return names
     }
 
     private func executableName(forPackageManager packageManager: String) -> String? {
         switch packageManager {
-        case "npm", "pnpm", "yarn", "bun", "uv", "go", "cargo", "carthage":
+        case "npm", "pnpm", "yarn", "bun", "uv", "go", "cargo", "carthage", "xcodebuild":
             return packageManager
         case "bundler":
             return "bundle"

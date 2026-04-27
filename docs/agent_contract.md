@@ -124,6 +124,10 @@ Ask First:
 - `brew bundle install`
 - `brew bundle cleanup`
 - `brew bundle dump`
+- `Swift/Xcode build commands before xcode-select -p succeeds`
+- `xcodebuild build/test/archive before selecting a scheme`
+- `xcodebuild -resolvePackageDependencies`
+- `xcodebuild -allowProvisioningUpdates`
 - `swift package update`
 - `swift package resolve`
 - `go get`
