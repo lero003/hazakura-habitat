@@ -1921,8 +1921,6 @@ struct HabitatCoreTests {
 
         ## Allowed
         - `read-only project inspection`
-        - `test commands for the selected project`
-        - `build commands for the selected project`
 
         ## Ask First
         - `running pnpm commands before pnpm is available`

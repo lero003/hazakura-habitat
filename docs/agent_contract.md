@@ -86,8 +86,8 @@ Default classifications:
 Allowed:
 
 - read-only project inspection
-- test commands for the selected project
-- build commands for the selected project
+- test commands for the selected project, only when the selected executable is available or a project-local executable path is preferred
+- build commands for the selected project, only when the selected executable is available or a project-local executable path is preferred
 - package manager commands that do not install, update, delete, or mutate global state
 
 Ask First:
@@ -224,7 +224,7 @@ Compatibility:
 - Secret-bearing environment files such as `.env`, `.env.*`, `.envrc`, `.envrc.*`, and `.envrc.example` may be detected by filename, but values must not be read or emitted.
 - Package-manager auth config files such as `.npmrc`, `.pnpmrc`, `.yarnrc`, and `.yarnrc.yml` may be detected by filename, but token values must not be read or emitted.
 - Common SSH private key filenames such as `id_rsa`, `id_dsa`, `id_ecdsa`, and `id_ed25519` may be detected by filename, but key contents must not be read or emitted.
-- Markdown artifacts may suppress `policy.preferredCommands` from `Use` / `Allowed` when the required executable is currently missing, while preserving the structured preferred command data in `scan_result.json`.
+- Markdown artifacts may suppress `policy.preferredCommands` and generic selected-project test/build allowance from `Use` / `Allowed` when the required executable is currently missing, while preserving the structured preferred command data in `scan_result.json`.
 - `changes` is empty unless `--previous-scan` is supplied. `--previous-scan` may point to a previous report directory or a direct `scan_result.json` file. It is limited to AI-actionable deltas such as package-manager changes, lockfile changes, missing-tool changes, command-policy risk classification changes, and command-policy entries that are no longer highlighted by the current scan.
 - Missing-tool comparison must not imply a tool became available just because it stopped being relevant to the current project. Report currently relevant tools with paths as available, and report previously missing tools that are no longer relevant as a separate current-policy guidance change.
 

@@ -72,11 +72,17 @@ public struct ReportWriter {
     }
 
     private func commandPolicy(_ result: ScanResult) -> String {
-        let allowed = markdownPreferredCommands(result) + [
-            "read-only project inspection",
-            "test commands for the selected project",
-            "build commands for the selected project"
+        let preferredCommands = markdownPreferredCommands(result)
+        var allowed = preferredCommands + [
+            "read-only project inspection"
         ]
+
+        if !preferredCommands.isEmpty {
+            allowed.append(contentsOf: [
+                "test commands for the selected project",
+                "build commands for the selected project"
+            ])
+        }
 
         return """
         # Command Policy
