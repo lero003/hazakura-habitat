@@ -35,6 +35,7 @@ public struct ProjectDetector {
         ".node-version",
         ".nvmrc",
         ".npmrc",
+        ".pnpmrc",
         ".yarnrc",
         ".yarnrc.yml",
         ".env",

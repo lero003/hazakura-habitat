@@ -943,6 +943,7 @@ struct HabitatCoreTests {
             ".env.local": "LOCAL_TOKEN=\(secretValue)\n",
             ".env.example": "OPENAI_API_KEY=\n",
             ".npmrc": "//registry.npmjs.org/:_authToken=\(secretValue)\n",
+            ".pnpmrc": "//registry.npmjs.org/:_authToken=\(secretValue)\n",
             ".yarnrc.yml": "npmAuthToken: \(secretValue)\n",
             "id_rsa": "\(privateKeyMarker)\n\(secretValue)\n",
         ])
@@ -953,11 +954,12 @@ struct HabitatCoreTests {
         #expect(result.project.detectedFiles.contains(".env.local"))
         #expect(result.project.detectedFiles.contains(".env.example"))
         #expect(result.project.detectedFiles.contains(".npmrc"))
+        #expect(result.project.detectedFiles.contains(".pnpmrc"))
         #expect(result.project.detectedFiles.contains(".yarnrc.yml"))
         #expect(result.project.detectedFiles.contains("id_rsa"))
         #expect(result.project.runtimeHints.node == "v20")
         #expect(result.warnings.contains("Environment file exists; do not read .env values."))
-        #expect(result.warnings.contains("Package manager auth config exists; do not read token values from .npmrc or yarn config files."))
+        #expect(result.warnings.contains("Package manager auth config exists; do not read token values from .npmrc, .pnpmrc, or yarn config files."))
         #expect(result.warnings.contains("SSH private key file exists; do not read private key values."))
         #expect(result.policy.forbiddenCommands.contains("read package manager auth config values"))
         #expect(result.policy.forbiddenCommands.contains("read SSH private keys"))
@@ -979,6 +981,36 @@ struct HabitatCoreTests {
         #expect(context.contains("Do not run `read .env values`."))
         #expect(context.contains("Do not run `read package manager auth config values`."))
         #expect(context.contains("Do not run `read SSH private keys`."))
+    }
+
+    @Test
+    func scanDetectsPnpmrcWithoutReadingTokenValues() throws {
+        let secretValue = "hh_pnpm_token_secret_value"
+        let projectURL = try makeProject(files: [
+            ".pnpmrc": "//registry.npmjs.org/:_authToken=\(secretValue)\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".pnpmrc"))
+        #expect(result.warnings.contains("Package manager auth config exists; do not read token values from .npmrc, .pnpmrc, or yarn config files."))
+        #expect(result.policy.forbiddenCommands.contains("read package manager auth config values"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("_authToken"))
+        }
+
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains(".pnpmrc"))
+        #expect(context.contains("Do not run `read package manager auth config values`."))
+        #expect(context.contains("Package manager auth config exists; do not read token values from .npmrc, .pnpmrc, or yarn config files."))
     }
 
     @Test

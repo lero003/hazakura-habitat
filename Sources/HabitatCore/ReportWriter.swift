@@ -209,7 +209,7 @@ public struct ReportWriter {
 
     private func hasPackageManagerAuthConfig(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
-            file == ".npmrc" || file == ".yarnrc" || file == ".yarnrc.yml"
+            file == ".npmrc" || file == ".pnpmrc" || file == ".yarnrc" || file == ".yarnrc.yml"
         }
     }
 

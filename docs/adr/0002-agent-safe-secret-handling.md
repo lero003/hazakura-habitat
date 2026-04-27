@@ -8,7 +8,7 @@ Accepted
 
 Hazakura Habitat generates local environment context for AI coding agents.
 
-Some project files are useful signals because their presence changes safe agent behavior. Examples include `.env`, `.env.local`, `.envrc`, `.npmrc`, `.yarnrc`, SSH private key filenames, and package-manager auth config files.
+Some project files are useful signals because their presence changes safe agent behavior. Examples include `.env`, `.env.local`, `.envrc`, `.npmrc`, `.pnpmrc`, `.yarnrc`, SSH private key filenames, and package-manager auth config files.
 
 These files can also contain secrets. A report that includes raw secret values would make the AI-facing artifacts unsafe and harder to share between tools.
 

@@ -154,6 +154,7 @@ Detect dependency signals:
 - `.node-version`
 - `.nvmrc`
 - `.npmrc`
+- `.pnpmrc`
 - `.yarnrc`
 - `.yarnrc.yml`
 - `.env.example`

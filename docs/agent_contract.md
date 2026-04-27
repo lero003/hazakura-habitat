@@ -171,7 +171,7 @@ Forbidden in MVP-generated policy:
 - destructive file deletion outside the selected project
 - reading secret values
 - reading `.envrc` values
-- reading package manager auth config values such as `.npmrc` or yarn auth tokens
+- reading package manager auth config values such as `.npmrc`, `.pnpmrc`, or yarn auth tokens
 
 ## Machine Artifact: scan_result.json
 
@@ -217,7 +217,7 @@ Compatibility:
 - `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions`, `package.json` Volta pins, and `package.json` `engines.node`.
 - `declaredPackageManager` records the safe `package.json` `packageManager` hint even when a lockfile selects a different package manager.
 - Secret-bearing environment files such as `.env`, `.env.*`, `.envrc`, `.envrc.*`, and `.envrc.example` may be detected by filename, but values must not be read or emitted.
-- Package-manager auth config files such as `.npmrc`, `.yarnrc`, and `.yarnrc.yml` may be detected by filename, but token values must not be read or emitted.
+- Package-manager auth config files such as `.npmrc`, `.pnpmrc`, `.yarnrc`, and `.yarnrc.yml` may be detected by filename, but token values must not be read or emitted.
 - Common SSH private key filenames such as `id_rsa`, `id_dsa`, `id_ecdsa`, and `id_ed25519` may be detected by filename, but key contents must not be read or emitted.
 - `changes` is empty unless `--previous-scan` is supplied. `--previous-scan` may point to a previous report directory or a direct `scan_result.json` file. It is limited to AI-actionable deltas such as package-manager changes, lockfile changes, missing-tool changes, command-policy risk classification changes, and command-policy entries that are no longer highlighted by the current scan.
 - Missing-tool comparison must not imply a tool became available just because it stopped being relevant to the current project. Report currently relevant tools with paths as available, and report previously missing tools that are no longer relevant as a separate current-policy guidance change.
