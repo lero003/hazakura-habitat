@@ -954,10 +954,13 @@ struct HabitatCoreTests {
         #expect(result.project.detectedFiles.contains(".env.example"))
         #expect(result.project.detectedFiles.contains(".npmrc"))
         #expect(result.project.detectedFiles.contains(".yarnrc.yml"))
+        #expect(result.project.detectedFiles.contains("id_rsa"))
         #expect(result.project.runtimeHints.node == "v20")
         #expect(result.warnings.contains("Environment file exists; do not read .env values."))
         #expect(result.warnings.contains("Package manager auth config exists; do not read token values from .npmrc or yarn config files."))
+        #expect(result.warnings.contains("SSH private key file exists; do not read private key values."))
         #expect(result.policy.forbiddenCommands.contains("read package manager auth config values"))
+        #expect(result.policy.forbiddenCommands.contains("read SSH private keys"))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -975,6 +978,38 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         #expect(context.contains("Do not run `read .env values`."))
         #expect(context.contains("Do not run `read package manager auth config values`."))
+        #expect(context.contains("Do not run `read SSH private keys`."))
+    }
+
+    @Test
+    func scanDetectsCommonSSHPrivateKeyFilenamesWithoutReadingValues() throws {
+        let privateKeyMarker = "-----BEGIN OPENSSH PRIVATE KEY-----"
+        let secretValue = "hh_private_key_secret_value"
+        let projectURL = try makeProject(files: [
+            "id_ed25519": "\(privateKeyMarker)\n\(secretValue)\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("id_ed25519"))
+        #expect(result.warnings.contains("SSH private key file exists; do not read private key values."))
+        #expect(result.policy.forbiddenCommands.contains("read SSH private keys"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(privateKeyMarker))
+            #expect(!artifact.contains(secretValue))
+        }
+
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("id_ed25519"))
+        #expect(context.contains("Do not run `read SSH private keys`."))
+        #expect(context.contains("SSH private key file exists; do not read private key values."))
     }
 
     @Test

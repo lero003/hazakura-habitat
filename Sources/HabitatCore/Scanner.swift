@@ -373,6 +373,10 @@ public struct HabitatScanner {
             warnings.append("Package manager auth config exists; do not read token values from .npmrc or yarn config files.")
         }
 
+        if hasSSHPrivateKeyFile(project) {
+            warnings.append("SSH private key file exists; do not read private key values.")
+        }
+
         if project.packageManager == nil {
             warnings.append("No primary package manager signal detected; prefer read-only inspection before mutation.")
         }
@@ -439,6 +443,12 @@ public struct HabitatScanner {
     private func hasPackageManagerAuthConfig(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
             file == ".npmrc" || file == ".yarnrc" || file == ".yarnrc.yml"
+        }
+    }
+
+    private func hasSSHPrivateKeyFile(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains { file in
+            ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(file)
         }
     }
 

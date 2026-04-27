@@ -36,7 +36,7 @@ public struct ReportWriter {
         }
         let useLines = ([packageManagerUse] + result.policy.preferredCommands.prefix(2).map { "Prefer `\($0)`." })
             .compactMap { $0 }
-        let avoidLines = prioritizedForbiddenCommands(result).prefix(4).map { "Do not run `\($0)`." }
+        let avoidLines = prioritizedForbiddenCommands(result).prefix(5).map { "Do not run `\($0)`." }
         let askLines = result.policy.askFirstCommands.prefix(4).map { "Ask before `\($0)`." }
         let mismatchLines = result.warnings.isEmpty ? ["- None detected."] : result.warnings.map { "- \($0)" }
         let changeLines = result.changes.map { "- \($0.summary) \($0.impact)" }
@@ -175,11 +175,13 @@ public struct ReportWriter {
             append("read .envrc values", to: &commands, from: result.policy.forbiddenCommands)
         }
 
+        if hasSSHPrivateKeyFile(result.project) {
+            append("read SSH private keys", to: &commands, from: result.policy.forbiddenCommands)
+        }
+
         if hasPackageManagerAuthConfig(result.project) {
             append("read package manager auth config values", to: &commands, from: result.policy.forbiddenCommands)
         }
-
-        append("read SSH private keys", to: &commands, from: result.policy.forbiddenCommands)
 
         for command in result.policy.forbiddenCommands where !commands.contains(command) {
             commands.append(command)
@@ -208,6 +210,12 @@ public struct ReportWriter {
     private func hasPackageManagerAuthConfig(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
             file == ".npmrc" || file == ".yarnrc" || file == ".yarnrc.yml"
+        }
+    }
+
+    private func hasSSHPrivateKeyFile(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains { file in
+            ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(file)
         }
     }
 

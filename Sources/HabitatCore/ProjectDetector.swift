@@ -49,6 +49,10 @@ public struct ProjectDetector {
         ".envrc",
         ".envrc.local",
         ".envrc.example",
+        "id_rsa",
+        "id_dsa",
+        "id_ecdsa",
+        "id_ed25519",
         "README.md",
     ]
 
