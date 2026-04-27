@@ -1953,6 +1953,66 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanComparisonReportsResolvedCommandPolicyEntries() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["pnpm run"],
+                askFirstCommands: ["running pnpm commands before pnpm is available", "pnpm install"],
+                forbiddenCommands: ["sudo", "legacy forbidden command"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["pnpm run"],
+                askFirstCommands: ["pnpm install"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.contains(where: {
+            $0.summary == "Ask First commands no longer highlighted: running pnpm commands before pnpm is available."
+                && $0.impact == "Do not ask solely because a previous scan did; apply the current command policy."
+        }))
+        #expect(changes.contains(where: {
+            $0.summary == "Forbidden commands no longer highlighted: legacy forbidden command."
+                && $0.impact == "Do not refuse solely because a previous scan did; apply the current command policy."
+        }))
+        #expect(!changes.contains(where: {
+            $0.summary.contains("changed from Ask First to Forbidden")
+        }))
+        #expect(!changes.contains(where: {
+            $0.summary.contains("changed from Forbidden to Ask First")
+        }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask First commands no longer highlighted: running pnpm commands before pnpm is available. Do not ask solely because a previous scan did; apply the current command policy."))
+        #expect(context.contains("Forbidden commands no longer highlighted: legacy forbidden command. Do not refuse solely because a previous scan did; apply the current command policy."))
+    }
+
+    @Test
     func scanResultDecodesOlderJsonWithoutChanges() throws {
         let result = markdownSnapshotScanResult()
         let data = try JSONEncoder().encode(result)

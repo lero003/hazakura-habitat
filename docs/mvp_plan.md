@@ -235,7 +235,7 @@ Initial scope should be limited to AI-actionable deltas:
 - package manager selection changed since the previous scan
 - lockfiles appeared or disappeared
 - missing tools appeared or were resolved
-- command policy risk classification changed
+- command policy risk classification changed or a previous policy entry is no longer highlighted
 
 Avoid broad environment diffs. The comparison should answer: what changed that should alter the agent's next action?
 

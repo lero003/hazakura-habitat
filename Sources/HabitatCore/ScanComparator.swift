@@ -124,6 +124,30 @@ public struct ScanComparator {
             ))
         }
 
+        let resolvedAskFirst = previousAskFirst
+            .subtracting(currentAskFirst)
+            .subtracting(currentForbidden)
+            .sorted()
+        if !resolvedAskFirst.isEmpty {
+            changes.append(ScanChange(
+                category: "command_policy",
+                summary: "Ask First commands no longer highlighted: \(summarize(resolvedAskFirst)).",
+                impact: "Do not ask solely because a previous scan did; apply the current command policy."
+            ))
+        }
+
+        let removedForbidden = previousForbidden
+            .subtracting(currentForbidden)
+            .subtracting(currentAskFirst)
+            .sorted()
+        if !removedForbidden.isEmpty {
+            changes.append(ScanChange(
+                category: "command_policy",
+                summary: "Forbidden commands no longer highlighted: \(summarize(removedForbidden)).",
+                impact: "Do not refuse solely because a previous scan did; apply the current command policy."
+            ))
+        }
+
         return changes
     }
 
