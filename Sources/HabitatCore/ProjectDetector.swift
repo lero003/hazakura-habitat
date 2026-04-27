@@ -33,6 +33,7 @@ public struct ProjectDetector {
         "mise.toml",
         ".tool-versions",
         ".python-version",
+        ".ruby-version",
         ".node-version",
         ".nvmrc",
         ".npmrc",
@@ -74,7 +75,8 @@ public struct ProjectDetector {
                     projectURL.appendingPathComponent(".nvmrc"),
                     projectURL.appendingPathComponent(".node-version")
                 ) ?? toolVersions.node ?? packageJSON.node,
-                python: firstLineIfSafe(projectURL.appendingPathComponent(".python-version")) ?? toolVersions.python
+                python: firstLineIfSafe(projectURL.appendingPathComponent(".python-version")) ?? toolVersions.python,
+                ruby: firstLineIfSafe(projectURL.appendingPathComponent(".ruby-version")) ?? toolVersions.ruby
             ),
             declaredPackageManager: packageJSON.declaredPackageManager?.name,
             declaredPackageManagerVersion: packageJSON.declaredPackageManager?.version
@@ -183,6 +185,7 @@ public struct ProjectDetector {
 
         var node: String?
         var python: String?
+        var ruby: String?
 
         for rawLine in content.split(whereSeparator: \.isNewline) {
             let line = rawLine
@@ -201,12 +204,16 @@ public struct ProjectDetector {
                 if python == nil {
                     python = parts[1]
                 }
+            case "ruby":
+                if ruby == nil {
+                    ruby = parts[1]
+                }
             default:
                 continue
             }
         }
 
-        return ToolVersionsMetadata(node: node, python: python)
+        return ToolVersionsMetadata(node: node, python: python, ruby: ruby)
     }
 
     private func declaredPackageManager(from rawPackageManager: String) -> DeclaredPackageManager? {
@@ -270,7 +277,7 @@ public struct ProjectDetector {
     private func firstLineIfSafe(_ url: URL) -> String? {
         guard FileManager.default.fileExists(atPath: url.path) else { return nil }
         let lastPath = url.lastPathComponent
-        guard lastPath == ".nvmrc" || lastPath == ".node-version" || lastPath == ".python-version" else { return nil }
+        guard lastPath == ".nvmrc" || lastPath == ".node-version" || lastPath == ".python-version" || lastPath == ".ruby-version" else { return nil }
         guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
         return content
             .split(whereSeparator: \.isNewline)
@@ -300,10 +307,11 @@ private struct PackageJSONMetadata {
 }
 
 private struct ToolVersionsMetadata {
-    static let empty = ToolVersionsMetadata(node: nil, python: nil)
+    static let empty = ToolVersionsMetadata(node: nil, python: nil, ruby: nil)
 
     let node: String?
     let python: String?
+    let ruby: String?
 }
 
 private struct VoltaMetadata {

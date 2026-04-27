@@ -161,6 +161,13 @@ public struct ProjectInfo: Codable {
 public struct RuntimeHints: Codable {
     public let node: String?
     public let python: String?
+    public let ruby: String?
+
+    public init(node: String?, python: String?, ruby: String? = nil) {
+        self.node = node
+        self.python = python
+        self.ruby = ruby
+    }
 }
 
 public struct ToolSummary: Codable {

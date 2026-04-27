@@ -153,6 +153,7 @@ Detect dependency signals:
 - `mise.toml`
 - `.tool-versions`
 - `.python-version`
+- `.ruby-version`
 - `.node-version`
 - `.nvmrc`
 - `.npmrc`
@@ -169,7 +170,7 @@ Detect dependency signals:
 - `id_ed25519`
 - `README.md`
 
-Read only safe metadata such as `package.json` package manager hints, Volta Node/package-manager pins, `engines.node` hints including common comparator and OR ranges, and script names, plus Node/Python version hints from `.tool-versions`. Preserve `package.json` package manager hints in scan data even when lockfiles select a different package manager, so agents can ask before installs. Never read `.env` / `.envrc` values, SSH private key values, or package-manager auth token values.
+Read only safe metadata such as `package.json` package manager hints, Volta Node/package-manager pins, `engines.node` hints including common comparator and OR ranges, and script names, plus Node/Python/Ruby version hints from `.tool-versions`. Preserve `package.json` package manager hints in scan data even when lockfiles select a different package manager, so agents can ask before installs. Never read `.env` / `.envrc` values, SSH private key values, or package-manager auth token values.
 
 ### M4: Focused Tool Scanners
 

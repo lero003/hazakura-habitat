@@ -157,6 +157,7 @@ Ask First:
 - running `uv` commands before `uv` is available
 - running Python commands before `python3` is available
 - running Python commands before project `.venv/bin/python` exists
+- dependency installs before matching active Ruby to project version hints
 - dependency installs before choosing between `pyproject.toml` and `requirements*.txt` when both are present
 - dependency installs before choosing between `uv.lock` and `requirements*.txt` when both are present
 - creating or deleting virtual environments
@@ -230,6 +231,7 @@ Compatibility:
 - Do not rename or remove fields without documenting a schema change.
 - Generate Markdown from this JSON when possible.
 - `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions`, `package.json` Volta pins, and `package.json` `engines.node`.
+- Ruby runtime hints from `.ruby-version` or `.tool-versions` may require asking before Bundler dependency installs when active Ruby differs or cannot be verified.
 - `declaredPackageManager` records the safe `package.json` `packageManager` hint even when a lockfile selects a different package manager.
 - Secret-bearing environment files such as `.env`, `.env.*`, `.envrc`, `.envrc.*`, and `.envrc.example` may be detected by filename, but values must not be read or emitted.
 - Package-manager auth config files such as `.npmrc`, `.pnpmrc`, `.yarnrc`, and `.yarnrc.yml` may be detected by filename, but token values must not be read or emitted.

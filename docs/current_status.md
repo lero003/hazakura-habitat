@@ -40,7 +40,8 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - JavaScript projects ask before running the selected package manager when `npm`, `pnpm`, `yarn`, or `bun` is missing, and warn before substituting another package manager.
 - Non-zero version command exits are treated as unverifiable tool versions, recorded in diagnostics, and used to keep dependency-install guards active.
 - Runtime mismatch warnings and command-policy guards when `.nvmrc` or `.node-version` differs from the active Node major version, or `.python-version` differs from active Python major/minor.
-- `.tool-versions` Node/Python runtime hints are captured without reading secret files and feed the same dependency-install verification guards.
+- `.tool-versions` Node/Python/Ruby runtime hints are captured without reading secret files and feed dependency-install verification guards.
+- Ruby version hints from `.ruby-version` or `.tool-versions` add Bundler dependency-install guards when active Ruby differs or cannot be verified.
 - Project `.venv` detection that tells agents to prefer `.venv/bin/python` before system `python3`.
 - Project `.venv/bin/python` detection that suppresses broken virtualenv Python recommendations and asks before Python commands or recreating `.venv` when the directory exists without an interpreter.
 - Python command guidance from secondary Python signals such as `requirements-dev.txt`, `Pipfile`, and `Pipfile.lock`.

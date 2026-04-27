@@ -1534,6 +1534,46 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanUsesRubyVersionHintsForBundlerInstallGuard() throws {
+        let cases: [(file: String, content: String)] = [
+            (".ruby-version", "3.3.0\n"),
+            (".tool-versions", "ruby 3.3.0\n"),
+        ]
+
+        for testCase in cases {
+            let projectURL = try makeProject(files: [
+                "Gemfile": "source \"https://rubygems.org\"\n",
+                testCase.file: testCase.content,
+            ])
+
+            let runner = FakeCommandRunner(results: [
+                "/usr/bin/env ruby --version": .init(name: "/usr/bin/env", args: ["ruby", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "ruby 3.2.2", stderr: ""),
+                "/usr/bin/which -a ruby": .init(name: "/usr/bin/which", args: ["-a", "ruby"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/ruby", stderr: ""),
+                "/usr/bin/which -a bundle": .init(name: "/usr/bin/which", args: ["-a", "bundle"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/bundle", stderr: ""),
+            ])
+
+            let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+            #expect(result.project.packageManager == "bundler")
+            #expect(result.project.detectedFiles.contains(testCase.file))
+            #expect(result.project.runtimeHints.ruby == "3.3.0")
+            #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Ruby to project version hints"))
+            #expect(result.warnings.contains("Active Ruby is ruby 3.2.2, but project requests 3.3.0; ask before dependency installs (/opt/homebrew/bin/ruby)."))
+
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+            let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+            let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+            let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+            #expect(scanResult.contains("\"ruby\" : \"3.3.0\""))
+            #expect(context.contains("Ask before `dependency installs before matching active Ruby to project version hints`."))
+            #expect(context.contains("Active Ruby is ruby 3.2.2, but project requests 3.3.0; ask before dependency installs"))
+            #expect(policy.contains("`dependency installs before matching active Ruby to project version hints`"))
+        }
+    }
+
+    @Test
     func scanTreatsGoModAsGoProjectAndGuardsMissingGo() throws {
         let projectURL = try makeProject(files: [
             "go.mod": "module example.com/demo\n\ngo 1.22\n",

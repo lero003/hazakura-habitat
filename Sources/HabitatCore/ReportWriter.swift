@@ -340,6 +340,10 @@ public struct ReportWriter {
             names.insert("python3")
         }
 
+        if result.project.runtimeHints.ruby != nil {
+            names.insert("ruby")
+        }
+
         if let packageManager = result.project.packageManager,
            ["swiftpm", "xcodebuild"].contains(packageManager) {
             names.insert("xcode-select")

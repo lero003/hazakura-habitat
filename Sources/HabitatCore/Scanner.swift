@@ -297,6 +297,10 @@ public struct HabitatScanner {
             commands.insert("dependency installs before matching active Python to project version hints", at: 0)
         }
 
+        if rubyVersionNeedsVerification(project: project, versions: versions) {
+            commands.insert("dependency installs before matching active Ruby to project version hints", at: 0)
+        }
+
         if hasMixedPythonDependencyFiles(project) {
             commands.insert("dependency installs before choosing between pyproject.toml and requirements files", at: 0)
         }
@@ -390,6 +394,17 @@ public struct HabitatScanner {
                 warnings.append("Active Python is \(activeVersion), but project requests \(pythonHint); ask before dependency installs (\(activePython)).")
             } else if activeVersion == nil {
                 warnings.append("Project requests Python \(pythonHint); verify active python before installs (\(activePython)).")
+            }
+        }
+
+        if let rubyHint = project.runtimeHints.ruby {
+            let activeRuby = resolvedPaths.first(where: { $0.name == "ruby" })?.paths.first ?? "missing"
+            let activeVersion = versions.first(where: { $0.name == "ruby" })?.version
+
+            if let activeVersion, rubyVersionsDiffer(requested: rubyHint, active: activeVersion) {
+                warnings.append("Active Ruby is \(activeVersion), but project requests \(rubyHint); ask before dependency installs (\(activeRuby)).")
+            } else if activeVersion == nil {
+                warnings.append("Project requests Ruby \(rubyHint); verify active ruby before installs (\(activeRuby)).")
             }
         }
 
@@ -668,6 +683,21 @@ public struct HabitatScanner {
         return pythonVersionsDiffer(requested: pythonHint, active: activeVersion)
     }
 
+    private func rubyVersionNeedsVerification(project: ProjectInfo, versions: [ToolVersion]) -> Bool {
+        guard let rubyHint = project.runtimeHints.ruby else {
+            return false
+        }
+
+        guard let activeToolVersion = versions.first(where: { $0.name == "ruby" }),
+              activeToolVersion.available,
+              let activeVersion = activeToolVersion.version
+        else {
+            return true
+        }
+
+        return rubyVersionsDiffer(requested: rubyHint, active: activeVersion)
+    }
+
     private func packageManagerVersionNeedsVerification(project: ProjectInfo, versions: [ToolVersion]) -> Bool {
         guard let packageManager = project.packageManager,
               let packageManagerVersion = project.packageManagerVersion
@@ -861,6 +891,16 @@ public struct HabitatScanner {
     }
 
     private func pythonVersionsDiffer(requested: String, active: String) -> Bool {
+        guard let requestedComponents = versionComponents(from: requested),
+              let activeComponents = versionComponents(from: active)
+        else {
+            return false
+        }
+
+        return requestedComponents != activeComponents
+    }
+
+    private func rubyVersionsDiffer(requested: String, active: String) -> Bool {
         guard let requestedComponents = versionComponents(from: requested),
               let activeComponents = versionComponents(from: active)
         else {

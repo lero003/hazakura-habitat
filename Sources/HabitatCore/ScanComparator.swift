@@ -266,6 +266,10 @@ public struct ScanComparator {
             names.insert("python3")
         }
 
+        if result.project.runtimeHints.ruby != nil {
+            names.insert("ruby")
+        }
+
         return names
     }
 
