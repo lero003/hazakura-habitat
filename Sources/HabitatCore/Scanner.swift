@@ -34,6 +34,7 @@ public struct HabitatScanner {
             ("xcode-select", "/usr/bin/xcode-select", ["-p"]),
             ("xcodebuild", "/usr/bin/env", ["xcodebuild", "-version"]),
         ] + packageManagerVersionCommandSpecs(project: project)
+            + projectSpecificVersionCommandSpecs(project: project)
 
         let commands = commandSpecs.map { spec in
             runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
@@ -543,6 +544,15 @@ public struct HabitatScanner {
             return "running JavaScript commands before node version check succeeds"
         }
 
+        switch (packageManager, executable) {
+        case ("bundler", "ruby"):
+            return "running Bundler commands before ruby version check succeeds"
+        case ("bundler", "bundle"):
+            return "running Bundler commands before bundle version check succeeds"
+        default:
+            break
+        }
+
         switch packageManager {
         case "swiftpm":
             return "running SwiftPM commands before swift version check succeeds"
@@ -552,8 +562,6 @@ public struct HabitatScanner {
             return "running Cargo commands before cargo version check succeeds"
         case "python":
             return "running Python commands before python3 version check succeeds"
-        case "bundler":
-            return "running Bundler commands before ruby version check succeeds"
         case "xcodebuild":
             return "running Xcode build commands before xcodebuild version check succeeds"
         default:
@@ -654,6 +662,15 @@ public struct HabitatScanner {
         }
 
         return [(packageManager, "/usr/bin/env", [packageManager, "--version"])]
+    }
+
+    private func projectSpecificVersionCommandSpecs(project: ProjectInfo) -> [(String, String, [String])] {
+        switch project.packageManager {
+        case "bundler":
+            return [("bundle", "/usr/bin/env", ["bundle", "--version"])]
+        default:
+            return []
+        }
     }
 
     private func shouldWarnAboutMissingPreferredTool(packageManager: String, resolvedPaths: [ResolvedTool]) -> Bool {

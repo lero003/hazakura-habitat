@@ -236,6 +236,8 @@ The goal is to prevent dangerous, mistaken, or wasteful commands before an agent
 
 Project-relevant version command failures should affect command policy, not only diagnostics. When a selected project tool is present on `PATH` but its version check fails or times out, generated Markdown should keep related build/test commands out of Allowed and require Ask First until the tool can be verified.
 
+Bundler projects apply the same partial-failure rule to `bundle --version`: a resolved but failing `bundle` should keep `bundle exec` out of `agent_context.md` / `command_policy.md` until the tool can be verified.
+
 ## Near-Term Candidates
 
 ### Lightweight Scan Comparison
