@@ -294,7 +294,9 @@ struct HabitatCoreTests {
 
         #expect(context.contains("Ask before `running npm commands before npm is available`."))
         #expect(context.contains("Project files prefer npm, but npm was not found on PATH; ask before running npm commands or substituting another package manager."))
+        #expect(!context.contains("Prefer `npm run test`."))
         #expect(policy.contains("`running npm commands before npm is available`"))
+        #expect(!policy.contains("`npm run test`"))
     }
 
     @Test
@@ -543,10 +545,10 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(context.contains("Use `npm` because project files point to it."))
-        #expect(context.contains("Prefer `npm run`."))
         #expect(context.contains("Ask before `running npm commands before npm is available`."))
         #expect(context.contains("Ask before `npm ci`."))
-        #expect(policy.contains("`npm run`"))
+        #expect(!context.contains("Prefer `npm run`."))
+        #expect(!policy.contains("`npm run`"))
         #expect(policy.contains("`npm ci`"))
         #expect(policy.contains("`npm update`"))
         #expect(policy.contains("`running npm commands before npm is available`"))
@@ -1275,8 +1277,9 @@ struct HabitatCoreTests {
         #expect(context.contains("Use `python` because project files point to it."))
         #expect(context.contains("Ask before `running Python commands before python3 is available`."))
         #expect(context.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
+        #expect(!context.contains("Prefer `python3 -m pytest`."))
         #expect(policy.contains("`running Python commands before python3 is available`"))
-        #expect(policy.contains("`python3 -m pytest`"))
+        #expect(!policy.contains("`python3 -m pytest`"))
     }
 
     @Test
@@ -1468,10 +1471,10 @@ struct HabitatCoreTests {
             let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
             #expect(context.contains("Use `bundler` because project files point to it."))
-            #expect(context.contains("Prefer `bundle exec`."))
             #expect(context.contains("Ask before `running Bundler commands before bundle is available`."))
             #expect(context.contains("Ask before `bundle install`."))
-            #expect(policy.contains("`bundle exec`"))
+            #expect(!context.contains("Prefer `bundle exec`."))
+            #expect(!policy.contains("`bundle exec`"))
             #expect(policy.contains("`running Bundler commands before bundle is available`"))
         }
     }
@@ -1497,10 +1500,10 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(context.contains("Use `go` because project files point to it."))
-        #expect(context.contains("Prefer `go test ./...`."))
         #expect(context.contains("Ask before `running Go commands before go is available`."))
         #expect(context.contains("Ask before `go mod tidy`."))
-        #expect(policy.contains("`go test ./...`"))
+        #expect(!context.contains("Prefer `go test ./...`."))
+        #expect(!policy.contains("`go test ./...`"))
         #expect(policy.contains("`go get`"))
     }
 
@@ -1531,10 +1534,10 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(context.contains("Use `cargo` because project files point to it."))
-        #expect(context.contains("Prefer `cargo test`."))
         #expect(context.contains("Ask before `running Cargo commands before cargo is available`."))
         #expect(context.contains("Ask before `cargo update`."))
-        #expect(policy.contains("`cargo test`"))
+        #expect(!context.contains("Prefer `cargo test`."))
+        #expect(!policy.contains("`cargo test`"))
         #expect(policy.contains("`cargo add`"))
     }
 
@@ -1565,11 +1568,11 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(context.contains("Use `homebrew` because project files point to it."))
-        #expect(context.contains("Prefer `brew bundle check`."))
         #expect(context.contains("Ask before `running Homebrew Bundle commands before brew is available`."))
         #expect(context.contains("Ask before `brew bundle`."))
         #expect(context.contains("Project files include Brewfile, but brew was not found on PATH; ask before running Homebrew Bundle commands."))
-        #expect(policy.contains("`brew bundle check`"))
+        #expect(!context.contains("Prefer `brew bundle check`."))
+        #expect(!policy.contains("`brew bundle check`"))
         #expect(policy.contains("`brew bundle install`"))
         #expect(policy.contains("`brew bundle cleanup`"))
         #expect(policy.contains("`brew bundle dump`"))
@@ -1604,11 +1607,11 @@ struct HabitatCoreTests {
             let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
             #expect(context.contains("Use `cocoapods` because project files point to it."))
-            #expect(context.contains("Prefer `pod --version`."))
             #expect(context.contains("Ask before `running CocoaPods commands before pod is available`."))
             #expect(context.contains("Ask before `pod install`."))
             #expect(context.contains("Project files prefer CocoaPods, but pod was not found on PATH; ask before running CocoaPods commands."))
-            #expect(policy.contains("`pod --version`"))
+            #expect(!context.contains("Prefer `pod --version`."))
+            #expect(!policy.contains("`pod --version`"))
             #expect(policy.contains("`pod install`"))
             #expect(policy.contains("`pod update`"))
             #expect(policy.contains("`pod repo update`"))
@@ -1642,11 +1645,11 @@ struct HabitatCoreTests {
             let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
             #expect(context.contains("Use `carthage` because project files point to it."))
-            #expect(context.contains("Prefer `carthage version`."))
             #expect(context.contains("Ask before `running Carthage commands before carthage is available`."))
             #expect(context.contains("Ask before `carthage bootstrap`."))
             #expect(context.contains("Project files prefer Carthage, but carthage was not found on PATH; ask before running Carthage commands."))
-            #expect(policy.contains("`carthage version`"))
+            #expect(!context.contains("Prefer `carthage version`."))
+            #expect(!policy.contains("`carthage version`"))
             #expect(policy.contains("`carthage bootstrap`"))
             #expect(policy.contains("`carthage update`"))
             #expect(policy.contains("`carthage checkout`"))
@@ -1684,9 +1687,9 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(context.contains("Use `uv` because project files point to it."))
-        #expect(context.contains("Prefer `uv run`."))
         #expect(context.contains("Ask before `running uv commands before uv is available`."))
-        #expect(policy.contains("`uv run`"))
+        #expect(!context.contains("Prefer `uv run`."))
+        #expect(!policy.contains("`uv run`"))
         #expect(policy.contains("`running uv commands before uv is available`"))
     }
 
@@ -1885,8 +1888,6 @@ struct HabitatCoreTests {
 
         ## Use
         - Use `pnpm` because project files point to it.
-        - Prefer `pnpm`.
-        - Prefer `pnpm test`.
 
         ## Avoid
         - Do not run `sudo`.
@@ -1919,8 +1920,6 @@ struct HabitatCoreTests {
         # Command Policy
 
         ## Allowed
-        - `pnpm`
-        - `pnpm test`
         - `read-only project inspection`
         - `test commands for the selected project`
         - `build commands for the selected project`
@@ -2326,8 +2325,9 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(context.contains("Use `swiftpm` because project files point to it."))
-        #expect(context.contains("Prefer `swift test`."))
         #expect(context.contains("Ask before `running SwiftPM commands before swift is available`."))
+        #expect(!context.contains("Prefer `swift test`."))
+        #expect(!policy.contains("`swift test`"))
         #expect(policy.contains("`swift package resolve`"))
     }
 

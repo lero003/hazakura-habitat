@@ -23,6 +23,7 @@ public struct ReportWriter {
     }
 
     private func agentContext(_ result: ScanResult) -> String {
+        let preferredCommands = markdownPreferredCommands(result)
         let packageManagerUse = result.project.packageManager.map { packageManager in
             if let version = result.project.packageManagerVersion {
                 if result.project.declaredPackageManager == packageManager {
@@ -34,7 +35,7 @@ public struct ReportWriter {
 
             return "Use `\(packageManager)` because project files point to it."
         }
-        let useLines = ([packageManagerUse] + result.policy.preferredCommands.prefix(2).map { "Prefer `\($0)`." })
+        let useLines = ([packageManagerUse] + preferredCommands.prefix(2).map { "Prefer `\($0)`." })
             .compactMap { $0 }
         let avoidLines = prioritizedForbiddenCommands(result).prefix(5).map { "Do not run `\($0)`." }
         let askLines = result.policy.askFirstCommands.prefix(4).map { "Ask before `\($0)`." }
@@ -71,7 +72,7 @@ public struct ReportWriter {
     }
 
     private func commandPolicy(_ result: ScanResult) -> String {
-        let allowed = result.policy.preferredCommands + [
+        let allowed = markdownPreferredCommands(result) + [
             "read-only project inspection",
             "test commands for the selected project",
             "build commands for the selected project"
@@ -159,6 +160,27 @@ public struct ReportWriter {
                 diagnostic == commandName || diagnostic.hasPrefix("\(commandName) ")
             }
         }
+    }
+
+    private func markdownPreferredCommands(_ result: ScanResult) -> [String] {
+        guard let packageManager = result.project.packageManager,
+              let executable = executableName(forPackageManager: packageManager)
+        else {
+            return result.policy.preferredCommands
+        }
+
+        if packageManager == "python",
+           result.project.detectedFiles.contains(".venv"),
+           result.policy.preferredCommands.allSatisfy({ $0.hasPrefix(".venv/bin/python") }) {
+            return result.policy.preferredCommands
+        }
+
+        let isMissing = result.tools.resolvedPaths
+            .first(where: { $0.name == executable })?
+            .paths
+            .isEmpty ?? true
+
+        return isMissing ? [] : result.policy.preferredCommands
     }
 
     private func prioritizedForbiddenCommands(_ result: ScanResult) -> [String] {
