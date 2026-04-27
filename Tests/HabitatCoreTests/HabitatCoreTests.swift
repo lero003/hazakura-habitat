@@ -403,6 +403,42 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeJavaScriptCommandsWhenNodeRuntimeIsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(result.policy.askFirstCommands.contains("running JavaScript commands before node is available"))
+        #expect(!result.policy.askFirstCommands.contains("substituting another package manager for npm"))
+        #expect(result.warnings.contains("Project files need Node, but node was not found on PATH; ask before running JavaScript commands."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running JavaScript commands before node is available`."))
+        #expect(context.contains("Project files need Node, but node was not found on PATH; ask before running JavaScript commands."))
+        #expect(policy.contains("`running JavaScript commands before node is available`"))
+    }
+
+    @Test
     func scanGuardsJavaScriptDependencyMutationCommands() throws {
         let cases: [(lockfile: String, packageManager: String, commands: [String])] = [
             ("package-lock.json", "npm", ["npm install", "npm ci", "npm update"]),

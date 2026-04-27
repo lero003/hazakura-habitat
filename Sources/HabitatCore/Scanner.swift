@@ -259,6 +259,10 @@ public struct HabitatScanner {
             commands.insert("dependency installs before matching \(project.packageManager ?? "package manager") to packageManager version", at: 0)
         }
 
+        if shouldWarnAboutMissingNodeRuntime(project: project, resolvedPaths: resolvedPaths) {
+            commands.insert("running JavaScript commands before node is available", at: 0)
+        }
+
         if let packageManager = project.packageManager,
            shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
             commands.insert(missingPreferredToolAskFirstCommand(packageManager: packageManager), at: 0)
@@ -381,6 +385,10 @@ public struct HabitatScanner {
             warnings.append(missingPreferredToolWarning(packageManager: packageManager))
         }
 
+        if shouldWarnAboutMissingNodeRuntime(project: project, resolvedPaths: resolvedPaths) {
+            warnings.append("Project files need Node, but node was not found on PATH; ask before running JavaScript commands.")
+        }
+
         return warnings
     }
 
@@ -466,6 +474,16 @@ public struct HabitatScanner {
         }
 
         return resolvedPaths.first(where: { $0.name == toolName })?.paths.isEmpty ?? true
+    }
+
+    private func shouldWarnAboutMissingNodeRuntime(project: ProjectInfo, resolvedPaths: [ResolvedTool]) -> Bool {
+        guard let packageManager = project.packageManager,
+              ["npm", "pnpm", "yarn", "bun"].contains(packageManager)
+        else {
+            return false
+        }
+
+        return resolvedPaths.first(where: { $0.name == "node" })?.paths.isEmpty ?? true
     }
 
     private func missingPreferredToolAskFirstCommand(packageManager: String) -> String {
