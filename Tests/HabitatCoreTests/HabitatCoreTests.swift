@@ -2064,6 +2064,50 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanGuardsJavaScriptPackageManagerWhenVersionCheckFailsWithoutPackageManagerPin() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-lock.yaml": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "pnpm: failed to load"),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == nil)
+        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.askFirstCommands.contains("running pnpm commands before pnpm version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running pnpm commands before pnpm is available"))
+        #expect(result.diagnostics.contains("pnpm --version failed with exit code 1: pnpm: failed to load"))
+        #expect(result.tools.versions.contains(where: { $0.name == "pnpm" && !$0.available }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running pnpm commands before pnpm version check succeeds`."))
+        #expect(context.contains("pnpm --version failed with exit code 1: pnpm: failed to load"))
+        #expect(!context.contains("Prefer `pnpm run test`."))
+        #expect(policy.contains("`running pnpm commands before pnpm version check succeeds`"))
+        #expect(!policy.contains("`pnpm run test`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+    }
+
+    @Test
     func reportWriterCreatesAllArtifacts() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(

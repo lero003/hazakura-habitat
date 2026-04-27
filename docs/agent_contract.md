@@ -158,6 +158,7 @@ Ask First:
 - dependency installs before matching the selected JavaScript package manager to safe package-manager version metadata from `package.json`
 - running JavaScript commands before `node` is available
 - running JavaScript commands before `node` version check succeeds
+- running `npm`, `pnpm`, `yarn`, or `bun` commands before that selected package manager's version check succeeds
 - running `npm`, `pnpm`, `yarn`, or `bun` commands before the selected package manager is available
 - running `uv` commands before `uv` is available
 - running Python commands before `python3` is available
@@ -239,6 +240,7 @@ Compatibility:
 - `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions`, `package.json` Volta pins, and `package.json` `engines.node`.
 - Ruby runtime hints from `.ruby-version` or `.tool-versions` may require asking before Bundler dependency installs when active Ruby differs or cannot be verified.
 - Bundler projects may verify `bundle --version`; if `bundle` is resolved but the check fails, Markdown artifacts should suppress `bundle exec` and require Ask First before Bundler commands.
+- JavaScript projects may verify the selected package manager with `npm --version`, `pnpm --version`, `yarn --version`, or `bun --version` even when `package.json` has no package-manager version pin; if the resolved selected tool check fails, Markdown artifacts should suppress related preferred commands and require Ask First before related commands.
 - Homebrew Bundle, CocoaPods, and Carthage projects may verify `brew --version`, `pod --version`, or `carthage version`; if the selected tool is resolved but the check fails, Markdown artifacts should suppress related preferred commands and require Ask First before related commands.
 - `declaredPackageManager` records the safe `package.json` `packageManager` hint even when a lockfile selects a different package manager.
 - Secret-bearing environment files such as `.env`, `.env.*`, `.envrc`, `.envrc.*`, and `.envrc.example` may be detected by filename, but values must not be read or emitted.

@@ -16,7 +16,7 @@ public struct HabitatScanner {
             .map(String.init)
             .filter { !$0.isEmpty }
 
-        let commandSpecs: [(String, String, [String])] = [
+        let baseCommandSpecs: [(String, String, [String])] = [
             ("swift", "/usr/bin/env", ["swift", "--version"]),
             ("git", "/usr/bin/env", ["git", "--version"]),
             ("node", "/usr/bin/env", ["node", "--version"]),
@@ -33,10 +33,9 @@ public struct HabitatScanner {
             ("rustc", "/usr/bin/env", ["rustc", "--version"]),
             ("xcode-select", "/usr/bin/xcode-select", ["-p"]),
             ("xcodebuild", "/usr/bin/env", ["xcodebuild", "-version"]),
-        ] + packageManagerVersionCommandSpecs(project: project)
-            + projectSpecificVersionCommandSpecs(project: project)
+        ]
 
-        let commands = commandSpecs.map { spec in
+        let baseCommands = baseCommandSpecs.map { spec in
             runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
         }
 
@@ -48,6 +47,13 @@ public struct HabitatScanner {
                 : []
             return ResolvedTool(name: tool, paths: Array(NSOrderedSet(array: paths)) as? [String] ?? paths)
         }
+
+        let commandSpecs = baseCommandSpecs
+            + projectSpecificVersionCommandSpecs(project: project, resolvedPaths: resolvedPaths)
+        let additionalCommands = commandSpecs.dropFirst(baseCommandSpecs.count).map { spec in
+            runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
+        }
+        let commands = baseCommands + additionalCommands
 
         let versions = commandSpecs.map { spec in
             let result = commands.first(where: { $0.args == spec.2 })!
@@ -661,26 +667,26 @@ public struct HabitatScanner {
         return "package.json requests \(declaredPackageManager), but project lockfiles select \(selectedPackageManager); ask before dependency installs."
     }
 
-    private func packageManagerVersionCommandSpecs(project: ProjectInfo) -> [(String, String, [String])] {
-        guard project.packageManagerVersion != nil,
-              let packageManager = project.packageManager,
-              ["npm", "pnpm", "yarn", "bun"].contains(packageManager)
-        else {
-            return []
-        }
-
-        return [(packageManager, "/usr/bin/env", [packageManager, "--version"])]
-    }
-
-    private func projectSpecificVersionCommandSpecs(project: ProjectInfo) -> [(String, String, [String])] {
+    private func projectSpecificVersionCommandSpecs(project: ProjectInfo, resolvedPaths: [ResolvedTool]) -> [(String, String, [String])] {
         switch project.packageManager {
+        case "npm", "pnpm", "yarn", "bun":
+            guard let packageManager = project.packageManager,
+                  toolIsResolved(packageManager, resolvedPaths: resolvedPaths)
+            else {
+                return []
+            }
+            return [(packageManager, "/usr/bin/env", [packageManager, "--version"])]
         case "bundler":
+            guard toolIsResolved("bundle", resolvedPaths: resolvedPaths) else { return [] }
             return [("bundle", "/usr/bin/env", ["bundle", "--version"])]
         case "homebrew":
+            guard toolIsResolved("brew", resolvedPaths: resolvedPaths) else { return [] }
             return [("brew", "/usr/bin/env", ["brew", "--version"])]
         case "cocoapods":
+            guard toolIsResolved("pod", resolvedPaths: resolvedPaths) else { return [] }
             return [("pod", "/usr/bin/env", ["pod", "--version"])]
         case "carthage":
+            guard toolIsResolved("carthage", resolvedPaths: resolvedPaths) else { return [] }
             return [("carthage", "/usr/bin/env", ["carthage", "version"])]
         default:
             return []
