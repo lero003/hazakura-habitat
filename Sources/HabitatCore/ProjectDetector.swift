@@ -18,6 +18,7 @@ public struct ProjectDetector {
         "Pipfile",
         "Pipfile.lock",
         ".venv",
+        ".venv/bin/python",
         "Gemfile",
         "Gemfile.lock",
         "go.mod",

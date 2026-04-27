@@ -155,6 +155,7 @@ Ask First:
 - running `npm`, `pnpm`, `yarn`, or `bun` commands before the selected package manager is available
 - running `uv` commands before `uv` is available
 - running Python commands before `python3` is available
+- running Python commands before project `.venv/bin/python` exists
 - dependency installs before choosing between `pyproject.toml` and `requirements*.txt` when both are present
 - dependency installs before choosing between `uv.lock` and `requirements*.txt` when both are present
 - creating or deleting virtual environments

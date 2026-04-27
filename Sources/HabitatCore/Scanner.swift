@@ -151,9 +151,15 @@ public struct HabitatScanner {
         case "xcodebuild":
             return xcodebuildPreferredCommands(project: project)
         case "uv":
-            return hasProjectVirtualEnvironment(project) ? ["uv run", ".venv/bin/python -m pytest"] : ["uv run"]
+            return hasUsableProjectVirtualEnvironment(project) ? ["uv run", ".venv/bin/python -m pytest"] : ["uv run"]
         case "python":
-            return hasProjectVirtualEnvironment(project) ? [".venv/bin/python -m pytest", ".venv/bin/python"] : ["python3 -m pytest"]
+            if hasUsableProjectVirtualEnvironment(project) {
+                return [".venv/bin/python -m pytest", ".venv/bin/python"]
+            }
+            if hasBrokenProjectVirtualEnvironment(project) {
+                return []
+            }
+            return ["python3 -m pytest"]
         case "bundler":
             return ["bundle exec"]
         case "homebrew":
@@ -299,6 +305,10 @@ public struct HabitatScanner {
             commands.insert("dependency installs before choosing between uv.lock and requirements files", at: 0)
         }
 
+        if hasBrokenProjectVirtualEnvironment(project) {
+            commands.insert("running Python commands before project .venv/bin/python exists", at: 0)
+        }
+
         if packageManagerVersionNeedsVerification(project: project, versions: versions) {
             commands.insert("dependency installs before matching \(project.packageManager ?? "package manager") to packageManager version", at: 0)
         }
@@ -426,8 +436,10 @@ public struct HabitatScanner {
             warnings.append(warning)
         }
 
-        if hasProjectVirtualEnvironment(project) {
+        if hasUsableProjectVirtualEnvironment(project) {
             warnings.append("Project .venv exists; use .venv/bin/python for Python commands before system python3.")
+        } else if hasBrokenProjectVirtualEnvironment(project) {
+            warnings.append("Project .venv exists, but .venv/bin/python was not found; ask before Python commands or recreating the virtual environment.")
         }
 
         if hasMixedPythonDependencyFiles(project) {
@@ -456,6 +468,14 @@ public struct HabitatScanner {
 
     private func hasProjectVirtualEnvironment(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains(".venv")
+    }
+
+    private func hasUsableProjectVirtualEnvironment(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains(".venv/bin/python")
+    }
+
+    private func hasBrokenProjectVirtualEnvironment(_ project: ProjectInfo) -> Bool {
+        hasProjectVirtualEnvironment(project) && !hasUsableProjectVirtualEnvironment(project)
     }
 
     private func hasMixedPythonDependencyFiles(_ project: ProjectInfo) -> Bool {

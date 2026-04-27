@@ -176,7 +176,7 @@ public struct ReportWriter {
         }
 
         if packageManager == "python",
-           result.project.detectedFiles.contains(".venv"),
+           result.project.detectedFiles.contains(".venv/bin/python"),
            result.policy.preferredCommands.allSatisfy({ $0.hasPrefix(".venv/bin/python") }) {
             return result.policy.preferredCommands
         }
@@ -201,6 +201,9 @@ public struct ReportWriter {
             return false
         }
         guard !result.policy.askFirstCommands.contains("running JavaScript commands before node is available") else {
+            return false
+        }
+        guard !result.policy.askFirstCommands.contains("running Python commands before project .venv/bin/python exists") else {
             return false
         }
 
