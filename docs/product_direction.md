@@ -48,7 +48,7 @@ The MVP is not:
 
 Default reports may include local paths, project names, and installed tool/package names because those details are useful to AI agents doing local project work.
 
-The tool must not read or emit secret values:
+The tool must not read, collect, or emit secret values:
 
 - `.env` values
 - `.envrc` values
@@ -58,7 +58,9 @@ The tool must not read or emit secret values:
 - browser data
 - mail data
 
-Redaction can be added later, but the MVP should optimize for local AI-assisted development where project names and paths are already part of the working context.
+If a secret-bearing file is relevant, Habitat should report existence, type, and command risk, not raw content. Prefer agent-safe summaries over raw content.
+
+Redaction modes can be added later, but the baseline product rule is stronger than redaction: do not collect secret values in the first place.
 
 ## Product Risk
 

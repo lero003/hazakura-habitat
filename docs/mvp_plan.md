@@ -41,7 +41,20 @@ habitat-report/
   environment_report.md
 ```
 
-## Milestones
+## Roadmap Structure
+
+The roadmap is not a linear scanner-completion checklist.
+
+Hazakura Habitat is centered on AI-facing outputs. System, project, and tool scanners are inputs that improve those outputs only when they change an AI coding agent's next command decision.
+
+Current phase:
+
+> CLI MVP is usable. The project is now in Agent Safety Hardening.
+>
+> The goal is not to add broad environment coverage.
+> The goal is to make AI-facing outputs short, conservative, stable, and useful enough that an AI coding agent avoids wrong or unsafe commands before touching a repository.
+
+## MVP Core
 
 ### M0: Bootstrap
 
@@ -61,6 +74,25 @@ Status: implemented at MVP depth.
 - Capture stdout, stderr, exit code, timeout, duration, and availability
 - Provide fake command runner for tests
 - Treat missing commands and failures as data, not fatal scan errors
+
+### M5: AI-Facing Outputs
+
+Status: MVP usable, continuously refined.
+
+Generate:
+
+- `scan_result.json`
+- `agent_context.md`
+- `command_policy.md`
+- `environment_report.md`
+
+Acceptance test:
+
+An AI agent reading only `agent_context.md` and `command_policy.md` should know what to use, what to avoid, and what to ask before doing.
+
+These outputs are the core product surface. They should keep improving as M2, M3, M4, and M6 add better input signals and safer edge-case handling.
+
+## MVP Inputs
 
 ### M2: System and Command Resolution
 
@@ -137,12 +169,15 @@ Status: partially implemented.
 
 Collect enough information to guide AI behavior.
 
+Do not broaden scanners into comprehensive local environment diagnostics. Scanner scope should stay limited to data that changes command choice, approval requirements, or refusal decisions.
+
 Homebrew:
 
-- prefix
-- formula/cask presence
-- leaves
-- avoid network-dependent or update-like commands in P0
+- whether `brew` is available
+- whether `Brewfile` exists
+- whether `brew bundle check` is a safe preferred command
+- whether `brew bundle`, install, update, cleanup, dump, or upgrade commands require approval or refusal
+- avoid `brew doctor`-style broad diagnostics unless a narrow warning directly changes AI command behavior
 
 Python:
 
@@ -166,32 +201,41 @@ Swift/Xcode:
 - `xcodebuild -version`
 - `swift --version`
 - SwiftPM/Xcode project signals
+- avoid broad Xcode diagnostics unless they affect build/test command selection or safety
 
-### M5: AI-Facing Outputs
+## Agent Safety Hardening
 
-Status: implemented at MVP depth.
-
-Generate:
-
-- `scan_result.json`
-- `agent_context.md`
-- `command_policy.md`
-- `environment_report.md`
-
-Acceptance test:
-
-An AI agent reading only `agent_context.md` and `command_policy.md` should know what to use, what to avoid, and what to ask before doing.
-
-### M6: Hardening
+### M6: Agent Safety Hardening
 
 Status: in progress.
 
-- Fixture tests for missing tools
-- Tests for partial scanner failures
-- Snapshot tests for Markdown output
-- Tests for secret avoidance
-- Example reports from synthetic fixtures
-- Known limitations documented in `environment_report.md`
+Focus:
+
+- missing tool handling
+- partial scanner failure handling
+- secret avoidance
+- conservative command policy
+- fixture-based regression tests
+- Markdown snapshot stability
+- example reports from synthetic fixtures
+- known limitations documented in `environment_report.md`
+
+The goal is to prevent dangerous, mistaken, or wasteful commands before an agent touches a repository.
+
+## Near-Term Candidates
+
+### Lightweight Scan Comparison
+
+A small comparison feature may be useful before GUI or MCP work if it improves `agent_context.md`.
+
+Initial scope should be limited to AI-actionable deltas:
+
+- package manager selection changed since the previous scan
+- lockfiles appeared or disappeared
+- missing tools appeared or were resolved
+- command policy risk classification changed
+
+Avoid broad environment diffs. The comparison should answer: what changed that should alter the agent's next action?
 
 ## Deferred
 
@@ -199,6 +243,5 @@ Status: in progress.
 - MCP server
 - Redaction modes
 - dependency cleanup candidates
-- scan comparison
 - environment change logs
 - package install/update/delete helpers

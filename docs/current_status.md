@@ -1,5 +1,11 @@
 # Current Status
 
+## Current Phase
+
+CLI MVP is usable. The project is now in Agent Safety Hardening.
+
+The goal is not broad Mac environment coverage. The goal is to keep AI-facing outputs short, conservative, stable, and useful enough that an AI coding agent avoids wrong or unsafe commands before touching a repository.
+
 ## Implemented
 
 - SwiftPM package with `HabitatCore` and `habitat-scan`.
@@ -57,13 +63,15 @@
 
 ## Not Yet Implemented
 
-- Detailed Homebrew scanner beyond Brewfile command guidance.
+- Homebrew scanner detail beyond command-decision guidance; this should stay narrow and avoid `brew doctor`-style broad diagnostics.
 - Detailed pip policy beyond install and mixed-dependency signal guards.
 - Additional Node package-manager version metadata beyond `package.json` `packageManager`, Volta pins, and `engines.node`.
-- Swift/Xcode scanner detail beyond basic command capture.
-- GUI, MCP server, scan comparison, and redaction modes.
+- Swift/Xcode scanner detail beyond basic command capture; this should focus on build/test command selection and safety.
+- Lightweight scan comparison for AI-actionable deltas such as package manager changes, lockfile changes, missing-tool changes, and command-policy risk changes.
+- GUI, MCP server, and redaction modes.
 
 ## Next Useful Improvements
 
 - Add fixture projects that cover npm and remaining missing-tool cases.
 - Add focused Python and Node scanner summaries only where they change AI command choices.
+- Add lightweight scan comparison only if it can produce concise, agent-actionable changes.

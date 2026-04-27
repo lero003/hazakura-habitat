@@ -38,6 +38,7 @@ The MVP does not generate separate `env_changes.md` or `project_dependency_summa
 - [Development Loop](docs/development_loop.md)
 - [GitHub Workflow](docs/github_workflow.md)
 - [ADR 0001](docs/adr/0001-ai-first-core-cli.md)
+- [ADR 0002](docs/adr/0002-agent-safe-secret-handling.md)
 
 ## Current Status
 
