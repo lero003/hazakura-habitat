@@ -32,6 +32,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - JavaScript `package.json` script names are captured without script bodies, and generated preferred commands only suggest known safe script names such as `test` and `build` when those scripts exist.
 - JavaScript dependency mutation commands such as `npm ci`, `npm update`, `pnpm add`, `yarn add`, and `bun add` are explicitly classified as Ask First.
 - JavaScript projects ask before running package-manager commands when the selected package manager is available but the Node runtime itself is missing.
+- JavaScript projects ask before running the selected package manager when `npm`, `pnpm`, `yarn`, or `bun` is missing, and warn before substituting another package manager.
 - Non-zero version command exits are treated as unverifiable tool versions, recorded in diagnostics, and used to keep dependency-install guards active.
 - Runtime mismatch warnings and command-policy guards when `.nvmrc` or `.node-version` differs from the active Node major version, or `.python-version` differs from active Python major/minor.
 - `.tool-versions` Node/Python runtime hints are captured without reading secret files and feed the same dependency-install verification guards.
@@ -58,7 +59,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.
 - Command-policy guard that tells agents to ask before modifying lockfiles.
 - Command-policy guard that forbids destructive file deletion outside the selected project.
-- Tests for package manager detection, package.json-only npm guidance, pnpm workspace guidance, package script guidance, `packageManager` field/version, Volta and `engines.node` Node/package-manager metadata including satisfied comparator and OR ranges, and lockfile-conflict guidance, JavaScript dependency mutation guards, missing Node runtime guards, missing tools, non-zero version command failures, artifact generation, runtime mismatch policy guidance, `.tool-versions` runtime hints, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, no-signal read-only fallback, secret avoidance, arbitrary `.env.*` and `.envrc.*` detection without value emission, secret-aware `agent_context.md` Avoid guidance, package-manager auth config warnings, common env file warnings, Python mixed-dependency signal guards, uv/requirements dependency-source guards, uv missing-tool fallback guards, Bundler missing-tool guards, SwiftPM `Package.resolved`, missing-tool, and dependency-mutation guards, Go missing-tool guards, Cargo missing-tool guards, CocoaPods missing-tool and mutation guards, Carthage missing-tool and mutation guards, and Brewfile Homebrew Bundle guards.
+- Tests for package manager detection, package.json-only npm guidance, npm lockfile missing-tool guards, pnpm workspace guidance, package script guidance, `packageManager` field/version, Volta and `engines.node` Node/package-manager metadata including satisfied comparator and OR ranges, and lockfile-conflict guidance, JavaScript dependency mutation guards, missing Node runtime guards, missing tools, non-zero version command failures, artifact generation, runtime mismatch policy guidance, `.tool-versions` runtime hints, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, no-signal read-only fallback, secret avoidance, arbitrary `.env.*` and `.envrc.*` detection without value emission, secret-aware `agent_context.md` Avoid guidance, package-manager auth config warnings, common env file warnings, Python mixed-dependency signal guards, uv/requirements dependency-source guards, uv missing-tool fallback guards, Bundler missing-tool guards, SwiftPM `Package.resolved`, missing-tool, and dependency-mutation guards, Go missing-tool guards, Cargo missing-tool guards, CocoaPods missing-tool and mutation guards, Carthage missing-tool and mutation guards, and Brewfile Homebrew Bundle guards.
 - GitHub CI and release artifact workflows.
 
 ## Not Yet Implemented
@@ -72,6 +73,6 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 
 ## Next Useful Improvements
 
-- Add fixture projects that cover npm and remaining missing-tool cases.
+- Add fixture projects that cover remaining missing-tool cases.
 - Add focused Python and Node scanner summaries only where they change AI command choices.
 - Add lightweight scan comparison only if it can produce concise, agent-actionable changes.

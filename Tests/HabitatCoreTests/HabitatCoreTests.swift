@@ -252,13 +252,49 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "pnpm")
-        #expect(result.policy.askFirstCommands.contains("substituting another package manager for pnpm"))
-        #expect(result.warnings.contains("Project files prefer pnpm, but pnpm was not found on PATH; ask before substituting another package manager."))
+        #expect(result.policy.askFirstCommands.contains("running pnpm commands before pnpm is available"))
+        #expect(result.warnings.contains("Project files prefer pnpm, but pnpm was not found on PATH; ask before running pnpm commands or substituting another package manager."))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
-        #expect(context.contains("Ask before `substituting another package manager for pnpm`."))
+        #expect(context.contains("Ask before `running pnpm commands before pnpm is available`."))
+    }
+
+    @Test
+    func scanGuardsNpmLockfileWhenNpmIsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(result.policy.askFirstCommands.contains("running npm commands before npm is available"))
+        #expect(result.policy.askFirstCommands.contains("npm install"))
+        #expect(result.warnings.contains("Project files prefer npm, but npm was not found on PATH; ask before running npm commands or substituting another package manager."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running npm commands before npm is available`."))
+        #expect(context.contains("Project files prefer npm, but npm was not found on PATH; ask before running npm commands or substituting another package manager."))
+        #expect(policy.contains("`running npm commands before npm is available`"))
     }
 
     @Test
@@ -357,7 +393,7 @@ struct HabitatCoreTests {
         #expect(result.project.packageManager == "pnpm")
         #expect(result.policy.preferredCommands == ["pnpm run test", "pnpm run build"])
         #expect(result.policy.askFirstCommands.contains("pnpm install"))
-        #expect(!result.policy.askFirstCommands.contains("substituting another package manager for pnpm"))
+        #expect(!result.policy.askFirstCommands.contains("running pnpm commands before pnpm is available"))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -423,8 +459,8 @@ struct HabitatCoreTests {
         #expect(result.policy.preferredCommands == ["npm run"])
         #expect(result.policy.askFirstCommands.contains("npm ci"))
         #expect(result.policy.askFirstCommands.contains("npm update"))
-        #expect(result.policy.askFirstCommands.contains("substituting another package manager for npm"))
-        #expect(result.warnings.contains("Project files prefer npm, but npm was not found on PATH; ask before substituting another package manager."))
+        #expect(result.policy.askFirstCommands.contains("running npm commands before npm is available"))
+        #expect(result.warnings.contains("Project files prefer npm, but npm was not found on PATH; ask before running npm commands or substituting another package manager."))
         #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -434,12 +470,12 @@ struct HabitatCoreTests {
 
         #expect(context.contains("Use `npm` because project files point to it."))
         #expect(context.contains("Prefer `npm run`."))
-        #expect(context.contains("Ask before `substituting another package manager for npm`."))
+        #expect(context.contains("Ask before `running npm commands before npm is available`."))
         #expect(context.contains("Ask before `npm ci`."))
         #expect(policy.contains("`npm run`"))
         #expect(policy.contains("`npm ci`"))
         #expect(policy.contains("`npm update`"))
-        #expect(policy.contains("`substituting another package manager for npm`"))
+        #expect(policy.contains("`running npm commands before npm is available`"))
     }
 
     @Test
@@ -465,7 +501,7 @@ struct HabitatCoreTests {
         #expect(result.project.packageManager == "npm")
         #expect(result.policy.preferredCommands == ["npm run test"])
         #expect(result.policy.askFirstCommands.contains("running JavaScript commands before node is available"))
-        #expect(!result.policy.askFirstCommands.contains("substituting another package manager for npm"))
+        #expect(!result.policy.askFirstCommands.contains("running npm commands before npm is available"))
         #expect(result.warnings.contains("Project files need Node, but node was not found on PATH; ask before running JavaScript commands."))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -577,7 +613,7 @@ struct HabitatCoreTests {
         #expect(result.project.packageScripts == ["build", "test"])
         #expect(result.policy.preferredCommands == ["pnpm run test", "pnpm run build"])
         #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
-        #expect(!result.policy.askFirstCommands.contains("substituting another package manager for pnpm"))
+        #expect(!result.policy.askFirstCommands.contains("running pnpm commands before pnpm is available"))
         #expect(!result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -1544,14 +1580,14 @@ struct HabitatCoreTests {
         - Do not run `brew upgrade`.
 
         ## Ask First
-        - Ask before `substituting another package manager for pnpm`.
+        - Ask before `running pnpm commands before pnpm is available`.
         - Ask before `dependency installs before matching active Node to project version hints`.
         - Ask before `pnpm install`.
         - Ask before `modifying lockfiles`.
 
         ## Mismatches
         - Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node).
-        - Project files prefer pnpm, but pnpm was not found on PATH; ask before substituting another package manager.
+        - Project files prefer pnpm, but pnpm was not found on PATH; ask before running pnpm commands or substituting another package manager.
 
         ## Notes
         - node --version unavailable: missing
@@ -1577,7 +1613,7 @@ struct HabitatCoreTests {
         - `build commands for the selected project`
 
         ## Ask First
-        - `substituting another package manager for pnpm`
+        - `running pnpm commands before pnpm is available`
         - `dependency installs before matching active Node to project version hints`
         - `pnpm install`
         - `modifying lockfiles`
@@ -1718,7 +1754,7 @@ struct HabitatCoreTests {
             policy: .init(
                 preferredCommands: ["pnpm", "pnpm test"],
                 askFirstCommands: [
-                    "substituting another package manager for pnpm",
+                    "running pnpm commands before pnpm is available",
                     "dependency installs before matching active Node to project version hints",
                     "pnpm install",
                     "modifying lockfiles"
@@ -1727,7 +1763,7 @@ struct HabitatCoreTests {
             ),
             warnings: [
                 "Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node).",
-                "Project files prefer pnpm, but pnpm was not found on PATH; ask before substituting another package manager."
+                "Project files prefer pnpm, but pnpm was not found on PATH; ask before running pnpm commands or substituting another package manager."
             ],
             diagnostics: ["node --version unavailable: missing"]
         )
