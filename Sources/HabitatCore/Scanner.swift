@@ -324,7 +324,7 @@ public struct HabitatScanner {
 
             if let activeVersion, pythonVersionsDiffer(requested: pythonHint, active: activeVersion) {
                 warnings.append("Active Python is \(activeVersion), but project requests \(pythonHint); ask before dependency installs (\(activePython)).")
-            } else {
+            } else if activeVersion == nil {
                 warnings.append("Project requests Python \(pythonHint); verify active python before installs (\(activePython)).")
             }
         }

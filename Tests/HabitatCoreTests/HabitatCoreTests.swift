@@ -1044,6 +1044,32 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanGuardsPythonProjectsWhenPython3IsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "requirements.txt": "pytest\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(result.policy.preferredCommands == ["python3 -m pytest"])
+        #expect(result.policy.askFirstCommands.contains("running Python commands before python3 is available"))
+        #expect(result.policy.askFirstCommands.contains("python3 -m pip install"))
+        #expect(result.warnings.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `python` because project files point to it."))
+        #expect(context.contains("Ask before `running Python commands before python3 is available`."))
+        #expect(context.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
+        #expect(policy.contains("`running Python commands before python3 is available`"))
+        #expect(policy.contains("`python3 -m pytest`"))
+    }
+
+    @Test
     func scanGuardsPythonPipInstallAliases() throws {
         let projectURL = try makeProject(files: [
             "requirements.txt": "pytest\n",
@@ -1472,6 +1498,31 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(policy.contains("`dependency installs before matching active Python to project version hints`"))
+    }
+
+    @Test
+    func scanDoesNotWarnWhenActivePythonSatisfiesPythonVersion() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            ".python-version": "3.12\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.12.4", stderr: ""),
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(!result.warnings.contains("Project requests Python 3.12; verify active python before installs (/opt/homebrew/bin/python3)."))
+        #expect(!result.policy.askFirstCommands.contains("dependency installs before matching active Python to project version hints"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(!context.contains("Project requests Python 3.12; verify active python before installs"))
     }
 
     @Test
