@@ -51,6 +51,12 @@ swift build
 ./.build/debug/habitat-scan scan --project . --output ./habitat-report
 ```
 
+Optional comparison against a previous scan:
+
+```bash
+./.build/debug/habitat-scan scan --project . --output ./habitat-report --previous-scan ./old-habitat-report/scan_result.json
+```
+
 Generated files:
 
 - `habitat-report/scan_result.json`

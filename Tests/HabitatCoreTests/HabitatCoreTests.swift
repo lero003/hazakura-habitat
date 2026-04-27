@@ -1820,6 +1820,87 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanComparisonSurfacesActionableDeltas() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "package-lock.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                    .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+                    .init(name: "pnpm", paths: []),
+                ],
+                versions: []
+            ),
+            policy: .init(preferredCommands: ["npm run"], askFirstCommands: ["npm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: []),
+                    .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+                    .init(name: "pnpm", paths: []),
+                ],
+                versions: []
+            ),
+            policy: .init(
+                preferredCommands: ["pnpm run"],
+                askFirstCommands: ["running pnpm commands before pnpm is available", "pnpm install"],
+                forbiddenCommands: ["sudo", "brew upgrade"]
+            ),
+            warnings: ["Project files prefer pnpm, but pnpm was not found on PATH; ask before running pnpm commands or substituting another package manager."],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.contains(where: { $0.category == "package_manager" && $0.summary.contains("npm to pnpm") }))
+        #expect(changes.contains(where: { $0.category == "lockfiles" && $0.summary.contains("added pnpm-lock.yaml") && $0.summary.contains("removed package-lock.json") }))
+        #expect(changes.contains(where: { $0.category == "missing_tools" && $0.summary.contains("node") && $0.summary.contains("pnpm") }))
+        #expect(changes.contains(where: { $0.category == "command_policy" && $0.summary.contains("New Ask First commands") }))
+        #expect(changes.contains(where: { $0.category == "command_policy" && $0.summary.contains("New Forbidden commands") }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"changes\""))
+        #expect(scanResult.contains("\"category\" : \"package_manager\""))
+        #expect(context.contains("Package manager changed from npm to pnpm."))
+        #expect(context.contains("Ask before these commands even if a previous scan did not require it."))
+        #expect(report.contains("## Changes Since Previous Scan"))
+        #expect(report.contains("[lockfiles] Lockfiles changed"))
+    }
+
+    @Test
+    func scanResultDecodesOlderJsonWithoutChanges() throws {
+        let result = markdownSnapshotScanResult()
+        let data = try JSONEncoder().encode(result)
+        var object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        object.removeValue(forKey: "changes")
+        let olderData = try JSONSerialization.data(withJSONObject: object)
+
+        let decoded = try JSONDecoder().decode(ScanResult.self, from: olderData)
+
+        #expect(decoded.changes.isEmpty)
+        #expect(decoded.project.packageManager == "pnpm")
+    }
+
+    @Test
     func agentContextOmitsUnrelatedCommandDiagnostics() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(

@@ -39,10 +39,12 @@ public struct ReportWriter {
         let avoidLines = prioritizedForbiddenCommands(result).prefix(4).map { "Do not run `\($0)`." }
         let askLines = result.policy.askFirstCommands.prefix(4).map { "Ask before `\($0)`." }
         let mismatchLines = result.warnings.isEmpty ? ["- None detected."] : result.warnings.map { "- \($0)" }
+        let changeLines = result.changes.map { "- \($0.summary) \($0.impact)" }
         let relevantDiagnostics = agentRelevantDiagnostics(result)
-        let noteLines = relevantDiagnostics.isEmpty
+        let diagnosticLines = relevantDiagnostics.map { "- \($0)" }
+        let noteLines = (changeLines + diagnosticLines).isEmpty
             ? ["- Scan completed without relevant command diagnostics."]
-            : relevantDiagnostics.map { "- \($0)" }
+            : changeLines + diagnosticLines
 
         return """
         # Agent Context
@@ -104,6 +106,10 @@ public struct ReportWriter {
             "- \(tool.name): \(tool.version ?? "unavailable")"
         }.joined(separator: "\n")
 
+        let changes = result.changes.map { change in
+            "[\(change.category)] \(change.summary) \(change.impact)"
+        }
+
         let files = result.project.detectedFiles.isEmpty
             ? "- None"
             : result.project.detectedFiles.map { "- \($0)" }.joined(separator: "\n")
@@ -124,6 +130,9 @@ public struct ReportWriter {
 
         ## Tool Versions
         \(versions)
+
+        ## Changes Since Previous Scan
+        \(bulletList(changes, fallback: "- None"))
 
         ## Warnings
         \(bulletList(result.warnings, fallback: "- None"))

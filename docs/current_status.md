@@ -15,7 +15,9 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
   - `agent_context.md`
   - `command_policy.md`
   - `environment_report.md`
+- Optional previous-scan comparison with `--previous-scan`, producing concise AI-actionable `changes` for package-manager, lockfile, missing-tool, and command-policy risk deltas.
 - `agent_context.md` filters command diagnostics to project-relevant tools while detailed diagnostics remain in the machine and environment reports.
+- `agent_context.md` includes previous-scan changes in `Notes` only when a comparison was requested, keeping normal scans short.
 - `agent_context.md` uses a clean read-only fallback when no package manager signal is detected.
 - Read-only command execution with timeout, duration, stdout, stderr, exit code, and availability capture.
 - Missing commands and scanner failures are represented as scan data instead of fatal errors.
@@ -73,11 +75,11 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - Detailed pip policy beyond install and mixed-dependency signal guards.
 - Additional Node package-manager version metadata beyond `package.json` `packageManager`, Volta pins, and `engines.node`.
 - Swift/Xcode scanner detail beyond basic command capture; this should focus on build/test command selection and safety.
-- Lightweight scan comparison for AI-actionable deltas such as package manager changes, lockfile changes, missing-tool changes, and command-policy risk changes.
+- Broader scan comparison beyond the initial AI-actionable deltas; avoid adding this unless it changes agent behavior.
 - GUI, MCP server, and redaction modes.
 
 ## Next Useful Improvements
 
 - Add fixture projects that cover remaining non-JavaScript missing-tool cases where the generated policy changes.
 - Add focused Python and Node scanner summaries only where they change AI command choices.
-- Add lightweight scan comparison only if it can produce concise, agent-actionable changes.
+- Improve previous-scan comparison only where it changes command choice, approval requirements, or refusal decisions.

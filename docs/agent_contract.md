@@ -42,6 +42,7 @@ Guidelines:
 - Prefer imperative guidance over narrative explanation.
 - Keep it short enough to paste into an AI prompt.
 - Mention only details that can affect project work.
+- When a previous scan is supplied, include only AI-actionable deltas in `Notes`.
 - Prioritize project-relevant secret-reading bans in `Avoid` when secret-bearing files are detected.
 - Do not dump full package inventories here.
 - Include scan freshness because environment data becomes stale quickly.
@@ -196,6 +197,13 @@ Top-level shape:
   },
   "tools": {},
   "policy": {},
+  "changes": [
+    {
+      "category": "package_manager",
+      "summary": "Package manager changed from npm to pnpm.",
+      "impact": "Use the current project package manager before running build, test, or install commands."
+    }
+  ],
   "warnings": [],
   "diagnostics": []
 }
@@ -210,6 +218,7 @@ Compatibility:
 - `declaredPackageManager` records the safe `package.json` `packageManager` hint even when a lockfile selects a different package manager.
 - Secret-bearing environment files such as `.env`, `.env.*`, `.envrc`, and `.envrc.*` may be detected by filename, but values must not be read or emitted.
 - Package-manager auth config files such as `.npmrc`, `.yarnrc`, and `.yarnrc.yml` may be detected by filename, but token values must not be read or emitted.
+- `changes` is empty unless a previous `scan_result.json` is supplied. It is limited to AI-actionable deltas such as package-manager changes, lockfile changes, missing-tool changes, and command-policy risk changes.
 
 ## Secondary Artifact: environment_report.md
 
