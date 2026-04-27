@@ -191,6 +191,9 @@ public struct HabitatScanner {
     private func askFirstCommands(project: ProjectInfo, resolvedPaths: [ResolvedTool], versions: [ToolVersion]) -> [String] {
         var commands = [
             "brew install",
+            "brew update",
+            "brew cleanup",
+            "brew autoremove",
             "pip install",
             "pip3 install",
             "python -m pip install",
@@ -294,7 +297,7 @@ public struct HabitatScanner {
         case "bundler":
             return ["bundle install"]
         case "homebrew":
-            return ["brew bundle", "brew bundle install", "brew bundle cleanup", "brew bundle dump"]
+            return ["brew bundle", "brew bundle install", "brew bundle cleanup", "brew bundle dump", "brew update", "brew cleanup", "brew autoremove"]
         case "swiftpm":
             return ["swift package update", "swift package resolve"]
         case "go":

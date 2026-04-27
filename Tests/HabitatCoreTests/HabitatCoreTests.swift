@@ -1374,6 +1374,9 @@ struct HabitatCoreTests {
         #expect(result.policy.askFirstCommands.contains("brew bundle install"))
         #expect(result.policy.askFirstCommands.contains("brew bundle cleanup"))
         #expect(result.policy.askFirstCommands.contains("brew bundle dump"))
+        #expect(result.policy.askFirstCommands.contains("brew update"))
+        #expect(result.policy.askFirstCommands.contains("brew cleanup"))
+        #expect(result.policy.askFirstCommands.contains("brew autoremove"))
         #expect(result.warnings.contains("Project files include Brewfile, but brew was not found on PATH; ask before running Homebrew Bundle commands."))
         #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
 
@@ -1391,6 +1394,9 @@ struct HabitatCoreTests {
         #expect(policy.contains("`brew bundle install`"))
         #expect(policy.contains("`brew bundle cleanup`"))
         #expect(policy.contains("`brew bundle dump`"))
+        #expect(policy.contains("`brew update`"))
+        #expect(policy.contains("`brew cleanup`"))
+        #expect(policy.contains("`brew autoremove`"))
     }
 
     @Test

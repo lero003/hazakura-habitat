@@ -91,6 +91,9 @@ Allowed:
 Ask First:
 
 - `brew install`
+- `brew update`
+- `brew cleanup`
+- `brew autoremove`
 - `pip install`
 - `pip3 install`
 - `python -m pip install`
