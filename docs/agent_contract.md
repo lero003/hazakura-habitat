@@ -137,6 +137,10 @@ Ask First:
 - `carthage update`
 - `carthage checkout`
 - `carthage build`
+- `git clean`
+- `rm`
+- `rm -r`
+- `rm -rf`
 - dependency installs before matching the selected JavaScript package manager to safe package-manager version metadata from `package.json`
 - running JavaScript commands before `node` is available
 - running `npm`, `pnpm`, `yarn`, or `bun` commands before the selected package manager is available

@@ -239,6 +239,9 @@ public struct HabitatScanner {
             "carthage build",
             "python -m venv",
             "modifying lockfiles",
+            "git clean",
+            "rm",
+            "rm -r",
             "rm -rf"
         ]
 
