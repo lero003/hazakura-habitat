@@ -36,6 +36,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - Ephemeral package execution commands such as `npx`, `npm exec`, `pnpm dlx`, `yarn dlx`, `bunx`, and `uvx` are classified as Ask First because they can fetch or execute packages outside the selected project workflow.
 - JavaScript global package installs such as `npm install -g`, `pnpm add -g`, `yarn global add`, and `bun add -g` are classified as Forbidden.
 - JavaScript projects ask before running package-manager commands when the selected package manager is available but the Node runtime itself is missing.
+- JavaScript preferred commands and generic selected-project build/test allowance are suppressed from Markdown artifacts when Node is missing, so `command_policy.md` does not allow commands blocked by the missing-runtime guard.
 - JavaScript projects ask before running the selected package manager when `npm`, `pnpm`, `yarn`, or `bun` is missing, and warn before substituting another package manager.
 - Non-zero version command exits are treated as unverifiable tool versions, recorded in diagnostics, and used to keep dependency-install guards active.
 - Runtime mismatch warnings and command-policy guards when `.nvmrc` or `.node-version` differs from the active Node major version, or `.python-version` differs from active Python major/minor.
@@ -51,6 +52,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - Ruby Bundler command guidance from `Gemfile` and `Gemfile.lock`, including a missing `bundle` guard.
 - SwiftPM command guidance from `Package.swift` and `Package.resolved`, including a missing `swift` guard and `swift package update` / `swift package resolve` mutation guards.
 - SwiftPM/Xcode project guidance asks before build or test commands when `xcode-select -p` cannot verify the active developer directory, and surfaces the relevant diagnostic in `agent_context.md`.
+- SwiftPM/Xcode Markdown policy suppresses generic selected-project build/test allowance when `xcode-select -p` cannot verify the active developer directory.
 - Xcode project/workspace guidance from top-level `.xcodeproj` and `.xcworkspace` bundles, including `xcodebuild -list` as the safe first command, missing `xcodebuild` guards, and Ask First guards for scheme-specific build/test/archive and dependency/provisioning mutations.
 - Go command guidance from `go.mod`, including missing `go` and `go get`/`go mod tidy` guards.
 - Rust Cargo command guidance from `Cargo.toml`, including missing `cargo` and `cargo add`/`cargo update` guards.

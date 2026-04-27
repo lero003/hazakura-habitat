@@ -77,7 +77,7 @@ public struct ReportWriter {
             "read-only project inspection"
         ]
 
-        if !preferredCommands.isEmpty && result.project.packageManager != "xcodebuild" {
+        if canAllowSelectedProjectBuildAndTest(result, preferredCommands: preferredCommands) {
             allowed.append(contentsOf: [
                 "test commands for the selected project",
                 "build commands for the selected project"
@@ -181,12 +181,30 @@ public struct ReportWriter {
             return result.policy.preferredCommands
         }
 
+        if ["npm", "pnpm", "yarn", "bun"].contains(packageManager),
+           result.policy.askFirstCommands.contains("running JavaScript commands before node is available") {
+            return []
+        }
+
         let isMissing = result.tools.resolvedPaths
             .first(where: { $0.name == executable })?
             .paths
             .isEmpty ?? true
 
         return isMissing ? [] : result.policy.preferredCommands
+    }
+
+    private func canAllowSelectedProjectBuildAndTest(_ result: ScanResult, preferredCommands: [String]) -> Bool {
+        guard !preferredCommands.isEmpty else { return false }
+        guard result.project.packageManager != "xcodebuild" else { return false }
+        guard !result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds") else {
+            return false
+        }
+        guard !result.policy.askFirstCommands.contains("running JavaScript commands before node is available") else {
+            return false
+        }
+
+        return true
     }
 
     private func prioritizedForbiddenCommands(_ result: ScanResult) -> [String] {
