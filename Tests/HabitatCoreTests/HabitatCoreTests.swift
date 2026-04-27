@@ -298,6 +298,52 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanGuardsYarnAndBunLockfilesWhenPreferredToolIsMissing() throws {
+        let cases: [(lockfile: String, packageManager: String, preferredCommand: String, installCommand: String)] = [
+            ("yarn.lock", "yarn", "yarn run test", "yarn install"),
+            ("bun.lock", "bun", "bun test", "bun install"),
+            ("bun.lockb", "bun", "bun test", "bun install"),
+        ]
+
+        for testCase in cases {
+            let projectURL = try makeProject(files: [
+                "package.json": """
+                {
+                  "name": "demo",
+                  "scripts": {
+                    "test": "vitest run"
+                  }
+                }
+                """,
+                testCase.lockfile: "lockfile",
+            ])
+
+            let runner = FakeCommandRunner(results: [
+                "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            ])
+
+            let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+            let missingToolGuard = "running \(testCase.packageManager) commands before \(testCase.packageManager) is available"
+            let missingToolWarning = "Project files prefer \(testCase.packageManager), but \(testCase.packageManager) was not found on PATH; ask before running \(testCase.packageManager) commands or substituting another package manager."
+
+            #expect(result.project.packageManager == testCase.packageManager)
+            #expect(result.policy.preferredCommands == [testCase.preferredCommand])
+            #expect(result.policy.askFirstCommands.contains(missingToolGuard))
+            #expect(result.policy.askFirstCommands.contains(testCase.installCommand))
+            #expect(result.warnings.contains(missingToolWarning))
+
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+            let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+            let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+            #expect(context.contains("Ask before `\(missingToolGuard)`."))
+            #expect(context.contains(missingToolWarning))
+            #expect(policy.contains("`\(missingToolGuard)`"))
+        }
+    }
+
+    @Test
     func scanAsksBeforeInstallsWhenMultipleJavaScriptLockfilesExist() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
