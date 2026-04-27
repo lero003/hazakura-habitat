@@ -20,7 +20,14 @@ public struct HabitatScanner {
             ("swift", "/usr/bin/env", ["swift", "--version"]),
             ("git", "/usr/bin/env", ["git", "--version"]),
             ("node", "/usr/bin/env", ["node", "--version"]),
+            ("python", "/usr/bin/env", ["python", "--version"]),
             ("python3", "/usr/bin/env", ["python3", "--version"]),
+            ("pip", "/usr/bin/env", ["pip", "--version"]),
+            ("pip3", "/usr/bin/env", ["pip3", "--version"]),
+            ("uv", "/usr/bin/env", ["uv", "--version"]),
+            ("pyenv", "/usr/bin/env", ["pyenv", "--version"]),
+            ("ruby", "/usr/bin/env", ["ruby", "--version"]),
+            ("gem", "/usr/bin/env", ["gem", "--version"]),
             ("go", "/usr/bin/env", ["go", "version"]),
             ("cargo", "/usr/bin/env", ["cargo", "--version"]),
             ("rustc", "/usr/bin/env", ["rustc", "--version"]),
@@ -31,7 +38,7 @@ public struct HabitatScanner {
             runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
         }
 
-        let toolNames = ["python3", "node", "npm", "pnpm", "yarn", "bun", "uv", "bundle", "go", "cargo", "rustc", "swift", "git", "brew", "pod", "carthage"]
+        let toolNames = ["python", "python3", "pip", "pip3", "uv", "pyenv", "node", "npm", "pnpm", "yarn", "bun", "ruby", "gem", "bundle", "go", "cargo", "rustc", "swift", "git", "brew", "pod", "carthage"]
         let resolvedPaths = toolNames.map { tool in
             let result = runner.run(executable: "/usr/bin/which", arguments: ["-a", tool], timeout: 2.0)
             let paths = result.available && !result.stdout.isEmpty

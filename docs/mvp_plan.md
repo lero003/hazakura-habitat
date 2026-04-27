@@ -133,7 +133,7 @@ Read only safe metadata such as `package.json` package manager hints and script 
 
 ### M4: Focused Tool Scanners
 
-Status: not yet implemented beyond basic command/version capture.
+Status: partially implemented.
 
 Collect enough information to guide AI behavior.
 

@@ -13,6 +13,7 @@
 - `agent_context.md` uses a clean read-only fallback when no package manager signal is detected.
 - Read-only command execution with timeout, duration, stdout, stderr, exit code, and availability capture.
 - Missing commands and scanner failures are represented as scan data instead of fatal errors.
+- `scan_result.json` records PATH resolution and version availability for Python, pip, uv, pyenv, RubyGems, and Ruby tooling in addition to the project package managers.
 - Project signal detection for common JavaScript, Python, Swift, Ruby, Go, Rust, CocoaPods, Carthage, Homebrew, and version-manager files.
 - Bun projects are detected from both current `bun.lock` and legacy `bun.lockb` lockfiles.
 - pnpm workspaces are detected from `pnpm-workspace.yaml` so workspace roots without lockfiles do not fall back to npm guidance.
@@ -53,7 +54,7 @@
 ## Not Yet Implemented
 
 - Detailed Homebrew scanner beyond Brewfile command guidance.
-- Detailed pyenv and pip policy detail.
+- Detailed pip policy beyond install guards.
 - Detailed Node package manager version checks beyond `package.json` `packageManager`.
 - Swift/Xcode scanner detail beyond basic command capture.
 - GUI, MCP server, scan comparison, and redaction modes.

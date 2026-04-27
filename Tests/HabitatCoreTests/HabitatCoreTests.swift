@@ -784,6 +784,81 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanResolvesPythonPipAndRubyTooling() throws {
+        let projectURL = try makeProject(files: [
+            "requirements.txt": "pytest\n",
+            "Gemfile": "source \"https://rubygems.org\"\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env python --version": .init(name: "/usr/bin/env", args: ["python", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.12.4", stderr: ""),
+            "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.12.4", stderr: ""),
+            "/usr/bin/env pip --version": .init(name: "/usr/bin/env", args: ["pip", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "pip 24.0", stderr: ""),
+            "/usr/bin/env pip3 --version": .init(name: "/usr/bin/env", args: ["pip3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "pip 24.0", stderr: ""),
+            "/usr/bin/env ruby --version": .init(name: "/usr/bin/env", args: ["ruby", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "ruby 3.3.0", stderr: ""),
+            "/usr/bin/env gem --version": .init(name: "/usr/bin/env", args: ["gem", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "3.5.0", stderr: ""),
+            "/usr/bin/which -a python": .init(name: "/usr/bin/which", args: ["-a", "python"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python", stderr: ""),
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+            "/usr/bin/which -a pip": .init(name: "/usr/bin/which", args: ["-a", "pip"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pip", stderr: ""),
+            "/usr/bin/which -a pip3": .init(name: "/usr/bin/which", args: ["-a", "pip3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pip3", stderr: ""),
+            "/usr/bin/which -a ruby": .init(name: "/usr/bin/which", args: ["-a", "ruby"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/ruby", stderr: ""),
+            "/usr/bin/which -a gem": .init(name: "/usr/bin/which", args: ["-a", "gem"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/gem", stderr: ""),
+            "/usr/bin/which -a bundle": .init(name: "/usr/bin/which", args: ["-a", "bundle"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/bundle", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        for tool in ["python", "python3", "pip", "pip3", "ruby", "gem"] {
+            #expect(result.tools.resolvedPaths.contains(where: { $0.name == tool && !$0.paths.isEmpty }), "Expected \(tool) paths in scan_result.json")
+            #expect(result.tools.versions.contains(where: { $0.name == tool && $0.available }), "Expected \(tool) version in scan_result.json")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"name\" : \"pip3\""))
+        #expect(scanResult.contains("\"name\" : \"ruby\""))
+        #expect(report.contains("- pip3: /opt/homebrew/bin/pip3"))
+        #expect(report.contains("- ruby: /opt/homebrew/bin/ruby"))
+    }
+
+    @Test
+    func scanResolvesUvAndPyenvPythonTooling() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            "uv.lock": "version = 1\n",
+            ".python-version": "3.12\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env uv --version": .init(name: "/usr/bin/env", args: ["uv", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "uv 0.7.2", stderr: ""),
+            "/usr/bin/env pyenv --version": .init(name: "/usr/bin/env", args: ["pyenv", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "pyenv 2.5.5", stderr: ""),
+            "/usr/bin/which -a uv": .init(name: "/usr/bin/which", args: ["-a", "uv"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/uv", stderr: ""),
+            "/usr/bin/which -a pyenv": .init(name: "/usr/bin/which", args: ["-a", "pyenv"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pyenv", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "uv")
+        for tool in ["uv", "pyenv"] {
+            #expect(result.tools.resolvedPaths.contains(where: { $0.name == tool && !$0.paths.isEmpty }), "Expected \(tool) paths in scan_result.json")
+            #expect(result.tools.versions.contains(where: { $0.name == tool && $0.available }), "Expected \(tool) version in scan_result.json")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"name\" : \"uv\""))
+        #expect(scanResult.contains("\"version\" : \"pyenv 2.5.5\""))
+        #expect(report.contains("- uv: /opt/homebrew/bin/uv"))
+        #expect(report.contains("- pyenv: pyenv 2.5.5"))
+    }
+
+    @Test
     func scanTreatsBundlerSignalsAsRubyProjectsAndGuardsMissingBundle() throws {
         for signal in ["Gemfile", "Gemfile.lock"] {
             let projectURL = try makeProject(files: [
