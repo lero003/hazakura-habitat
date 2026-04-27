@@ -1058,6 +1058,34 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanDetectsEnvrcExampleWithoutEmittingValues() throws {
+        let exampleValue = "hh_example_value_from_envrc_example"
+        let projectURL = try makeProject(files: [
+            ".envrc.example": "export SAMPLE_TOKEN=\(exampleValue)\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".envrc.example"))
+        #expect(result.policy.forbiddenCommands.contains("read .envrc values"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(exampleValue))
+            #expect(!artifact.contains("SAMPLE_TOKEN"))
+        }
+
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not run `read .envrc values`."))
+        #expect(policy.contains("`read .envrc values`"))
+    }
+
+    @Test
     func scanUsesCleanReadOnlyFallbackWhenNoPackageManagerSignalExists() throws {
         let projectURL = try makeProject(files: [:])
 

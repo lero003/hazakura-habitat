@@ -48,6 +48,7 @@ public struct ProjectDetector {
         ".env.example",
         ".envrc",
         ".envrc.local",
+        ".envrc.example",
         "README.md",
     ]
 
