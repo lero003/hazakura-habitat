@@ -597,6 +597,37 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanForbidsJavaScriptGlobalPackageInstalls() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "pnpm-lock.yaml": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "npm install -g",
+            "pnpm add -g",
+            "pnpm add --global",
+            "yarn global add",
+            "yarn add -g",
+            "bun add -g",
+            "bun add --global",
+        ]
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
     func scanUsesPackageJsonScriptNamesForJavaScriptPreferredCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": """

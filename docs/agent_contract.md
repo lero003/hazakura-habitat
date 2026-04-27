@@ -144,6 +144,12 @@ Forbidden in MVP-generated policy:
 - `brew upgrade`
 - `brew uninstall`
 - `npm install -g`
+- `pnpm add -g`
+- `pnpm add --global`
+- `yarn global add`
+- `yarn add -g`
+- `bun add -g`
+- `bun add --global`
 - global `pip install`
 - `pip install --user`
 - `pip3 install --user`
