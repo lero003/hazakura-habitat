@@ -2090,6 +2090,78 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanComparisonReportsRelevantToolVerificationFailures() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "swift", paths: ["/usr/bin/swift"]),
+                    .init(name: "xcode-select", paths: ["/usr/bin/xcode-select"]),
+                ],
+                versions: [
+                    .init(name: "swift", version: "Swift version 6.1", available: true),
+                    .init(name: "xcode-select", version: "/Applications/Xcode.app/Contents/Developer", available: true),
+                ]
+            ),
+            policy: .init(
+                preferredCommands: ["swift test", "swift build"],
+                askFirstCommands: ["swift package update"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "swift", paths: ["/usr/bin/swift"]),
+                    .init(name: "xcode-select", paths: ["/usr/bin/xcode-select"]),
+                ],
+                versions: [
+                    .init(name: "swift", version: "Swift version 6.1", available: true),
+                    .init(name: "xcode-select", version: nil, available: false),
+                ]
+            ),
+            policy: .init(
+                preferredCommands: ["swift test", "swift build"],
+                askFirstCommands: ["Swift/Xcode build commands before xcode-select -p succeeds", "swift package update"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: ["xcode-select -p did not return a developer directory; ask before Swift/Xcode build or test commands."],
+            diagnostics: ["xcode-select -p failed with exit code 2: xcode-select: error: tool 'xcodebuild' requires Xcode"]
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.contains(where: {
+            $0.summary == "Project-relevant tool checks now fail: xcode-select."
+                && $0.impact == "Treat related build, test, or install commands as Ask First until the current command policy allows them."
+        }))
+        #expect(!changes.contains(where: {
+            $0.category == "missing_tools" && $0.summary.contains("xcode-select")
+        }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+
+        #expect(context.contains("Project-relevant tool checks now fail: xcode-select. Treat related build, test, or install commands as Ask First until the current command policy allows them."))
+        #expect(scanResult.contains("\"category\" : \"tool_verification\""))
+    }
+
+    @Test
     func scanComparisonSeparatesCommandPolicyRiskTransitions() throws {
         let previous = ScanResult(
             schemaVersion: "0.1",

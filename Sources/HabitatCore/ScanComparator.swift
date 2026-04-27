@@ -15,6 +15,7 @@ public struct ScanComparator {
         }
 
         changes.append(contentsOf: missingToolChanges(previous: previous, current: current))
+        changes.append(contentsOf: toolVerificationChanges(previous: previous, current: current))
         changes.append(contentsOf: policyChanges(previous: previous, current: current))
 
         return changes
@@ -85,6 +86,37 @@ public struct ScanComparator {
                 category: "missing_tools",
                 summary: "Previously missing tools are no longer project-relevant: \(noLongerRelevant.joined(separator: ", ")).",
                 impact: "Do not treat them as available; follow the current project signals and command policy."
+            ))
+        }
+
+        return changes
+    }
+
+    private func toolVerificationChanges(previous: ScanResult, current: ScanResult) -> [ScanChange] {
+        let previousRelevantTools = relevantToolNames(for: previous)
+        let currentRelevantTools = relevantToolNames(for: current)
+        let previousFailed = failedToolChecks(in: previous, limitedTo: previousRelevantTools)
+        let currentFailed = failedToolChecks(in: current, limitedTo: currentRelevantTools)
+        let newlyFailed = currentFailed.subtracting(previousFailed).sorted()
+        let nowPassing = previousFailed
+            .subtracting(currentFailed)
+            .filter { currentRelevantTools.contains($0) }
+            .sorted()
+        var changes: [ScanChange] = []
+
+        if !newlyFailed.isEmpty {
+            changes.append(ScanChange(
+                category: "tool_verification",
+                summary: "Project-relevant tool checks now fail: \(newlyFailed.joined(separator: ", ")).",
+                impact: "Treat related build, test, or install commands as Ask First until the current command policy allows them."
+            ))
+        }
+
+        if !nowPassing.isEmpty {
+            changes.append(ScanChange(
+                category: "tool_verification",
+                summary: "Project-relevant tool checks now pass: \(nowPassing.joined(separator: ", ")).",
+                impact: "Preferred commands may be runnable if the current command policy has no related guard."
             ))
         }
 
@@ -195,6 +227,16 @@ public struct ScanComparator {
         })
     }
 
+    private func failedToolChecks(in result: ScanResult, limitedTo relevantTools: Set<String>) -> Set<String> {
+        Set(result.tools.versions.compactMap { tool in
+            relevantTools.contains(tool.name)
+                && !tool.available
+                && toolIsAvailable(tool.name, in: result)
+                ? tool.name
+                : nil
+        })
+    }
+
     private func relevantToolNames(for result: ScanResult) -> Set<String> {
         var names = Set<String>()
 
@@ -209,6 +251,10 @@ public struct ScanComparator {
 
             if packageManager == "uv" {
                 names.insert("python3")
+            }
+
+            if ["swiftpm", "xcodebuild"].contains(packageManager) {
+                names.insert("xcode-select")
             }
         }
 
