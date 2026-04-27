@@ -116,6 +116,48 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanUsesPackageJsonEnginesNodeForRuntimeInstallGuard() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "engines": {
+                "node": "20.x"
+              },
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.project.runtimeHints.node == "20.x")
+        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(result.warnings.contains("Active Node is v22.15.0, but project requests 20.x; ask before dependency installs (/opt/homebrew/bin/node)."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"node\" : \"20.x\""))
+        #expect(context.contains("Active Node is v22.15.0, but project requests 20.x; ask before dependency installs"))
+        #expect(policy.contains("`dependency installs before matching active Node to project version hints`"))
+    }
+
+    @Test
     func scanWarnsBeforeSubstitutingMissingPreferredPackageManager() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",

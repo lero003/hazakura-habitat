@@ -136,11 +136,12 @@ public struct ProjectDetector {
             .compactMap { key, value in value is String ? key : nil }
             .sorted() ?? []
         let volta = voltaMetadata(from: json["volta"])
+        let engines = enginesMetadata(from: json["engines"])
 
         return PackageJSONMetadata(
             declaredPackageManager: declaredPackageManager,
             scripts: scripts,
-            node: volta.node,
+            node: volta.node ?? engines.node,
             packageManagerVersions: volta.packageManagerVersions
         )
     }
@@ -221,6 +222,11 @@ public struct ProjectDetector {
         return VoltaMetadata(node: node, packageManagerVersions: packageManagerVersions)
     }
 
+    private func enginesMetadata(from rawValue: Any?) -> EnginesMetadata {
+        guard let object = rawValue as? [String: Any] else { return .empty }
+        return EnginesMetadata(node: normalizedNonEmptyString(object["node"]))
+    }
+
     private func normalizedNonEmptyString(_ value: Any?) -> String? {
         guard let string = value as? String else { return nil }
         let normalized = string.trimmingCharacters(in: .whitespacesAndNewlines)
@@ -286,4 +292,10 @@ private struct VoltaMetadata {
 
     let node: String?
     let packageManagerVersions: [String: String]
+}
+
+private struct EnginesMetadata {
+    static let empty = EnginesMetadata(node: nil)
+
+    let node: String?
 }
