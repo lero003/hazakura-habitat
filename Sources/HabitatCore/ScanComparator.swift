@@ -50,10 +50,18 @@ public struct ScanComparator {
     }
 
     private func missingToolChanges(previous: ScanResult, current: ScanResult) -> [ScanChange] {
-        let previousMissing = missingTools(in: previous, limitedTo: relevantToolNames(for: previous))
-        let currentMissing = missingTools(in: current, limitedTo: relevantToolNames(for: current))
+        let previousRelevantTools = relevantToolNames(for: previous)
+        let currentRelevantTools = relevantToolNames(for: current)
+        let previousMissing = missingTools(in: previous, limitedTo: previousRelevantTools)
+        let currentMissing = missingTools(in: current, limitedTo: currentRelevantTools)
         let newlyMissing = currentMissing.subtracting(previousMissing).sorted()
-        let resolved = previousMissing.subtracting(currentMissing).sorted()
+        let noLongerMissing = previousMissing.subtracting(currentMissing)
+        let resolved = noLongerMissing
+            .filter { currentRelevantTools.contains($0) && toolIsAvailable($0, in: current) }
+            .sorted()
+        let noLongerRelevant = noLongerMissing
+            .filter { !currentRelevantTools.contains($0) }
+            .sorted()
         var changes: [ScanChange] = []
 
         if !newlyMissing.isEmpty {
@@ -72,7 +80,21 @@ public struct ScanComparator {
             ))
         }
 
+        if !noLongerRelevant.isEmpty {
+            changes.append(ScanChange(
+                category: "missing_tools",
+                summary: "Previously missing tools are no longer project-relevant: \(noLongerRelevant.joined(separator: ", ")).",
+                impact: "Do not treat them as available; follow the current project signals and command policy."
+            ))
+        }
+
         return changes
+    }
+
+    private func toolIsAvailable(_ toolName: String, in result: ScanResult) -> Bool {
+        result.tools.resolvedPaths.contains { tool in
+            tool.name == toolName && !tool.paths.isEmpty
+        }
     }
 
     private func policyChanges(previous: ScanResult, current: ScanResult) -> [ScanChange] {

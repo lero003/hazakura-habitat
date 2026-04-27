@@ -1887,6 +1887,71 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanComparisonSeparatesResolvedAndIrrelevantMissingTools() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["go.mod"], packageManager: "go", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "go", paths: []),
+                    .init(name: "node", paths: []),
+                ],
+                versions: []
+            ),
+            policy: .init(
+                preferredCommands: ["go test ./..."],
+                askFirstCommands: ["running Go commands before go is available", "go get"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: ["Project files prefer Go, but go was not found on PATH; ask before running Go commands."],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "package-lock.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "go", paths: []),
+                    .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                    .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+                ],
+                versions: []
+            ),
+            policy: .init(
+                preferredCommands: ["npm run"],
+                askFirstCommands: ["npm install"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.contains(where: {
+            $0.summary == "Previously missing tools are no longer project-relevant: go."
+                && $0.impact == "Do not treat them as available; follow the current project signals and command policy."
+        }))
+        #expect(!changes.contains(where: {
+            $0.summary == "Project-relevant tools are now available: go."
+        }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Previously missing tools are no longer project-relevant: go. Do not treat them as available; follow the current project signals and command policy."))
+    }
+
+    @Test
     func scanComparisonSeparatesCommandPolicyRiskTransitions() throws {
         let previous = ScanResult(
             schemaVersion: "0.1",
