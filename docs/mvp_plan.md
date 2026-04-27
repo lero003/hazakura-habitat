@@ -238,6 +238,8 @@ Project-relevant version command failures should affect command policy, not only
 
 Bundler projects apply the same partial-failure rule to `bundle --version`: a resolved but failing `bundle` should keep `bundle exec` out of `agent_context.md` / `command_policy.md` until the tool can be verified.
 
+Homebrew Bundle, CocoaPods, and Carthage projects apply the same partial-failure rule to their selected tool checks: resolved but failing `brew --version`, `pod --version`, or `carthage version` should keep related preferred commands out of Markdown guidance until the tool can be verified.
+
 ## Near-Term Candidates
 
 ### Lightweight Scan Comparison

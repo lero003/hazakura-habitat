@@ -126,6 +126,7 @@ Ask First:
 - `brew bundle install`
 - `brew bundle cleanup`
 - `brew bundle dump`
+- `running Homebrew Bundle commands before brew version check succeeds`
 - `Swift/Xcode build commands before xcode-select -p succeeds`
 - `xcodebuild build/test/archive before selecting a scheme`
 - `xcodebuild -resolvePackageDependencies`
@@ -140,10 +141,12 @@ Ask First:
 - `pod update`
 - `pod repo update`
 - `pod deintegrate`
+- `running CocoaPods commands before pod version check succeeds`
 - `carthage bootstrap`
 - `carthage update`
 - `carthage checkout`
 - `carthage build`
+- `running Carthage commands before carthage version check succeeds`
 - `git clean`
 - `git reset --hard`
 - `git checkout --`
@@ -236,6 +239,7 @@ Compatibility:
 - `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions`, `package.json` Volta pins, and `package.json` `engines.node`.
 - Ruby runtime hints from `.ruby-version` or `.tool-versions` may require asking before Bundler dependency installs when active Ruby differs or cannot be verified.
 - Bundler projects may verify `bundle --version`; if `bundle` is resolved but the check fails, Markdown artifacts should suppress `bundle exec` and require Ask First before Bundler commands.
+- Homebrew Bundle, CocoaPods, and Carthage projects may verify `brew --version`, `pod --version`, or `carthage version`; if the selected tool is resolved but the check fails, Markdown artifacts should suppress related preferred commands and require Ask First before related commands.
 - `declaredPackageManager` records the safe `package.json` `packageManager` hint even when a lockfile selects a different package manager.
 - Secret-bearing environment files such as `.env`, `.env.*`, `.envrc`, `.envrc.*`, and `.envrc.example` may be detected by filename, but values must not be read or emitted.
 - Package-manager auth config files such as `.npmrc`, `.pnpmrc`, `.yarnrc`, and `.yarnrc.yml` may be detected by filename, but token values must not be read or emitted.

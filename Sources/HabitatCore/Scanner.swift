@@ -530,6 +530,8 @@ public struct HabitatScanner {
 
     private func commandInfoMatchesTool(_ command: CommandInfo, executable: String) -> Bool {
         switch executable {
+        case "carthage":
+            return command.args == ["carthage", "version"]
         case "go":
             return command.args == ["go", "version"]
         case "xcodebuild":
@@ -560,6 +562,12 @@ public struct HabitatScanner {
             return "running Go commands before go version check succeeds"
         case "cargo":
             return "running Cargo commands before cargo version check succeeds"
+        case "homebrew":
+            return "running Homebrew Bundle commands before brew version check succeeds"
+        case "cocoapods":
+            return "running CocoaPods commands before pod version check succeeds"
+        case "carthage":
+            return "running Carthage commands before carthage version check succeeds"
         case "python":
             return "running Python commands before python3 version check succeeds"
         case "xcodebuild":
@@ -668,6 +676,12 @@ public struct HabitatScanner {
         switch project.packageManager {
         case "bundler":
             return [("bundle", "/usr/bin/env", ["bundle", "--version"])]
+        case "homebrew":
+            return [("brew", "/usr/bin/env", ["brew", "--version"])]
+        case "cocoapods":
+            return [("pod", "/usr/bin/env", ["pod", "--version"])]
+        case "carthage":
+            return [("carthage", "/usr/bin/env", ["carthage", "version"])]
         default:
             return []
         }

@@ -256,16 +256,21 @@ public struct ReportWriter {
 
     private func projectRelevantVersionCheckGuardApplies(_ result: ScanResult) -> Bool {
         result.policy.askFirstCommands.contains { command in
-            command.contains("version check succeeds")
+            let lowercasedCommand = command.lowercased()
+
+            return command.contains("version check succeeds")
                 && (
-                    command.contains("running JavaScript commands")
-                        || command.contains("running SwiftPM commands")
-                        || command.contains("running Go commands")
-                        || command.contains("running Cargo commands")
-                        || command.contains("running Python commands")
-                        || command.contains("running Bundler commands")
-                        || command.contains("running Xcode build commands")
-                        || result.project.packageManager.map { command.contains("running \($0) commands") } == true
+                    lowercasedCommand.contains("running javascript commands")
+                        || lowercasedCommand.contains("running swiftpm commands")
+                        || lowercasedCommand.contains("running go commands")
+                        || lowercasedCommand.contains("running cargo commands")
+                        || lowercasedCommand.contains("running python commands")
+                        || lowercasedCommand.contains("running bundler commands")
+                        || lowercasedCommand.contains("running homebrew bundle commands")
+                        || lowercasedCommand.contains("running cocoapods commands")
+                        || lowercasedCommand.contains("running carthage commands")
+                        || lowercasedCommand.contains("running xcode build commands")
+                        || result.project.packageManager.map { lowercasedCommand.contains("running \($0) commands") } == true
                 )
         }
     }

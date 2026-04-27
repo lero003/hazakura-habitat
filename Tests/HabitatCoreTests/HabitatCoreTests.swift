@@ -1743,6 +1743,38 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeHomebrewBundleCommandsWhenBrewVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "Brewfile": "brew \"swiftlint\"\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env brew --version": .init(name: "/usr/bin/env", args: ["brew", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "brew: failed to load"),
+            "/usr/bin/which -a brew": .init(name: "/usr/bin/which", args: ["-a", "brew"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/brew", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "homebrew")
+        #expect(result.policy.preferredCommands == ["brew bundle check"])
+        #expect(result.policy.askFirstCommands.contains("running Homebrew Bundle commands before brew version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running Homebrew Bundle commands before brew is available"))
+        #expect(result.diagnostics.contains("brew --version failed with exit code 1: brew: failed to load"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Homebrew Bundle commands before brew version check succeeds`."))
+        #expect(context.contains("brew --version failed with exit code 1: brew: failed to load"))
+        #expect(!context.contains("Prefer `brew bundle check`."))
+        #expect(policy.contains("`running Homebrew Bundle commands before brew version check succeeds`"))
+        #expect(!policy.contains("`brew bundle check`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
     func scanTreatsPodfileAsCocoaPodsProjectAndGuardsPodMutation() throws {
         for signal in ["Podfile", "Podfile.lock"] {
             let projectURL = try makeProject(files: [
@@ -1781,6 +1813,38 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeCocoaPodsCommandsWhenPodVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "Podfile": "platform :ios, '17.0'\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env pod --version": .init(name: "/usr/bin/env", args: ["pod", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "pod: failed to load"),
+            "/usr/bin/which -a pod": .init(name: "/usr/bin/which", args: ["-a", "pod"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pod", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "cocoapods")
+        #expect(result.policy.preferredCommands == ["pod --version"])
+        #expect(result.policy.askFirstCommands.contains("running CocoaPods commands before pod version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running CocoaPods commands before pod is available"))
+        #expect(result.diagnostics.contains("pod --version failed with exit code 1: pod: failed to load"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running CocoaPods commands before pod version check succeeds`."))
+        #expect(context.contains("pod --version failed with exit code 1: pod: failed to load"))
+        #expect(!context.contains("Prefer `pod --version`."))
+        #expect(policy.contains("`running CocoaPods commands before pod version check succeeds`"))
+        #expect(!policy.contains("`pod --version`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+    }
+
+    @Test
     func scanTreatsCartfileAsCarthageProjectAndGuardsCarthageMutation() throws {
         for signal in ["Cartfile", "Cartfile.resolved"] {
             let projectURL = try makeProject(files: [
@@ -1816,6 +1880,38 @@ struct HabitatCoreTests {
             #expect(policy.contains("`carthage checkout`"))
             #expect(policy.contains("`carthage build`"))
         }
+    }
+
+    @Test
+    func scanAsksBeforeCarthageCommandsWhenCarthageVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "Cartfile": "github \"Alamofire/Alamofire\"\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env carthage version": .init(name: "/usr/bin/env", args: ["carthage", "version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "carthage: failed to load"),
+            "/usr/bin/which -a carthage": .init(name: "/usr/bin/which", args: ["-a", "carthage"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/carthage", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "carthage")
+        #expect(result.policy.preferredCommands == ["carthage version"])
+        #expect(result.policy.askFirstCommands.contains("running Carthage commands before carthage version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running Carthage commands before carthage is available"))
+        #expect(result.diagnostics.contains("carthage version failed with exit code 1: carthage: failed to load"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Carthage commands before carthage version check succeeds`."))
+        #expect(context.contains("carthage version failed with exit code 1: carthage: failed to load"))
+        #expect(!context.contains("Prefer `carthage version`."))
+        #expect(policy.contains("`running Carthage commands before carthage version check succeeds`"))
+        #expect(!policy.contains("`carthage version`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
     }
 
     @Test
