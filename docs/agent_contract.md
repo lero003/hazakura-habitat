@@ -130,6 +130,7 @@ Ask First:
 - dependency installs before matching the selected JavaScript package manager to safe package-manager version metadata from `package.json`
 - running JavaScript commands before `node` is available
 - running `npm`, `pnpm`, `yarn`, or `bun` commands before the selected package manager is available
+- running `uv` commands before `uv` is available
 - dependency installs before choosing between `pyproject.toml` and `requirements*.txt` when both are present
 - dependency installs before choosing between `uv.lock` and `requirements*.txt` when both are present
 - creating or deleting virtual environments

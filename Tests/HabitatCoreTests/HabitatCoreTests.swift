@@ -1432,8 +1432,8 @@ struct HabitatCoreTests {
         #expect(result.project.packageManager == "uv")
         #expect(result.project.detectedFiles.contains("uv.lock"))
         #expect(result.policy.preferredCommands == ["uv run", ".venv/bin/python -m pytest"])
-        #expect(result.policy.askFirstCommands.contains("substituting another package manager for uv"))
-        #expect(result.warnings.contains("Project files prefer uv, but uv was not found on PATH; ask before substituting another package manager."))
+        #expect(result.policy.askFirstCommands.contains("running uv commands before uv is available"))
+        #expect(result.warnings.contains("Project files prefer uv, but uv was not found on PATH; ask before running uv commands or substituting another package manager."))
         #expect(result.warnings.contains("Project .venv exists; use .venv/bin/python for Python commands before system python3."))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -1443,9 +1443,9 @@ struct HabitatCoreTests {
 
         #expect(context.contains("Use `uv` because project files point to it."))
         #expect(context.contains("Prefer `uv run`."))
-        #expect(context.contains("Ask before `substituting another package manager for uv`."))
+        #expect(context.contains("Ask before `running uv commands before uv is available`."))
         #expect(policy.contains("`uv run`"))
-        #expect(policy.contains("`substituting another package manager for uv`"))
+        #expect(policy.contains("`running uv commands before uv is available`"))
     }
 
     @Test

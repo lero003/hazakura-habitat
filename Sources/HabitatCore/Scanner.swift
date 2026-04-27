@@ -488,7 +488,7 @@ public struct HabitatScanner {
 
     private func missingPreferredToolAskFirstCommand(packageManager: String) -> String {
         switch packageManager {
-        case "npm", "pnpm", "yarn", "bun":
+        case "npm", "pnpm", "yarn", "bun", "uv":
             return "running \(packageManager) commands before \(packageManager) is available"
         case "bundler":
             return "running Bundler commands before bundle is available"
@@ -513,7 +513,7 @@ public struct HabitatScanner {
 
     private func missingPreferredToolWarning(packageManager: String) -> String {
         switch packageManager {
-        case "npm", "pnpm", "yarn", "bun":
+        case "npm", "pnpm", "yarn", "bun", "uv":
             return "Project files prefer \(packageManager), but \(packageManager) was not found on PATH; ask before running \(packageManager) commands or substituting another package manager."
         case "bundler":
             return "Project files prefer Bundler, but bundle was not found on PATH; ask before running Bundler commands."
