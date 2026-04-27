@@ -60,13 +60,13 @@ public struct ProjectDetector {
         return ProjectInfo(
             detectedFiles: detectedFiles,
             packageManager: packageManager,
-            packageManagerVersion: packageJSON.declaredPackageManager?.name == packageManager ? packageJSON.declaredPackageManager?.version : nil,
+            packageManagerVersion: packageManagerVersion(packageManager: packageManager, packageJSON: packageJSON),
             packageScripts: packageJSON.scripts,
             runtimeHints: RuntimeHints(
                 node: firstAvailableLineIfSafe(
                     projectURL.appendingPathComponent(".nvmrc"),
                     projectURL.appendingPathComponent(".node-version")
-                ) ?? toolVersions.node,
+                ) ?? toolVersions.node ?? packageJSON.node,
                 python: firstLineIfSafe(projectURL.appendingPathComponent(".python-version")) ?? toolVersions.python
             ),
             declaredPackageManager: packageJSON.declaredPackageManager?.name,
@@ -135,8 +135,25 @@ public struct ProjectDetector {
         let scripts = (json["scripts"] as? [String: Any])?
             .compactMap { key, value in value is String ? key : nil }
             .sorted() ?? []
+        let volta = voltaMetadata(from: json["volta"])
 
-        return PackageJSONMetadata(declaredPackageManager: declaredPackageManager, scripts: scripts)
+        return PackageJSONMetadata(
+            declaredPackageManager: declaredPackageManager,
+            scripts: scripts,
+            node: volta.node,
+            packageManagerVersions: volta.packageManagerVersions
+        )
+    }
+
+    private func packageManagerVersion(packageManager: String?, packageJSON: PackageJSONMetadata) -> String? {
+        guard let packageManager else { return nil }
+
+        if packageJSON.declaredPackageManager?.name == packageManager,
+           let version = packageJSON.declaredPackageManager?.version {
+            return version
+        }
+
+        return packageJSON.packageManagerVersions[packageManager]
     }
 
     private func toolVersionsMetadata(_ url: URL) -> ToolVersionsMetadata {
@@ -190,6 +207,26 @@ public struct ProjectDetector {
         return nil
     }
 
+    private func voltaMetadata(from rawValue: Any?) -> VoltaMetadata {
+        guard let object = rawValue as? [String: Any] else { return .empty }
+        let node = normalizedNonEmptyString(object["node"])
+        var packageManagerVersions: [String: String] = [:]
+
+        for packageManager in ["npm", "pnpm", "yarn", "bun"] {
+            if let version = normalizedNonEmptyString(object[packageManager]) {
+                packageManagerVersions[packageManager] = version
+            }
+        }
+
+        return VoltaMetadata(node: node, packageManagerVersions: packageManagerVersions)
+    }
+
+    private func normalizedNonEmptyString(_ value: Any?) -> String? {
+        guard let string = value as? String else { return nil }
+        let normalized = string.trimmingCharacters(in: .whitespacesAndNewlines)
+        return normalized.isEmpty ? nil : normalized
+    }
+
     private func fileSize(at url: URL) -> UInt64 {
         let attributes = try? FileManager.default.attributesOfItem(atPath: url.path)
         return (attributes?[.size] as? NSNumber)?.uint64Value ?? UInt64.max
@@ -229,10 +266,12 @@ private struct DeclaredPackageManager {
 }
 
 private struct PackageJSONMetadata {
-    static let empty = PackageJSONMetadata(declaredPackageManager: nil, scripts: [])
+    static let empty = PackageJSONMetadata(declaredPackageManager: nil, scripts: [], node: nil, packageManagerVersions: [:])
 
     let declaredPackageManager: DeclaredPackageManager?
     let scripts: [String]
+    let node: String?
+    let packageManagerVersions: [String: String]
 }
 
 private struct ToolVersionsMetadata {
@@ -240,4 +279,11 @@ private struct ToolVersionsMetadata {
 
     let node: String?
     let python: String?
+}
+
+private struct VoltaMetadata {
+    static let empty = VoltaMetadata(node: nil, packageManagerVersions: [:])
+
+    let node: String?
+    let packageManagerVersions: [String: String]
 }

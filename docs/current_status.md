@@ -22,6 +22,7 @@
 - JavaScript projects with a `packageManager` field in `package.json` use that package manager when no lockfile is present.
 - JavaScript `packageManager` hints from `package.json` are preserved in `scan_result.json`, and conflicts with lockfiles require approval before dependency installs.
 - JavaScript `packageManager` versions from `package.json` are captured in `scan_result.json` and dependency installs require confirmation when the active package-manager version differs or cannot be verified.
+- JavaScript Volta pins in `package.json` are captured as safe Node/package-manager version metadata, and dependency installs require confirmation when active versions differ or cannot be verified.
 - JavaScript `package.json` script names are captured without script bodies, and generated preferred commands only suggest known safe script names such as `test` and `build` when those scripts exist.
 - JavaScript dependency mutation commands such as `npm ci`, `npm update`, `pnpm add`, `yarn add`, and `bun add` are explicitly classified as Ask First.
 - Non-zero version command exits are treated as unverifiable tool versions, recorded in diagnostics, and used to keep dependency-install guards active.
@@ -50,14 +51,14 @@
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.
 - Command-policy guard that tells agents to ask before modifying lockfiles.
 - Command-policy guard that forbids destructive file deletion outside the selected project.
-- Tests for package manager detection, package.json-only npm guidance, pnpm workspace guidance, package script guidance, `packageManager` field/version and lockfile-conflict guidance, JavaScript dependency mutation guards, missing tools, non-zero version command failures, artifact generation, runtime mismatch policy guidance, `.tool-versions` runtime hints, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, no-signal read-only fallback, secret avoidance, arbitrary `.env.*` and `.envrc.*` detection without value emission, secret-aware `agent_context.md` Avoid guidance, package-manager auth config warnings, common env file warnings, Python mixed-dependency signal guards, uv/requirements dependency-source guards, uv missing-tool fallback guards, Bundler missing-tool guards, SwiftPM `Package.resolved`, missing-tool, and dependency-mutation guards, Go missing-tool guards, Cargo missing-tool guards, CocoaPods missing-tool and mutation guards, Carthage missing-tool and mutation guards, and Brewfile Homebrew Bundle guards.
+- Tests for package manager detection, package.json-only npm guidance, pnpm workspace guidance, package script guidance, `packageManager` field/version, Volta Node/package-manager pins, and lockfile-conflict guidance, JavaScript dependency mutation guards, missing tools, non-zero version command failures, artifact generation, runtime mismatch policy guidance, `.tool-versions` runtime hints, package-manager substitution guidance, conflicting JavaScript lockfiles, lockfile mutation guidance, generated Markdown snapshots, no-signal read-only fallback, secret avoidance, arbitrary `.env.*` and `.envrc.*` detection without value emission, secret-aware `agent_context.md` Avoid guidance, package-manager auth config warnings, common env file warnings, Python mixed-dependency signal guards, uv/requirements dependency-source guards, uv missing-tool fallback guards, Bundler missing-tool guards, SwiftPM `Package.resolved`, missing-tool, and dependency-mutation guards, Go missing-tool guards, Cargo missing-tool guards, CocoaPods missing-tool and mutation guards, Carthage missing-tool and mutation guards, and Brewfile Homebrew Bundle guards.
 - GitHub CI and release artifact workflows.
 
 ## Not Yet Implemented
 
 - Detailed Homebrew scanner beyond Brewfile command guidance.
 - Detailed pip policy beyond install and mixed-dependency signal guards.
-- Detailed Node package manager version checks beyond `package.json` `packageManager`.
+- Additional Node package-manager version metadata beyond `package.json` `packageManager` and Volta pins.
 - Swift/Xcode scanner detail beyond basic command capture.
 - GUI, MCP server, scan comparison, and redaction modes.
 

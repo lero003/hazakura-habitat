@@ -25,7 +25,11 @@ public struct ReportWriter {
     private func agentContext(_ result: ScanResult) -> String {
         let packageManagerUse = result.project.packageManager.map { packageManager in
             if let version = result.project.packageManagerVersion {
-                return "Use `\(packageManager)@\(version)` because `package.json` packageManager points to it."
+                if result.project.declaredPackageManager == packageManager {
+                    return "Use `\(packageManager)@\(version)` because `package.json` packageManager points to it."
+                }
+
+                return "Use `\(packageManager)@\(version)` because project metadata pins it."
             }
 
             return "Use `\(packageManager)` because project files point to it."

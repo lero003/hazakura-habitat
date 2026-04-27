@@ -127,7 +127,7 @@ Ask First:
 - `carthage update`
 - `carthage checkout`
 - `carthage build`
-- dependency installs before matching the selected JavaScript package manager to `package.json` `packageManager` version
+- dependency installs before matching the selected JavaScript package manager to safe package-manager version metadata from `package.json`
 - dependency installs before choosing between `pyproject.toml` and `requirements*.txt` when both are present
 - dependency installs before choosing between `uv.lock` and `requirements*.txt` when both are present
 - creating or deleting virtual environments
@@ -184,7 +184,7 @@ Compatibility:
 - Add fields freely during `0.x`.
 - Do not rename or remove fields without documenting a schema change.
 - Generate Markdown from this JSON when possible.
-- `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions`.
+- `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions` and `package.json` Volta pins.
 - `declaredPackageManager` records the safe `package.json` `packageManager` hint even when a lockfile selects a different package manager.
 - Secret-bearing environment files such as `.env`, `.env.*`, `.envrc`, and `.envrc.*` may be detected by filename, but values must not be read or emitted.
 - Package-manager auth config files such as `.npmrc`, `.yarnrc`, and `.yarnrc.yml` may be detected by filename, but token values must not be read or emitted.
