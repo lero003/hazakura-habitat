@@ -1743,9 +1743,13 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(context.contains("Use `uv` because project files point to it."))
+        #expect(context.contains("Prefer `.venv/bin/python -m pytest`."))
         #expect(context.contains("Ask before `running uv commands before uv is available`."))
         #expect(!context.contains("Prefer `uv run`."))
+        #expect(policy.contains("`.venv/bin/python -m pytest`"))
         #expect(!policy.contains("`uv run`"))
+        #expect(policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
         #expect(policy.contains("`running uv commands before uv is available`"))
     }
 

@@ -50,6 +50,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - Python projects that contain both `pyproject.toml` and `requirements*.txt` now ask before dependency installs until the dependency source of truth is clear.
 - Python projects that contain both `uv.lock` and `requirements*.txt` now ask before dependency installs until the dependency source of truth is clear.
 - Python projects with `uv.lock` ask before running `uv` commands when `uv` itself is missing, even if Python or pip is available as a possible fallback.
+- Python/uv projects with a detected `.venv/bin/python` keep that concrete project-local test command in Markdown guidance even when `uv` is missing, while broader build commands remain suppressed until the selected tool is available.
 - Ruby Bundler command guidance from `Gemfile` and `Gemfile.lock`, including a missing `bundle` guard.
 - SwiftPM command guidance from `Package.swift` and `Package.resolved`, including a missing `swift` guard and `swift package update` / `swift package resolve` mutation guards.
 - SwiftPM/Xcode project guidance asks before build or test commands when `xcode-select -p` cannot verify the active developer directory, and surfaces the relevant diagnostic in `agent_context.md`.
