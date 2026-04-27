@@ -259,6 +259,10 @@ public struct HabitatScanner {
             "python -m venv",
             "modifying lockfiles",
             "git clean",
+            "git reset --hard",
+            "git checkout --",
+            "git restore",
+            "git rm",
             "rm",
             "rm -r",
             "rm -rf"

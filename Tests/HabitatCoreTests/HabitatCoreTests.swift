@@ -475,7 +475,7 @@ struct HabitatCoreTests {
     }
 
     @Test
-    func scanAsksBeforeProjectDeletionAndCleanupCommands() throws {
+    func scanAsksBeforeProjectDeletionCleanupAndWorkspaceDiscardCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
             "package-lock.json": "lockfile",
@@ -484,6 +484,10 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
         let commands = [
             "git clean",
+            "git reset --hard",
+            "git checkout --",
+            "git restore",
+            "git rm",
             "rm",
             "rm -r",
             "rm -rf",

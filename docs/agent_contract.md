@@ -143,6 +143,10 @@ Ask First:
 - `carthage checkout`
 - `carthage build`
 - `git clean`
+- `git reset --hard`
+- `git checkout --`
+- `git restore`
+- `git rm`
 - `rm`
 - `rm -r`
 - `rm -rf`
