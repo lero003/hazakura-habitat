@@ -30,6 +30,10 @@ public struct ReportWriter {
             useLines = ["Verify the project path before running project commands."]
         } else {
             let packageManagerUse = result.project.packageManager.map { packageManager in
+                if packageManager == "xcodebuild", xcodeToolingNeedsVerification(result) {
+                    return "Verify Xcode tooling before running Xcode commands."
+                }
+
                 if let version = result.project.packageManagerVersion {
                     if result.project.declaredPackageManager == packageManager {
                         return "Use `\(packageManager)@\(version)` because `package.json` packageManager points to it."
@@ -278,6 +282,12 @@ public struct ReportWriter {
         }
 
         return true
+    }
+
+    private func xcodeToolingNeedsVerification(_ result: ScanResult) -> Bool {
+        result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild is available")
+            || result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild version check succeeds")
+            || result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds")
     }
 
     private func projectRelevantVersionCheckGuardApplies(_ result: ScanResult) -> Bool {

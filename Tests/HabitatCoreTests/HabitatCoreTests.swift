@@ -3933,11 +3933,12 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Use `xcodebuild` because project files point to it."))
+        #expect(context.contains("Verify Xcode tooling before running Xcode commands."))
         #expect(context.contains("Ask before `running Xcode build commands before xcodebuild is available`."))
         #expect(context.contains("Ask before `Swift/Xcode build commands before xcode-select -p succeeds`."))
         #expect(context.contains("Project files prefer xcodebuild, but xcodebuild was not found on PATH; ask before running Xcode build commands."))
         #expect(context.contains("xcode-select -p unavailable: missing"))
+        #expect(!context.contains("Use `xcodebuild` because project files point to it."))
         #expect(!context.contains("Prefer `xcodebuild -list -project Demo.xcodeproj`."))
         #expect(policy.contains("`running Xcode build commands before xcodebuild is available`"))
         #expect(policy.contains("`Swift/Xcode build commands before xcode-select -p succeeds`"))
@@ -3972,6 +3973,8 @@ struct HabitatCoreTests {
 
         #expect(context.contains("Ask before `running Xcode build commands before xcodebuild version check succeeds`."))
         #expect(context.contains("xcodebuild -version failed with exit code 1: xcodebuild: failed to load developer tools"))
+        #expect(context.contains("Verify Xcode tooling before running Xcode commands."))
+        #expect(!context.contains("Use `xcodebuild` because project files point to it."))
         #expect(!context.contains("Prefer `xcodebuild -list -project Demo.xcodeproj`."))
         #expect(policy.contains("`running Xcode build commands before xcodebuild version check succeeds`"))
         #expect(!policy.contains("`xcodebuild -list -project Demo.xcodeproj`"))
@@ -4004,6 +4007,8 @@ struct HabitatCoreTests {
 
         #expect(context.contains("Ask before `Swift/Xcode build commands before xcode-select -p succeeds`."))
         #expect(context.contains("xcode-select -p unavailable: missing"))
+        #expect(context.contains("Verify Xcode tooling before running Xcode commands."))
+        #expect(!context.contains("Use `xcodebuild` because project files point to it."))
         #expect(!context.contains("Prefer `xcodebuild -list -project Demo.xcodeproj`."))
         #expect(!policy.contains("`xcodebuild -list -project Demo.xcodeproj`"))
         #expect(!policy.contains("`test commands for the selected project`"))

@@ -72,6 +72,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - SwiftPM/Xcode project guidance asks before build or test commands when `xcode-select -p` cannot verify the active developer directory, suppresses concrete Markdown build/test recommendations, and surfaces the relevant diagnostic in `agent_context.md`.
 - SwiftPM/Xcode Markdown policy suppresses concrete preferred commands and generic selected-project build/test allowance when `xcode-select -p` cannot verify the active developer directory.
 - Xcode project/workspace guidance from top-level `.xcodeproj` and `.xcworkspace` bundles, including `xcodebuild -list` as the safe first command, missing or failing `xcodebuild -version` guards, and Ask First guards for scheme-specific build/test/archive and dependency/provisioning mutations.
+- `agent_context.md` avoids telling agents to use `xcodebuild` when Xcode tooling is missing or unverifiable; it tells them to verify Xcode tooling first while keeping concrete Xcode commands out of Markdown guidance.
 - Go command guidance from `go.mod`, including missing `go` and `go get`/`go mod tidy` guards.
 - Rust Cargo command guidance from `Cargo.toml`, including missing `cargo`, failing `cargo --version`, and `cargo add`/`cargo update` guards.
 - CocoaPods guidance from `Podfile` and `Podfile.lock`, including missing `pod` and `pod install`/`pod update` mutation guards.
