@@ -30,8 +30,8 @@ public struct ReportWriter {
             useLines = ["Verify the project path before running project commands."]
         } else {
             let packageManagerUse = result.project.packageManager.map { packageManager in
-                if packageManager == "xcodebuild", xcodeToolingNeedsVerification(result) {
-                    return "Verify Xcode tooling before running Xcode commands."
+                if let verificationLine = selectedToolVerificationUseLine(result, packageManager: packageManager) {
+                    return verificationLine
                 }
 
                 if let version = result.project.packageManagerVersion {
@@ -288,6 +288,36 @@ public struct ReportWriter {
         result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild is available")
             || result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild version check succeeds")
             || result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds")
+    }
+
+    private func selectedToolVerificationUseLine(_ result: ScanResult, packageManager: String) -> String? {
+        if packageManager == "xcodebuild", xcodeToolingNeedsVerification(result) {
+            return "Verify Xcode tooling before running Xcode commands."
+        }
+
+        guard projectRelevantVersionCheckGuardApplies(result) else {
+            return nil
+        }
+
+        let guards: [(command: String, executable: String, label: String)] = [
+            ("running JavaScript commands before node version check succeeds", "node", "JavaScript"),
+            ("running \(packageManager) commands before \(packageManager) version check succeeds", packageManager, packageManager),
+            ("running Bundler commands before ruby version check succeeds", "ruby", "Bundler"),
+            ("running Bundler commands before bundle version check succeeds", "bundle", "Bundler"),
+            ("running SwiftPM commands before swift version check succeeds", "swift", "SwiftPM"),
+            ("running Go commands before go version check succeeds", "go", "Go"),
+            ("running Cargo commands before cargo version check succeeds", "cargo", "Cargo"),
+            ("running Homebrew Bundle commands before brew version check succeeds", "brew", "Homebrew Bundle"),
+            ("running CocoaPods commands before pod version check succeeds", "pod", "CocoaPods"),
+            ("running Carthage commands before carthage version check succeeds", "carthage", "Carthage"),
+            ("running Python commands before python3 version check succeeds", "python3", "Python")
+        ]
+
+        guard let match = guards.first(where: { result.policy.askFirstCommands.contains($0.command) }) else {
+            return nil
+        }
+
+        return "Verify `\(match.executable)` before running \(match.label) commands."
     }
 
     private func projectRelevantVersionCheckGuardApplies(_ result: ScanResult) -> Bool {

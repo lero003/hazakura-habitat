@@ -24,6 +24,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - Missing commands and scanner failures are represented as scan data instead of fatal errors.
 - `scan_result.json` records PATH resolution and version availability for Python, pip, uv, pyenv, RubyGems, and Ruby tooling in addition to the project package managers.
 - Project-relevant version command failures, such as a resolved `go` executable whose `go version` check fails, now add Ask First guards and suppress related Markdown build/test allowances.
+- `agent_context.md` tells agents to verify the selected executable before running project commands when that tool's version check fails, instead of saying to use an unverifiable tool.
 - Project signal detection for common JavaScript, Python, Swift, Ruby, Go, Rust, CocoaPods, Carthage, Homebrew, and version-manager files.
 - Bun projects are detected from both current `bun.lock` and legacy `bun.lockb` lockfiles.
 - pnpm workspaces are detected from `pnpm-workspace.yaml` so workspace roots without lockfiles do not fall back to npm guidance.

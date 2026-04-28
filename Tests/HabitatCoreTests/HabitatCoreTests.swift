@@ -2377,8 +2377,10 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
+        #expect(context.contains("Verify `go` before running Go commands."))
         #expect(context.contains("Ask before `running Go commands before go version check succeeds`."))
         #expect(context.contains("go version failed with exit code 1: go: invalid toolchain"))
+        #expect(!context.contains("Use `go` because project files point to it."))
         #expect(!context.contains("Prefer `go test ./...`."))
         #expect(policy.contains("`running Go commands before go version check succeeds`"))
         #expect(!policy.contains("`go test ./...`"))
@@ -2889,8 +2891,10 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
+        #expect(context.contains("Verify `pnpm` before running pnpm commands."))
         #expect(context.contains("Ask before `running pnpm commands before pnpm version check succeeds`."))
         #expect(context.contains("pnpm --version failed with exit code 1: pnpm: failed to load"))
+        #expect(!context.contains("Use `pnpm` because project files point to it."))
         #expect(!context.contains("Prefer `pnpm run test`."))
         #expect(policy.contains("`running pnpm commands before pnpm version check succeeds`"))
         #expect(!policy.contains("`pnpm run test`"))
@@ -2931,8 +2935,10 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
+        #expect(context.contains("Verify `node` before running JavaScript commands."))
         #expect(context.contains("Ask before `running JavaScript commands before node version check succeeds`."))
         #expect(context.contains("node --version failed with exit code 1: node: failed to load"))
+        #expect(!context.contains("Use `npm` because project files point to it."))
         #expect(!context.contains("Prefer `npm run test`."))
         #expect(policy.contains("`running JavaScript commands before node version check succeeds`"))
         #expect(!policy.contains("`npm run test`"))
