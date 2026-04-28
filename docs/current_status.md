@@ -46,6 +46,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - Ruby version hints from `.ruby-version` or `.tool-versions` add Bundler dependency-install guards when active Ruby differs or cannot be verified.
 - Project `.venv` detection that tells agents to prefer `.venv/bin/python` before system `python3`.
 - Project `.venv/bin/python` detection that suppresses broken virtualenv Python recommendations and asks before Python commands or recreating `.venv` when the directory exists without an interpreter.
+- Python projects with a detected `.venv/bin/python` keep project-local test guidance even when `python3` is missing from `PATH`, avoiding a contradictory broad missing-`python3` Ask First guard.
 - Python command guidance from secondary Python signals such as `requirements-dev.txt`, `Pipfile`, and `Pipfile.lock`.
 - Python dependency install aliases such as `pip3 install` and `python3 -m pip install` are classified as Ask First, with `--user` variants forbidden.
 - Language-level global install commands such as `gem install`, `go install`, and `cargo install` are classified as Forbidden.

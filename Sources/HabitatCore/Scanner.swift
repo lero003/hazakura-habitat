@@ -339,7 +339,7 @@ public struct HabitatScanner {
         }
 
         if let packageManager = project.packageManager,
-           shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
+           shouldWarnAboutMissingPreferredTool(project: project, packageManager: packageManager, resolvedPaths: resolvedPaths) {
             commands.insert(missingPreferredToolAskFirstCommand(packageManager: packageManager), at: 0)
         }
 
@@ -483,7 +483,7 @@ public struct HabitatScanner {
         }
 
         if let packageManager = project.packageManager,
-           shouldWarnAboutMissingPreferredTool(packageManager: packageManager, resolvedPaths: resolvedPaths) {
+           shouldWarnAboutMissingPreferredTool(project: project, packageManager: packageManager, resolvedPaths: resolvedPaths) {
             warnings.append(missingPreferredToolWarning(packageManager: packageManager))
         }
 
@@ -693,7 +693,11 @@ public struct HabitatScanner {
         }
     }
 
-    private func shouldWarnAboutMissingPreferredTool(packageManager: String, resolvedPaths: [ResolvedTool]) -> Bool {
+    private func shouldWarnAboutMissingPreferredTool(project: ProjectInfo, packageManager: String, resolvedPaths: [ResolvedTool]) -> Bool {
+        if packageManager == "python", hasUsableProjectVirtualEnvironment(project) {
+            return false
+        }
+
         guard let toolName = executableName(forPackageManager: packageManager) else {
             return false
         }

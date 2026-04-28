@@ -46,6 +46,7 @@ Guidelines:
 - Prioritize project-relevant secret-reading bans in `Avoid` when secret-bearing files are detected.
 - Do not list concrete preferred commands in `Use` when their required executable is missing; keep the missing-tool guard in `Ask First` instead.
 - A detected project-local executable path such as `.venv/bin/python` may remain in `Use` / `Allowed` when the selected package-manager executable is missing, but only for the concrete project-local command that can run without the missing tool.
+- For Python projects, a usable `.venv/bin/python` should prevent a broad missing-`python3` Ask First guard from hiding the project-local test command.
 - Do not dump full package inventories here.
 - Include scan freshness because environment data becomes stale quickly.
 

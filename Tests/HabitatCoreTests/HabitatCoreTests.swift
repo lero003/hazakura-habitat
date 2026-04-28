@@ -1251,6 +1251,37 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAllowsProjectVenvWhenPython3IsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+        ])
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent(".venv/bin"), withIntermediateDirectories: true)
+        try "".write(to: projectURL.appendingPathComponent(".venv/bin/python"), atomically: true, encoding: .utf8)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(result.project.detectedFiles.contains(".venv/bin/python"))
+        #expect(result.policy.preferredCommands == [".venv/bin/python -m pytest", ".venv/bin/python"])
+        #expect(!result.policy.askFirstCommands.contains("running Python commands before python3 is available"))
+        #expect(!result.warnings.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
+        #expect(result.warnings.contains("Project .venv exists; use .venv/bin/python for Python commands before system python3."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Prefer `.venv/bin/python -m pytest`."))
+        #expect(!context.contains("Ask before `running Python commands before python3 is available`."))
+        #expect(!context.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
+        #expect(policy.contains("`.venv/bin/python -m pytest`"))
+        #expect(policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`running Python commands before python3 is available`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
     func scanAsksBeforePythonCommandsWhenProjectVenvIsBroken() throws {
         let projectURL = try makeProject(files: [
             "pyproject.toml": "[project]\nname = \"demo\"\n",
