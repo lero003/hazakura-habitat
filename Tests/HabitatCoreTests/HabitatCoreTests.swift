@@ -718,6 +718,33 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforePermissionAndOwnershipChanges() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "chmod",
+            "chown",
+            "chgrp",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
     func scanForbidsDestructiveDeletionOutsideSelectedProject() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",

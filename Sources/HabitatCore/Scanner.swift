@@ -323,6 +323,9 @@ public struct HabitatScanner {
             "git push --tags",
             "git push <remote> +<ref>",
             "git push <remote> :<ref>",
+            "chmod",
+            "chown",
+            "chgrp",
             "rm",
             "rm -r",
             "rm -rf"
