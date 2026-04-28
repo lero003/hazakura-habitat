@@ -2583,6 +2583,54 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanComparisonReportsPreferredCommandChangesForSamePackageManager() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [
+                .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+            ], versions: []),
+            policy: .init(preferredCommands: ["npm run"], askFirstCommands: ["npm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: ["build", "test"], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [
+                .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+            ], versions: []),
+            policy: .init(preferredCommands: ["npm run test", "npm run build"], askFirstCommands: ["npm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let preferredChange = changes.first(where: { $0.category == "preferred_commands" })
+
+        #expect(preferredChange?.summary == "Preferred commands changed from npm run to npm run test, npm run build.")
+        #expect(preferredChange?.impact == "Re-check command_policy.md; use only current allowed preferred commands.")
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"category\" : \"preferred_commands\""))
+        #expect(context.contains("Preferred commands changed from npm run to npm run test, npm run build. Re-check command_policy.md; use only current allowed preferred commands."))
+    }
+
+    @Test
     func scanComparisonSeparatesCommandPolicyRiskTransitions() throws {
         let previous = ScanResult(
             schemaVersion: "0.1",

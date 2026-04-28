@@ -258,6 +258,7 @@ Initial scope should be limited to AI-actionable deltas:
 - lockfiles appeared or disappeared
 - missing tools appeared, were resolved, or stopped being relevant to the current project
 - project-relevant tool checks started failing or recovered, such as `xcode-select -p` for Swift/Xcode projects
+- preferred commands changed while the selected package manager stayed the same, such as `npm run` becoming `npm run test`
 - command policy risk classification changed or a previous policy entry is no longer highlighted
 
 Avoid broad environment diffs. The comparison should answer: what changed that should alter the agent's next action?

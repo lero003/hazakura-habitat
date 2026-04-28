@@ -15,7 +15,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
   - `agent_context.md`
   - `command_policy.md`
   - `environment_report.md`
-- Optional previous-scan comparison with `--previous-scan`, accepting either a previous report directory or direct `scan_result.json` path, and producing concise AI-actionable `changes` for package-manager, lockfile, missing-tool, project-relevant tool verification failure/recovery, command-policy risk classification, and resolved command-policy entry deltas. Missing-tool comparison distinguishes tools that became available from tools that merely stopped being relevant to the current project.
+- Optional previous-scan comparison with `--previous-scan`, accepting either a previous report directory or direct `scan_result.json` path, and producing concise AI-actionable `changes` for package-manager, lockfile, missing-tool, project-relevant tool verification failure/recovery, preferred-command, command-policy risk classification, and resolved command-policy entry deltas. Missing-tool comparison distinguishes tools that became available from tools that merely stopped being relevant to the current project.
 - `agent_context.md` filters command diagnostics to project-relevant tools while detailed diagnostics remain in the machine and environment reports.
 - `agent_context.md` includes previous-scan changes in `Notes` only when a comparison was requested, keeping normal scans short.
 - `agent_context.md` uses a clean read-only fallback when no package manager signal is detected.

@@ -16,6 +16,7 @@ public struct ScanComparator {
 
         changes.append(contentsOf: missingToolChanges(previous: previous, current: current))
         changes.append(contentsOf: toolVerificationChanges(previous: previous, current: current))
+        changes.append(contentsOf: preferredCommandChanges(previous: previous, current: current))
         changes.append(contentsOf: policyChanges(previous: previous, current: current))
 
         return changes
@@ -127,6 +128,24 @@ public struct ScanComparator {
         result.tools.resolvedPaths.contains { tool in
             tool.name == toolName && !tool.paths.isEmpty
         }
+    }
+
+    private func preferredCommandChanges(previous: ScanResult, current: ScanResult) -> [ScanChange] {
+        guard previous.project.packageManager == current.project.packageManager else {
+            return []
+        }
+
+        guard previous.policy.preferredCommands != current.policy.preferredCommands else {
+            return []
+        }
+
+        return [
+            ScanChange(
+                category: "preferred_commands",
+                summary: "Preferred commands changed from \(summarizeCommands(previous.policy.preferredCommands)) to \(summarizeCommands(current.policy.preferredCommands)).",
+                impact: "Re-check command_policy.md; use only current allowed preferred commands."
+            )
+        ]
     }
 
     private func policyChanges(previous: ScanResult, current: ScanResult) -> [ScanChange] {
@@ -297,5 +316,9 @@ public struct ScanComparator {
         let remainingCount = values.count - limit
         guard remainingCount > 0 else { return prefix }
         return "\(prefix), and \(remainingCount) more"
+    }
+
+    private func summarizeCommands(_ values: [String]) -> String {
+        values.isEmpty ? "none" : summarize(values)
     }
 }
