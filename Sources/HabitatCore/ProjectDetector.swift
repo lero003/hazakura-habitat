@@ -86,7 +86,12 @@ public struct ProjectDetector {
     private func detectedProjectFiles(projectURL: URL) -> [String] {
         let manager = FileManager.default
         let explicitFiles = candidateFiles.filter {
-            manager.fileExists(atPath: projectURL.appendingPathComponent($0).path)
+            let path = projectURL.appendingPathComponent($0).path
+            if $0 == ".venv/bin/python" {
+                return manager.isExecutableFile(atPath: path)
+            }
+
+            return manager.fileExists(atPath: path)
         }
         let directoryEntries = (try? manager.contentsOfDirectory(atPath: projectURL.path)) ?? []
         let xcodeProjectContainers = directoryEntries

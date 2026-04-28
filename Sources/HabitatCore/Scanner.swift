@@ -467,7 +467,7 @@ public struct HabitatScanner {
         if hasUsableProjectVirtualEnvironment(project) {
             warnings.append("Project .venv exists; use .venv/bin/python for Python commands before system python3.")
         } else if hasBrokenProjectVirtualEnvironment(project) {
-            warnings.append("Project .venv exists, but .venv/bin/python was not found; ask before Python commands or recreating the virtual environment.")
+            warnings.append("Project .venv exists, but executable .venv/bin/python was not found; ask before Python commands or recreating the virtual environment.")
         }
 
         if hasMixedPythonDependencyFiles(project) {

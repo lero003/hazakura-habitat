@@ -193,7 +193,7 @@ Python:
 - active `python3`
 - version
 - pip availability
-- project `.venv` presence
+- project `.venv` presence and executable `.venv/bin/python` availability
 - pyenv/uv presence
 
 Node:

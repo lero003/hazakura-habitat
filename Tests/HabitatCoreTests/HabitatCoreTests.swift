@@ -1226,8 +1226,7 @@ struct HabitatCoreTests {
             "pyproject.toml": "[project]\nname = \"demo\"\n",
             ".python-version": "3.12\n",
         ])
-        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent(".venv/bin"), withIntermediateDirectories: true)
-        try "".write(to: projectURL.appendingPathComponent(".venv/bin/python"), atomically: true, encoding: .utf8)
+        try makeExecutableProjectVenvPython(projectURL)
 
         let runner = FakeCommandRunner(results: [
             "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
@@ -1255,8 +1254,7 @@ struct HabitatCoreTests {
         let projectURL = try makeProject(files: [
             "pyproject.toml": "[project]\nname = \"demo\"\n",
         ])
-        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent(".venv/bin"), withIntermediateDirectories: true)
-        try "".write(to: projectURL.appendingPathComponent(".venv/bin/python"), atomically: true, encoding: .utf8)
+        try makeExecutableProjectVenvPython(projectURL)
 
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
@@ -1299,7 +1297,7 @@ struct HabitatCoreTests {
         #expect(result.project.packageManager == "python")
         #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Python commands before project .venv/bin/python exists"))
-        #expect(result.warnings.contains("Project .venv exists, but .venv/bin/python was not found; ask before Python commands or recreating the virtual environment."))
+        #expect(result.warnings.contains("Project .venv exists, but executable .venv/bin/python was not found; ask before Python commands or recreating the virtual environment."))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -1307,12 +1305,44 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(context.contains("Ask before `running Python commands before project .venv/bin/python exists`."))
-        #expect(context.contains("Project .venv exists, but .venv/bin/python was not found; ask before Python commands or recreating the virtual environment."))
+        #expect(context.contains("Project .venv exists, but executable .venv/bin/python was not found; ask before Python commands or recreating the virtual environment."))
         #expect(!context.contains("Prefer `.venv/bin/python -m pytest`."))
         #expect(!context.contains("Prefer `python3 -m pytest`."))
         #expect(policy.contains("`running Python commands before project .venv/bin/python exists`"))
         #expect(!policy.contains("`python3 -m pytest`"))
         #expect(!policy.contains("`test commands for the selected project`"))
+    }
+
+    @Test
+    func scanAsksBeforePythonCommandsWhenProjectVenvPythonIsNotExecutable() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+        ])
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent(".venv/bin"), withIntermediateDirectories: true)
+        try "".write(to: projectURL.appendingPathComponent(".venv/bin/python"), atomically: true, encoding: .utf8)
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".venv"))
+        #expect(!result.project.detectedFiles.contains(".venv/bin/python"))
+        #expect(result.project.packageManager == "python")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Python commands before project .venv/bin/python exists"))
+        #expect(result.warnings.contains("Project .venv exists, but executable .venv/bin/python was not found; ask before Python commands or recreating the virtual environment."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Python commands before project .venv/bin/python exists`."))
+        #expect(!context.contains("Prefer `.venv/bin/python -m pytest`."))
+        #expect(policy.contains("`running Python commands before project .venv/bin/python exists`"))
+        #expect(!policy.contains("`.venv/bin/python -m pytest`"))
     }
 
     @Test
@@ -1989,8 +2019,7 @@ struct HabitatCoreTests {
             "uv.lock": "version = 1\n",
             ".python-version": "3.12\n",
         ])
-        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent(".venv/bin"), withIntermediateDirectories: true)
-        try "".write(to: projectURL.appendingPathComponent(".venv/bin/python"), atomically: true, encoding: .utf8)
+        try makeExecutableProjectVenvPython(projectURL)
 
         let runner = FakeCommandRunner(results: [
             "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.12.4", stderr: ""),
@@ -2958,6 +2987,13 @@ struct HabitatCoreTests {
         }
 
         return root
+    }
+
+    private func makeExecutableProjectVenvPython(_ projectURL: URL) throws {
+        let pythonURL = projectURL.appendingPathComponent(".venv/bin/python")
+        try FileManager.default.createDirectory(at: pythonURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try "#!/bin/sh\n".write(to: pythonURL, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: pythonURL.path)
     }
 
     private func markdownSnapshotScanResult() -> ScanResult {

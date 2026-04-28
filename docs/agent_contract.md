@@ -45,8 +45,8 @@ Guidelines:
 - When a previous scan is supplied, include only AI-actionable deltas in `Notes`.
 - Prioritize project-relevant secret-reading bans in `Avoid` when secret-bearing files are detected.
 - Do not list concrete preferred commands in `Use` when their required executable is missing; keep the missing-tool guard in `Ask First` instead.
-- A detected project-local executable path such as `.venv/bin/python` may remain in `Use` / `Allowed` when the selected package-manager executable is missing, but only for the concrete project-local command that can run without the missing tool.
-- For Python projects, a usable `.venv/bin/python` should prevent a broad missing-`python3` Ask First guard from hiding the project-local test command.
+- A detected project-local executable path such as `.venv/bin/python` may remain in `Use` / `Allowed` when the selected package-manager executable is missing, but only when the path is executable and the concrete project-local command can run without the missing tool.
+- For Python projects, an executable `.venv/bin/python` should prevent a broad missing-`python3` Ask First guard from hiding the project-local test command.
 - Do not dump full package inventories here.
 - Include scan freshness because environment data becomes stale quickly.
 
@@ -251,7 +251,7 @@ Compatibility:
 - Common SSH private key filenames such as `id_rsa`, `id_dsa`, `id_ecdsa`, and `id_ed25519` may be detected by filename, but key contents must not be read or emitted.
 - Markdown artifacts may suppress `policy.preferredCommands` and generic selected-project test/build allowance from `Use` / `Allowed` when the required executable is currently missing, while preserving the structured preferred command data in `scan_result.json`.
 - Markdown artifacts suppress JavaScript preferred commands and generic selected-project test/build allowance when Node is missing, and suppress concrete SwiftPM/Xcode preferred commands plus generic selected-project test/build allowance when `xcode-select -p` fails.
-- Markdown artifacts may retain detected project-local executable commands such as `.venv/bin/python -m pytest` even when the selected package-manager executable is missing; in that case, keep broader build commands out of `Allowed` unless the selected executable is available.
+- Markdown artifacts may retain detected executable project-local commands such as `.venv/bin/python -m pytest` even when the selected package-manager executable is missing; in that case, keep broader build commands out of `Allowed` unless the selected executable is available.
 - `changes` is empty unless `--previous-scan` is supplied. `--previous-scan` may point to a previous report directory or a direct `scan_result.json` file. It is limited to AI-actionable deltas such as package-manager changes, lockfile changes, missing-tool changes, project-relevant tool verification failures or recoveries, command-policy risk classification changes, and command-policy entries that are no longer highlighted by the current scan.
 - Missing-tool comparison must not imply a tool became available just because it stopped being relevant to the current project. Report currently relevant tools with paths as available, and report previously missing tools that are no longer relevant as a separate current-policy guidance change.
 
