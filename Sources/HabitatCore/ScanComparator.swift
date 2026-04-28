@@ -117,10 +117,11 @@ public struct ScanComparator {
         let currentRelevantTools = relevantToolNames(for: current)
         let previousMissing = missingTools(in: previous, limitedTo: previousRelevantTools)
         let currentMissing = missingTools(in: current, limitedTo: currentRelevantTools)
+        let currentFailedChecks = failedToolChecks(in: current, limitedTo: currentRelevantTools)
         let newlyMissing = currentMissing.subtracting(previousMissing).sorted()
         let noLongerMissing = previousMissing.subtracting(currentMissing)
         let resolved = noLongerMissing
-            .filter { currentRelevantTools.contains($0) && toolIsAvailable($0, in: current) }
+            .filter { currentRelevantTools.contains($0) && toolIsAvailable($0, in: current) && !currentFailedChecks.contains($0) }
             .sorted()
         let noLongerRelevant = noLongerMissing
             .filter { !currentRelevantTools.contains($0) }

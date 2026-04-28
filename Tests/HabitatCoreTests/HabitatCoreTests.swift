@@ -3413,6 +3413,85 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanComparisonDoesNotReportRecoveredToolsWhenVersionChecksFail() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "package-lock.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: ["test"], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: []),
+                    .init(name: "npm", paths: []),
+                ],
+                versions: []
+            ),
+            policy: .init(
+                preferredCommands: ["npm run test"],
+                askFirstCommands: [
+                    "running JavaScript commands before node is available",
+                    "running npm commands before npm is available",
+                    "npm install",
+                ],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "package-lock.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: ["test"], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                    .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+                ],
+                versions: [
+                    .init(name: "node", version: nil, available: false),
+                    .init(name: "npm", version: nil, available: false),
+                ]
+            ),
+            policy: .init(
+                preferredCommands: ["npm run test"],
+                askFirstCommands: [
+                    "running JavaScript commands before node version check succeeds",
+                    "running npm commands before npm version check succeeds",
+                    "npm install",
+                ],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: [
+                "node --version failed with exit code 1: node failed",
+                "npm --version failed with exit code 1: npm failed",
+            ]
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(!changes.contains(where: {
+            $0.summary == "Project-relevant tools are now available: node, npm."
+        }))
+        #expect(changes.contains(where: {
+            $0.summary == "Project-relevant tool checks now fail: node, npm."
+                && $0.impact == "Treat related build, test, or install commands as Ask First until the current command policy allows them."
+        }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(!context.contains("Project-relevant tools are now available: node, npm."))
+        #expect(context.contains("Project-relevant tool checks now fail: node, npm. Treat related build, test, or install commands as Ask First until the current command policy allows them."))
+    }
+
+    @Test
     func scanComparisonReportsRelevantToolVerificationFailures() throws {
         let previous = ScanResult(
             schemaVersion: "0.1",
