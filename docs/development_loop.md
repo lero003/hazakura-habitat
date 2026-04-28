@@ -8,13 +8,28 @@ If a scanner or report section does not affect AI behavior, defer it.
 
 ## Iteration Loop
 
-1. Choose a narrow AI decision to improve.
+1. Choose one coherent AI decision or safety risk to improve.
 2. Add or adjust scan data needed for that decision.
 3. Update `scan_result.json`.
 4. Update `agent_context.md` or `command_policy.md`.
 5. Add fixture tests and snapshot tests.
 6. Check that no secret values are read.
 7. Record meaningful architecture decisions as ADRs.
+
+## Automation Cycle Size
+
+The default automation cadence is one hour.
+
+Use that hour for a complete, verified development slice, not only the smallest possible edit. A good one-hour slice may include multiple tightly related changes when they serve the same AI-facing decision, such as:
+
+- scanner data plus generated Markdown policy changes
+- missing-tool behavior plus fixture and snapshot coverage
+- previous-scan comparison logic plus documentation of the agent impact
+- secret-safety detection plus regression tests proving values are not emitted
+
+Keep the slice focused enough to review and revert. Avoid broad scanner expansion, unrelated cleanup, or speculative architecture work just because there is more time.
+
+If a useful improvement is larger than one hour, split it at an artifact boundary: scan data first, generated guidance second, broader fixtures or ADRs third.
 
 ## Definition of Done
 
@@ -41,7 +56,7 @@ Allowed scanner commands must be read-only, bounded, and timeout-protected.
 
 ## Current Repository Convention
 
-- Commit small, tested changes directly to `main`.
+- Commit complete, tested development slices directly to `main`.
 - Prefer `swift test` before committing core changes.
 - Push after each complete development slice.
 - Use feature branches only when a change is large, risky, or needs review before landing.

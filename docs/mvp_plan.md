@@ -249,6 +249,14 @@ Focus:
 
 The goal is to prevent dangerous, mistaken, or wasteful commands before an agent touches a repository.
 
+Automation guidance:
+
+- Work in one-hour, artifact-centered slices.
+- It is acceptable for one cycle to touch scanner logic, generated Markdown, fixtures, snapshots, and docs when they all protect the same AI decision.
+- Prefer one finished safety improvement over several unrelated small edits.
+- Do not expand into broad environment diagnostics unless the added data changes command choice, approval requirements, or refusal decisions.
+- When the improvement cannot be finished in one hour, leave the repo with passing focused tests and a clear next artifact boundary.
+
 Project-relevant version command failures should affect command policy, not only diagnostics. When a selected project tool is present on `PATH` but its version check fails or times out, generated Markdown should keep related build/test commands out of Allowed and require Ask First until the tool can be verified.
 
 JavaScript projects apply this partial-failure rule to the selected package manager even when `package.json` does not pin a package-manager version. A resolved but failing `npm --version`, `pnpm --version`, `yarn --version`, or `bun --version` should keep related preferred commands out of Markdown guidance until the tool can be verified.
