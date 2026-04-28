@@ -1414,7 +1414,16 @@ struct HabitatCoreTests {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
         }
 
-        for command in ["pip install --user", "pip3 install --user", "python -m pip install --user", "python3 -m pip install --user"] {
+        for command in [
+            "global pip install",
+            "global pip3 install",
+            "global python -m pip install",
+            "global python3 -m pip install",
+            "pip install --user",
+            "pip3 install --user",
+            "python -m pip install --user",
+            "python3 -m pip install --user",
+        ] {
             #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
         }
 
@@ -1427,6 +1436,8 @@ struct HabitatCoreTests {
         #expect(context.contains("Ask before `python3 -m pip install`."))
         #expect(policy.contains("`pip3 install`"))
         #expect(policy.contains("`python -m pip install`"))
+        #expect(policy.contains("`global pip install`"))
+        #expect(policy.contains("`global python3 -m pip install`"))
         #expect(policy.contains("`python3 -m pip install --user`"))
     }
 

@@ -186,6 +186,9 @@ Forbidden in MVP-generated policy:
 - `bun add -g`
 - `bun add --global`
 - global `pip install`
+- global `pip3 install`
+- global `python -m pip install`
+- global `python3 -m pip install`
 - `pip install --user`
 - `pip3 install --user`
 - `python -m pip install --user`

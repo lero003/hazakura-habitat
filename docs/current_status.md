@@ -48,7 +48,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - Project `.venv/bin/python` detection requires an executable interpreter path, suppresses broken virtualenv Python recommendations, and asks before Python commands or recreating `.venv` when the directory exists without an executable interpreter.
 - Python projects with an executable `.venv/bin/python` keep project-local test guidance even when `python3` is missing from `PATH`, avoiding a contradictory broad missing-`python3` Ask First guard.
 - Python command guidance from secondary Python signals such as `requirements-dev.txt`, `Pipfile`, and `Pipfile.lock`.
-- Python dependency install aliases such as `pip3 install` and `python3 -m pip install` are classified as Ask First, with `--user` variants forbidden.
+- Python dependency install aliases such as `pip3 install` and `python3 -m pip install` are classified as Ask First, with global pip installs and `--user` variants forbidden.
 - Language-level global install commands such as `gem install`, `go install`, and `cargo install` are classified as Forbidden.
 - Python projects ask before running Python commands when `python3` is missing, and matching Python version hints no longer create unnecessary mismatch warnings.
 - Python projects that contain both `pyproject.toml` and `requirements*.txt` now ask before dependency installs until the dependency source of truth is clear.
