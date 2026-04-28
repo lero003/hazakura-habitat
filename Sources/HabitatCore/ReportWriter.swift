@@ -295,6 +295,10 @@ public struct ReportWriter {
             return "Verify Xcode tooling before running Xcode commands."
         }
 
+        if let missingToolLine = selectedToolMissingUseLine(result, packageManager: packageManager) {
+            return missingToolLine
+        }
+
         guard projectRelevantVersionCheckGuardApplies(result) else {
             return nil
         }
@@ -311,6 +315,27 @@ public struct ReportWriter {
             ("running CocoaPods commands before pod version check succeeds", "pod", "CocoaPods"),
             ("running Carthage commands before carthage version check succeeds", "carthage", "Carthage"),
             ("running Python commands before python3 version check succeeds", "python3", "Python")
+        ]
+
+        guard let match = guards.first(where: { result.policy.askFirstCommands.contains($0.command) }) else {
+            return nil
+        }
+
+        return "Verify `\(match.executable)` before running \(match.label) commands."
+    }
+
+    private func selectedToolMissingUseLine(_ result: ScanResult, packageManager: String) -> String? {
+        let guards: [(command: String, executable: String, label: String)] = [
+            ("running JavaScript commands before node is available", "node", "JavaScript"),
+            ("running \(packageManager) commands before \(packageManager) is available", packageManager, packageManager),
+            ("running Bundler commands before bundle is available", "bundle", "Bundler"),
+            ("running SwiftPM commands before swift is available", "swift", "SwiftPM"),
+            ("running Go commands before go is available", "go", "Go"),
+            ("running Cargo commands before cargo is available", "cargo", "Cargo"),
+            ("running Homebrew Bundle commands before brew is available", "brew", "Homebrew Bundle"),
+            ("running CocoaPods commands before pod is available", "pod", "CocoaPods"),
+            ("running Carthage commands before carthage is available", "carthage", "Carthage"),
+            ("running Python commands before python3 is available", "python3", "Python")
         ]
 
         guard let match = guards.first(where: { result.policy.askFirstCommands.contains($0.command) }) else {

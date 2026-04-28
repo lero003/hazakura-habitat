@@ -25,6 +25,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - `scan_result.json` records PATH resolution and version availability for Python, pip, uv, pyenv, RubyGems, and Ruby tooling in addition to the project package managers.
 - Project-relevant version command failures, such as a resolved `go` executable whose `go version` check fails, now add Ask First guards and suppress related Markdown build/test allowances.
 - `agent_context.md` tells agents to verify the selected executable before running project commands when that tool's version check fails, instead of saying to use an unverifiable tool.
+- `agent_context.md` also tells agents to verify the selected executable when a project-relevant tool is missing, instead of saying to use a tool that is not on `PATH`.
 - Project signal detection for common JavaScript, Python, Swift, Ruby, Go, Rust, CocoaPods, Carthage, Homebrew, and version-manager files.
 - Bun projects are detected from both current `bun.lock` and legacy `bun.lockb` lockfiles.
 - pnpm workspaces are detected from `pnpm-workspace.yaml` so workspace roots without lockfiles do not fall back to npm guidance.
@@ -87,7 +88,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - Common top-level and `.ssh/` SSH private key filenames such as `id_rsa`, `id_dsa`, `id_ecdsa`, and `id_ed25519` are detected by filename without reading their values, and generated artifacts forbid reading SSH private keys.
 - `agent_context.md` prioritizes project-relevant secret-reading bans in Avoid when `.env` examples/variants, `.envrc` examples/variants, `.netrc`, SSH private key filenames, or package-manager auth config files such as `.pnpmrc`, `.pypirc`, `.bundle/config`, `.cargo/credentials.toml`, or `.composer/auth.json` are detected.
 - Missing preferred tool warnings when project files point to a tool that is not on `PATH`, including SwiftPM-specific guidance when `swift` is unavailable.
-- `agent_context.md` and `command_policy.md` suppress concrete preferred commands and generic selected-project test/build allowance from `Use` and `Allowed` when the required executable is missing, leaving the missing-tool Ask First guard visible instead.
+- `agent_context.md` and `command_policy.md` suppress concrete preferred commands and generic selected-project test/build allowance from `Use` and `Allowed` when the required executable is missing, leaving executable verification wording plus the missing-tool Ask First guard visible instead.
 - Selected package-manager install guards are prioritized so the short `agent_context.md` shows the relevant install command first.
 - Multiple JavaScript lockfile warnings that tell agents to ask before dependency installs when package-manager signals conflict.
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.

@@ -332,7 +332,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Use `npm` because project files point to it."))
+        #expect(context.contains("Verify `npm` before running npm commands."))
         #expect(context.contains("Ask before `running npm commands before npm is available`."))
         #expect(!context.contains("Prefer `npm run test`."))
         #expect(policy.contains("`running npm commands before npm is available`"))
@@ -716,7 +716,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Use `npm` because project files point to it."))
+        #expect(context.contains("Verify `node` before running JavaScript commands."))
         #expect(context.contains("Ask before `running npm commands before npm is available`."))
         #expect(context.contains("Ask before `npm ci`."))
         #expect(!context.contains("Prefer `npm run`."))
@@ -985,7 +985,9 @@ struct HabitatCoreTests {
         ])
 
         let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
             "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "9.15.4", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
             "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
         ])
 
@@ -1231,6 +1233,9 @@ struct HabitatCoreTests {
         ])
 
         let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env yarn --version": .init(name: "/usr/bin/env", args: ["yarn", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "1.22.22", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
             "/usr/bin/which -a yarn": .init(name: "/usr/bin/which", args: ["-a", "yarn"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/yarn", stderr: ""),
         ])
 
@@ -1270,6 +1275,8 @@ struct HabitatCoreTests {
         ])
 
         let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
             "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
             "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "10.0.0", stderr: ""),
         ])
@@ -2034,7 +2041,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Use `python` because project files point to it."))
+        #expect(context.contains("Verify `python3` before running Python commands."))
         #expect(context.contains("Ask before `running Python commands before python3 is available`."))
         #expect(context.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
         #expect(!context.contains("Prefer `python3 -m pytest`."))
@@ -2241,7 +2248,7 @@ struct HabitatCoreTests {
             let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
             let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-            #expect(context.contains("Use `bundler` because project files point to it."))
+            #expect(context.contains("Verify `bundle` before running Bundler commands."))
             #expect(context.contains("Ask before `running Bundler commands before bundle is available`."))
             #expect(context.contains("Ask before `bundle install`."))
             #expect(!context.contains("Prefer `bundle exec`."))
@@ -2345,7 +2352,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Use `go` because project files point to it."))
+        #expect(context.contains("Verify `go` before running Go commands."))
         #expect(context.contains("Ask before `running Go commands before go is available`."))
         #expect(context.contains("Ask before `go mod tidy`."))
         #expect(!context.contains("Prefer `go test ./...`."))
@@ -2413,7 +2420,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Use `cargo` because project files point to it."))
+        #expect(context.contains("Verify `cargo` before running Cargo commands."))
         #expect(context.contains("Ask before `running Cargo commands before cargo is available`."))
         #expect(context.contains("Ask before `cargo update`."))
         #expect(!context.contains("Prefer `cargo test`."))
@@ -2484,7 +2491,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Use `homebrew` because project files point to it."))
+        #expect(context.contains("Verify `brew` before running Homebrew Bundle commands."))
         #expect(context.contains("Ask before `running Homebrew Bundle commands before brew is available`."))
         #expect(context.contains("Ask before `brew bundle`."))
         #expect(context.contains("Project files include Brewfile, but brew was not found on PATH; ask before running Homebrew Bundle commands."))
@@ -2555,7 +2562,7 @@ struct HabitatCoreTests {
             let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
             let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-            #expect(context.contains("Use `cocoapods` because project files point to it."))
+            #expect(context.contains("Verify `pod` before running CocoaPods commands."))
             #expect(context.contains("Ask before `running CocoaPods commands before pod is available`."))
             #expect(context.contains("Ask before `pod install`."))
             #expect(context.contains("Project files prefer CocoaPods, but pod was not found on PATH; ask before running CocoaPods commands."))
@@ -2625,7 +2632,7 @@ struct HabitatCoreTests {
             let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
             let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-            #expect(context.contains("Use `carthage` because project files point to it."))
+            #expect(context.contains("Verify `carthage` before running Carthage commands."))
             #expect(context.contains("Ask before `running Carthage commands before carthage is available`."))
             #expect(context.contains("Ask before `carthage bootstrap`."))
             #expect(context.contains("Project files prefer Carthage, but carthage was not found on PATH; ask before running Carthage commands."))
@@ -2700,7 +2707,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Use `uv` because project files point to it."))
+        #expect(context.contains("Verify `uv` before running uv commands."))
         #expect(context.contains("Prefer `.venv/bin/python -m pytest`."))
         #expect(context.contains("Ask before `running uv commands before uv is available`."))
         #expect(!context.contains("Prefer `uv run`."))
@@ -3032,7 +3039,7 @@ struct HabitatCoreTests {
         - Project: /tmp/project
 
         ## Use
-        - Use `pnpm` because project files point to it.
+        - Verify `pnpm` before running pnpm commands.
 
         ## Avoid
         - Do not run `sudo`.
@@ -4111,7 +4118,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Use `swiftpm` because project files point to it."))
+        #expect(context.contains("Verify `swift` before running SwiftPM commands."))
         #expect(context.contains("Ask before `running SwiftPM commands before swift is available`."))
         #expect(!context.contains("Prefer `swift test`."))
         #expect(!policy.contains("`swift test`"))
