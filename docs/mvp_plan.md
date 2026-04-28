@@ -240,6 +240,8 @@ JavaScript projects apply this partial-failure rule to the selected package mana
 
 Bundler projects apply the same partial-failure rule to `bundle --version`: a resolved but failing `bundle` should keep `bundle exec` out of `agent_context.md` / `command_policy.md` until the tool can be verified.
 
+uv projects apply the same partial-failure rule to `uv --version`: a resolved but failing `uv` should keep `uv run` out of `agent_context.md` / `command_policy.md` until the tool can be verified.
+
 Homebrew Bundle, CocoaPods, and Carthage projects apply the same partial-failure rule to their selected tool checks: resolved but failing `brew --version`, `pod --version`, or `carthage version` should keep related preferred commands out of Markdown guidance until the tool can be verified.
 
 ## Near-Term Candidates

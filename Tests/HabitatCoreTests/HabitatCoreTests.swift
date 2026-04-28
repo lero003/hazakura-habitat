@@ -1994,6 +1994,41 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeUvCommandsWhenUvVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            "uv.lock": "version = 1\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env uv --version": .init(name: "/usr/bin/env", args: ["uv", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "uv: failed to load"),
+            "/usr/bin/which -a uv": .init(name: "/usr/bin/which", args: ["-a", "uv"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/uv", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "uv")
+        #expect(result.policy.preferredCommands == ["uv run"])
+        #expect(result.policy.askFirstCommands.contains("running uv commands before uv version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running uv commands before uv is available"))
+        #expect(result.diagnostics.contains("uv --version failed with exit code 1: uv: failed to load"))
+        #expect(result.tools.versions.contains(where: { $0.name == "uv" && !$0.available }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running uv commands before uv version check succeeds`."))
+        #expect(context.contains("uv --version failed with exit code 1: uv: failed to load"))
+        #expect(!context.contains("Prefer `uv run`."))
+        #expect(policy.contains("`running uv commands before uv version check succeeds`"))
+        #expect(!policy.contains("`uv run`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
     func scanWarnsWhenActivePythonDiffersFromPythonVersion() throws {
         let projectURL = try makeProject(files: [
             "pyproject.toml": "[project]\nname = \"demo\"\n",

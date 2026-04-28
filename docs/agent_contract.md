@@ -242,6 +242,7 @@ Compatibility:
 - Ruby runtime hints from `.ruby-version` or `.tool-versions` may require asking before Bundler dependency installs when active Ruby differs or cannot be verified.
 - Bundler projects may verify `bundle --version`; if `bundle` is resolved but the check fails, Markdown artifacts should suppress `bundle exec` and require Ask First before Bundler commands.
 - JavaScript projects may verify the selected package manager with `npm --version`, `pnpm --version`, `yarn --version`, or `bun --version` even when `package.json` has no package-manager version pin; if the resolved selected tool check fails, Markdown artifacts should suppress related preferred commands and require Ask First before related commands.
+- uv projects may verify `uv --version`; if the resolved `uv` check fails, Markdown artifacts should suppress `uv run` and require Ask First before uv commands.
 - Homebrew Bundle, CocoaPods, and Carthage projects may verify `brew --version`, `pod --version`, or `carthage version`; if the selected tool is resolved but the check fails, Markdown artifacts should suppress related preferred commands and require Ask First before related commands.
 - `declaredPackageManager` records the safe `package.json` `packageManager` hint even when a lockfile selects a different package manager.
 - Secret-bearing environment files such as `.env`, `.env.*`, `.envrc`, `.envrc.*`, and `.envrc.example` may be detected by filename, but values must not be read or emitted.
