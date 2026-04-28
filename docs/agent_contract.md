@@ -137,6 +137,7 @@ Ask First:
 - `go mod tidy`
 - `cargo add`
 - `cargo update`
+- `running Cargo commands before cargo version check succeeds`
 - `pod install`
 - `pod update`
 - `pod repo update`

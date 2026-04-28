@@ -1703,6 +1703,43 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeCargoCommandsWhenCargoVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "Cargo.toml": """
+            [package]
+            name = "demo"
+            version = "0.1.0"
+            edition = "2021"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env cargo --version": .init(name: "/usr/bin/env", args: ["cargo", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "cargo: rustup toolchain is not installed"),
+            "/usr/bin/which -a cargo": .init(name: "/usr/bin/which", args: ["-a", "cargo"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/cargo", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "cargo")
+        #expect(result.policy.preferredCommands == ["cargo test", "cargo build"])
+        #expect(result.policy.askFirstCommands.contains("running Cargo commands before cargo version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running Cargo commands before cargo is available"))
+        #expect(result.diagnostics.contains("cargo --version failed with exit code 1: cargo: rustup toolchain is not installed"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Cargo commands before cargo version check succeeds`."))
+        #expect(context.contains("cargo --version failed with exit code 1: cargo: rustup toolchain is not installed"))
+        #expect(!context.contains("Prefer `cargo test`."))
+        #expect(policy.contains("`running Cargo commands before cargo version check succeeds`"))
+        #expect(!policy.contains("`cargo test`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
     func scanTreatsBrewfileAsHomebrewProjectAndGuardsBundleMutation() throws {
         let projectURL = try makeProject(files: [
             "Brewfile": "brew \"swiftlint\"\n",
