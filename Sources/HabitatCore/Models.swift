@@ -134,6 +134,7 @@ public struct ProjectInfo: Codable {
     public let detectedFiles: [String]
     public let packageManager: String?
     public let packageManagerVersion: String?
+    public let packageManagerVersionSource: String?
     public let packageScripts: [String]
     public let runtimeHints: RuntimeHints
     public let declaredPackageManager: String?
@@ -143,6 +144,7 @@ public struct ProjectInfo: Codable {
         detectedFiles: [String],
         packageManager: String?,
         packageManagerVersion: String?,
+        packageManagerVersionSource: String? = nil,
         packageScripts: [String],
         runtimeHints: RuntimeHints,
         declaredPackageManager: String? = nil,
@@ -151,6 +153,7 @@ public struct ProjectInfo: Codable {
         self.detectedFiles = detectedFiles
         self.packageManager = packageManager
         self.packageManagerVersion = packageManagerVersion
+        self.packageManagerVersionSource = packageManagerVersionSource
         self.packageScripts = packageScripts
         self.runtimeHints = runtimeHints
         self.declaredPackageManager = declaredPackageManager

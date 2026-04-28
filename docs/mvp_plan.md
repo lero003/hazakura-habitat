@@ -127,6 +127,7 @@ Detect dependency signals:
 
 - `package.json`
 - `package-lock.json`
+- `npm-shrinkwrap.json`
 - `pnpm-lock.yaml`
 - `pnpm-workspace.yaml`
 - `yarn.lock`
@@ -151,6 +152,7 @@ Detect dependency signals:
 - `Cartfile.resolved`
 - `Brewfile`
 - `mise.toml`
+- `.mise.toml`
 - `.tool-versions`
 - `.python-version`
 - `.ruby-version`
@@ -160,17 +162,30 @@ Detect dependency signals:
 - `.pnpmrc`
 - `.yarnrc`
 - `.yarnrc.yml`
+- `.pypirc`
+- `pip.conf`
+- `.gem/credentials`
+- `.bundle/config`
+- `.cargo/credentials.toml`
+- `.cargo/credentials`
+- `auth.json`
+- `.composer/auth.json`
 - `.env.example`
 - `.envrc`
 - `.envrc.local`
 - `.envrc.example`
+- `.netrc`
 - `id_rsa`
 - `id_dsa`
 - `id_ecdsa`
 - `id_ed25519`
+- `.ssh/id_rsa`
+- `.ssh/id_dsa`
+- `.ssh/id_ecdsa`
+- `.ssh/id_ed25519`
 - `README.md`
 
-Read only safe metadata such as `package.json` package manager hints, Volta Node/package-manager pins, `engines.node` hints including common comparator and OR ranges, and script names, plus Node/Python/Ruby version hints from `.tool-versions`. Preserve `package.json` package manager hints in scan data even when lockfiles select a different package manager, so agents can ask before installs. Never read `.env` / `.envrc` values, SSH private key values, or package-manager auth token values.
+Read only safe metadata such as `package.json` package manager hints, Volta Node/package-manager pins, `engines.node` hints including common comparator and OR ranges, and script names, plus Node/Python/Ruby/package-manager version hints from `.tool-versions`, `mise.toml`, and `.mise.toml` `[tools]`. Preserve `package.json` package manager hints in scan data even when lockfiles or workspace files select a different package manager, so agents can ask before installs. Treat `pnpm-workspace.yaml` as a pnpm project signal even when stale npm/yarn/bun lockfiles are present, and require approval before dependency installs when those signals conflict. Omit Corepack integrity suffixes such as `+sha512...` from package-manager version guidance because they do not change the agent's command choice. Never read `.env` / `.envrc` values, `.netrc` values, SSH private key values, or package-manager auth token values from files such as `.npmrc`, `.pnpmrc`, `.yarnrc.yml`, `.pypirc`, `pip.conf`, `.gem/credentials`, `.bundle/config`, `.cargo/credentials.toml`, `.cargo/credentials`, `auth.json`, or `.composer/auth.json`.
 
 ### M4: Focused Tool Scanners
 
@@ -244,6 +259,8 @@ uv projects apply the same partial-failure rule to `uv --version`: a resolved bu
 
 Homebrew Bundle, CocoaPods, and Carthage projects apply the same partial-failure rule to their selected tool checks: resolved but failing `brew --version`, `pod --version`, or `carthage version` should keep related preferred commands out of Markdown guidance until the tool can be verified.
 
+Xcode projects apply the same partial-failure rule to `xcodebuild -version`: a resolved but failing `xcodebuild` should keep `xcodebuild -list` out of `agent_context.md` / `command_policy.md` until the tool can be verified.
+
 ## Near-Term Candidates
 
 ### Lightweight Scan Comparison
@@ -255,6 +272,8 @@ Status: initial implementation complete.
 Initial scope should be limited to AI-actionable deltas:
 
 - package manager selection changed since the previous scan
+- selected JavaScript package-manager version guidance changed while the package manager stayed the same
+- Node/Python/Ruby runtime version guidance changed since the previous scan
 - lockfiles appeared or disappeared
 - secret-bearing file signals appeared or disappeared, without reading or emitting values
 - missing tools appeared, were resolved, or stopped being relevant to the current project

@@ -14,6 +14,14 @@ public struct ScanComparator {
             changes.append(lockfileChange)
         }
 
+        if let packageManagerVersionChange = packageManagerVersionChange(previous: previous, current: current) {
+            changes.append(packageManagerVersionChange)
+        }
+
+        if let runtimeHintChange = runtimeHintChange(previous: previous, current: current) {
+            changes.append(runtimeHintChange)
+        }
+
         if let secretFileChange = secretFileChange(previous: previous, current: current) {
             changes.append(secretFileChange)
         }
@@ -52,6 +60,36 @@ public struct ScanComparator {
             category: "lockfiles",
             summary: "Lockfiles changed: \(parts.joined(separator: "; ")).",
             impact: "Re-check package manager selection and ask before dependency installs."
+        )
+    }
+
+    private func packageManagerVersionChange(previous: ScanResult, current: ScanResult) -> ScanChange? {
+        guard previous.project.packageManager == current.project.packageManager,
+              let packageManager = current.project.packageManager,
+              ["npm", "pnpm", "yarn", "bun"].contains(packageManager)
+        else {
+            return nil
+        }
+
+        let previousVersion = packageManagerVersionLabel(for: previous.project)
+        let currentVersion = packageManagerVersionLabel(for: current.project)
+        guard previousVersion != currentVersion else { return nil }
+
+        return ScanChange(
+            category: "package_manager_version",
+            summary: "Package manager version guidance changed from \(previousVersion) to \(currentVersion).",
+            impact: "Re-check the active \(packageManager) version before dependency installs; follow current agent_context.md guidance."
+        )
+    }
+
+    private func runtimeHintChange(previous: ScanResult, current: ScanResult) -> ScanChange? {
+        let changedHints = runtimeHintLabels(previous: previous.project.runtimeHints, current: current.project.runtimeHints)
+        guard !changedHints.isEmpty else { return nil }
+
+        return ScanChange(
+            category: "runtime_hints",
+            summary: "Runtime version guidance changed: \(changedHints.joined(separator: "; ")).",
+            impact: "Re-check active runtimes before dependency installs or build/test commands; follow current command policy."
         )
     }
 
@@ -250,6 +288,7 @@ public struct ScanComparator {
     private func lockfiles(in project: ProjectInfo) -> [String] {
         [
             "package-lock.json",
+            "npm-shrinkwrap.json",
             "pnpm-lock.yaml",
             "yarn.lock",
             "bun.lock",
@@ -271,12 +310,25 @@ public struct ScanComparator {
                 || file == ".envrc"
                 || file == ".envrc.example"
                 || (file.hasPrefix(".envrc.") && file != ".envrc.example")
+                || file == ".netrc"
                 || file == ".npmrc"
                 || file == ".pnpmrc"
                 || file == ".yarnrc"
                 || file == ".yarnrc.yml"
-                || ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(file)
+                || file == ".pypirc"
+                || file == "pip.conf"
+                || file == ".gem/credentials"
+                || file == ".bundle/config"
+                || file == ".cargo/credentials.toml"
+                || file == ".cargo/credentials"
+                || file == "auth.json"
+                || file == ".composer/auth.json"
+                || isSSHPrivateKeyFilename(file)
         }
+    }
+
+    private func isSSHPrivateKeyFilename(_ file: String) -> Bool {
+        ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(URL(fileURLWithPath: file).lastPathComponent)
     }
 
     private func missingTools(in result: ScanResult, limitedTo relevantTools: Set<String>) -> Set<String> {
@@ -359,5 +411,32 @@ public struct ScanComparator {
 
     private func summarizeCommands(_ values: [String]) -> String {
         values.isEmpty ? "none" : summarize(values)
+    }
+
+    private func packageManagerVersionLabel(for project: ProjectInfo) -> String {
+        guard let packageManager = project.packageManager,
+              let version = project.packageManagerVersion
+        else {
+            return "none"
+        }
+
+        if let source = project.packageManagerVersionSource {
+            return "\(packageManager)@\(version) via \(source)"
+        }
+
+        return "\(packageManager)@\(version)"
+    }
+
+    private func runtimeHintLabels(previous: RuntimeHints, current: RuntimeHints) -> [String] {
+        [
+            runtimeHintLabel(name: "Node", previous: previous.node, current: current.node),
+            runtimeHintLabel(name: "Python", previous: previous.python, current: current.python),
+            runtimeHintLabel(name: "Ruby", previous: previous.ruby, current: current.ruby),
+        ].compactMap { $0 }
+    }
+
+    private func runtimeHintLabel(name: String, previous: String?, current: String?) -> String? {
+        guard previous != current else { return nil }
+        return "\(name) \(previous ?? "none") -> \(current ?? "none")"
     }
 }

@@ -105,6 +105,7 @@ public struct HabitatScanner {
                 "cargo install",
                 "read .env values",
                 "read .envrc values",
+                "read .netrc values",
                 "read package manager auth config values",
                 "read SSH private keys"
             ]
@@ -297,8 +298,31 @@ public struct HabitatScanner {
             "git clean",
             "git reset --hard",
             "git checkout --",
+            "git checkout -f",
+            "git checkout -B",
+            "git switch --discard-changes",
+            "git switch -C",
             "git restore",
             "git rm",
+            "git stash",
+            "git stash push",
+            "git stash pop",
+            "git stash apply",
+            "git stash drop",
+            "git stash clear",
+            "git branch -d",
+            "git branch -D",
+            "git tag -d",
+            "git rebase",
+            "git push -f",
+            "git push --force",
+            "git push --force-with-lease",
+            "git push --delete",
+            "git push --mirror",
+            "git push --all",
+            "git push --tags",
+            "git push <remote> +<ref>",
+            "git push <remote> :<ref>",
             "rm",
             "rm -r",
             "rm -rf"
@@ -319,8 +343,16 @@ public struct HabitatScanner {
             commands.insert("dependency installs when multiple JavaScript lockfiles exist", at: 0)
         }
 
+        if pnpmWorkspaceConflictsWithJavaScriptLockfiles(project) {
+            commands.insert("dependency installs when pnpm-workspace.yaml conflicts with JavaScript lockfiles", at: 0)
+        }
+
         if declaredPackageManagerConflictsWithSelected(project) {
             commands.insert("dependency installs when package.json packageManager conflicts with lockfiles", at: 0)
+        }
+
+        if declaredPackageManagerConflictsWithWorkspace(project) {
+            commands.insert("dependency installs when package.json packageManager conflicts with project package-manager signals", at: 0)
         }
 
         if nodeVersionNeedsVerification(project: project, versions: versions) {
@@ -453,13 +485,14 @@ public struct HabitatScanner {
 
         if let packageManager = project.packageManager,
            let requestedVersion = project.packageManagerVersion {
+            let source = project.packageManagerVersionSource ?? "project metadata"
             let activeToolVersion = versions.first(where: { $0.name == packageManager })
             if let activeVersion = activeToolVersion?.version,
                activeToolVersion?.available == true,
                packageManagerVersionsDiffer(requested: requestedVersion, active: activeVersion) {
-                warnings.append("Project requests \(packageManager) \(requestedVersion) via package.json; active \(packageManager) is \(activeVersion); ask before dependency installs.")
+                warnings.append("Project requests \(packageManager) \(requestedVersion) via \(source); active \(packageManager) is \(activeVersion); ask before dependency installs.")
             } else if activeToolVersion?.available != true {
-                warnings.append("Project requests \(packageManager) \(requestedVersion) via package.json; verify active \(packageManager) before dependency installs.")
+                warnings.append("Project requests \(packageManager) \(requestedVersion) via \(source); verify active \(packageManager) before dependency installs.")
             }
         }
 
@@ -473,8 +506,13 @@ public struct HabitatScanner {
             warnings.append("Direnv environment file exists; do not read .envrc values.")
         }
 
+        if hasNetrcFile(project) {
+            warnings.append("Netrc credentials file exists; do not read .netrc values.")
+        }
+
         if hasPackageManagerAuthConfig(project) {
-            warnings.append("Package manager auth config exists; do not read token values from .npmrc, .pnpmrc, or yarn config files.")
+            warnings.append("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files.")
+            warnings.append("Package manager auth config files detected (\(packageManagerAuthConfigFiles(project).joined(separator: ", "))); do not read credential values.")
         }
 
         if hasSSHPrivateKeyFile(project) {
@@ -491,6 +529,10 @@ public struct HabitatScanner {
         }
 
         if let warning = declaredPackageManagerConflictWarning(project) {
+            warnings.append(warning)
+        }
+
+        if let warning = pnpmWorkspaceLockfileConflictWarning(project) {
             warnings.append(warning)
         }
 
@@ -648,15 +690,42 @@ public struct HabitatScanner {
     }
 
     private func hasPackageManagerAuthConfig(_ project: ProjectInfo) -> Bool {
-        project.detectedFiles.contains { file in
-            file == ".npmrc" || file == ".pnpmrc" || file == ".yarnrc" || file == ".yarnrc.yml"
-        }
+        !packageManagerAuthConfigFiles(project).isEmpty
+    }
+
+    private func packageManagerAuthConfigFiles(_ project: ProjectInfo) -> [String] {
+        project.detectedFiles
+            .filter(isPackageManagerAuthConfigFile)
+            .sorted()
+    }
+
+    private func isPackageManagerAuthConfigFile(_ file: String) -> Bool {
+        file == ".npmrc"
+            || file == ".pnpmrc"
+            || file == ".yarnrc"
+            || file == ".yarnrc.yml"
+            || file == ".pypirc"
+            || file == "pip.conf"
+            || file == ".gem/credentials"
+            || file == ".bundle/config"
+            || file == ".cargo/credentials.toml"
+            || file == ".cargo/credentials"
+            || file == "auth.json"
+            || file == ".composer/auth.json"
+    }
+
+    private func hasNetrcFile(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains(".netrc")
     }
 
     private func hasSSHPrivateKeyFile(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
-            ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(file)
+            isSSHPrivateKeyFilename(file)
         }
+    }
+
+    private func isSSHPrivateKeyFilename(_ file: String) -> Bool {
+        ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(URL(fileURLWithPath: file).lastPathComponent)
     }
 
     private func orderedUnique(_ values: [String]) -> [String] {
@@ -668,8 +737,25 @@ public struct HabitatScanner {
         javaScriptLockfiles(project).count > 1
     }
 
+    private func pnpmWorkspaceConflictsWithJavaScriptLockfiles(_ project: ProjectInfo) -> Bool {
+        guard project.packageManager == "pnpm",
+              project.detectedFiles.contains("pnpm-workspace.yaml"),
+              !project.detectedFiles.contains("pnpm-lock.yaml")
+        else {
+            return false
+        }
+
+        return !javaScriptLockfiles(project).isEmpty
+    }
+
+    private func pnpmWorkspaceLockfileConflictWarning(_ project: ProjectInfo) -> String? {
+        guard pnpmWorkspaceConflictsWithJavaScriptLockfiles(project) else { return nil }
+        let lockfiles = javaScriptLockfiles(project).joined(separator: ", ")
+        return "pnpm-workspace.yaml selects pnpm, but JavaScript lockfiles also include \(lockfiles); ask before dependency installs."
+    }
+
     private func javaScriptLockfiles(_ project: ProjectInfo) -> [String] {
-        ["package-lock.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb"].filter {
+        ["package-lock.json", "npm-shrinkwrap.json", "pnpm-lock.yaml", "yarn.lock", "bun.lock", "bun.lockb"].filter {
             project.detectedFiles.contains($0)
         }
     }
@@ -683,7 +769,20 @@ public struct HabitatScanner {
         }
 
         return declaredPackageManager != selectedPackageManager
-            && javaScriptLockfiles(project).isEmpty == false
+            && selectedPackageManagerHasLockfile(project)
+    }
+
+    private func declaredPackageManagerConflictsWithWorkspace(_ project: ProjectInfo) -> Bool {
+        guard let declaredPackageManager = project.declaredPackageManager,
+              let selectedPackageManager = project.packageManager,
+              selectedPackageManager == "pnpm",
+              project.detectedFiles.contains("pnpm-workspace.yaml")
+        else {
+            return false
+        }
+
+        return declaredPackageManager != selectedPackageManager
+            && !selectedPackageManagerHasLockfile(project)
     }
 
     private func declaredPackageManagerConflictWarning(_ project: ProjectInfo) -> String? {
@@ -691,10 +790,37 @@ public struct HabitatScanner {
               let declaredPackageManager = project.declaredPackageManager,
               let selectedPackageManager = project.packageManager
         else {
-            return nil
+            return declaredPackageManagerWorkspaceConflictWarning(project)
         }
 
         return "package.json requests \(declaredPackageManager), but project lockfiles select \(selectedPackageManager); ask before dependency installs."
+    }
+
+    private func declaredPackageManagerWorkspaceConflictWarning(_ project: ProjectInfo) -> String? {
+        guard declaredPackageManagerConflictsWithWorkspace(project),
+              let declaredPackageManager = project.declaredPackageManager,
+              let selectedPackageManager = project.packageManager
+        else {
+            return nil
+        }
+
+        return "package.json requests \(declaredPackageManager), but pnpm-workspace.yaml selects \(selectedPackageManager); ask before dependency installs."
+    }
+
+    private func selectedPackageManagerHasLockfile(_ project: ProjectInfo) -> Bool {
+        switch project.packageManager {
+        case "npm":
+            return project.detectedFiles.contains("package-lock.json")
+                || project.detectedFiles.contains("npm-shrinkwrap.json")
+        case "pnpm":
+            return project.detectedFiles.contains("pnpm-lock.yaml")
+        case "yarn":
+            return project.detectedFiles.contains("yarn.lock")
+        case "bun":
+            return project.detectedFiles.contains("bun.lock") || project.detectedFiles.contains("bun.lockb")
+        default:
+            return false
+        }
     }
 
     private func projectSpecificVersionCommandSpecs(project: ProjectInfo, resolvedPaths: [ResolvedTool]) -> [(String, String, [String])] {

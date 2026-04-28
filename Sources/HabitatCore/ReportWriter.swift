@@ -35,6 +35,10 @@ public struct ReportWriter {
                         return "Use `\(packageManager)@\(version)` because `package.json` packageManager points to it."
                     }
 
+                    if let source = result.project.packageManagerVersionSource {
+                        return "Use `\(packageManager)@\(version)` because `\(source)` pins it."
+                    }
+
                     return "Use `\(packageManager)@\(version)` because project metadata pins it."
                 }
 
@@ -332,6 +336,10 @@ public struct ReportWriter {
             append("read .envrc values", to: &commands, from: result.policy.forbiddenCommands)
         }
 
+        if hasNetrcFile(result.project) {
+            append("read .netrc values", to: &commands, from: result.policy.forbiddenCommands)
+        }
+
         if hasSSHPrivateKeyFile(result.project) {
             append("read SSH private keys", to: &commands, from: result.policy.forbiddenCommands)
         }
@@ -366,14 +374,33 @@ public struct ReportWriter {
 
     private func hasPackageManagerAuthConfig(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
-            file == ".npmrc" || file == ".pnpmrc" || file == ".yarnrc" || file == ".yarnrc.yml"
+            file == ".npmrc"
+                || file == ".pnpmrc"
+                || file == ".yarnrc"
+                || file == ".yarnrc.yml"
+                || file == ".pypirc"
+                || file == "pip.conf"
+                || file == ".gem/credentials"
+                || file == ".bundle/config"
+                || file == ".cargo/credentials.toml"
+                || file == ".cargo/credentials"
+                || file == "auth.json"
+                || file == ".composer/auth.json"
         }
+    }
+
+    private func hasNetrcFile(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains(".netrc")
     }
 
     private func hasSSHPrivateKeyFile(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
-            ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(file)
+            isSSHPrivateKeyFilename(file)
         }
+    }
+
+    private func isSSHPrivateKeyFilename(_ file: String) -> Bool {
+        ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(URL(fileURLWithPath: file).lastPathComponent)
     }
 
     private func agentRelevantCommandNames(_ result: ScanResult) -> Set<String> {

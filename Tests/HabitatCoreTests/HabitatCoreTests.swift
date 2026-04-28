@@ -302,6 +302,44 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanTreatsNpmShrinkwrapAsNpmLockfileAndGuardsMissingNpm() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "npm-shrinkwrap.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("npm-shrinkwrap.json"))
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(result.policy.askFirstCommands.contains("running npm commands before npm is available"))
+        #expect(result.warnings.contains("Project files prefer npm, but npm was not found on PATH; ask before running npm commands or substituting another package manager."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `npm` because project files point to it."))
+        #expect(context.contains("Ask before `running npm commands before npm is available`."))
+        #expect(!context.contains("Prefer `npm run test`."))
+        #expect(policy.contains("`running npm commands before npm is available`"))
+        #expect(!policy.contains("`npm run test`"))
+    }
+
+    @Test
     func scanGuardsYarnAndBunLockfilesWhenPreferredToolIsMissing() throws {
         let cases: [(lockfile: String, packageManager: String, preferredCommand: String, installCommand: String)] = [
             ("yarn.lock", "yarn", "yarn run test", "yarn install"),
@@ -462,6 +500,107 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanPrefersPnpmWorkspaceOverConflictingNpmLockfile() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "workspace-root",
+              "packageManager": "npm@10.8.2",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "npm lockfile",
+            "pnpm-workspace.yaml": """
+            packages:
+              - "packages/*"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "9.15.4", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.declaredPackageManager == "npm")
+        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs when pnpm-workspace.yaml conflicts with JavaScript lockfiles"))
+        #expect(result.policy.askFirstCommands.contains("dependency installs when package.json packageManager conflicts with project package-manager signals"))
+        #expect(!result.policy.askFirstCommands.contains("dependency installs when package.json packageManager conflicts with lockfiles"))
+        #expect(result.warnings.contains("pnpm-workspace.yaml selects pnpm, but JavaScript lockfiles also include package-lock.json; ask before dependency installs."))
+        #expect(result.warnings.contains("package.json requests npm, but pnpm-workspace.yaml selects pnpm; ask before dependency installs."))
+        #expect(!result.warnings.contains("package.json requests npm, but project lockfiles select pnpm; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `pnpm` because project files point to it."))
+        #expect(context.contains("Prefer `pnpm run test`."))
+        #expect(context.contains("Ask before `dependency installs when pnpm-workspace.yaml conflicts with JavaScript lockfiles`."))
+        #expect(context.contains("pnpm-workspace.yaml selects pnpm, but JavaScript lockfiles also include package-lock.json; ask before dependency installs."))
+        #expect(context.contains("package.json requests npm, but pnpm-workspace.yaml selects pnpm; ask before dependency installs."))
+        #expect(!context.contains("Use `npm`"))
+        #expect(policy.contains("`dependency installs when pnpm-workspace.yaml conflicts with JavaScript lockfiles`"))
+        #expect(policy.contains("`dependency installs when package.json packageManager conflicts with project package-manager signals`"))
+        #expect(policy.contains("`pnpm run test`"))
+    }
+
+    @Test
+    func scanPrefersPnpmWorkspaceOverConflictingPackageManagerField() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "workspace-root",
+              "packageManager": "npm@10.8.2",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-workspace.yaml": """
+            packages:
+              - "packages/*"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "9.15.4", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.declaredPackageManager == "npm")
+        #expect(result.project.declaredPackageManagerVersion == "10.8.2")
+        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs when package.json packageManager conflicts with project package-manager signals"))
+        #expect(result.warnings.contains("package.json requests npm, but pnpm-workspace.yaml selects pnpm; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `pnpm` because project files point to it."))
+        #expect(context.contains("Prefer `pnpm run test`."))
+        #expect(context.contains("Ask before `dependency installs when package.json packageManager conflicts with project package-manager signals`."))
+        #expect(context.contains("package.json requests npm, but pnpm-workspace.yaml selects pnpm; ask before dependency installs."))
+        #expect(!context.contains("Use `npm@10.8.2`"))
+        #expect(policy.contains("`dependency installs when package.json packageManager conflicts with project package-manager signals`"))
+    }
+
+    @Test
     func scanAsksBeforeLockfileMutation() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
@@ -492,8 +631,31 @@ struct HabitatCoreTests {
             "git clean",
             "git reset --hard",
             "git checkout --",
+            "git checkout -f",
+            "git checkout -B",
+            "git switch --discard-changes",
+            "git switch -C",
             "git restore",
             "git rm",
+            "git stash",
+            "git stash push",
+            "git stash pop",
+            "git stash apply",
+            "git stash drop",
+            "git stash clear",
+            "git branch -d",
+            "git branch -D",
+            "git tag -d",
+            "git rebase",
+            "git push -f",
+            "git push --force",
+            "git push --force-with-lease",
+            "git push --delete",
+            "git push --mirror",
+            "git push --all",
+            "git push --tags",
+            "git push <remote> +<ref>",
+            "git push <remote> :<ref>",
             "rm",
             "rm -r",
             "rm -rf",
@@ -808,6 +970,252 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanOmitsPackageManagerIntegritySuffixFromAgentArtifacts() throws {
+        let integrity = "sha512-abcdefghijklmnopqrstuvwxyz0123456789"
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "packageManager": "pnpm@9.15.4+\(integrity)",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "9.15.4", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.project.declaredPackageManagerVersion == "9.15.4")
+        #expect(!result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"packageManagerVersion\" : \"9.15.4\""))
+        #expect(context.contains("Use `pnpm@9.15.4` because `package.json` packageManager points to it."))
+        #expect(!scanResult.contains(integrity))
+        #expect(!context.contains(integrity))
+    }
+
+    @Test
+    func scanUsesToolVersionsForPackageManagerVersionGuard() throws {
+        let integrity = "sha512-toolversionsabcdefghijklmnopqrstuvwxyz0123456789"
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-lock.yaml": "lockfile",
+            ".tool-versions": """
+            nodejs 20.11.1
+            pnpm 9.15.4+\(integrity)
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "8.15.9", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.project.packageManagerVersionSource == ".tool-versions")
+        #expect(result.project.declaredPackageManager == nil)
+        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+        #expect(result.warnings.contains("Project requests pnpm 9.15.4 via .tool-versions; active pnpm is 8.15.9; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"packageManagerVersion\" : \"9.15.4\""))
+        #expect(scanResult.contains("\"packageManagerVersionSource\" : \".tool-versions\""))
+        #expect(context.contains("Use `pnpm@9.15.4` because `.tool-versions` pins it."))
+        #expect(context.contains("Ask before `dependency installs before matching pnpm to packageManager version`."))
+        #expect(policy.contains("`dependency installs before matching pnpm to packageManager version`"))
+        #expect(!scanResult.contains(integrity))
+        #expect(!context.contains(integrity))
+    }
+
+    @Test
+    func scanUsesMiseTomlForRuntimeAndPackageManagerVersionGuards() throws {
+        let integrity = "sha512-miseabcdefghijklmnopqrstuvwxyz0123456789"
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-lock.yaml": "lockfile",
+            "mise.toml": """
+            [tools]
+            node = "20.11.1"
+            pnpm = "9.15.4+\(integrity)"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "8.15.9", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("mise.toml"))
+        #expect(result.project.runtimeHints.node == "20.11.1")
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.project.packageManagerVersionSource == "mise.toml")
+        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+        #expect(result.warnings.contains("Active Node is v22.15.0, but project requests 20.11.1; ask before dependency installs (/opt/homebrew/bin/node)."))
+        #expect(result.warnings.contains("Project requests pnpm 9.15.4 via mise.toml; active pnpm is 8.15.9; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"packageManagerVersionSource\" : \"mise.toml\""))
+        #expect(context.contains("Use `pnpm@9.15.4` because `mise.toml` pins it."))
+        #expect(context.contains("Ask before `dependency installs before matching active Node to project version hints`."))
+        #expect(context.contains("Ask before `dependency installs before matching pnpm to packageManager version`."))
+        #expect(policy.contains("`dependency installs before matching active Node to project version hints`"))
+        #expect(policy.contains("`dependency installs before matching pnpm to packageManager version`"))
+        #expect(!scanResult.contains(integrity))
+        #expect(!context.contains(integrity))
+    }
+
+    @Test
+    func scanUsesCommentedMiseToolsSectionForVersionGuards() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-lock.yaml": "lockfile",
+            "mise.toml": """
+            [ tools ] # project tool versions
+            node = "20.11.1"
+            pnpm = "9.15.4"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "8.15.9", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.runtimeHints.node == "20.11.1")
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.project.packageManagerVersionSource == "mise.toml")
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"packageManagerVersionSource\" : \"mise.toml\""))
+        #expect(context.contains("Use `pnpm@9.15.4` because `mise.toml` pins it."))
+        #expect(context.contains("Ask before `dependency installs before matching active Node to project version hints`."))
+        #expect(context.contains("Ask before `dependency installs before matching pnpm to packageManager version`."))
+    }
+
+    @Test
+    func scanUsesHiddenMiseTomlForRuntimeAndPackageManagerVersionGuards() throws {
+        let integrity = "sha512-hiddenmiseabcdefghijklmnopqrstuvwxyz0123456789"
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-lock.yaml": "lockfile",
+            ".mise.toml": """
+            [tools]
+            node = "20.11.1"
+            pnpm = "9.15.4+\(integrity)"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "8.15.9", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".mise.toml"))
+        #expect(result.project.runtimeHints.node == "20.11.1")
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.project.packageManagerVersionSource == ".mise.toml")
+        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+        #expect(result.warnings.contains("Project requests pnpm 9.15.4 via .mise.toml; active pnpm is 8.15.9; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"packageManagerVersionSource\" : \".mise.toml\""))
+        #expect(context.contains("Use `pnpm@9.15.4` because `.mise.toml` pins it."))
+        #expect(context.contains("Ask before `dependency installs before matching active Node to project version hints`."))
+        #expect(context.contains("Ask before `dependency installs before matching pnpm to packageManager version`."))
+        #expect(policy.contains("`dependency installs before matching active Node to project version hints`"))
+        #expect(policy.contains("`dependency installs before matching pnpm to packageManager version`"))
+        #expect(!scanResult.contains(integrity))
+        #expect(!context.contains(integrity))
+    }
+
+    @Test
     func scanAsksBeforeInstallsWhenPackageManagerFieldConflictsWithLockfile() throws {
         let projectURL = try makeProject(files: [
             "package.json": """
@@ -947,7 +1355,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains("\"packageManagerVersion\" : \"9.15.4\""))
         #expect(scanResult.contains("\"node\" : \"20.11.1\""))
-        #expect(context.contains("Use `pnpm@9.15.4` because project metadata pins it."))
+        #expect(context.contains("Use `pnpm@9.15.4` because `package.json` pins it."))
         #expect(context.contains("Ask before `dependency installs before matching pnpm to packageManager version`."))
         #expect(context.contains("Active Node is v22.15.0, but project requests 20.11.1; ask before dependency installs"))
         #expect(policy.contains("`dependency installs before matching active Node to project version hints`"))
@@ -1007,7 +1415,7 @@ struct HabitatCoreTests {
         #expect(result.project.detectedFiles.contains("id_rsa"))
         #expect(result.project.runtimeHints.node == "v20")
         #expect(result.warnings.contains("Environment file exists; do not read .env values."))
-        #expect(result.warnings.contains("Package manager auth config exists; do not read token values from .npmrc, .pnpmrc, or yarn config files."))
+        #expect(result.warnings.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(result.warnings.contains("SSH private key file exists; do not read private key values."))
         #expect(result.policy.forbiddenCommands.contains("read package manager auth config values"))
         #expect(result.policy.forbiddenCommands.contains("read SSH private keys"))
@@ -1041,7 +1449,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
         #expect(result.project.detectedFiles.contains(".pnpmrc"))
-        #expect(result.warnings.contains("Package manager auth config exists; do not read token values from .npmrc, .pnpmrc, or yarn config files."))
+        #expect(result.warnings.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(result.policy.forbiddenCommands.contains("read package manager auth config values"))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -1058,7 +1466,212 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".pnpmrc"))
         #expect(context.contains("Do not run `read package manager auth config values`."))
-        #expect(context.contains("Package manager auth config exists; do not read token values from .npmrc, .pnpmrc, or yarn config files."))
+        #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
+    }
+
+    @Test
+    func scanDetectsPythonPackageAuthConfigWithoutReadingValues() throws {
+        let secretValue = "hh_python_package_auth_secret_value"
+        let projectURL = try makeProject(files: [
+            ".pypirc": """
+            [pypi]
+            username = __token__
+            password = \(secretValue)
+            """,
+            "pip.conf": """
+            [global]
+            index-url = https://__token__:\(secretValue)@pypi.example/simple
+            """,
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".pypirc"))
+        #expect(result.project.detectedFiles.contains("pip.conf"))
+        #expect(result.warnings.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
+        #expect(result.warnings.contains("Package manager auth config files detected (.pypirc, pip.conf); do not read credential values."))
+        #expect(result.policy.forbiddenCommands.contains("read package manager auth config values"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("pypi.example"))
+            #expect(!artifact.contains("index-url"))
+            #expect(!artifact.contains("password"))
+        }
+
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains(".pypirc"))
+        #expect(scanResult.contains("pip.conf"))
+        #expect(context.contains("Do not run `read package manager auth config values`."))
+        #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
+        #expect(context.contains("Package manager auth config files detected (.pypirc, pip.conf); do not read credential values."))
+        #expect(policy.contains("`read package manager auth config values`"))
+    }
+
+    @Test
+    func scanDetectsRubyPackageAuthConfigWithoutReadingValues() throws {
+        let secretValue = "hh_ruby_package_auth_secret_value"
+        let projectURL = try makeProject(files: [
+            "Gemfile": "source \"https://rubygems.org\"\n",
+        ])
+        let gemCredentialsURL = projectURL.appendingPathComponent(".gem/credentials")
+        let bundleConfigURL = projectURL.appendingPathComponent(".bundle/config")
+        try FileManager.default.createDirectory(at: gemCredentialsURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: bundleConfigURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try ":rubygems_api_key: \(secretValue)\n".write(to: gemCredentialsURL, atomically: true, encoding: .utf8)
+        try "BUNDLE_RUBYGEMS__PKG__EXAMPLE__COM: \(secretValue)\n".write(to: bundleConfigURL, atomically: true, encoding: .utf8)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".gem/credentials"))
+        #expect(result.project.detectedFiles.contains(".bundle/config"))
+        #expect(result.warnings.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
+        #expect(result.policy.forbiddenCommands.contains("read package manager auth config values"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("rubygems_api_key"))
+            #expect(!artifact.contains("BUNDLE_RUBYGEMS"))
+            #expect(!artifact.contains("PKG__EXAMPLE__COM"))
+        }
+
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains(".gem/credentials"))
+        #expect(scanResult.contains(".bundle/config"))
+        #expect(context.contains("Do not run `read package manager auth config values`."))
+        #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
+        #expect(policy.contains("`read package manager auth config values`"))
+    }
+
+    @Test
+    func scanDetectsCargoPackageAuthConfigWithoutReadingValues() throws {
+        let secretValue = "hh_cargo_package_auth_secret_value"
+        let projectURL = try makeProject(files: [
+            "Cargo.toml": "[package]\nname = \"demo\"\nversion = \"0.1.0\"\n",
+        ])
+        let cargoCredentialsTomlURL = projectURL.appendingPathComponent(".cargo/credentials.toml")
+        let cargoCredentialsURL = projectURL.appendingPathComponent(".cargo/credentials")
+        try FileManager.default.createDirectory(at: cargoCredentialsTomlURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try "[registries.private]\ntoken = \"\(secretValue)\"\n".write(to: cargoCredentialsTomlURL, atomically: true, encoding: .utf8)
+        try "[registry]\ntoken = \"\(secretValue)\"\n".write(to: cargoCredentialsURL, atomically: true, encoding: .utf8)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".cargo/credentials.toml"))
+        #expect(result.project.detectedFiles.contains(".cargo/credentials"))
+        #expect(result.warnings.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
+        #expect(result.policy.forbiddenCommands.contains("read package manager auth config values"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("registries.private"))
+            #expect(!artifact.contains("[registry]"))
+        }
+
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains(".cargo/credentials.toml"))
+        #expect(scanResult.contains(".cargo/credentials"))
+        #expect(context.contains("Do not run `read package manager auth config values`."))
+        #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
+        #expect(policy.contains("`read package manager auth config values`"))
+    }
+
+    @Test
+    func scanDetectsComposerPackageAuthConfigWithoutReadingValues() throws {
+        let secretValue = "hh_composer_package_auth_secret_value"
+        let projectURL = try makeProject(files: [
+            "auth.json": """
+            {"github-oauth": {"github.com": "\(secretValue)"}}
+            """,
+        ])
+        let composerAuthURL = projectURL.appendingPathComponent(".composer/auth.json")
+        try FileManager.default.createDirectory(at: composerAuthURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try """
+        {"http-basic": {"repo.example": {"username": "token", "password": "\(secretValue)"}}}
+        """.write(to: composerAuthURL, atomically: true, encoding: .utf8)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("auth.json"))
+        #expect(result.project.detectedFiles.contains(".composer/auth.json"))
+        #expect(result.warnings.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
+        #expect(result.policy.forbiddenCommands.contains("read package manager auth config values"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("github-oauth"))
+            #expect(!artifact.contains("http-basic"))
+            #expect(!artifact.contains("repo.example"))
+            #expect(!artifact.contains("password"))
+        }
+
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("auth.json"))
+        #expect(scanResult.contains(".composer/auth.json"))
+        #expect(context.contains("Do not run `read package manager auth config values`."))
+        #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
+        #expect(policy.contains("`read package manager auth config values`"))
+    }
+
+    @Test
+    func scanDetectsNetrcWithoutReadingCredentialValues() throws {
+        let secretValue = "hh_netrc_secret_value"
+        let projectURL = try makeProject(files: [
+            ".netrc": "machine api.example.com login habitat password \(secretValue)\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".netrc"))
+        #expect(result.warnings.contains("Netrc credentials file exists; do not read .netrc values."))
+        #expect(result.policy.forbiddenCommands.contains("read .netrc values"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("api.example.com"))
+            #expect(!artifact.contains("password"))
+        }
+
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains(".netrc"))
+        #expect(context.contains("Do not run `read .netrc values`."))
+        #expect(context.contains("Netrc credentials file exists; do not read .netrc values."))
+        #expect(policy.contains("`read .netrc values`"))
     }
 
     @Test
@@ -1088,6 +1701,38 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains("id_ed25519"))
+        #expect(context.contains("Do not run `read SSH private keys`."))
+        #expect(context.contains("SSH private key file exists; do not read private key values."))
+    }
+
+    @Test
+    func scanDetectsDotSSHPrivateKeyFilenamesWithoutReadingValues() throws {
+        let privateKeyMarker = "-----BEGIN OPENSSH PRIVATE KEY-----"
+        let secretValue = "hh_dotssh_private_key_secret_value"
+        let projectURL = try makeProject(files: [:])
+        let keyURL = projectURL.appendingPathComponent(".ssh/id_ed25519")
+        try FileManager.default.createDirectory(at: keyURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try "\(privateKeyMarker)\n\(secretValue)\n".write(to: keyURL, atomically: true, encoding: .utf8)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".ssh/id_ed25519"))
+        #expect(result.warnings.contains("SSH private key file exists; do not read private key values."))
+        #expect(result.policy.forbiddenCommands.contains("read SSH private keys"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(privateKeyMarker))
+            #expect(!artifact.contains(secretValue))
+        }
+
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains(".ssh/id_ed25519"))
         #expect(context.contains("Do not run `read SSH private keys`."))
         #expect(context.contains("SSH private key file exists; do not read private key values."))
     }
@@ -2079,10 +2724,12 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "uv")
+        #expect(result.commands.filter { $0.args == ["uv", "--version"] }.count == 1)
+        #expect(result.tools.versions.filter { $0.name == "uv" }.count == 1)
         #expect(result.policy.preferredCommands == ["uv run"])
         #expect(result.policy.askFirstCommands.contains("running uv commands before uv version check succeeds"))
         #expect(!result.policy.askFirstCommands.contains("running uv commands before uv is available"))
-        #expect(result.diagnostics.contains("uv --version failed with exit code 1: uv: failed to load"))
+        #expect(result.diagnostics.filter { $0 == "uv --version failed with exit code 1: uv: failed to load" }.count == 1)
         #expect(result.tools.versions.contains(where: { $0.name == "uv" && !$0.available }))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -2541,6 +3188,152 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanComparisonIncludesPythonPackageAuthConfigSignalsWithoutValues() throws {
+        let secretValue = "hh_previous_scan_python_auth_secret"
+        let previousProjectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+        ])
+        let currentProjectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            ".pypirc": "password = \(secretValue)\n",
+            "pip.conf": "index-url = https://__token__:\(secretValue)@pypi.example/simple\n",
+        ])
+        let runner = FakeCommandRunner(results: [:])
+        let previous = HabitatScanner(runner: runner).scan(projectURL: previousProjectURL)
+        let current = HabitatScanner(runner: runner).scan(projectURL: currentProjectURL)
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let secretChange = changes.first(where: { $0.category == "secret_files" })
+
+        #expect(secretChange?.summary == "Secret-bearing file signals changed: added .pypirc, pip.conf.")
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Secret-bearing file signals changed: added .pypirc, pip.conf."))
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("pypi.example"))
+            #expect(!artifact.contains("index-url"))
+            #expect(!artifact.contains("password"))
+        }
+    }
+
+    @Test
+    func scanComparisonIncludesRubyPackageAuthConfigSignalsWithoutValues() throws {
+        let secretValue = "hh_previous_scan_ruby_auth_secret"
+        let previousProjectURL = try makeProject(files: [
+            "Gemfile": "source \"https://rubygems.org\"\n",
+        ])
+        let currentProjectURL = try makeProject(files: [
+            "Gemfile": "source \"https://rubygems.org\"\n",
+        ])
+        let gemCredentialsURL = currentProjectURL.appendingPathComponent(".gem/credentials")
+        let bundleConfigURL = currentProjectURL.appendingPathComponent(".bundle/config")
+        try FileManager.default.createDirectory(at: gemCredentialsURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: bundleConfigURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try ":rubygems_api_key: \(secretValue)\n".write(to: gemCredentialsURL, atomically: true, encoding: .utf8)
+        try "BUNDLE_GEMS__EXAMPLE__COM: \(secretValue)\n".write(to: bundleConfigURL, atomically: true, encoding: .utf8)
+        let runner = FakeCommandRunner(results: [:])
+        let previous = HabitatScanner(runner: runner).scan(projectURL: previousProjectURL)
+        let current = HabitatScanner(runner: runner).scan(projectURL: currentProjectURL)
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let secretChange = changes.first(where: { $0.category == "secret_files" })
+
+        #expect(secretChange?.summary == "Secret-bearing file signals changed: added .bundle/config, .gem/credentials.")
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Secret-bearing file signals changed: added .bundle/config, .gem/credentials."))
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("rubygems_api_key"))
+            #expect(!artifact.contains("BUNDLE_GEMS"))
+        }
+    }
+
+    @Test
+    func scanComparisonIncludesCargoPackageAuthConfigSignalsWithoutValues() throws {
+        let secretValue = "hh_previous_scan_cargo_auth_secret"
+        let previousProjectURL = try makeProject(files: [
+            "Cargo.toml": "[package]\nname = \"demo\"\nversion = \"0.1.0\"\n",
+        ])
+        let currentProjectURL = try makeProject(files: [
+            "Cargo.toml": "[package]\nname = \"demo\"\nversion = \"0.1.0\"\n",
+        ])
+        let cargoCredentialsTomlURL = currentProjectURL.appendingPathComponent(".cargo/credentials.toml")
+        let cargoCredentialsURL = currentProjectURL.appendingPathComponent(".cargo/credentials")
+        try FileManager.default.createDirectory(at: cargoCredentialsTomlURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try "[registries.private]\ntoken = \"\(secretValue)\"\n".write(to: cargoCredentialsTomlURL, atomically: true, encoding: .utf8)
+        try "[registry]\ntoken = \"\(secretValue)\"\n".write(to: cargoCredentialsURL, atomically: true, encoding: .utf8)
+        let runner = FakeCommandRunner(results: [:])
+        let previous = HabitatScanner(runner: runner).scan(projectURL: previousProjectURL)
+        let current = HabitatScanner(runner: runner).scan(projectURL: currentProjectURL)
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let secretChange = changes.first(where: { $0.category == "secret_files" })
+
+        #expect(secretChange?.summary == "Secret-bearing file signals changed: added .cargo/credentials, .cargo/credentials.toml.")
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Secret-bearing file signals changed: added .cargo/credentials, .cargo/credentials.toml."))
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("registries.private"))
+            #expect(!artifact.contains("[registry]"))
+        }
+    }
+
+    @Test
+    func scanComparisonIncludesComposerPackageAuthConfigSignalsWithoutValues() throws {
+        let secretValue = "hh_previous_scan_composer_auth_secret"
+        let previousProjectURL = try makeProject(files: [
+            "README.md": "demo\n",
+        ])
+        let currentProjectURL = try makeProject(files: [
+            "auth.json": "{\"github-oauth\": {\"github.com\": \"\(secretValue)\"}}\n",
+        ])
+        let composerAuthURL = currentProjectURL.appendingPathComponent(".composer/auth.json")
+        try FileManager.default.createDirectory(at: composerAuthURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try "{\"bearer\": {\"repo.example\": \"\(secretValue)\"}}\n".write(to: composerAuthURL, atomically: true, encoding: .utf8)
+        let runner = FakeCommandRunner(results: [:])
+        let previous = HabitatScanner(runner: runner).scan(projectURL: previousProjectURL)
+        let current = HabitatScanner(runner: runner).scan(projectURL: currentProjectURL)
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let secretChange = changes.first(where: { $0.category == "secret_files" })
+
+        #expect(secretChange?.summary == "Secret-bearing file signals changed: added .composer/auth.json, auth.json.")
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Secret-bearing file signals changed: added .composer/auth.json, auth.json."))
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("github-oauth"))
+            #expect(!artifact.contains("bearer"))
+            #expect(!artifact.contains("repo.example"))
+        }
+    }
+
+    @Test
     func scanComparisonSeparatesResolvedAndIrrelevantMissingTools() throws {
         let previous = ScanResult(
             schemaVersion: "0.1",
@@ -2675,6 +3468,140 @@ struct HabitatCoreTests {
 
         #expect(context.contains("Project-relevant tool checks now fail: xcode-select. Treat related build, test, or install commands as Ask First until the current command policy allows them."))
         #expect(scanResult.contains("\"category\" : \"tool_verification\""))
+    }
+
+    @Test
+    func scanComparisonReportsPackageManagerVersionGuidanceChanges() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: ["package.json", "pnpm-lock.yaml"],
+                packageManager: "pnpm",
+                packageManagerVersion: "9.15.4",
+                packageManagerVersionSource: "package.json",
+                packageScripts: ["test"],
+                runtimeHints: .init(node: nil, python: nil),
+                declaredPackageManager: "pnpm",
+                declaredPackageManagerVersion: "9.15.4"
+            ),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                    .init(name: "pnpm", paths: ["/opt/homebrew/bin/pnpm"]),
+                ],
+                versions: [
+                    .init(name: "pnpm", version: "9.15.4", available: true),
+                ]
+            ),
+            policy: .init(preferredCommands: ["pnpm run test"], askFirstCommands: ["pnpm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: [".tool-versions", "package.json", "pnpm-lock.yaml"],
+                packageManager: "pnpm",
+                packageManagerVersion: "10.0.0",
+                packageManagerVersionSource: ".tool-versions",
+                packageScripts: ["test"],
+                runtimeHints: .init(node: nil, python: nil),
+                declaredPackageManager: "pnpm",
+                declaredPackageManagerVersion: nil
+            ),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                    .init(name: "pnpm", paths: ["/opt/homebrew/bin/pnpm"]),
+                ],
+                versions: [
+                    .init(name: "pnpm", version: "10.0.0", available: true),
+                ]
+            ),
+            policy: .init(preferredCommands: ["pnpm run test"], askFirstCommands: ["pnpm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let packageManagerVersionChange = changes.first(where: { $0.category == "package_manager_version" })
+
+        #expect(packageManagerVersionChange?.summary == "Package manager version guidance changed from pnpm@9.15.4 via package.json to pnpm@10.0.0 via .tool-versions.")
+        #expect(packageManagerVersionChange?.impact == "Re-check the active pnpm version before dependency installs; follow current agent_context.md guidance.")
+        #expect(!changes.contains(where: { $0.category == "package_manager" }))
+        #expect(!changes.contains(where: { $0.category == "preferred_commands" }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"category\" : \"package_manager_version\""))
+        #expect(context.contains("Package manager version guidance changed from pnpm@9.15.4 via package.json to pnpm@10.0.0 via .tool-versions. Re-check the active pnpm version before dependency installs; follow current agent_context.md guidance."))
+    }
+
+    @Test
+    func scanComparisonReportsRuntimeHintGuidanceChanges() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: [".nvmrc", "package.json", "pnpm-lock.yaml"],
+                packageManager: "pnpm",
+                packageManagerVersion: nil,
+                packageScripts: ["test"],
+                runtimeHints: .init(node: "20.11.1", python: nil, ruby: "3.2.0")
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["pnpm run test"], askFirstCommands: ["pnpm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: [".nvmrc", ".python-version", "package.json", "pnpm-lock.yaml"],
+                packageManager: "pnpm",
+                packageManagerVersion: nil,
+                packageScripts: ["test"],
+                runtimeHints: .init(node: "22.0.0", python: "3.12.2", ruby: nil)
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["pnpm run test"], askFirstCommands: ["pnpm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let runtimeHintChange = changes.first(where: { $0.category == "runtime_hints" })
+
+        #expect(runtimeHintChange?.summary == "Runtime version guidance changed: Node 20.11.1 -> 22.0.0; Python none -> 3.12.2; Ruby 3.2.0 -> none.")
+        #expect(runtimeHintChange?.impact == "Re-check active runtimes before dependency installs or build/test commands; follow current command policy.")
+        #expect(!changes.contains(where: { $0.category == "package_manager" }))
+        #expect(!changes.contains(where: { $0.category == "preferred_commands" }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"category\" : \"runtime_hints\""))
+        #expect(context.contains("Runtime version guidance changed: Node 20.11.1 -> 22.0.0; Python none -> 3.12.2; Ruby 3.2.0 -> none. Re-check active runtimes before dependency installs or build/test commands; follow current command policy."))
     }
 
     @Test
@@ -3015,6 +3942,41 @@ struct HabitatCoreTests {
         #expect(policy.contains("`running Xcode build commands before xcodebuild is available`"))
         #expect(policy.contains("`Swift/Xcode build commands before xcode-select -p succeeds`"))
         #expect(!policy.contains("`xcodebuild -list -project Demo.xcodeproj`"))
+    }
+
+    @Test
+    func scanSuppressesXcodebuildPreferredCommandsWhenVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [:])
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent("Demo.xcodeproj"), withIntermediateDirectories: true)
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: ""),
+            "/usr/bin/which -a xcodebuild": .init(name: "/usr/bin/which", args: ["-a", "xcodebuild"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/xcodebuild", stderr: ""),
+            "/usr/bin/env xcodebuild -version": .init(name: "/usr/bin/env", args: ["xcodebuild", "-version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "xcodebuild: failed to load developer tools"),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "xcodebuild")
+        #expect(result.policy.preferredCommands == ["xcodebuild -list -project Demo.xcodeproj"])
+        #expect(result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild is available"))
+        #expect(!result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
+        #expect(result.diagnostics.contains("xcodebuild -version failed with exit code 1: xcodebuild: failed to load developer tools"))
+        #expect(result.tools.versions.contains(where: { $0.name == "xcodebuild" && !$0.available }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Xcode build commands before xcodebuild version check succeeds`."))
+        #expect(context.contains("xcodebuild -version failed with exit code 1: xcodebuild: failed to load developer tools"))
+        #expect(!context.contains("Prefer `xcodebuild -list -project Demo.xcodeproj`."))
+        #expect(policy.contains("`running Xcode build commands before xcodebuild version check succeeds`"))
+        #expect(!policy.contains("`xcodebuild -list -project Demo.xcodeproj`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
     }
 
     @Test

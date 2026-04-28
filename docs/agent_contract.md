@@ -130,6 +130,7 @@ Ask First:
 - `brew bundle dump`
 - `running Homebrew Bundle commands before brew version check succeeds`
 - `Swift/Xcode build commands before xcode-select -p succeeds`
+- `running Xcode build commands before xcodebuild version check succeeds`
 - `xcodebuild build/test/archive before selecting a scheme`
 - `xcodebuild -resolvePackageDependencies`
 - `xcodebuild -allowProvisioningUpdates`
@@ -153,12 +154,37 @@ Ask First:
 - `git clean`
 - `git reset --hard`
 - `git checkout --`
+- `git checkout -f`
+- `git checkout -B`
+- `git switch --discard-changes`
+- `git switch -C`
 - `git restore`
 - `git rm`
+- `git stash`
+- `git stash push`
+- `git stash pop`
+- `git stash apply`
+- `git stash drop`
+- `git stash clear`
+- `git branch -d`
+- `git branch -D`
+- `git tag -d`
+- `git rebase`
+- `git push -f`
+- `git push --force`
+- `git push --force-with-lease`
+- `git push --delete`
+- `git push --mirror`
+- `git push --all`
+- `git push --tags`
+- `git push <remote> +<ref>`
+- `git push <remote> :<ref>`
 - `rm`
 - `rm -r`
 - `rm -rf`
 - dependency installs before matching the selected JavaScript package manager to safe package-manager version metadata from `package.json`
+- dependency installs when `package.json` `packageManager` conflicts with project package-manager signals such as `pnpm-workspace.yaml`
+- dependency installs when `pnpm-workspace.yaml` conflicts with JavaScript lockfiles
 - running JavaScript commands before `node` is available
 - running JavaScript commands before `node` version check succeeds
 - running `npm`, `pnpm`, `yarn`, or `bun` commands before that selected package manager's version check succeeds
@@ -200,7 +226,8 @@ Forbidden in MVP-generated policy:
 - destructive file deletion outside the selected project
 - reading secret values
 - reading `.envrc` values
-- reading package manager auth config values such as `.npmrc`, `.pnpmrc`, or yarn auth tokens
+- reading `.netrc` values
+- reading package manager auth config values such as `.npmrc`, `.pnpmrc`, yarn auth tokens, `.pypirc`, `pip.conf`, `.gem/credentials`, `.bundle/config`, `.cargo/credentials.toml`, `.cargo/credentials`, `auth.json`, or `.composer/auth.json`
 
 ## Machine Artifact: scan_result.json
 
@@ -219,6 +246,7 @@ Top-level shape:
     "detectedFiles": [],
     "packageManager": "pnpm",
     "packageManagerVersion": "9.15.4",
+    "packageManagerVersionSource": "package.json",
     "declaredPackageManager": "pnpm",
     "declaredPackageManagerVersion": "9.15.4",
     "packageScripts": ["build", "test"],
@@ -243,23 +271,29 @@ Compatibility:
 - Add fields freely during `0.x`.
 - Do not rename or remove fields without documenting a schema change.
 - Generate Markdown from this JSON when possible.
-- `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions`, `package.json` Volta pins, and `package.json` `engines.node`.
-- Ruby runtime hints from `.ruby-version` or `.tool-versions` may require asking before Bundler dependency installs when active Ruby differs or cannot be verified.
+- `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions`, `mise.toml`, `.mise.toml`, `package.json` Volta pins, and `package.json` `engines.node`.
+- `packageManagerVersion` may come from `package.json` `packageManager`, package-manager Volta pins, `.tool-versions` entries, or `[tools]` entries in `mise.toml` / `.mise.toml` for `npm`, `pnpm`, `yarn`, or `bun`; `packageManagerVersionSource` records that safe metadata source when known.
+- `agent_context.md` should mention the known package-manager version source in `Use`, so agents know which safe metadata file backs the recommended `npm` / `pnpm` / `yarn` / `bun` version.
+- Ruby runtime hints from `.ruby-version`, `.tool-versions`, or `mise.toml` may require asking before Bundler dependency installs when active Ruby differs or cannot be verified.
 - Bundler projects may verify `bundle --version`; if `bundle` is resolved but the check fails, Markdown artifacts should suppress `bundle exec` and require Ask First before Bundler commands.
 - JavaScript projects may verify the selected package manager with `npm --version`, `pnpm --version`, `yarn --version`, or `bun --version` even when `package.json` has no package-manager version pin; if the resolved selected tool check fails, Markdown artifacts should suppress related preferred commands and require Ask First before related commands.
+- `packageManagerVersion` and `declaredPackageManagerVersion` should omit Corepack integrity suffixes such as `+sha512...` so Markdown artifacts stay short and compare only the command-relevant version.
+- Previous-scan comparison should report JavaScript `packageManagerVersion` or `packageManagerVersionSource` changes when the selected package manager stays the same, so agents re-check active package-manager versions before dependency installs.
+- Previous-scan comparison should report Node/Python/Ruby `runtimeHints` changes, so agents re-check active runtimes before dependency installs or build/test commands.
 - uv projects may verify `uv --version`; if the resolved `uv` check fails, Markdown artifacts should suppress `uv run` and require Ask First before uv commands.
 - Homebrew Bundle, CocoaPods, and Carthage projects may verify `brew --version`, `pod --version`, or `carthage version`; if the selected tool is resolved but the check fails, Markdown artifacts should suppress related preferred commands and require Ask First before related commands.
+- Xcode projects may verify `xcodebuild -version`; if `xcodebuild` is resolved but the check fails, Markdown artifacts should suppress `xcodebuild -list` guidance and require Ask First before Xcode build commands.
 - `declaredPackageManager` records the safe `package.json` `packageManager` hint even when a lockfile selects a different package manager.
 - Secret-bearing environment files such as `.env`, `.env.*`, `.envrc`, `.envrc.*`, and `.envrc.example` may be detected by filename, but values must not be read or emitted.
-- Package-manager auth config files such as `.npmrc`, `.pnpmrc`, `.yarnrc`, and `.yarnrc.yml` may be detected by filename, but token values must not be read or emitted.
-- Common SSH private key filenames such as `id_rsa`, `id_dsa`, `id_ecdsa`, and `id_ed25519` may be detected by filename, but key contents must not be read or emitted.
+- Package-manager auth config files such as `.npmrc`, `.pnpmrc`, `.yarnrc`, `.yarnrc.yml`, `.pypirc`, `pip.conf`, `.gem/credentials`, `.bundle/config`, `.cargo/credentials.toml`, `.cargo/credentials`, `auth.json`, and `.composer/auth.json` may be detected by filename, but token values must not be read or emitted.
+- Common SSH private key filenames such as `id_rsa`, `id_dsa`, `id_ecdsa`, `id_ed25519`, and the same names under `.ssh/` may be detected by filename, but key contents must not be read or emitted.
 - Markdown artifacts may suppress `policy.preferredCommands` and generic selected-project test/build allowance from `Use` / `Allowed` when the required executable is currently missing, while preserving the structured preferred command data in `scan_result.json`.
 - Markdown artifacts suppress JavaScript preferred commands and generic selected-project test/build allowance when Node is missing, and suppress concrete SwiftPM/Xcode preferred commands plus generic selected-project test/build allowance when `xcode-select -p` fails.
 - Markdown artifacts may retain detected executable project-local commands such as `.venv/bin/python -m pytest` even when the selected package-manager executable is missing; in that case, keep broader build commands out of `Allowed` unless the selected executable is available.
 - If the selected project path is not an existing directory, generated Markdown should avoid normal project-use guidance and allow only path existence checks while requiring Ask First for project commands.
-- `changes` is empty unless `--previous-scan` is supplied. `--previous-scan` may point to a previous report directory or a direct `scan_result.json` file. It is limited to AI-actionable deltas such as package-manager changes, lockfile changes, secret-bearing file signal changes, missing-tool changes, project-relevant tool verification failures or recoveries, preferred command changes when the selected package manager stays the same, command-policy risk classification changes, and command-policy entries that are no longer highlighted by the current scan.
+- `changes` is empty unless `--previous-scan` is supplied. `--previous-scan` may point to a previous report directory or a direct `scan_result.json` file. It is limited to AI-actionable deltas such as package-manager changes, lockfile changes, runtime version guidance changes, secret-bearing file signal changes, missing-tool changes, project-relevant tool verification failures or recoveries, preferred command changes when the selected package manager stays the same, command-policy risk classification changes, and command-policy entries that are no longer highlighted by the current scan.
 - Missing-tool comparison must not imply a tool became available just because it stopped being relevant to the current project. Report currently relevant tools with paths as available, and report previously missing tools that are no longer relevant as a separate current-policy guidance change.
-- Secret-bearing file comparison must remain filename-only. It may report added or removed `.env*`, `.envrc*`, package-manager auth config, and common SSH private-key filename signals, but must not read or emit their values.
+- Secret-bearing file comparison must remain filename-only. It may report added or removed `.env*`, `.envrc*`, package-manager auth config, and common top-level or `.ssh/` SSH private-key filename signals, but must not read or emit their values.
 
 ## Secondary Artifact: environment_report.md
 

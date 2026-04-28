@@ -6,6 +6,7 @@ public struct ProjectDetector {
     private let candidateFiles = [
         "package.json",
         "package-lock.json",
+        "npm-shrinkwrap.json",
         "pnpm-lock.yaml",
         "pnpm-workspace.yaml",
         "yarn.lock",
@@ -31,6 +32,7 @@ public struct ProjectDetector {
         "Cartfile.resolved",
         "Brewfile",
         "mise.toml",
+        ".mise.toml",
         ".tool-versions",
         ".python-version",
         ".ruby-version",
@@ -40,6 +42,14 @@ public struct ProjectDetector {
         ".pnpmrc",
         ".yarnrc",
         ".yarnrc.yml",
+        ".pypirc",
+        "pip.conf",
+        ".gem/credentials",
+        ".bundle/config",
+        ".cargo/credentials.toml",
+        ".cargo/credentials",
+        "auth.json",
+        ".composer/auth.json",
         ".env",
         ".env.local",
         ".env.development",
@@ -52,10 +62,15 @@ public struct ProjectDetector {
         ".envrc",
         ".envrc.local",
         ".envrc.example",
+        ".netrc",
         "id_rsa",
         "id_dsa",
         "id_ecdsa",
         "id_ed25519",
+        ".ssh/id_rsa",
+        ".ssh/id_dsa",
+        ".ssh/id_ecdsa",
+        ".ssh/id_ed25519",
         "README.md",
     ]
 
@@ -63,20 +78,29 @@ public struct ProjectDetector {
         let detectedFiles = detectedProjectFiles(projectURL: projectURL)
         let packageJSON = packageJSONMetadata(projectURL.appendingPathComponent("package.json"))
         let toolVersions = toolVersionsMetadata(projectURL.appendingPathComponent(".tool-versions"))
+        let miseToml = miseTomlMetadata(projectURL: projectURL)
         let packageManager = detectPackageManager(files: detectedFiles, declaredPackageManager: packageJSON.declaredPackageManager)
+        let packageManagerVersion = packageManagerVersion(
+            packageManager: packageManager,
+            packageJSON: packageJSON,
+            toolVersions: toolVersions,
+            miseToml: miseToml.metadata,
+            miseTomlSource: miseToml.source
+        )
 
         return ProjectInfo(
             detectedFiles: detectedFiles,
             packageManager: packageManager,
-            packageManagerVersion: packageManagerVersion(packageManager: packageManager, packageJSON: packageJSON),
+            packageManagerVersion: packageManagerVersion.version,
+            packageManagerVersionSource: packageManagerVersion.source,
             packageScripts: packageJSON.scripts,
             runtimeHints: RuntimeHints(
                 node: firstAvailableLineIfSafe(
                     projectURL.appendingPathComponent(".nvmrc"),
                     projectURL.appendingPathComponent(".node-version")
-                ) ?? toolVersions.node ?? packageJSON.node,
-                python: firstLineIfSafe(projectURL.appendingPathComponent(".python-version")) ?? toolVersions.python,
-                ruby: firstLineIfSafe(projectURL.appendingPathComponent(".ruby-version")) ?? toolVersions.ruby
+                ) ?? toolVersions.node ?? miseToml.metadata.node ?? packageJSON.node,
+                python: firstLineIfSafe(projectURL.appendingPathComponent(".python-version")) ?? toolVersions.python ?? miseToml.metadata.python,
+                ruby: firstLineIfSafe(projectURL.appendingPathComponent(".ruby-version")) ?? toolVersions.ruby ?? miseToml.metadata.ruby
             ),
             declaredPackageManager: packageJSON.declaredPackageManager?.name,
             declaredPackageManagerVersion: packageJSON.declaredPackageManager?.version
@@ -107,13 +131,13 @@ public struct ProjectDetector {
 
     private func detectPackageManager(files: [String], declaredPackageManager: DeclaredPackageManager?) -> String? {
         if files.contains("pnpm-lock.yaml") { return "pnpm" }
+        if files.contains("pnpm-workspace.yaml") { return "pnpm" }
         if files.contains("yarn.lock") { return "yarn" }
         if files.contains("bun.lock") || files.contains("bun.lockb") { return "bun" }
-        if files.contains("package-lock.json") { return "npm" }
+        if files.contains("package-lock.json") || files.contains("npm-shrinkwrap.json") { return "npm" }
         if files.contains("package.json"), let declaredPackageManager {
             return declaredPackageManager.name
         }
-        if files.contains("pnpm-workspace.yaml") { return "pnpm" }
         if files.contains("package.json") { return "npm" }
         if files.contains("Podfile") || files.contains("Podfile.lock") { return "cocoapods" }
         if files.contains("Cartfile") || files.contains("Cartfile.resolved") { return "carthage" }
@@ -172,15 +196,38 @@ public struct ProjectDetector {
         )
     }
 
-    private func packageManagerVersion(packageManager: String?, packageJSON: PackageJSONMetadata) -> String? {
-        guard let packageManager else { return nil }
+    private func packageManagerVersion(packageManager: String?, packageJSON: PackageJSONMetadata, toolVersions: ToolVersionsMetadata, miseToml: ToolVersionsMetadata, miseTomlSource: String?) -> PackageManagerVersionInfo {
+        guard let packageManager else { return .empty }
 
         if packageJSON.declaredPackageManager?.name == packageManager,
            let version = packageJSON.declaredPackageManager?.version {
-            return version
+            return PackageManagerVersionInfo(version: version, source: "package.json")
         }
 
-        return packageJSON.packageManagerVersions[packageManager]
+        if let version = packageJSON.packageManagerVersions[packageManager] {
+            return PackageManagerVersionInfo(version: version, source: "package.json")
+        }
+
+        if let version = toolVersions.packageManagerVersions[packageManager] {
+            return PackageManagerVersionInfo(version: version, source: ".tool-versions")
+        }
+
+        if let version = miseToml.packageManagerVersions[packageManager] {
+            return PackageManagerVersionInfo(version: version, source: miseTomlSource ?? "mise.toml")
+        }
+
+        return .empty
+    }
+
+    private func miseTomlMetadata(projectURL: URL) -> SourcedToolVersionsMetadata {
+        for filename in ["mise.toml", ".mise.toml"] {
+            let metadata = miseTomlMetadata(projectURL.appendingPathComponent(filename))
+            if !metadata.isEmpty {
+                return SourcedToolVersionsMetadata(metadata: metadata, source: filename)
+            }
+        }
+
+        return .empty
     }
 
     private func toolVersionsMetadata(_ url: URL) -> ToolVersionsMetadata {
@@ -191,6 +238,7 @@ public struct ProjectDetector {
         var node: String?
         var python: String?
         var ruby: String?
+        var packageManagerVersions: [String: String] = [:]
 
         for rawLine in content.split(whereSeparator: \.isNewline) {
             let line = rawLine
@@ -213,12 +261,120 @@ public struct ProjectDetector {
                 if ruby == nil {
                     ruby = parts[1]
                 }
+            case "npm", "pnpm", "yarn", "bun":
+                if packageManagerVersions[parts[0]] == nil {
+                    packageManagerVersions[parts[0]] = normalizedPackageManagerVersion(parts[1])
+                }
             default:
                 continue
             }
         }
 
-        return ToolVersionsMetadata(node: node, python: python, ruby: ruby)
+        return ToolVersionsMetadata(
+            node: node,
+            python: python,
+            ruby: ruby,
+            packageManagerVersions: packageManagerVersions
+        )
+    }
+
+    private func miseTomlMetadata(_ url: URL) -> ToolVersionsMetadata {
+        guard FileManager.default.fileExists(atPath: url.path) else { return .empty }
+        guard fileSize(at: url) <= 64 * 1024 else { return .empty }
+        guard let content = try? String(contentsOf: url, encoding: .utf8) else { return .empty }
+
+        var node: String?
+        var python: String?
+        var ruby: String?
+        var packageManagerVersions: [String: String] = [:]
+        var inToolsSection = false
+
+        for rawLine in content.split(whereSeparator: \.isNewline) {
+            let line = rawLine.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !line.isEmpty, !line.hasPrefix("#") else { continue }
+
+            if line.hasPrefix("[") {
+                inToolsSection = tomlSectionName(from: line) == "tools"
+                continue
+            }
+
+            guard inToolsSection else { continue }
+            let parts = line.split(separator: "=", maxSplits: 1, omittingEmptySubsequences: false)
+            guard parts.count == 2 else { continue }
+
+            let tool = parts[0]
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+                .trimmingCharacters(in: CharacterSet(charactersIn: "\"'"))
+            guard let version = tomlStringVersion(from: String(parts[1])) else { continue }
+
+            switch tool {
+            case "node", "nodejs":
+                if node == nil {
+                    node = version
+                }
+            case "python":
+                if python == nil {
+                    python = version
+                }
+            case "ruby":
+                if ruby == nil {
+                    ruby = version
+                }
+            case "npm", "pnpm", "yarn", "bun":
+                if packageManagerVersions[tool] == nil {
+                    packageManagerVersions[tool] = normalizedPackageManagerVersion(version)
+                }
+            default:
+                continue
+            }
+        }
+
+        return ToolVersionsMetadata(
+            node: node,
+            python: python,
+            ruby: ruby,
+            packageManagerVersions: packageManagerVersions
+        )
+    }
+
+    private func tomlStringVersion(from rawValue: String) -> String? {
+        let value = rawValue.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !value.isEmpty else { return nil }
+
+        if value.hasPrefix("[") {
+            let remainder = String(value.dropFirst()).trimmingCharacters(in: .whitespacesAndNewlines)
+            return tomlStringVersion(from: remainder)
+        }
+
+        if let quote = value.first, quote == "\"" || quote == "'" {
+            let remainder = value.dropFirst()
+            guard let endIndex = remainder.firstIndex(of: quote) else { return nil }
+            let version = String(remainder[..<endIndex]).trimmingCharacters(in: .whitespacesAndNewlines)
+            return version.isEmpty ? nil : version
+        }
+
+        let token = value
+            .split { character in
+                character.isWhitespace || character == "," || character == "]" || character == "#"
+            }
+            .first
+            .map(String.init)?
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return token?.isEmpty == false ? token : nil
+    }
+
+    private func tomlSectionName(from line: String) -> String? {
+        let withoutComment = line
+            .split(separator: "#", maxSplits: 1, omittingEmptySubsequences: false)
+            .first?
+            .trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        guard withoutComment.hasPrefix("["), withoutComment.hasSuffix("]") else { return nil }
+
+        return withoutComment
+            .dropFirst()
+            .dropLast()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func declaredPackageManager(from rawPackageManager: String) -> DeclaredPackageManager? {
@@ -229,7 +385,9 @@ public struct ProjectDetector {
             }
 
             if value.hasPrefix("\(packageManager)@") {
-                let version = String(value.dropFirst(packageManager.count + 1))
+                let version = normalizedPackageManagerVersion(
+                    String(value.dropFirst(packageManager.count + 1))
+                )
                     .trimmingCharacters(in: .whitespacesAndNewlines)
                 guard !version.isEmpty else { return nil }
                 return DeclaredPackageManager(name: packageManager, version: version)
@@ -239,6 +397,13 @@ public struct ProjectDetector {
         return nil
     }
 
+    private func normalizedPackageManagerVersion(_ rawVersion: String) -> String {
+        rawVersion
+            .split(separator: "+", maxSplits: 1, omittingEmptySubsequences: false)
+            .first
+            .map(String.init) ?? rawVersion
+    }
+
     private func voltaMetadata(from rawValue: Any?) -> VoltaMetadata {
         guard let object = rawValue as? [String: Any] else { return .empty }
         let node = normalizedNonEmptyString(object["node"])
@@ -246,7 +411,7 @@ public struct ProjectDetector {
 
         for packageManager in ["npm", "pnpm", "yarn", "bun"] {
             if let version = normalizedNonEmptyString(object[packageManager]) {
-                packageManagerVersions[packageManager] = version
+                packageManagerVersions[packageManager] = normalizedPackageManagerVersion(version)
             }
         }
 
@@ -312,11 +477,30 @@ private struct PackageJSONMetadata {
 }
 
 private struct ToolVersionsMetadata {
-    static let empty = ToolVersionsMetadata(node: nil, python: nil, ruby: nil)
+    static let empty = ToolVersionsMetadata(node: nil, python: nil, ruby: nil, packageManagerVersions: [:])
 
     let node: String?
     let python: String?
     let ruby: String?
+    let packageManagerVersions: [String: String]
+
+    var isEmpty: Bool {
+        node == nil && python == nil && ruby == nil && packageManagerVersions.isEmpty
+    }
+}
+
+private struct SourcedToolVersionsMetadata {
+    static let empty = SourcedToolVersionsMetadata(metadata: .empty, source: nil)
+
+    let metadata: ToolVersionsMetadata
+    let source: String?
+}
+
+private struct PackageManagerVersionInfo {
+    static let empty = PackageManagerVersionInfo(version: nil, source: nil)
+
+    let version: String?
+    let source: String?
 }
 
 private struct VoltaMetadata {
