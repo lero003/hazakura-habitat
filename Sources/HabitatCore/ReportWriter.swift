@@ -382,6 +382,10 @@ public struct ReportWriter {
         if let packageManager = result.project.packageManager,
            let executable = executableName(forPackageManager: packageManager) {
             names.insert(executable)
+
+            if ["npm", "pnpm", "yarn", "bun"].contains(packageManager) {
+                names.insert("node")
+            }
         }
 
         if result.project.runtimeHints.node != nil {

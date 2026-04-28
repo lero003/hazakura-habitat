@@ -2251,6 +2251,48 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanShowsNodeVersionFailureDiagnosticsForJavaScriptProjects() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "node: failed to load"),
+            "/usr/bin/env npm --version": .init(name: "/usr/bin/env", args: ["npm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "10.8.2", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(result.policy.askFirstCommands.contains("running JavaScript commands before node version check succeeds"))
+        #expect(result.diagnostics.contains("node --version failed with exit code 1: node: failed to load"))
+        #expect(result.tools.versions.contains(where: { $0.name == "node" && !$0.available }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running JavaScript commands before node version check succeeds`."))
+        #expect(context.contains("node --version failed with exit code 1: node: failed to load"))
+        #expect(!context.contains("Prefer `npm run test`."))
+        #expect(policy.contains("`running JavaScript commands before node version check succeeds`"))
+        #expect(!policy.contains("`npm run test`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+    }
+
+    @Test
     func reportWriterCreatesAllArtifacts() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(
