@@ -47,6 +47,14 @@ struct HabitatCoreTests {
             try parser.parse(arguments: ["--project", "--output", "/tmp/out"], currentDirectory: "/tmp/project")
         }
 
+        #expect(throws: ScanArgumentError.emptyValue(flag: "--output")) {
+            try parser.parse(arguments: ["--project", "/tmp/project", "--output", ""], currentDirectory: "/tmp/project")
+        }
+
+        #expect(throws: ScanArgumentError.emptyValue(flag: "--previous-scan")) {
+            try parser.parse(arguments: ["--previous-scan", ""], currentDirectory: "/tmp/project")
+        }
+
         #expect(throws: ScanArgumentError.duplicateFlag(flag: "--output")) {
             try parser.parse(arguments: ["--output", "/tmp/a", "--output", "/tmp/b"], currentDirectory: "/tmp/project")
         }

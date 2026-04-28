@@ -14,6 +14,7 @@ public struct ScanOptions: Equatable {
 
 public enum ScanArgumentError: LocalizedError, Equatable {
     case missingValue(flag: String)
+    case emptyValue(flag: String)
     case duplicateFlag(flag: String)
     case unknownArgument(String)
 
@@ -21,6 +22,8 @@ public enum ScanArgumentError: LocalizedError, Equatable {
         switch self {
         case .missingValue(let flag):
             return "`\(flag)` requires a value."
+        case .emptyValue(let flag):
+            return "`\(flag)` value cannot be empty."
         case .duplicateFlag(let flag):
             return "`\(flag)` was provided more than once."
         case .unknownArgument(let argument):
@@ -48,6 +51,10 @@ public struct ScanArgumentParser {
 
             guard arguments.indices.contains(index + 1), !arguments[index + 1].hasPrefix("--") else {
                 throw ScanArgumentError.missingValue(flag: argument)
+            }
+
+            guard !arguments[index + 1].isEmpty else {
+                throw ScanArgumentError.emptyValue(flag: argument)
             }
 
             values[argument] = arguments[index + 1]
