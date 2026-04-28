@@ -295,6 +295,10 @@ public struct ReportWriter {
             return "Verify Xcode tooling before running Xcode commands."
         }
 
+        if let javaScriptToolLine = javaScriptToolVerificationUseLine(result, packageManager: packageManager) {
+            return javaScriptToolLine
+        }
+
         if let missingToolLine = selectedToolMissingUseLine(result, packageManager: packageManager) {
             return missingToolLine
         }
@@ -322,6 +326,28 @@ public struct ReportWriter {
         }
 
         return "Verify `\(match.executable)` before running \(match.label) commands."
+    }
+
+    private func javaScriptToolVerificationUseLine(_ result: ScanResult, packageManager: String) -> String? {
+        guard ["npm", "pnpm", "yarn", "bun"].contains(packageManager) else {
+            return nil
+        }
+
+        let nodeNeedsVerification = result.policy.askFirstCommands.contains("running JavaScript commands before node is available")
+            || result.policy.askFirstCommands.contains("running JavaScript commands before node version check succeeds")
+        let packageManagerNeedsVerification = result.policy.askFirstCommands.contains("running \(packageManager) commands before \(packageManager) is available")
+            || result.policy.askFirstCommands.contains("running \(packageManager) commands before \(packageManager) version check succeeds")
+
+        switch (nodeNeedsVerification, packageManagerNeedsVerification) {
+        case (true, true):
+            return "Verify `node` and `\(packageManager)` before running JavaScript commands."
+        case (true, false):
+            return "Verify `node` before running JavaScript commands."
+        case (false, true):
+            return "Verify `\(packageManager)` before running \(packageManager) commands."
+        case (false, false):
+            return nil
+        }
     }
 
     private func selectedToolMissingUseLine(_ result: ScanResult, packageManager: String) -> String? {

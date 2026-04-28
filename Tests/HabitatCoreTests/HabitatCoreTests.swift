@@ -716,7 +716,8 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Verify `node` before running JavaScript commands."))
+        #expect(context.contains("Verify `node` and `npm` before running JavaScript commands."))
+        #expect(context.contains("Ask before `running JavaScript commands before node is available`."))
         #expect(context.contains("Ask before `running npm commands before npm is available`."))
         #expect(context.contains("Ask before `npm ci`."))
         #expect(!context.contains("Prefer `npm run`."))

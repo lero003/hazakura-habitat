@@ -48,6 +48,7 @@ Guidelines:
 - Do not list concrete preferred commands in `Use` when their required executable is missing; keep the missing-tool guard in `Ask First` instead.
 - Do not tell agents to use a selected project tool when its executable is missing; tell them to verify the executable before running that tool's commands.
 - Do not tell agents to use a selected project tool when its version check failed; tell them to verify the executable before running that tool's commands.
+- For JavaScript projects, if both `node` and the selected package manager are missing or unverifiable, mention both in the first `Use` verification line.
 - A detected project-local executable path such as `.venv/bin/python` may remain in `Use` / `Allowed` when the selected package-manager executable is missing, but only when the path is executable and the concrete project-local command can run without the missing tool.
 - For Python projects, an executable `.venv/bin/python` should prevent a broad missing-`python3` Ask First guard from hiding the project-local test command.
 - Do not dump full package inventories here.

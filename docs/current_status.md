@@ -89,6 +89,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - `agent_context.md` prioritizes project-relevant secret-reading bans in Avoid when `.env` examples/variants, `.envrc` examples/variants, `.netrc`, SSH private key filenames, or package-manager auth config files such as `.pnpmrc`, `.pypirc`, `.bundle/config`, `.cargo/credentials.toml`, or `.composer/auth.json` are detected.
 - Missing preferred tool warnings when project files point to a tool that is not on `PATH`, including SwiftPM-specific guidance when `swift` is unavailable.
 - `agent_context.md` and `command_policy.md` suppress concrete preferred commands and generic selected-project test/build allowance from `Use` and `Allowed` when the required executable is missing, leaving executable verification wording plus the missing-tool Ask First guard visible instead.
+- JavaScript projects that are missing or cannot verify both `node` and the selected package manager now name both blockers in the first `agent_context.md` `Use` line, instead of sending agents to verify only the runtime first.
 - Selected package-manager install guards are prioritized so the short `agent_context.md` shows the relevant install command first.
 - Multiple JavaScript lockfile warnings that tell agents to ask before dependency installs when package-manager signals conflict.
 - Secret-avoidance fixture test proving `.env` and private key contents are not emitted in generated artifacts.
