@@ -187,6 +187,11 @@ public struct ReportWriter {
             return []
         }
 
+        if ["swiftpm", "xcodebuild"].contains(packageManager),
+           result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds") {
+            return []
+        }
+
         if projectRelevantVersionCheckGuardApplies(result) {
             return result.policy.preferredCommands.filter {
                 isAvailableProjectLocalPreferredCommand($0, result: result)

@@ -210,7 +210,7 @@ Swift/Xcode:
 - `xcodebuild -version`
 - `swift --version`
 - SwiftPM/Xcode project signals
-- `xcode-select -p` partial-failure guard for SwiftPM/Xcode build and test commands
+- `xcode-select -p` partial-failure guard that suppresses concrete SwiftPM/Xcode Markdown build and test recommendations
 - `.xcodeproj` / `.xcworkspace` signals with `xcodebuild -list` as the safe first command
 - ask before scheme-specific `xcodebuild` build, test, or archive commands until the scheme is selected
 - avoid broad Xcode diagnostics unless they affect build/test command selection or safety

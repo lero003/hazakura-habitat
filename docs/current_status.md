@@ -59,8 +59,8 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - Bundler projects verify `bundle --version`; if the resolved `bundle` check fails, generated Markdown suppresses `bundle exec` and asks before Bundler commands.
 - Homebrew Bundle, CocoaPods, and Carthage projects verify `brew --version`, `pod --version`, or `carthage version`; if the resolved selected tool check fails, generated Markdown suppresses related preferred commands and asks before related commands.
 - SwiftPM command guidance from `Package.swift` and `Package.resolved`, including a missing `swift` guard and `swift package update` / `swift package resolve` mutation guards.
-- SwiftPM/Xcode project guidance asks before build or test commands when `xcode-select -p` cannot verify the active developer directory, and surfaces the relevant diagnostic in `agent_context.md`.
-- SwiftPM/Xcode Markdown policy suppresses generic selected-project build/test allowance when `xcode-select -p` cannot verify the active developer directory.
+- SwiftPM/Xcode project guidance asks before build or test commands when `xcode-select -p` cannot verify the active developer directory, suppresses concrete Markdown build/test recommendations, and surfaces the relevant diagnostic in `agent_context.md`.
+- SwiftPM/Xcode Markdown policy suppresses concrete preferred commands and generic selected-project build/test allowance when `xcode-select -p` cannot verify the active developer directory.
 - Xcode project/workspace guidance from top-level `.xcodeproj` and `.xcworkspace` bundles, including `xcodebuild -list` as the safe first command, missing `xcodebuild` guards, and Ask First guards for scheme-specific build/test/archive and dependency/provisioning mutations.
 - Go command guidance from `go.mod`, including missing `go` and `go get`/`go mod tidy` guards.
 - Rust Cargo command guidance from `Cargo.toml`, including missing `cargo`, failing `cargo --version`, and `cargo add`/`cargo update` guards.

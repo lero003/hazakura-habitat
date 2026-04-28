@@ -2790,6 +2790,37 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanSuppressesXcodebuildPreferredCommandsWhenDeveloperDirectoryIsMissing() throws {
+        let projectURL = try makeProject(files: [:])
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent("Demo.xcodeproj"), withIntermediateDirectories: true)
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env xcodebuild -version": .init(name: "/usr/bin/env", args: ["xcodebuild", "-version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Xcode 16.3\nBuild version 16E140", stderr: ""),
+            "/usr/bin/which -a xcodebuild": .init(name: "/usr/bin/which", args: ["-a", "xcodebuild"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/xcodebuild", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "xcodebuild")
+        #expect(result.policy.preferredCommands == ["xcodebuild -list -project Demo.xcodeproj"])
+        #expect(!result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild is available"))
+        #expect(result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
+        #expect(result.warnings.contains("xcode-select -p did not return a developer directory; ask before Swift/Xcode build or test commands."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `Swift/Xcode build commands before xcode-select -p succeeds`."))
+        #expect(context.contains("xcode-select -p unavailable: missing"))
+        #expect(!context.contains("Prefer `xcodebuild -list -project Demo.xcodeproj`."))
+        #expect(!policy.contains("`xcodebuild -list -project Demo.xcodeproj`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
     func scanAsksBeforeSwiftBuildWhenDeveloperDirectoryIsMissing() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift package"
@@ -2814,11 +2845,13 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Prefer `swift test`."))
+        #expect(!context.contains("Prefer `swift test`."))
+        #expect(!context.contains("Prefer `swift build`."))
         #expect(context.contains("Ask before `Swift/Xcode build commands before xcode-select -p succeeds`."))
         #expect(context.contains("xcode-select -p unavailable: missing"))
         #expect(policy.contains("`Swift/Xcode build commands before xcode-select -p succeeds`"))
-        #expect(policy.contains("`swift test`"))
+        #expect(!policy.contains("`swift test`"))
+        #expect(!policy.contains("`swift build`"))
         #expect(!policy.contains("`test commands for the selected project`"))
         #expect(!policy.contains("`build commands for the selected project`"))
     }
