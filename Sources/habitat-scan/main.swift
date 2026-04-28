@@ -24,19 +24,25 @@ struct CLI {
     }
 
     private func runScan(arguments: [String]) -> Int32 {
-        let projectPath = argumentValue(flag: "--project", in: arguments) ?? FileManager.default.currentDirectoryPath
-        let outputPath = argumentValue(flag: "--output", in: arguments) ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
-            .appendingPathComponent("habitat-report").path
-        let previousScanPath = argumentValue(flag: "--previous-scan", in: arguments)
+        let options: ScanOptions
+        do {
+            options = try ScanArgumentParser().parse(
+                arguments: arguments,
+                currentDirectory: FileManager.default.currentDirectoryPath
+            )
+        } catch {
+            fputs("Invalid scan arguments: \(error.localizedDescription)\n\n\(helpText)\n", stderr)
+            return 2
+        }
 
         let scanner = HabitatScanner()
         let writer = ReportWriter()
 
         do {
-            let projectURL = URL(fileURLWithPath: projectPath).standardizedFileURL
-            let outputURL = URL(fileURLWithPath: outputPath).standardizedFileURL
+            let projectURL = URL(fileURLWithPath: options.projectPath).standardizedFileURL
+            let outputURL = URL(fileURLWithPath: options.outputPath).standardizedFileURL
             var result = scanner.scan(projectURL: projectURL)
-            if let previousScanPath {
+            if let previousScanPath = options.previousScanPath {
                 result = result.withChanges(changes(fromPreviousScanAt: previousScanPath, current: result))
             }
             try writer.write(scanResult: result, outputURL: outputURL)
@@ -46,13 +52,6 @@ struct CLI {
             fputs("Scan failed: \(error.localizedDescription)\n", stderr)
             return 1
         }
-    }
-
-    private func argumentValue(flag: String, in arguments: [String]) -> String? {
-        guard let index = arguments.firstIndex(of: flag), arguments.indices.contains(index + 1) else {
-            return nil
-        }
-        return arguments[index + 1]
     }
 
     private var helpText: String {

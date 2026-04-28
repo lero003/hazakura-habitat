@@ -10,6 +10,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 
 - SwiftPM package with `HabitatCore` and `habitat-scan`.
 - `habitat-scan scan --project /path/to/project --output ./habitat-report`.
+- `habitat-scan scan` validates flag arguments before scanning, so missing flag values, duplicate flags, and unknown flags fail instead of silently scanning the wrong project or ignoring a mistyped option.
 - Stable MVP artifact generation:
   - `scan_result.json`
   - `agent_context.md`

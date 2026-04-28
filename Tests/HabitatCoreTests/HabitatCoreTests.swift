@@ -22,6 +22,41 @@ struct FakeCommandRunner: CommandRunning {
 
 struct HabitatCoreTests {
     @Test
+    func scanArgumentParserDefaultsToCurrentDirectory() throws {
+        let options = try ScanArgumentParser().parse(
+            arguments: [],
+            currentDirectory: "/tmp/project"
+        )
+
+        #expect(options == ScanOptions(
+            projectPath: "/tmp/project",
+            outputPath: "/tmp/project/habitat-report",
+            previousScanPath: nil
+        ))
+    }
+
+    @Test
+    func scanArgumentParserRejectsUnsafeAmbiguousArguments() throws {
+        let parser = ScanArgumentParser()
+
+        #expect(throws: ScanArgumentError.missingValue(flag: "--project")) {
+            try parser.parse(arguments: ["--project"], currentDirectory: "/tmp/project")
+        }
+
+        #expect(throws: ScanArgumentError.missingValue(flag: "--project")) {
+            try parser.parse(arguments: ["--project", "--output", "/tmp/out"], currentDirectory: "/tmp/project")
+        }
+
+        #expect(throws: ScanArgumentError.duplicateFlag(flag: "--output")) {
+            try parser.parse(arguments: ["--output", "/tmp/a", "--output", "/tmp/b"], currentDirectory: "/tmp/project")
+        }
+
+        #expect(throws: ScanArgumentError.unknownArgument("--previous_scan")) {
+            try parser.parse(arguments: ["--previous_scan", "/tmp/old"], currentDirectory: "/tmp/project")
+        }
+    }
+
+    @Test
     func scanPrefersPnpmWhenLockfileExists() throws {
         let projectURL = try makeProject(files: [
             "pnpm-lock.yaml": "lockfile",
