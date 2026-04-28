@@ -24,19 +24,26 @@ public struct ReportWriter {
 
     private func agentContext(_ result: ScanResult) -> String {
         let preferredCommands = markdownPreferredCommands(result)
-        let packageManagerUse = result.project.packageManager.map { packageManager in
-            if let version = result.project.packageManagerVersion {
-                if result.project.declaredPackageManager == packageManager {
-                    return "Use `\(packageManager)@\(version)` because `package.json` packageManager points to it."
+        let useLines: [String]
+
+        if hasProjectPathVerificationGuard(result) {
+            useLines = ["Verify the project path before running project commands."]
+        } else {
+            let packageManagerUse = result.project.packageManager.map { packageManager in
+                if let version = result.project.packageManagerVersion {
+                    if result.project.declaredPackageManager == packageManager {
+                        return "Use `\(packageManager)@\(version)` because `package.json` packageManager points to it."
+                    }
+
+                    return "Use `\(packageManager)@\(version)` because project metadata pins it."
                 }
 
-                return "Use `\(packageManager)@\(version)` because project metadata pins it."
+                return "Use `\(packageManager)` because project files point to it."
             }
 
-            return "Use `\(packageManager)` because project files point to it."
+            useLines = ([packageManagerUse] + preferredCommands.prefix(2).map { "Prefer `\($0)`." })
+                .compactMap { $0 }
         }
-        let useLines = ([packageManagerUse] + preferredCommands.prefix(2).map { "Prefer `\($0)`." })
-            .compactMap { $0 }
         let avoidLines = prioritizedForbiddenCommands(result).prefix(5).map { "Do not run `\($0)`." }
         let askLines = result.policy.askFirstCommands.prefix(4).map { "Ask before `\($0)`." }
         let mismatchLines = result.warnings.isEmpty ? ["- None detected."] : result.warnings.map { "- \($0)" }
@@ -73,16 +80,22 @@ public struct ReportWriter {
 
     private func commandPolicy(_ result: ScanResult) -> String {
         let preferredCommands = markdownPreferredCommands(result)
-        var allowed = preferredCommands + [
-            "read-only project inspection"
-        ]
+        var allowed: [String]
 
-        if canAllowSelectedProjectTestCommands(result, preferredCommands: preferredCommands) {
-            allowed.append("test commands for the selected project")
-        }
+        if hasProjectPathVerificationGuard(result) {
+            allowed = ["path existence checks"]
+        } else {
+            allowed = preferredCommands + [
+                "read-only project inspection"
+            ]
 
-        if canAllowSelectedProjectBuildCommands(result, preferredCommands: preferredCommands) {
-            allowed.append("build commands for the selected project")
+            if canAllowSelectedProjectTestCommands(result, preferredCommands: preferredCommands) {
+                allowed.append("test commands for the selected project")
+            }
+
+            if canAllowSelectedProjectBuildCommands(result, preferredCommands: preferredCommands) {
+                allowed.append("build commands for the selected project")
+            }
         }
 
         return """
@@ -167,6 +180,10 @@ public struct ReportWriter {
                 diagnostic == commandName || diagnostic.hasPrefix("\(commandName) ")
             }
         }
+    }
+
+    private func hasProjectPathVerificationGuard(_ result: ScanResult) -> Bool {
+        result.policy.askFirstCommands.contains("running project commands before project path is verified")
     }
 
     private func markdownPreferredCommands(_ result: ScanResult) -> [String] {

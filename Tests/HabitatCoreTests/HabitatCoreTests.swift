@@ -2868,6 +2868,31 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanGuardsMissingProjectPathBeforeProjectCommands() throws {
+        let projectURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == nil)
+        #expect(result.policy.askFirstCommands.first == "running project commands before project path is verified")
+        #expect(result.warnings.contains("Project path is not an existing directory; verify --project before running project commands."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify the project path before running project commands."))
+        #expect(context.contains("Ask before `running project commands before project path is verified`."))
+        #expect(context.contains("Project path is not an existing directory; verify --project before running project commands."))
+        #expect(!context.contains("No primary package manager signal detected"))
+        #expect(!context.contains("Use read-only inspection first."))
+        #expect(policy.contains("`path existence checks`"))
+        #expect(policy.contains("`running project commands before project path is verified`"))
+        #expect(!policy.contains("`read-only project inspection`"))
+    }
+
+    @Test
     func scanKeepsGoingWhenCommandsAreMissing() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift package"

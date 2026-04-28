@@ -11,6 +11,7 @@ public struct HabitatScanner {
 
     public func scan(projectURL: URL) -> ScanResult {
         let project = detector.detect(projectURL: projectURL)
+        let projectPathIsExistingDirectory = projectPathIsExistingDirectory(projectURL)
         let pathEntries = (ProcessInfo.processInfo.environment["PATH"] ?? "")
             .split(separator: ":")
             .map(String.init)
@@ -64,10 +65,21 @@ public struct HabitatScanner {
             return ToolVersion(name: spec.0, version: output, available: versionCommandSucceeded)
         }
 
-        let warnings = makeWarnings(project: project, resolvedPaths: resolvedPaths, versions: versions)
+        let warnings = makeWarnings(
+            project: project,
+            projectPathIsExistingDirectory: projectPathIsExistingDirectory,
+            resolvedPaths: resolvedPaths,
+            versions: versions
+        )
         let commandPolicy = PolicySummary(
             preferredCommands: preferredCommands(project: project),
-            askFirstCommands: askFirstCommands(project: project, resolvedPaths: resolvedPaths, versions: versions, commands: commands),
+            askFirstCommands: askFirstCommands(
+                project: project,
+                projectPathIsExistingDirectory: projectPathIsExistingDirectory,
+                resolvedPaths: resolvedPaths,
+                versions: versions,
+                commands: commands
+            ),
             forbiddenCommands: [
                 "sudo",
                 "destructive file deletion outside the selected project",
@@ -138,6 +150,12 @@ public struct HabitatScanner {
         #else
         return "unknown"
         #endif
+    }
+
+    private func projectPathIsExistingDirectory(_ projectURL: URL) -> Bool {
+        var isDirectory: ObjCBool = false
+        return FileManager.default.fileExists(atPath: projectURL.path, isDirectory: &isDirectory)
+            && isDirectory.boolValue
     }
 
     private func preferredCommands(project: ProjectInfo) -> [String] {
@@ -225,7 +243,7 @@ public struct HabitatScanner {
         }
     }
 
-    private func askFirstCommands(project: ProjectInfo, resolvedPaths: [ResolvedTool], versions: [ToolVersion], commands commandResults: [CommandInfo]) -> [String] {
+    private func askFirstCommands(project: ProjectInfo, projectPathIsExistingDirectory: Bool, resolvedPaths: [ResolvedTool], versions: [ToolVersion], commands commandResults: [CommandInfo]) -> [String] {
         var commands = [
             "brew install",
             "brew update",
@@ -285,6 +303,10 @@ public struct HabitatScanner {
             "rm -r",
             "rm -rf"
         ]
+
+        if !projectPathIsExistingDirectory {
+            commands.insert("running project commands before project path is verified", at: 0)
+        }
 
         if let packageManager = project.packageManager {
             for command in dependencyMutationCommands(forPackageManager: packageManager).reversed() {
@@ -389,8 +411,12 @@ public struct HabitatScanner {
         }
     }
 
-    private func makeWarnings(project: ProjectInfo, resolvedPaths: [ResolvedTool], versions: [ToolVersion]) -> [String] {
+    private func makeWarnings(project: ProjectInfo, projectPathIsExistingDirectory: Bool, resolvedPaths: [ResolvedTool], versions: [ToolVersion]) -> [String] {
         var warnings: [String] = []
+
+        if !projectPathIsExistingDirectory {
+            warnings.append("Project path is not an existing directory; verify --project before running project commands.")
+        }
 
         if let nodeHint = project.runtimeHints.node {
             let activeNode = resolvedPaths.first(where: { $0.name == "node" })?.paths.first ?? "missing"
@@ -455,7 +481,7 @@ public struct HabitatScanner {
             warnings.append("SSH private key file exists; do not read private key values.")
         }
 
-        if project.packageManager == nil {
+        if project.packageManager == nil, projectPathIsExistingDirectory {
             warnings.append("No primary package manager signal detected; prefer read-only inspection before mutation.")
         }
 

@@ -19,6 +19,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - `agent_context.md` filters command diagnostics to project-relevant tools while detailed diagnostics remain in the machine and environment reports.
 - `agent_context.md` includes previous-scan changes in `Notes` only when a comparison was requested, keeping normal scans short.
 - `agent_context.md` uses a clean read-only fallback when no package manager signal is detected.
+- If `--project` points to a path that is not an existing directory, `agent_context.md` and `command_policy.md` tell agents to verify the path before running project commands and only allow path existence checks.
 - Read-only command execution with timeout, duration, stdout, stderr, exit code, and availability capture.
 - Missing commands and scanner failures are represented as scan data instead of fatal errors.
 - `scan_result.json` records PATH resolution and version availability for Python, pip, uv, pyenv, RubyGems, and Ruby tooling in addition to the project package managers.
