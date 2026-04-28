@@ -14,6 +14,10 @@ public struct ScanComparator {
             changes.append(lockfileChange)
         }
 
+        if let secretFileChange = secretFileChange(previous: previous, current: current) {
+            changes.append(secretFileChange)
+        }
+
         changes.append(contentsOf: missingToolChanges(previous: previous, current: current))
         changes.append(contentsOf: toolVerificationChanges(previous: previous, current: current))
         changes.append(contentsOf: preferredCommandChanges(previous: previous, current: current))
@@ -48,6 +52,25 @@ public struct ScanComparator {
             category: "lockfiles",
             summary: "Lockfiles changed: \(parts.joined(separator: "; ")).",
             impact: "Re-check package manager selection and ask before dependency installs."
+        )
+    }
+
+    private func secretFileChange(previous: ScanResult, current: ScanResult) -> ScanChange? {
+        let previousSecretFiles = Set(secretFiles(in: previous.project))
+        let currentSecretFiles = Set(secretFiles(in: current.project))
+        let added = currentSecretFiles.subtracting(previousSecretFiles).sorted()
+        let removed = previousSecretFiles.subtracting(currentSecretFiles).sorted()
+        guard !added.isEmpty || !removed.isEmpty else { return nil }
+
+        let parts = [
+            added.isEmpty ? nil : "added \(summarize(added))",
+            removed.isEmpty ? nil : "removed \(summarize(removed))",
+        ].compactMap { $0 }
+
+        return ScanChange(
+            category: "secret_files",
+            summary: "Secret-bearing file signals changed: \(parts.joined(separator: "; ")).",
+            impact: "Do not read secret, auth-token, or private-key values; follow current Avoid and Forbidden guidance."
         )
     }
 
@@ -238,6 +261,22 @@ public struct ScanComparator {
             "Podfile.lock",
             "Cartfile.resolved",
         ].filter { project.detectedFiles.contains($0) }
+    }
+
+    private func secretFiles(in project: ProjectInfo) -> [String] {
+        project.detectedFiles.filter { file in
+            file == ".env"
+                || file == ".env.example"
+                || (file.hasPrefix(".env.") && file != ".env.example")
+                || file == ".envrc"
+                || file == ".envrc.example"
+                || (file.hasPrefix(".envrc.") && file != ".envrc.example")
+                || file == ".npmrc"
+                || file == ".pnpmrc"
+                || file == ".yarnrc"
+                || file == ".yarnrc.yml"
+                || ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(file)
+        }
     }
 
     private func missingTools(in result: ScanResult, limitedTo relevantTools: Set<String>) -> Set<String> {

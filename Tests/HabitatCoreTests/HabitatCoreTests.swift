@@ -2446,6 +2446,48 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanComparisonSurfacesSecretFileSignalDeltasWithoutValues() throws {
+        let secretValue = "hh_previous_scan_secret_value"
+        let privateKeyMarker = "-----BEGIN OPENSSH PRIVATE KEY-----"
+        let previousProjectURL = try makeProject(files: [
+            "package.json": "{}",
+        ])
+        let currentProjectURL = try makeProject(files: [
+            "package.json": "{}",
+            ".env.local": "LOCAL_TOKEN=\(secretValue)\n",
+            ".pnpmrc": "//registry.npmjs.org/:_authToken=\(secretValue)\n",
+            "id_ed25519": "\(privateKeyMarker)\n\(secretValue)\n",
+        ])
+        let runner = FakeCommandRunner(results: [:])
+        let previous = HabitatScanner(runner: runner).scan(projectURL: previousProjectURL)
+        let current = HabitatScanner(runner: runner).scan(projectURL: currentProjectURL)
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let secretChange = changes.first(where: { $0.category == "secret_files" })
+
+        #expect(secretChange?.summary == "Secret-bearing file signals changed: added .env.local, .pnpmrc, id_ed25519.")
+        #expect(secretChange?.impact == "Do not read secret, auth-token, or private-key values; follow current Avoid and Forbidden guidance.")
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"category\" : \"secret_files\""))
+        #expect(context.contains("Secret-bearing file signals changed: added .env.local, .pnpmrc, id_ed25519. Do not read secret, auth-token, or private-key values; follow current Avoid and Forbidden guidance."))
+        #expect(report.contains("[secret_files] Secret-bearing file signals changed"))
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("LOCAL_TOKEN"))
+            #expect(!artifact.contains("_authToken"))
+            #expect(!artifact.contains(privateKeyMarker))
+        }
+    }
+
+    @Test
     func scanComparisonSeparatesResolvedAndIrrelevantMissingTools() throws {
         let previous = ScanResult(
             schemaVersion: "0.1",

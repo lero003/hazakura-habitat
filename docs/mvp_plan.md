@@ -256,6 +256,7 @@ Initial scope should be limited to AI-actionable deltas:
 
 - package manager selection changed since the previous scan
 - lockfiles appeared or disappeared
+- secret-bearing file signals appeared or disappeared, without reading or emitting values
 - missing tools appeared, were resolved, or stopped being relevant to the current project
 - project-relevant tool checks started failing or recovered, such as `xcode-select -p` for Swift/Xcode projects
 - preferred commands changed while the selected package manager stayed the same, such as `npm run` becoming `npm run test`
