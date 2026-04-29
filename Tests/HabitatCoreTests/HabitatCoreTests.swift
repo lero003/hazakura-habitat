@@ -1445,6 +1445,40 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanForbidsHomeSSHPrivateKeyReadCommands() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let privateKeyFiles = [
+            "~/.ssh/id_rsa",
+            "~/.ssh/id_dsa",
+            "~/.ssh/id_ecdsa",
+            "~/.ssh/id_ed25519",
+        ]
+
+        for file in privateKeyFiles {
+            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)"] {
+                #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+            }
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not read SSH private keys."))
+        #expect(!context.contains("Do not run `read SSH private keys`."))
+
+        for file in privateKeyFiles {
+            #expect(policy.contains("`cat \(file)`"), "Expected command_policy.md to forbid cat \(file)")
+            #expect(policy.contains("`grep <pattern> \(file)`"), "Expected command_policy.md to forbid grep <pattern> \(file)")
+        }
+    }
+
+    @Test
     func scanAsksBeforeCorepackMutationCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": """

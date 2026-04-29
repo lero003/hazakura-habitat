@@ -52,7 +52,7 @@ public struct ReportWriter {
             useLines = ([packageManagerUse] + preferredCommands.prefix(2).map { "Prefer `\($0)`." })
                 .compactMap { $0 }
         }
-        let avoidLines = prioritizedForbiddenCommands(result).prefix(5).map(avoidLine)
+        let avoidLines = prioritizedForbiddenCommands(result).prefix(6).map(avoidLine)
         let askLines = result.policy.askFirstCommands.prefix(4).map { "Ask before `\($0)`." }
         let mismatchLines = result.warnings.isEmpty ? ["- None detected."] : result.warnings.map { "- \($0)" }
         let changeLines = result.changes.map { "- \($0.summary) \($0.impact)" }
@@ -470,6 +470,7 @@ public struct ReportWriter {
 
         append("sudo", to: &commands, from: result.policy.forbiddenCommands)
         append("destructive file deletion outside the selected project", to: &commands, from: result.policy.forbiddenCommands)
+        append("read SSH private keys", to: &commands, from: result.policy.forbiddenCommands)
 
         if hasSecretDotEnvFile(result.project) || result.project.detectedFiles.contains(".env.example") {
             append("read .env values", to: &commands, from: result.policy.forbiddenCommands)
@@ -481,10 +482,6 @@ public struct ReportWriter {
 
         if hasNetrcFile(result.project) {
             append("read .netrc values", to: &commands, from: result.policy.forbiddenCommands)
-        }
-
-        if hasSSHPrivateKeyFile(result.project) {
-            append("read SSH private keys", to: &commands, from: result.policy.forbiddenCommands)
         }
 
         if hasPackageManagerAuthConfig(result.project) {
