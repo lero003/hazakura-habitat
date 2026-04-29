@@ -101,8 +101,10 @@ public struct HabitatScanner {
                 "python -m pip install --user",
                 "python3 -m pip install --user",
                 "gem install",
+                "gem uninstall",
                 "go install",
                 "cargo install",
+                "cargo uninstall",
                 "read .env values",
                 "read .envrc values",
                 "read .netrc values",
@@ -254,26 +256,41 @@ public struct HabitatScanner {
             "pip3 install",
             "python -m pip install",
             "python3 -m pip install",
+            "pip uninstall",
+            "pip3 uninstall",
+            "python -m pip uninstall",
+            "python3 -m pip uninstall",
             "npm install",
             "npm ci",
             "npm update",
+            "npm uninstall",
+            "npm remove",
+            "npm rm",
             "npm exec",
             "npx",
             "pnpm install",
             "pnpm add",
             "pnpm update",
+            "pnpm remove",
+            "pnpm rm",
+            "pnpm uninstall",
             "pnpm dlx",
             "yarn install",
             "yarn add",
             "yarn up",
+            "yarn remove",
             "yarn dlx",
             "bun install",
             "bun add",
             "bun update",
+            "bun remove",
             "bunx",
             "uv sync",
+            "uv add",
+            "uv remove",
             "uvx",
             "bundle install",
+            "bundle remove",
             "brew bundle",
             "brew bundle install",
             "brew bundle cleanup",
@@ -285,6 +302,7 @@ public struct HabitatScanner {
             "go mod tidy",
             "cargo add",
             "cargo update",
+            "cargo remove",
             "pod install",
             "pod update",
             "pod repo update",
@@ -426,19 +444,19 @@ public struct HabitatScanner {
     private func dependencyMutationCommands(forPackageManager packageManager: String) -> [String] {
         switch packageManager {
         case "npm":
-            return ["npm install", "npm ci", "npm update"]
+            return ["npm install", "npm ci", "npm update", "npm uninstall", "npm remove", "npm rm"]
         case "pnpm":
-            return ["pnpm install", "pnpm add", "pnpm update"]
+            return ["pnpm install", "pnpm add", "pnpm update", "pnpm remove", "pnpm rm", "pnpm uninstall"]
         case "yarn":
-            return ["yarn install", "yarn add", "yarn up"]
+            return ["yarn install", "yarn add", "yarn up", "yarn remove"]
         case "bun":
-            return ["bun install", "bun add", "bun update"]
+            return ["bun install", "bun add", "bun update", "bun remove"]
         case "uv":
-            return ["uv sync"]
+            return ["uv sync", "uv add", "uv remove"]
         case "python":
-            return ["pip install", "pip3 install", "python -m pip install", "python3 -m pip install"]
+            return ["pip install", "pip3 install", "python -m pip install", "python3 -m pip install", "pip uninstall", "pip3 uninstall", "python -m pip uninstall", "python3 -m pip uninstall"]
         case "bundler":
-            return ["bundle install"]
+            return ["bundle install", "bundle remove"]
         case "homebrew":
             return ["brew bundle", "brew bundle install", "brew bundle cleanup", "brew bundle dump", "brew update", "brew cleanup", "brew autoremove"]
         case "swiftpm":
@@ -446,7 +464,7 @@ public struct HabitatScanner {
         case "go":
             return ["go get", "go mod tidy"]
         case "cargo":
-            return ["cargo add", "cargo update"]
+            return ["cargo add", "cargo update", "cargo remove"]
         case "cocoapods":
             return ["pod install", "pod update", "pod repo update", "pod deintegrate"]
         case "carthage":

@@ -106,26 +106,41 @@ Ask First:
 - `pip3 install`
 - `python -m pip install`
 - `python3 -m pip install`
+- `pip uninstall`
+- `pip3 uninstall`
+- `python -m pip uninstall`
+- `python3 -m pip uninstall`
 - `npm install`
 - `npm ci`
 - `npm update`
+- `npm uninstall`
+- `npm remove`
+- `npm rm`
 - `npm exec`
 - `npx`
 - `pnpm install`
 - `pnpm add`
 - `pnpm update`
+- `pnpm remove`
+- `pnpm rm`
+- `pnpm uninstall`
 - `pnpm dlx`
 - `yarn install`
 - `yarn add`
 - `yarn up`
+- `yarn remove`
 - `yarn dlx`
 - `bun install`
 - `bun add`
 - `bun update`
+- `bun remove`
 - `bunx`
 - `uv sync`
+- `uv add`
+- `uv remove`
 - `uvx`
 - `bundle install`
+- `bundle remove`
 - `running Bundler commands before bundle version check succeeds`
 - `brew bundle`
 - `brew bundle install`
@@ -143,6 +158,7 @@ Ask First:
 - `go mod tidy`
 - `cargo add`
 - `cargo update`
+- `cargo remove`
 - `running Cargo commands before cargo version check succeeds`
 - `pod install`
 - `pod update`
@@ -244,8 +260,10 @@ Forbidden in MVP-generated policy:
 - `python -m pip install --user`
 - `python3 -m pip install --user`
 - `gem install`
+- `gem uninstall`
 - `go install`
 - `cargo install`
+- `cargo uninstall`
 - destructive file deletion outside the selected project
 - reading secret values
 - reading `.envrc` values

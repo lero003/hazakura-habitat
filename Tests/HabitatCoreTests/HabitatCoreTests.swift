@@ -853,11 +853,11 @@ struct HabitatCoreTests {
     @Test
     func scanGuardsJavaScriptDependencyMutationCommands() throws {
         let cases: [(lockfile: String, packageManager: String, commands: [String])] = [
-            ("package-lock.json", "npm", ["npm install", "npm ci", "npm update"]),
-            ("pnpm-lock.yaml", "pnpm", ["pnpm install", "pnpm add", "pnpm update"]),
-            ("yarn.lock", "yarn", ["yarn install", "yarn add", "yarn up"]),
-            ("bun.lock", "bun", ["bun install", "bun add", "bun update"]),
-            ("bun.lockb", "bun", ["bun install", "bun add", "bun update"]),
+            ("package-lock.json", "npm", ["npm install", "npm ci", "npm update", "npm uninstall", "npm remove", "npm rm"]),
+            ("pnpm-lock.yaml", "pnpm", ["pnpm install", "pnpm add", "pnpm update", "pnpm remove", "pnpm rm", "pnpm uninstall"]),
+            ("yarn.lock", "yarn", ["yarn install", "yarn add", "yarn up", "yarn remove"]),
+            ("bun.lock", "bun", ["bun install", "bun add", "bun update", "bun remove"]),
+            ("bun.lockb", "bun", ["bun install", "bun add", "bun update", "bun remove"]),
         ]
 
         for testCase in cases {
@@ -918,7 +918,7 @@ struct HabitatCoreTests {
     }
 
     @Test
-    func scanForbidsLanguageGlobalInstallCommands() throws {
+    func scanForbidsLanguageGlobalPackageMutationCommands() throws {
         let projectURL = try makeProject(files: [
             "README.md": "# Demo\n",
         ])
@@ -926,8 +926,10 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
         let commands = [
             "gem install",
+            "gem uninstall",
             "go install",
             "cargo install",
+            "cargo uninstall",
         ]
 
         for command in commands {
@@ -2146,7 +2148,16 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "python")
-        for command in ["pip install", "pip3 install", "python -m pip install", "python3 -m pip install"] {
+        for command in [
+            "pip install",
+            "pip3 install",
+            "python -m pip install",
+            "python3 -m pip install",
+            "pip uninstall",
+            "pip3 uninstall",
+            "python -m pip uninstall",
+            "python3 -m pip uninstall",
+        ] {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
         }
 
@@ -2172,6 +2183,8 @@ struct HabitatCoreTests {
         #expect(context.contains("Ask before `python3 -m pip install`."))
         #expect(policy.contains("`pip3 install`"))
         #expect(policy.contains("`python -m pip install`"))
+        #expect(policy.contains("`pip uninstall`"))
+        #expect(policy.contains("`python3 -m pip uninstall`"))
         #expect(policy.contains("`global pip install`"))
         #expect(policy.contains("`global python3 -m pip install`"))
         #expect(policy.contains("`python3 -m pip install --user`"))
@@ -2249,6 +2262,8 @@ struct HabitatCoreTests {
         #expect(result.project.packageManager == "uv")
         #expect(result.policy.preferredCommands == ["uv run"])
         #expect(result.policy.askFirstCommands.contains("uv sync"))
+        #expect(result.policy.askFirstCommands.contains("uv add"))
+        #expect(result.policy.askFirstCommands.contains("uv remove"))
         #expect(result.policy.askFirstCommands.contains("dependency installs before choosing between uv.lock and requirements files"))
         #expect(result.warnings.contains("Python dependency files include both uv.lock and requirements files; ask before dependency installs until the source of truth is clear."))
 
@@ -2523,6 +2538,7 @@ struct HabitatCoreTests {
         #expect(result.policy.askFirstCommands.contains("running Cargo commands before cargo is available"))
         #expect(result.policy.askFirstCommands.contains("cargo add"))
         #expect(result.policy.askFirstCommands.contains("cargo update"))
+        #expect(result.policy.askFirstCommands.contains("cargo remove"))
         #expect(result.warnings.contains("Project files prefer Cargo, but cargo was not found on PATH; ask before running Cargo commands."))
         #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
 
@@ -2533,6 +2549,7 @@ struct HabitatCoreTests {
 
         #expect(context.contains("Verify `cargo` before running Cargo commands."))
         #expect(context.contains("Ask before `running Cargo commands before cargo is available`."))
+        #expect(policy.contains("`cargo remove`"))
         #expect(context.contains("Ask before `cargo update`."))
         #expect(!context.contains("Prefer `cargo test`."))
         #expect(!policy.contains("`cargo test`"))
