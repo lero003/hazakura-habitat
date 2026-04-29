@@ -196,6 +196,15 @@ Ask First:
 - `git branch -d`
 - `git branch -D`
 - `git tag -d`
+- `git tag`
+- `git fetch`
+- `git fetch --all`
+- `git fetch --prune`
+- `git remote add`
+- `git remote set-url`
+- `git remote remove`
+- `git init`
+- `git clone`
 - `git add`
 - `git add -A`
 - `git add --all`
