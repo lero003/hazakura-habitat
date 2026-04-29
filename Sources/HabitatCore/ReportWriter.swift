@@ -181,6 +181,8 @@ public struct ReportWriter {
 
     private func avoidLine(for command: String) -> String {
         switch command {
+        case "destructive file deletion outside the selected project":
+            return "Do not delete files outside the selected project."
         case "read .env values":
             return "Do not read `.env` values."
         case "read .envrc values":

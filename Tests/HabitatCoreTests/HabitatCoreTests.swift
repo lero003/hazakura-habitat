@@ -796,7 +796,8 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not run `destructive file deletion outside the selected project`."))
+        #expect(context.contains("Do not delete files outside the selected project."))
+        #expect(!context.contains("Do not run `destructive file deletion outside the selected project`."))
         #expect(policy.contains("`destructive file deletion outside the selected project`"))
     }
 
