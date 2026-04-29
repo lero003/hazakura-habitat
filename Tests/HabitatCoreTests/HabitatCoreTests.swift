@@ -2282,6 +2282,22 @@ struct HabitatCoreTests {
             "pip3 uninstall",
             "python -m pip uninstall",
             "python3 -m pip uninstall",
+            "pip download",
+            "pip3 download",
+            "python -m pip download",
+            "python3 -m pip download",
+            "pip wheel",
+            "pip3 wheel",
+            "python -m pip wheel",
+            "python3 -m pip wheel",
+            "pip cache purge",
+            "pip3 cache purge",
+            "python -m pip cache purge",
+            "python3 -m pip cache purge",
+            "pip cache remove",
+            "pip3 cache remove",
+            "python -m pip cache remove",
+            "python3 -m pip cache remove",
         ] {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
         }
@@ -2314,6 +2330,10 @@ struct HabitatCoreTests {
         #expect(policy.contains("`python -m pip install`"))
         #expect(policy.contains("`pip uninstall`"))
         #expect(policy.contains("`python3 -m pip uninstall`"))
+        #expect(policy.contains("`pip download`"))
+        #expect(policy.contains("`python3 -m pip wheel`"))
+        #expect(policy.contains("`pip cache purge`"))
+        #expect(policy.contains("`python3 -m pip cache remove`"))
         #expect(policy.contains("`global pip install`"))
         #expect(policy.contains("`global python3 -m pip install`"))
         #expect(policy.contains("`python3 -m pip install --user`"))
