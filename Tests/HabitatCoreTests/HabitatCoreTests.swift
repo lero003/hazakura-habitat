@@ -1370,6 +1370,43 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanForbidsShellHistoryReadCommands() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "read shell history",
+            "history",
+            "fc -l",
+            "cat ~/.zsh_history",
+            "cat ~/.bash_history",
+            "cat ~/.history",
+            "tail ~/.zsh_history",
+            "tail ~/.bash_history",
+            "grep ~/.zsh_history",
+            "grep ~/.bash_history",
+        ]
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not read shell history."))
+        #expect(!context.contains("Do not run `read shell history`."))
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
     func scanAsksBeforeCorepackMutationCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": """

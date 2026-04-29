@@ -456,6 +456,7 @@ Forbidden in MVP-generated policy:
 - `security dump-keychain`
 - `security export`
 - environment variable dumps, including `env`, `printenv`, `export -p`, `set`, and `declare -x`
+- shell history reads, including `history`, `fc -l`, `cat ~/.zsh_history`, `cat ~/.bash_history`, `tail ~/.zsh_history`, and `grep ~/.zsh_history`
 - `pipx install`
 - `pipx install-all`
 - `pipx uninstall`

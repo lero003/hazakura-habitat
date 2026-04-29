@@ -187,6 +187,8 @@ public struct ReportWriter {
             return "Do not execute remote scripts through `curl` or `wget` piped into a shell."
         case "dump environment variables":
             return "Do not dump environment variables."
+        case "read shell history":
+            return "Do not read shell history."
         case "read .env values":
             return "Do not read `.env` values."
         case "read .envrc values":
@@ -490,6 +492,7 @@ public struct ReportWriter {
         }
 
         append("dump environment variables", to: &commands, from: result.policy.forbiddenCommands)
+        append("read shell history", to: &commands, from: result.policy.forbiddenCommands)
         append("remote script execution through curl or wget", to: &commands, from: result.policy.forbiddenCommands)
 
         for command in result.policy.forbiddenCommands where !commands.contains(command) {
