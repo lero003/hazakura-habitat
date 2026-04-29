@@ -2295,6 +2295,10 @@ struct HabitatCoreTests {
             "pip3 install --user",
             "python -m pip install --user",
             "python3 -m pip install --user",
+            "pip install --break-system-packages",
+            "pip3 install --break-system-packages",
+            "python -m pip install --break-system-packages",
+            "python3 -m pip install --break-system-packages",
         ] {
             #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
         }
@@ -2313,6 +2317,7 @@ struct HabitatCoreTests {
         #expect(policy.contains("`global pip install`"))
         #expect(policy.contains("`global python3 -m pip install`"))
         #expect(policy.contains("`python3 -m pip install --user`"))
+        #expect(policy.contains("`python3 -m pip install --break-system-packages`"))
     }
 
     @Test

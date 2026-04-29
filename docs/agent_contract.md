@@ -307,6 +307,10 @@ Forbidden in MVP-generated policy:
 - `pip3 install --user`
 - `python -m pip install --user`
 - `python3 -m pip install --user`
+- `pip install --break-system-packages`
+- `pip3 install --break-system-packages`
+- `python -m pip install --break-system-packages`
+- `python3 -m pip install --break-system-packages`
 - `pipx install`
 - `pipx install-all`
 - `pipx uninstall`
