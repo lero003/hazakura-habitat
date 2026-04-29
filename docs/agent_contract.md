@@ -171,6 +171,18 @@ Ask First:
 - `bun update`
 - `bun remove`
 - `bunx`
+- `npm publish`
+- `pnpm publish`
+- `yarn publish`
+- `yarn npm publish`
+- `bun publish`
+- `uv publish`
+- `twine upload`
+- `python -m twine upload`
+- `python3 -m twine upload`
+- `gem push`
+- `cargo publish`
+- `pod trunk push`
 - `corepack enable`
 - `corepack disable`
 - `corepack prepare`

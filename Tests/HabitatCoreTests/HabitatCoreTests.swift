@@ -1069,6 +1069,46 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforePackagePublicationCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            "Gemfile": "source \"https://rubygems.org\"\n",
+            "Cargo.toml": "[package]\nname = \"demo\"\nversion = \"0.1.0\"\n",
+            "Podfile": "platform :ios, '17.0'\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "npm publish",
+            "pnpm publish",
+            "yarn publish",
+            "yarn npm publish",
+            "bun publish",
+            "uv publish",
+            "twine upload",
+            "python -m twine upload",
+            "python3 -m twine upload",
+            "gem push",
+            "cargo publish",
+            "pod trunk push",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
     func scanAsksBeforeCorepackMutationCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": """
