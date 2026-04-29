@@ -665,7 +665,7 @@ struct HabitatCoreTests {
     }
 
     @Test
-    func scanAsksBeforeProjectDeletionCleanupBranchAndWorktreeCommands() throws {
+    func scanAsksBeforeProjectDeletionCleanupIndexHistoryBranchAndWorktreeCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
             "package-lock.json": "lockfile",
@@ -693,6 +693,15 @@ struct HabitatCoreTests {
             "git branch -d",
             "git branch -D",
             "git tag -d",
+            "git add",
+            "git add -A",
+            "git add --all",
+            "git add -u",
+            "git commit",
+            "git commit --amend",
+            "git reset",
+            "git reset --soft",
+            "git reset --mixed",
             "git pull",
             "git merge",
             "git cherry-pick",
