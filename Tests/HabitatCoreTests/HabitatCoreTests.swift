@@ -654,12 +654,14 @@ struct HabitatCoreTests {
 
         #expect(result.project.packageManager == "npm")
         #expect(result.policy.askFirstCommands.contains("modifying lockfiles"))
+        #expect(result.policy.askFirstCommands.contains("modifying version manager files"))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(policy.contains("`modifying lockfiles`"))
+        #expect(policy.contains("`modifying version manager files`"))
     }
 
     @Test
@@ -2287,6 +2289,7 @@ struct HabitatCoreTests {
             "python3 -m venv",
             "uv venv",
             "virtualenv",
+            "creating or deleting virtual environments",
         ]
 
         for command in commands {
