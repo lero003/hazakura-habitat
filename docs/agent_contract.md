@@ -215,6 +215,10 @@ Ask First:
 - dependency installs before matching active Ruby to project version hints
 - dependency installs before choosing between `pyproject.toml` and `requirements*.txt` when both are present
 - dependency installs before choosing between `uv.lock` and `requirements*.txt` when both are present
+- `python -m venv`
+- `python3 -m venv`
+- `uv venv`
+- `virtualenv`
 - creating or deleting virtual environments
 - modifying lockfiles
 - modifying version manager files
