@@ -1462,6 +1462,10 @@ struct HabitatCoreTests {
             for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)"] {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
             }
+
+            for command in ["ssh-add \(file)", "ssh-add -K \(file)", "ssh-keygen -y -f \(file)"] {
+                #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+            }
         }
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -1475,6 +1479,8 @@ struct HabitatCoreTests {
         for file in privateKeyFiles {
             #expect(policy.contains("`cat \(file)`"), "Expected command_policy.md to forbid cat \(file)")
             #expect(policy.contains("`grep <pattern> \(file)`"), "Expected command_policy.md to forbid grep <pattern> \(file)")
+            #expect(policy.contains("`ssh-add \(file)`"), "Expected command_policy.md to forbid ssh-add \(file)")
+            #expect(policy.contains("`ssh-keygen -y -f \(file)`"), "Expected command_policy.md to forbid ssh-keygen -y -f \(file)")
         }
     }
 
@@ -2093,6 +2099,10 @@ struct HabitatCoreTests {
             }
         }
 
+        for command in ["ssh-add id_ed25519", "ssh-add -K id_ed25519", "ssh-keygen -y -f id_ed25519"] {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
         for file in [".env", ".envrc.local"] {
             for command in ["source \(file)", ". \(file)"] {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
@@ -2110,6 +2120,9 @@ struct HabitatCoreTests {
             #expect(policy.contains("`cat \(file)`"), "Expected command_policy.md to forbid cat \(file)")
             #expect(policy.contains("`grep <pattern> \(file)`"), "Expected command_policy.md to forbid grep <pattern> \(file)")
         }
+
+        #expect(policy.contains("`ssh-add id_ed25519`"), "Expected command_policy.md to forbid ssh-add id_ed25519")
+        #expect(policy.contains("`ssh-keygen -y -f id_ed25519`"), "Expected command_policy.md to forbid ssh-keygen -y -f id_ed25519")
 
         for file in [".env", ".envrc.local"] {
             #expect(policy.contains("`source \(file)`"), "Expected command_policy.md to forbid source \(file)")

@@ -226,6 +226,18 @@ public struct HabitatScanner {
                 "grep <pattern> ~/.ssh/id_dsa",
                 "grep <pattern> ~/.ssh/id_ecdsa",
                 "grep <pattern> ~/.ssh/id_ed25519",
+                "ssh-add ~/.ssh/id_rsa",
+                "ssh-add ~/.ssh/id_dsa",
+                "ssh-add ~/.ssh/id_ecdsa",
+                "ssh-add ~/.ssh/id_ed25519",
+                "ssh-add -K ~/.ssh/id_rsa",
+                "ssh-add -K ~/.ssh/id_dsa",
+                "ssh-add -K ~/.ssh/id_ecdsa",
+                "ssh-add -K ~/.ssh/id_ed25519",
+                "ssh-keygen -y -f ~/.ssh/id_rsa",
+                "ssh-keygen -y -f ~/.ssh/id_dsa",
+                "ssh-keygen -y -f ~/.ssh/id_ecdsa",
+                "ssh-keygen -y -f ~/.ssh/id_ed25519",
                 "pipx install",
                 "pipx install-all",
                 "pipx uninstall",
@@ -983,13 +995,23 @@ public struct HabitatScanner {
 
     private func secretFileReadForbiddenCommands(_ project: ProjectInfo) -> [String] {
         secretValueFiles(project).flatMap { file in
-            [
+            var commands = [
                 "cat \(file)",
                 "less \(file)",
                 "head \(file)",
                 "tail \(file)",
                 "grep <pattern> \(file)",
             ]
+
+            if isSSHPrivateKeyFilename(file) {
+                commands += [
+                    "ssh-add \(file)",
+                    "ssh-add -K \(file)",
+                    "ssh-keygen -y -f \(file)",
+                ]
+            }
+
+            return commands
         }
     }
 
