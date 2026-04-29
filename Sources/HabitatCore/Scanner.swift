@@ -270,6 +270,10 @@ public struct HabitatScanner {
                 "ssh-add -K ~/.ssh/id_dsa",
                 "ssh-add -K ~/.ssh/id_ecdsa",
                 "ssh-add -K ~/.ssh/id_ed25519",
+                "ssh-add --apple-use-keychain ~/.ssh/id_rsa",
+                "ssh-add --apple-use-keychain ~/.ssh/id_dsa",
+                "ssh-add --apple-use-keychain ~/.ssh/id_ecdsa",
+                "ssh-add --apple-use-keychain ~/.ssh/id_ed25519",
                 "ssh-keygen -y -f ~/.ssh/id_rsa",
                 "ssh-keygen -y -f ~/.ssh/id_dsa",
                 "ssh-keygen -y -f ~/.ssh/id_ecdsa",
@@ -1047,6 +1051,7 @@ public struct HabitatScanner {
                 commands += [
                     "ssh-add \(file)",
                     "ssh-add -K \(file)",
+                    "ssh-add --apple-use-keychain \(file)",
                     "ssh-keygen -y -f \(file)",
                 ]
             }

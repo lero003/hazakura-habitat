@@ -1483,7 +1483,7 @@ struct HabitatCoreTests {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
             }
 
-            for command in ["ssh-add \(file)", "ssh-add -K \(file)", "ssh-keygen -y -f \(file)"] {
+            for command in ["ssh-add \(file)", "ssh-add -K \(file)", "ssh-add --apple-use-keychain \(file)", "ssh-keygen -y -f \(file)"] {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
             }
         }
@@ -1504,6 +1504,7 @@ struct HabitatCoreTests {
             #expect(policy.contains("`awk <program> \(file)`"), "Expected command_policy.md to forbid awk <program> \(file)")
             #expect(policy.contains("`bat \(file)`"), "Expected command_policy.md to forbid bat \(file)")
             #expect(policy.contains("`ssh-add \(file)`"), "Expected command_policy.md to forbid ssh-add \(file)")
+            #expect(policy.contains("`ssh-add --apple-use-keychain \(file)`"), "Expected command_policy.md to forbid ssh-add --apple-use-keychain \(file)")
             #expect(policy.contains("`ssh-keygen -y -f \(file)`"), "Expected command_policy.md to forbid ssh-keygen -y -f \(file)")
         }
     }
@@ -2123,7 +2124,7 @@ struct HabitatCoreTests {
             }
         }
 
-        for command in ["ssh-add id_ed25519", "ssh-add -K id_ed25519", "ssh-keygen -y -f id_ed25519"] {
+        for command in ["ssh-add id_ed25519", "ssh-add -K id_ed25519", "ssh-add --apple-use-keychain id_ed25519", "ssh-keygen -y -f id_ed25519"] {
             #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
         }
 
@@ -2150,6 +2151,7 @@ struct HabitatCoreTests {
         }
 
         #expect(policy.contains("`ssh-add id_ed25519`"), "Expected command_policy.md to forbid ssh-add id_ed25519")
+        #expect(policy.contains("`ssh-add --apple-use-keychain id_ed25519`"), "Expected command_policy.md to forbid ssh-add --apple-use-keychain id_ed25519")
         #expect(policy.contains("`ssh-keygen -y -f id_ed25519`"), "Expected command_policy.md to forbid ssh-keygen -y -f id_ed25519")
 
         for file in [".env", ".envrc.local"] {
