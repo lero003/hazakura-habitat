@@ -1635,9 +1635,10 @@ struct HabitatCoreTests {
         }
 
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
-        #expect(context.contains("Do not run `read .env values`."))
-        #expect(context.contains("Do not run `read package manager auth config values`."))
-        #expect(context.contains("Do not run `read SSH private keys`."))
+        #expect(context.contains("Do not read `.env` values."))
+        #expect(context.contains("Do not read package manager auth config values."))
+        #expect(context.contains("Do not read SSH private keys."))
+        #expect(!context.contains("Do not run `read"))
     }
 
     @Test
@@ -1666,7 +1667,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains(".pnpmrc"))
-        #expect(context.contains("Do not run `read package manager auth config values`."))
+        #expect(context.contains("Do not read package manager auth config values."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
     }
 
@@ -1710,7 +1711,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".pypirc"))
         #expect(scanResult.contains("pip.conf"))
-        #expect(context.contains("Do not run `read package manager auth config values`."))
+        #expect(context.contains("Do not read package manager auth config values."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(context.contains("Package manager auth config files detected (.pypirc, pip.conf); do not read credential values."))
         #expect(policy.contains("`read package manager auth config values`"))
@@ -1753,7 +1754,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".gem/credentials"))
         #expect(scanResult.contains(".bundle/config"))
-        #expect(context.contains("Do not run `read package manager auth config values`."))
+        #expect(context.contains("Do not read package manager auth config values."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(policy.contains("`read package manager auth config values`"))
     }
@@ -1793,7 +1794,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".cargo/credentials.toml"))
         #expect(scanResult.contains(".cargo/credentials"))
-        #expect(context.contains("Do not run `read package manager auth config values`."))
+        #expect(context.contains("Do not read package manager auth config values."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(policy.contains("`read package manager auth config values`"))
     }
@@ -1837,7 +1838,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains("auth.json"))
         #expect(scanResult.contains(".composer/auth.json"))
-        #expect(context.contains("Do not run `read package manager auth config values`."))
+        #expect(context.contains("Do not read package manager auth config values."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(policy.contains("`read package manager auth config values`"))
     }
@@ -1870,7 +1871,7 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(scanResult.contains(".netrc"))
-        #expect(context.contains("Do not run `read .netrc values`."))
+        #expect(context.contains("Do not read `.netrc` values."))
         #expect(context.contains("Netrc credentials file exists; do not read .netrc values."))
         #expect(policy.contains("`read .netrc values`"))
     }
@@ -1902,7 +1903,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains("id_ed25519"))
-        #expect(context.contains("Do not run `read SSH private keys`."))
+        #expect(context.contains("Do not read SSH private keys."))
         #expect(context.contains("SSH private key file exists; do not read private key values."))
     }
 
@@ -1934,7 +1935,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains(".ssh/id_ed25519"))
-        #expect(context.contains("Do not run `read SSH private keys`."))
+        #expect(context.contains("Do not read SSH private keys."))
         #expect(context.contains("SSH private key file exists; do not read private key values."))
     }
 
@@ -1982,7 +1983,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".env.staging"))
         #expect(report.contains(".env.staging"))
-        #expect(context.contains("Do not run `read .env values`."))
+        #expect(context.contains("Do not read `.env` values."))
     }
 
     @Test
@@ -2013,8 +2014,8 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not run `read .envrc values`."))
-        #expect(!context.contains("Do not run `read .env values`."))
+        #expect(context.contains("Do not read `.envrc` values."))
+        #expect(!context.contains("Do not read `.env` values."))
         #expect(policy.contains("`read .envrc values`"))
     }
 
@@ -2042,7 +2043,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not run `read .envrc values`."))
+        #expect(context.contains("Do not read `.envrc` values."))
         #expect(policy.contains("`read .envrc values`"))
     }
 

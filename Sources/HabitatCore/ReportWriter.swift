@@ -52,7 +52,7 @@ public struct ReportWriter {
             useLines = ([packageManagerUse] + preferredCommands.prefix(2).map { "Prefer `\($0)`." })
                 .compactMap { $0 }
         }
-        let avoidLines = prioritizedForbiddenCommands(result).prefix(5).map { "Do not run `\($0)`." }
+        let avoidLines = prioritizedForbiddenCommands(result).prefix(5).map(avoidLine)
         let askLines = result.policy.askFirstCommands.prefix(4).map { "Ask before `\($0)`." }
         let mismatchLines = result.warnings.isEmpty ? ["- None detected."] : result.warnings.map { "- \($0)" }
         let changeLines = result.changes.map { "- \($0.summary) \($0.impact)" }
@@ -177,6 +177,23 @@ public struct ReportWriter {
     private func bulletList(_ items: [String], fallback: String) -> String {
         guard !items.isEmpty else { return fallback }
         return items.map { "- \($0)" }.joined(separator: "\n")
+    }
+
+    private func avoidLine(for command: String) -> String {
+        switch command {
+        case "read .env values":
+            return "Do not read `.env` values."
+        case "read .envrc values":
+            return "Do not read `.envrc` values."
+        case "read .netrc values":
+            return "Do not read `.netrc` values."
+        case "read package manager auth config values":
+            return "Do not read package manager auth config values."
+        case "read SSH private keys":
+            return "Do not read SSH private keys."
+        default:
+            return "Do not run `\(command)`."
+        }
     }
 
     private func agentRelevantDiagnostics(_ result: ScanResult) -> [String] {
