@@ -345,6 +345,15 @@ Forbidden in MVP-generated policy:
 - `sudo`
 - `brew upgrade`
 - `brew uninstall`
+- remote script execution through `curl` or `wget` piped into `sh` / `bash`
+- `curl | sh`
+- `curl | bash`
+- `wget | sh`
+- `wget | bash`
+- `sh <(curl ...)`
+- `bash <(curl ...)`
+- `sh <(wget ...)`
+- `bash <(wget ...)`
 - `npm install -g`
 - `npm install --global`
 - `npm i -g`

@@ -183,6 +183,8 @@ public struct ReportWriter {
         switch command {
         case "destructive file deletion outside the selected project":
             return "Do not delete files outside the selected project."
+        case "remote script execution through curl or wget":
+            return "Do not execute remote scripts through `curl` or `wget` piped into a shell."
         case "read .env values":
             return "Do not read `.env` values."
         case "read .envrc values":
@@ -484,6 +486,8 @@ public struct ReportWriter {
         if hasPackageManagerAuthConfig(result.project) {
             append("read package manager auth config values", to: &commands, from: result.policy.forbiddenCommands)
         }
+
+        append("remote script execution through curl or wget", to: &commands, from: result.policy.forbiddenCommands)
 
         for command in result.policy.forbiddenCommands where !commands.contains(command) {
             commands.append(command)

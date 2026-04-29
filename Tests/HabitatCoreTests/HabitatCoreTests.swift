@@ -831,6 +831,42 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanForbidsRemoteScriptShellExecution() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "remote script execution through curl or wget",
+            "curl | sh",
+            "curl | bash",
+            "wget | sh",
+            "wget | bash",
+            "sh <(curl ...)",
+            "bash <(curl ...)",
+            "sh <(wget ...)",
+            "bash <(wget ...)",
+        ]
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not execute remote scripts through `curl` or `wget` piped into a shell."))
+        #expect(!context.contains("Do not run `remote script execution through curl or wget`."))
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
     func scanTreatsPackageJsonOnlyAsNpmProjectAndGuardsMissingNpm() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
