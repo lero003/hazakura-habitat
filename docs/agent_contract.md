@@ -135,6 +135,12 @@ Ask First:
 - `bun update`
 - `bun remove`
 - `bunx`
+- `corepack enable`
+- `corepack disable`
+- `corepack prepare`
+- `corepack install`
+- `corepack use`
+- `corepack up`
 - `uv sync`
 - `uv add`
 - `uv remove`
