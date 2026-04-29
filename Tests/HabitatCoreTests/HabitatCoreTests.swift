@@ -1264,6 +1264,8 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
         let commands = [
             "gh auth token",
+            "gh auth status --show-token",
+            "gh auth status -t",
             "gh auth login",
             "gh auth logout",
             "gh auth refresh",

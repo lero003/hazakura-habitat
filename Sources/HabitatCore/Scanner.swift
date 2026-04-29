@@ -165,6 +165,8 @@ public struct HabitatScanner {
                 "pod trunk register",
                 "pod trunk me",
                 "gh auth token",
+                "gh auth status --show-token",
+                "gh auth status -t",
                 "gh auth login",
                 "gh auth logout",
                 "gh auth refresh",
