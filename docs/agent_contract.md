@@ -464,7 +464,7 @@ Forbidden in MVP-generated policy:
 - `security dump-keychain`
 - `security export`
 - environment variable dumps, including `env`, `printenv`, `export -p`, `set`, and `declare -x`
-- shell history reads, including `history`, `fc -l`, `cat ~/.zsh_history`, `cat ~/.bash_history`, `tail ~/.zsh_history`, and `grep ~/.zsh_history`
+- shell history reads, including `history`, `fc -l`, `cat ~/.zsh_history`, `less ~/.bash_history`, `bat ~/.history`, `head ~/.zsh_history`, `tail ~/.bash_history`, `grep ~/.history`, `rg <pattern> ~/.zsh_history`, `sed -n <range> ~/.bash_history`, and `awk <program> ~/.history`
 - home SSH private key reads or loads, including `cat ~/.ssh/id_rsa`, `less ~/.ssh/id_ed25519`, `bat ~/.ssh/id_ecdsa`, `head ~/.ssh/id_ecdsa`, `tail ~/.ssh/id_dsa`, `grep <pattern> ~/.ssh/id_rsa`, `rg <pattern> ~/.ssh/id_rsa`, `sed -n <range> ~/.ssh/id_rsa`, `awk <program> ~/.ssh/id_rsa`, `ssh-add ~/.ssh/id_ed25519`, and `ssh-keygen -y -f ~/.ssh/id_rsa`
 - concrete reads of detected secret-bearing project files, such as `cat .env`, `less .npmrc`, `head .netrc`, `tail .envrc.local`, `grep <pattern> .pypirc`, `rg <pattern> .env`, `sed -n <range> .env`, `awk <program> .env`, `bat .npmrc`, `cat id_ed25519`, `ssh-add id_ed25519`, or `ssh-keygen -y -f id_ed25519`
 - loading detected secret-bearing environment files, such as `source .env`, `. .env`, `source .envrc.local`, or `. .envrc.local`
