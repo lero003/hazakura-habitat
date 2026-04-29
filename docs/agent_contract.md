@@ -118,6 +118,14 @@ Ask First:
 - `pip3 wheel`
 - `python -m pip wheel`
 - `python3 -m pip wheel`
+- `pip index`
+- `pip3 index`
+- `python -m pip index`
+- `python3 -m pip index`
+- `pip search`
+- `pip3 search`
+- `python -m pip search`
+- `python3 -m pip search`
 - `pip cache purge`
 - `pip3 cache purge`
 - `python -m pip cache purge`

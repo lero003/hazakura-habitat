@@ -2290,6 +2290,14 @@ struct HabitatCoreTests {
             "pip3 wheel",
             "python -m pip wheel",
             "python3 -m pip wheel",
+            "pip index",
+            "pip3 index",
+            "python -m pip index",
+            "python3 -m pip index",
+            "pip search",
+            "pip3 search",
+            "python -m pip search",
+            "python3 -m pip search",
             "pip cache purge",
             "pip3 cache purge",
             "python -m pip cache purge",
@@ -2356,6 +2364,8 @@ struct HabitatCoreTests {
         #expect(policy.contains("`python3 -m pip uninstall`"))
         #expect(policy.contains("`pip download`"))
         #expect(policy.contains("`python3 -m pip wheel`"))
+        #expect(policy.contains("`pip index`"))
+        #expect(policy.contains("`python3 -m pip search`"))
         #expect(policy.contains("`pip cache purge`"))
         #expect(policy.contains("`python3 -m pip cache remove`"))
         #expect(policy.contains("`pip config set`"))
