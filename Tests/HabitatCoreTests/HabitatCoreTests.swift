@@ -1096,7 +1096,11 @@ struct HabitatCoreTests {
             "cargo publish",
             "cargo yank",
             "cargo owner",
+            "pod trunk add-owner",
+            "pod trunk remove-owner",
             "pod trunk push",
+            "pod trunk deprecate",
+            "pod trunk delete",
         ]
 
         for command in commands {
@@ -1162,6 +1166,8 @@ struct HabitatCoreTests {
             "gem signout",
             "cargo login",
             "cargo logout",
+            "pod trunk register",
+            "pod trunk me",
         ]
 
         for command in commands {

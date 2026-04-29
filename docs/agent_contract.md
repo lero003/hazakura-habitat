@@ -192,7 +192,11 @@ Ask First:
 - `cargo publish`
 - `cargo yank`
 - `cargo owner`
+- `pod trunk add-owner`
+- `pod trunk remove-owner`
 - `pod trunk push`
+- `pod trunk deprecate`
+- `pod trunk delete`
 - `corepack enable`
 - `corepack disable`
 - `corepack prepare`
@@ -397,6 +401,8 @@ Forbidden in MVP-generated policy:
 - `gem signout`
 - `cargo login`
 - `cargo logout`
+- `pod trunk register`
+- `pod trunk me`
 - `pipx install`
 - `pipx install-all`
 - `pipx uninstall`
