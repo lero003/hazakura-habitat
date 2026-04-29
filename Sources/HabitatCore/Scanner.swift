@@ -71,19 +71,10 @@ public struct HabitatScanner {
             resolvedPaths: resolvedPaths,
             versions: versions
         )
-        let commandPolicy = PolicySummary(
-            preferredCommands: preferredCommands(project: project),
-            askFirstCommands: askFirstCommands(
-                project: project,
-                projectPathIsExistingDirectory: projectPathIsExistingDirectory,
-                resolvedPaths: resolvedPaths,
-                versions: versions,
-                commands: commands
-            ),
-            forbiddenCommands: [
-                "sudo",
-                "destructive file deletion outside the selected project",
-                "remote script execution through curl or wget",
+        let forbiddenCommands = orderedUnique([
+            "sudo",
+            "destructive file deletion outside the selected project",
+            "remote script execution through curl or wget",
                 "curl | sh",
                 "curl | bash",
                 "curl | zsh",
@@ -238,11 +229,22 @@ public struct HabitatScanner {
                 "cargo install",
                 "cargo uninstall",
                 "read .env values",
-                "read .envrc values",
-                "read .netrc values",
-                "read package manager auth config values",
-                "read SSH private keys"
-            ]
+            "read .envrc values",
+            "read .netrc values",
+            "read package manager auth config values",
+            "read SSH private keys"
+        ] + secretFileReadForbiddenCommands(project)
+        )
+        let commandPolicy = PolicySummary(
+            preferredCommands: preferredCommands(project: project),
+            askFirstCommands: askFirstCommands(
+                project: project,
+                projectPathIsExistingDirectory: projectPathIsExistingDirectory,
+                resolvedPaths: resolvedPaths,
+                versions: versions,
+                commands: commands
+            ),
+            forbiddenCommands: forbiddenCommands
         )
         let diagnostics = commands.compactMap { command -> String? in
             let label = commandLabel(command)
@@ -953,14 +955,46 @@ public struct HabitatScanner {
 
     private func hasSecretDotEnvFile(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
-            file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
+            isSecretDotEnvFile(file)
         }
+    }
+
+    private func secretFileReadForbiddenCommands(_ project: ProjectInfo) -> [String] {
+        secretValueFiles(project).flatMap { file in
+            [
+                "cat \(file)",
+                "less \(file)",
+                "head \(file)",
+                "tail \(file)",
+                "grep <pattern> \(file)",
+            ]
+        }
+    }
+
+    private func secretValueFiles(_ project: ProjectInfo) -> [String] {
+        project.detectedFiles
+            .filter { file in
+                isSecretDotEnvFile(file)
+                    || isSecretEnvrcFile(file)
+                    || file == ".netrc"
+                    || isPackageManagerAuthConfigFile(file)
+                    || isSSHPrivateKeyFilename(file)
+            }
+            .sorted()
+    }
+
+    private func isSecretDotEnvFile(_ file: String) -> Bool {
+        file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
     }
 
     private func hasSecretEnvrcFile(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
-            file == ".envrc" || (file.hasPrefix(".envrc.") && file != ".envrc.example")
+            isSecretEnvrcFile(file)
         }
+    }
+
+    private func isSecretEnvrcFile(_ file: String) -> Bool {
+        file == ".envrc" || (file.hasPrefix(".envrc.") && file != ".envrc.example")
     }
 
     private func hasPackageManagerAuthConfig(_ project: ProjectInfo) -> Bool {

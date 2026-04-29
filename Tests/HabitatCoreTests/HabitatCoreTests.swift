@@ -2039,6 +2039,40 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanForbidsConcreteDetectedSecretFileReadCommands() throws {
+        let projectURL = try makeProject(files: [
+            ".env": "TOKEN=secret\n",
+            ".env.example": "TOKEN=\n",
+            ".envrc.local": "export TOKEN=secret\n",
+            ".netrc": "machine api.example.com password secret\n",
+            ".npmrc": "//registry.npmjs.org/:_authToken=secret\n",
+            "id_ed25519": "-----BEGIN OPENSSH PRIVATE KEY-----\nsecret\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let sensitiveFiles = [".env", ".envrc.local", ".netrc", ".npmrc", "id_ed25519"]
+
+        for file in sensitiveFiles {
+            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)"] {
+                #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+            }
+        }
+
+        #expect(!result.policy.forbiddenCommands.contains("cat .env.example"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for file in sensitiveFiles {
+            #expect(policy.contains("`cat \(file)`"), "Expected command_policy.md to forbid cat \(file)")
+            #expect(policy.contains("`grep <pattern> \(file)`"), "Expected command_policy.md to forbid grep <pattern> \(file)")
+        }
+
+        #expect(!policy.contains("`cat .env.example`"))
+    }
+
+    @Test
     func scanDetectsPnpmrcWithoutReadingTokenValues() throws {
         let secretValue = "hh_pnpm_token_secret_value"
         let projectURL = try makeProject(files: [

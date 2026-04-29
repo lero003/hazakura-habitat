@@ -465,6 +465,7 @@ Forbidden in MVP-generated policy:
 - `security export`
 - environment variable dumps, including `env`, `printenv`, `export -p`, `set`, and `declare -x`
 - shell history reads, including `history`, `fc -l`, `cat ~/.zsh_history`, `cat ~/.bash_history`, `tail ~/.zsh_history`, and `grep ~/.zsh_history`
+- concrete reads of detected secret-bearing project files, such as `cat .env`, `less .npmrc`, `head .netrc`, `tail .envrc.local`, `grep <pattern> .pypirc`, or `cat id_ed25519`
 - `pipx install`
 - `pipx install-all`
 - `pipx uninstall`
