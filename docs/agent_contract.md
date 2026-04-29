@@ -172,6 +172,12 @@ Ask First:
 - `bun remove`
 - `bunx`
 - `npm publish`
+- `npm unpublish`
+- `npm deprecate`
+- `npm dist-tag`
+- `npm owner`
+- `npm access`
+- `npm team`
 - `pnpm publish`
 - `yarn publish`
 - `yarn npm publish`
@@ -376,6 +382,13 @@ Forbidden in MVP-generated policy:
 - `pip3 config debug`
 - `python -m pip config debug`
 - `python3 -m pip config debug`
+- `npm token`
+- `npm token create`
+- `npm token list`
+- `npm token revoke`
+- `npm login`
+- `npm logout`
+- `npm adduser`
 - `pipx install`
 - `pipx install-all`
 - `pipx uninstall`
