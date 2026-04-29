@@ -239,6 +239,10 @@ public struct ReportWriter {
             return false
         }
 
+        guard preferredCommandsContainTestCommand(preferredCommands) else {
+            return false
+        }
+
         guard let packageManager = result.project.packageManager,
               let executable = executableName(forPackageManager: packageManager),
               selectedExecutableIsMissing(result, executable: executable)
@@ -253,6 +257,10 @@ public struct ReportWriter {
 
     private func canAllowSelectedProjectBuildCommands(_ result: ScanResult, preferredCommands: [String]) -> Bool {
         guard canAllowSelectedProjectCommands(result, preferredCommands: preferredCommands) else {
+            return false
+        }
+
+        guard preferredCommandsContainBuildCommand(preferredCommands) else {
             return false
         }
 
@@ -282,6 +290,25 @@ public struct ReportWriter {
         }
 
         return true
+    }
+
+    private func preferredCommandsContainTestCommand(_ preferredCommands: [String]) -> Bool {
+        preferredCommands.contains { command in
+            let tokens = commandTokens(command)
+            return tokens.contains("test") || tokens.contains("pytest")
+        }
+    }
+
+    private func preferredCommandsContainBuildCommand(_ preferredCommands: [String]) -> Bool {
+        preferredCommands.contains { command in
+            commandTokens(command).contains("build")
+        }
+    }
+
+    private func commandTokens(_ command: String) -> [String] {
+        command
+            .split(whereSeparator: \.isWhitespace)
+            .map(String.init)
     }
 
     private func xcodeToolingNeedsVerification(_ result: ScanResult) -> Bool {

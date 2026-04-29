@@ -811,6 +811,36 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func commandPolicyDoesNotAllowGenericTestOrBuildWithoutConcretePreferredCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env npm --version": .init(name: "/usr/bin/env", args: ["npm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "10.8.2", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.preferredCommands == ["npm run"])
+        #expect(!result.policy.askFirstCommands.contains("running JavaScript commands before node is available"))
+        #expect(!result.policy.askFirstCommands.contains("running npm commands before npm is available"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(policy.contains("`npm run`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
     func scanAsksBeforeJavaScriptCommandsWhenNodeRuntimeIsMissing() throws {
         let projectURL = try makeProject(files: [
             "package.json": """
@@ -1006,9 +1036,12 @@ struct HabitatCoreTests {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(context.contains("Prefer `npm run test`."))
         #expect(context.contains("Prefer `npm run build`."))
+        #expect(policy.contains("`test commands for the selected project`"))
+        #expect(policy.contains("`build commands for the selected project`"))
         #expect(!context.contains("secret deploy target"))
         #expect(!context.contains("npm run deploy"))
     }

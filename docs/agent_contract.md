@@ -92,8 +92,8 @@ Default classifications:
 Allowed:
 
 - read-only project inspection
-- test commands for the selected project, only when the selected executable is available or a project-local executable path is preferred
-- build commands for the selected project, only when the selected executable is available or a project-local executable path is preferred
+- test commands for the selected project, only when generated preferred commands include a concrete test command and the selected executable is available or a project-local executable path is preferred
+- build commands for the selected project, only when generated preferred commands include a concrete build command and the selected executable is available
 - package manager commands that do not install, update, delete, or mutate global state
 
 Ask First:
