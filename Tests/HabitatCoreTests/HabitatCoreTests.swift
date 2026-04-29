@@ -1191,6 +1191,38 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanForbidsCredentialStoreAndCliAuthTokenCommands() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "gh auth token",
+            "gh auth login",
+            "gh auth logout",
+            "gh auth refresh",
+            "gh auth setup-git",
+            "security find-generic-password -w",
+            "security find-internet-password -w",
+            "security dump-keychain",
+            "security export",
+        ]
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
     func scanAsksBeforeCorepackMutationCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": """
@@ -1845,7 +1877,7 @@ struct HabitatCoreTests {
             #expect(!artifact.contains(secretValue))
             #expect(!artifact.contains("pypi.example"))
             #expect(!artifact.contains("index-url"))
-            #expect(!artifact.contains("password"))
+            #expect(!artifact.contains("password ="))
         }
 
         let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
@@ -1972,7 +2004,7 @@ struct HabitatCoreTests {
             #expect(!artifact.contains("github-oauth"))
             #expect(!artifact.contains("http-basic"))
             #expect(!artifact.contains("repo.example"))
-            #expect(!artifact.contains("password"))
+            #expect(!artifact.contains("\"password\""))
         }
 
         let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
@@ -2006,7 +2038,7 @@ struct HabitatCoreTests {
             let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
             #expect(!artifact.contains(secretValue))
             #expect(!artifact.contains("api.example.com"))
-            #expect(!artifact.contains("password"))
+            #expect(!artifact.contains(" password "))
         }
 
         let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
@@ -3749,7 +3781,7 @@ struct HabitatCoreTests {
             #expect(!artifact.contains(secretValue))
             #expect(!artifact.contains("pypi.example"))
             #expect(!artifact.contains("index-url"))
-            #expect(!artifact.contains("password"))
+            #expect(!artifact.contains("password ="))
         }
     }
 

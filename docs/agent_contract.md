@@ -410,6 +410,15 @@ Forbidden in MVP-generated policy:
 - `cargo logout`
 - `pod trunk register`
 - `pod trunk me`
+- `gh auth token`
+- `gh auth login`
+- `gh auth logout`
+- `gh auth refresh`
+- `gh auth setup-git`
+- `security find-generic-password -w`
+- `security find-internet-password -w`
+- `security dump-keychain`
+- `security export`
 - `pipx install`
 - `pipx install-all`
 - `pipx uninstall`
