@@ -185,6 +185,8 @@ public struct ReportWriter {
             return "Do not delete files outside the selected project."
         case "remote script execution through curl or wget":
             return "Do not execute remote scripts through `curl` or `wget` piped into a shell."
+        case "dump environment variables":
+            return "Do not dump environment variables."
         case "read .env values":
             return "Do not read `.env` values."
         case "read .envrc values":
@@ -487,6 +489,7 @@ public struct ReportWriter {
             append("read package manager auth config values", to: &commands, from: result.policy.forbiddenCommands)
         }
 
+        append("dump environment variables", to: &commands, from: result.policy.forbiddenCommands)
         append("remote script execution through curl or wget", to: &commands, from: result.policy.forbiddenCommands)
 
         for command in result.policy.forbiddenCommands where !commands.contains(command) {

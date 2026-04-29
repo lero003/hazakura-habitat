@@ -455,6 +455,7 @@ Forbidden in MVP-generated policy:
 - `security find-internet-password -w`
 - `security dump-keychain`
 - `security export`
+- environment variable dumps, including `env`, `printenv`, `export -p`, `set`, and `declare -x`
 - `pipx install`
 - `pipx install-all`
 - `pipx uninstall`
@@ -478,6 +479,7 @@ Forbidden in MVP-generated policy:
 - `cargo install`
 - `cargo uninstall`
 - destructive file deletion outside the selected project
+- dumping environment variables
 - reading secret values
 - reading `.envrc` values
 - reading `.netrc` values
