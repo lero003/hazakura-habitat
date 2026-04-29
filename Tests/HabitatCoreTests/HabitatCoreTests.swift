@@ -1297,6 +1297,44 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanForbidsJavaScriptPackageManagerConfigValueReadCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+            ".npmrc": "//registry.npmjs.org/:_authToken=secret\n",
+            ".pnpmrc": "//registry.npmjs.org/:_authToken=secret\n",
+            ".yarnrc.yml": "npmAuthToken: secret\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "npm config list",
+            "npm config ls",
+            "npm config get",
+            "pnpm config list",
+            "pnpm config get",
+            "yarn config",
+            "yarn config list",
+            "yarn config get",
+        ]
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not read package manager auth config values."))
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
     func scanForbidsCredentialStoreAndCliAuthTokenCommands() throws {
         let projectURL = try makeProject(files: [
             "README.md": "# Demo\n",

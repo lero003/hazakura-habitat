@@ -418,6 +418,14 @@ Forbidden in MVP-generated policy:
 - `pip3 config debug`
 - `python -m pip config debug`
 - `python3 -m pip config debug`
+- `npm config list`
+- `npm config ls`
+- `npm config get`
+- `pnpm config list`
+- `pnpm config get`
+- `yarn config`
+- `yarn config list`
+- `yarn config get`
 - `npm token`
 - `npm token create`
 - `npm token list`
