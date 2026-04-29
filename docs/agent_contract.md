@@ -180,7 +180,12 @@ Ask First:
 - `uv sync`
 - `uv add`
 - `uv remove`
+- `uv pip install`
+- `uv pip uninstall`
+- `uv pip sync`
+- `uv pip compile`
 - `uvx`
+- `uv tool run`
 - `pipx run`
 - `pipx runpip`
 - `bundle install`
@@ -372,6 +377,10 @@ Forbidden in MVP-generated policy:
 - `pipx pin`
 - `pipx unpin`
 - `pipx ensurepath`
+- `uv tool install`
+- `uv tool upgrade`
+- `uv tool upgrade --all`
+- `uv tool uninstall`
 - `gem install`
 - `gem uninstall`
 - `go install`

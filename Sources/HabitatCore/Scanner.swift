@@ -148,6 +148,10 @@ public struct HabitatScanner {
                 "pipx pin",
                 "pipx unpin",
                 "pipx ensurepath",
+                "uv tool install",
+                "uv tool upgrade",
+                "uv tool upgrade --all",
+                "uv tool uninstall",
                 "gem install",
                 "gem uninstall",
                 "go install",
@@ -378,7 +382,12 @@ public struct HabitatScanner {
             "uv sync",
             "uv add",
             "uv remove",
+            "uv pip install",
+            "uv pip uninstall",
+            "uv pip sync",
+            "uv pip compile",
             "uvx",
+            "uv tool run",
             "pipx run",
             "pipx runpip",
             "bundle install",
@@ -567,7 +576,7 @@ public struct HabitatScanner {
         case "bun":
             return ["bun install", "bun add", "bun update", "bun remove"]
         case "uv":
-            return ["uv sync", "uv add", "uv remove"]
+            return ["uv sync", "uv add", "uv remove", "uv pip install", "uv pip uninstall", "uv pip sync", "uv pip compile"]
         case "python":
             return ["pip install", "pip3 install", "python -m pip install", "python3 -m pip install", "pip uninstall", "pip3 uninstall", "python -m pip uninstall", "python3 -m pip uninstall"]
         case "bundler":

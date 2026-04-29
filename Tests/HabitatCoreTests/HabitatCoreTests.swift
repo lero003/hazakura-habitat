@@ -1016,6 +1016,10 @@ struct HabitatCoreTests {
             "pipx pin",
             "pipx unpin",
             "pipx ensurepath",
+            "uv tool install",
+            "uv tool upgrade",
+            "uv tool upgrade --all",
+            "uv tool uninstall",
         ]
 
         for command in commands {
@@ -1046,6 +1050,7 @@ struct HabitatCoreTests {
             "yarn dlx",
             "bunx",
             "uvx",
+            "uv tool run",
             "pipx run",
             "pipx runpip",
         ]
@@ -2404,6 +2409,43 @@ struct HabitatCoreTests {
         for command in commands {
             #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
         }
+    }
+
+    @Test
+    func scanAsksBeforeUvPipMutationCommands() throws {
+        let projectURL = try makeProject(files: [
+            "uv.lock": "version = 1\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a uv": .init(name: "/usr/bin/which", args: ["-a", "uv"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/uv", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+        let commands = [
+            "uv sync",
+            "uv add",
+            "uv remove",
+            "uv pip install",
+            "uv pip uninstall",
+            "uv pip sync",
+            "uv pip compile",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `uv sync`."))
+        #expect(context.contains("Ask before `uv pip install`."))
+        #expect(policy.contains("`uv pip uninstall`"))
+        #expect(policy.contains("`uv pip sync`"))
+        #expect(policy.contains("`uv pip compile`"))
     }
 
     @Test
