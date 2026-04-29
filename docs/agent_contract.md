@@ -251,12 +251,31 @@ Forbidden in MVP-generated policy:
 - `brew upgrade`
 - `brew uninstall`
 - `npm install -g`
+- `npm install --global`
+- `npm i -g`
+- `npm i --global`
+- `npm uninstall -g`
+- `npm uninstall --global`
+- `npm remove -g`
+- `npm remove --global`
+- `npm rm -g`
+- `npm rm --global`
 - `pnpm add -g`
 - `pnpm add --global`
+- `pnpm remove -g`
+- `pnpm remove --global`
+- `pnpm rm -g`
+- `pnpm rm --global`
 - `yarn global add`
+- `yarn global remove`
 - `yarn add -g`
+- `yarn add --global`
+- `yarn remove -g`
+- `yarn remove --global`
 - `bun add -g`
 - `bun add --global`
+- `bun remove -g`
+- `bun remove --global`
 - global `pip install`
 - global `pip3 install`
 - global `python -m pip install`
