@@ -539,6 +539,11 @@ public struct HabitatScanner {
             "chmod",
             "chown",
             "chgrp",
+            "sed -i",
+            "perl -pi",
+            "find -delete",
+            "xargs rm",
+            "truncate",
             "rm",
             "rm -r",
             "rm -rf"
