@@ -871,6 +871,43 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanGuardsHomebrewHostStateMutationCommands() throws {
+        let projectURL = try makeProject(files: [
+            "Brewfile": "brew \"swiftlint\"\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let askFirstCommands = [
+            "brew tap",
+            "brew tap-new",
+        ]
+        let forbiddenCommands = [
+            "brew untap",
+            "brew services start",
+            "brew services stop",
+            "brew services restart",
+            "brew services run",
+            "brew services cleanup",
+        ]
+
+        for command in askFirstCommands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        for command in forbiddenCommands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in askFirstCommands + forbiddenCommands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
     func scanTreatsPackageJsonOnlyAsNpmProjectAndGuardsMissingNpm() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",

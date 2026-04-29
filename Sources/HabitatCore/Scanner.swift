@@ -98,6 +98,12 @@ public struct HabitatScanner {
                 "zsh <(wget ...)",
                 "brew upgrade",
                 "brew uninstall",
+                "brew untap",
+                "brew services start",
+                "brew services stop",
+                "brew services restart",
+                "brew services run",
+                "brew services cleanup",
                 "npm install -g",
                 "npm install --global",
                 "npm i -g",
@@ -348,6 +354,8 @@ public struct HabitatScanner {
             "brew update",
             "brew cleanup",
             "brew autoremove",
+            "brew tap",
+            "brew tap-new",
             "pip install",
             "pip3 install",
             "python -m pip install",
@@ -657,7 +665,7 @@ public struct HabitatScanner {
         case "bundler":
             return ["bundle install", "bundle remove"]
         case "homebrew":
-            return ["brew bundle", "brew bundle install", "brew bundle cleanup", "brew bundle dump", "brew update", "brew cleanup", "brew autoremove"]
+            return ["brew bundle", "brew bundle install", "brew bundle cleanup", "brew bundle dump", "brew update", "brew cleanup", "brew autoremove", "brew tap", "brew tap-new"]
         case "swiftpm":
             return ["swift package update", "swift package resolve"]
         case "go":

@@ -102,6 +102,8 @@ Ask First:
 - `brew update`
 - `brew cleanup`
 - `brew autoremove`
+- `brew tap`
+- `brew tap-new`
 - `pip install`
 - `pip3 install`
 - `python -m pip install`
@@ -221,6 +223,8 @@ Ask First:
 - `brew bundle install`
 - `brew bundle cleanup`
 - `brew bundle dump`
+- `brew tap`
+- `brew tap-new`
 - `running Homebrew Bundle commands before brew version check succeeds`
 - `Swift/Xcode build commands before xcode-select -p succeeds`
 - `running Xcode build commands before xcodebuild version check succeeds`
@@ -345,6 +349,12 @@ Forbidden in MVP-generated policy:
 - `sudo`
 - `brew upgrade`
 - `brew uninstall`
+- `brew untap`
+- `brew services start`
+- `brew services stop`
+- `brew services restart`
+- `brew services run`
+- `brew services cleanup`
 - remote script execution through `curl` or `wget` piped into `sh` / `bash` / `zsh`
 - `curl | sh`
 - `curl | bash`
