@@ -187,7 +187,11 @@ Ask First:
 - `python -m twine upload`
 - `python3 -m twine upload`
 - `gem push`
+- `gem yank`
+- `gem owner`
 - `cargo publish`
+- `cargo yank`
+- `cargo owner`
 - `pod trunk push`
 - `corepack enable`
 - `corepack disable`
@@ -389,6 +393,10 @@ Forbidden in MVP-generated policy:
 - `npm login`
 - `npm logout`
 - `npm adduser`
+- `gem signin`
+- `gem signout`
+- `cargo login`
+- `cargo logout`
 - `pipx install`
 - `pipx install-all`
 - `pipx uninstall`

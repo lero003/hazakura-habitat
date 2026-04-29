@@ -1091,7 +1091,11 @@ struct HabitatCoreTests {
             "python -m twine upload",
             "python3 -m twine upload",
             "gem push",
+            "gem yank",
+            "gem owner",
             "cargo publish",
+            "cargo yank",
+            "cargo owner",
             "pod trunk push",
         ]
 
@@ -1109,7 +1113,7 @@ struct HabitatCoreTests {
     }
 
     @Test
-    func scanAsksBeforeNpmRegistryMetadataMutationCommands() throws {
+    func scanAsksBeforeRegistryMetadataMutationCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
             "package-lock.json": "lockfile",
@@ -1139,7 +1143,7 @@ struct HabitatCoreTests {
     }
 
     @Test
-    func scanForbidsNpmAuthTokenAndSessionCommands() throws {
+    func scanForbidsPackageRegistryAuthTokenAndSessionCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
             "package-lock.json": "lockfile",
@@ -1154,6 +1158,10 @@ struct HabitatCoreTests {
             "npm login",
             "npm logout",
             "npm adduser",
+            "gem signin",
+            "gem signout",
+            "cargo login",
+            "cargo logout",
         ]
 
         for command in commands {
