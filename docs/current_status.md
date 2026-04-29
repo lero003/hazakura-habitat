@@ -66,6 +66,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - Virtual environment creation commands such as `python -m venv`, `python3 -m venv`, `uv venv`, and `virtualenv`, plus broader virtual environment creation/deletion, are classified as Ask First so agents do not casually recreate project environments.
 - Language-level global package mutation commands such as `gem install`, `gem uninstall`, `go install`, `cargo install`, and `cargo uninstall` are classified as Forbidden.
 - Python projects ask before running Python commands when `python3` is missing, and matching Python version hints no longer create unnecessary mismatch warnings.
+- Python projects ask before running Python commands when `python3 --version` fails even if `python3` is resolved on `PATH`, and generated Markdown suppresses `python3 -m pytest` until Python can be verified.
 - Python projects that contain both `pyproject.toml` and `requirements*.txt` now ask before dependency installs until the dependency source of truth is clear.
 - Python projects that contain both `uv.lock` and `requirements*.txt` now ask before dependency installs until the dependency source of truth is clear.
 - Python projects with `uv.lock` ask before running `uv` commands when `uv` itself is missing, even if Python or pip is available as a possible fallback.
