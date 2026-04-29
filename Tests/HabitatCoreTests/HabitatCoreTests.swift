@@ -663,7 +663,7 @@ struct HabitatCoreTests {
     }
 
     @Test
-    func scanAsksBeforeProjectDeletionCleanupAndWorkspaceDiscardCommands() throws {
+    func scanAsksBeforeProjectDeletionCleanupBranchAndWorktreeCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
             "package-lock.json": "lockfile",
@@ -673,9 +673,11 @@ struct HabitatCoreTests {
         let commands = [
             "git clean",
             "git reset --hard",
+            "git checkout",
             "git checkout --",
             "git checkout -f",
             "git checkout -B",
+            "git switch",
             "git switch --discard-changes",
             "git switch -C",
             "git restore",
@@ -697,6 +699,10 @@ struct HabitatCoreTests {
             "git submodule update",
             "git submodule update --init",
             "git submodule update --init --recursive",
+            "git worktree add",
+            "git worktree remove",
+            "git worktree move",
+            "git worktree prune",
             "git push -f",
             "git push --force",
             "git push --force-with-lease",
