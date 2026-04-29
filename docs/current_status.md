@@ -62,7 +62,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 - Project `.venv/bin/python` detection requires an executable interpreter path, suppresses broken virtualenv Python recommendations, and asks before Python commands or recreating `.venv` when the directory exists without an executable interpreter.
 - Python projects with an executable `.venv/bin/python` keep project-local test guidance even when `python3` is missing from `PATH`, avoiding a contradictory broad missing-`python3` Ask First guard.
 - Python command guidance from secondary Python signals such as `requirements-dev.txt`, `Pipfile`, and `Pipfile.lock`.
-- Python dependency install, uninstall, package-fetch, wheel-build, and cache-removal aliases such as `pip3 install`, `python3 -m pip install`, `pip3 uninstall`, `python3 -m pip uninstall`, `pip download`, `python3 -m pip wheel`, and `pip cache purge` are classified as Ask First, with global pip installs, `--user` variants, and `--break-system-packages` variants forbidden.
+- Python dependency install, uninstall, package-fetch, wheel-build, cache-removal, and config-mutation aliases such as `pip3 install`, `python3 -m pip install`, `pip3 uninstall`, `python3 -m pip uninstall`, `pip download`, `python3 -m pip wheel`, `pip cache purge`, and `python3 -m pip config set` are classified as Ask First, with global pip installs, `--user` variants, `--break-system-packages` variants, and pip config value-reading commands such as `pip config list`, `python3 -m pip config get`, and `pip config debug` forbidden.
 - Virtual environment creation commands such as `python -m venv`, `python3 -m venv`, `uv venv`, and `virtualenv`, plus broader virtual environment creation/deletion, are classified as Ask First so agents do not casually recreate project environments.
 - Language-level global package mutation commands such as `gem install`, `gem uninstall`, `go install`, `cargo install`, `cargo uninstall`, `pipx install`, `pipx upgrade`, `pipx uninstall`, and `pipx ensurepath` are classified as Forbidden.
 - Python projects ask before running Python commands when `python3` is missing, and matching Python version hints no longer create unnecessary mismatch warnings.
@@ -110,7 +110,7 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 ## Not Yet Implemented
 
 - Homebrew scanner detail beyond command-decision guidance; this should stay narrow and avoid `brew doctor`-style broad diagnostics.
-- Detailed pip policy beyond install, fetch, wheel, cache-removal, and mixed-dependency signal guards.
+- Detailed pip policy beyond install, fetch, wheel, cache-removal, config value-reading/config-mutation, and mixed-dependency signal guards.
 - Additional Node package-manager version metadata beyond `package.json`, Volta pins, `engines.node`, `.tool-versions`, `mise.toml`, and `.mise.toml`.
 - Swift/Xcode scanner detail beyond safe first-command guidance; this should stay focused on build/test command selection and safety.
 - Broader scan comparison beyond the initial AI-actionable deltas; avoid adding this unless it changes agent behavior.

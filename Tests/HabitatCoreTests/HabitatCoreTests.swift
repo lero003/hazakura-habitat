@@ -2298,6 +2298,18 @@ struct HabitatCoreTests {
             "pip3 cache remove",
             "python -m pip cache remove",
             "python3 -m pip cache remove",
+            "pip config set",
+            "pip3 config set",
+            "python -m pip config set",
+            "python3 -m pip config set",
+            "pip config unset",
+            "pip3 config unset",
+            "python -m pip config unset",
+            "python3 -m pip config unset",
+            "pip config edit",
+            "pip3 config edit",
+            "python -m pip config edit",
+            "python3 -m pip config edit",
         ] {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
         }
@@ -2315,6 +2327,18 @@ struct HabitatCoreTests {
             "pip3 install --break-system-packages",
             "python -m pip install --break-system-packages",
             "python3 -m pip install --break-system-packages",
+            "pip config list",
+            "pip3 config list",
+            "python -m pip config list",
+            "python3 -m pip config list",
+            "pip config get",
+            "pip3 config get",
+            "python -m pip config get",
+            "python3 -m pip config get",
+            "pip config debug",
+            "pip3 config debug",
+            "python -m pip config debug",
+            "python3 -m pip config debug",
         ] {
             #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
         }
@@ -2334,10 +2358,14 @@ struct HabitatCoreTests {
         #expect(policy.contains("`python3 -m pip wheel`"))
         #expect(policy.contains("`pip cache purge`"))
         #expect(policy.contains("`python3 -m pip cache remove`"))
+        #expect(policy.contains("`pip config set`"))
+        #expect(policy.contains("`python3 -m pip config edit`"))
         #expect(policy.contains("`global pip install`"))
         #expect(policy.contains("`global python3 -m pip install`"))
         #expect(policy.contains("`python3 -m pip install --user`"))
         #expect(policy.contains("`python3 -m pip install --break-system-packages`"))
+        #expect(policy.contains("`pip config list`"))
+        #expect(policy.contains("`python3 -m pip config debug`"))
     }
 
     @Test
