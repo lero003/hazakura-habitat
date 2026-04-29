@@ -841,12 +841,16 @@ struct HabitatCoreTests {
             "remote script execution through curl or wget",
             "curl | sh",
             "curl | bash",
+            "curl | zsh",
             "wget | sh",
             "wget | bash",
+            "wget | zsh",
             "sh <(curl ...)",
             "bash <(curl ...)",
+            "zsh <(curl ...)",
             "sh <(wget ...)",
             "bash <(wget ...)",
+            "zsh <(wget ...)",
         ]
 
         for command in commands {

@@ -345,15 +345,19 @@ Forbidden in MVP-generated policy:
 - `sudo`
 - `brew upgrade`
 - `brew uninstall`
-- remote script execution through `curl` or `wget` piped into `sh` / `bash`
+- remote script execution through `curl` or `wget` piped into `sh` / `bash` / `zsh`
 - `curl | sh`
 - `curl | bash`
+- `curl | zsh`
 - `wget | sh`
 - `wget | bash`
+- `wget | zsh`
 - `sh <(curl ...)`
 - `bash <(curl ...)`
+- `zsh <(curl ...)`
 - `sh <(wget ...)`
 - `bash <(wget ...)`
+- `zsh <(wget ...)`
 - `npm install -g`
 - `npm install --global`
 - `npm i -g`
