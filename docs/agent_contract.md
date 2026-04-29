@@ -172,7 +172,14 @@ Ask First:
 - `git branch -d`
 - `git branch -D`
 - `git tag -d`
+- `git pull`
+- `git merge`
+- `git cherry-pick`
+- `git revert`
 - `git rebase`
+- `git submodule update`
+- `git submodule update --init`
+- `git submodule update --init --recursive`
 - `git push -f`
 - `git push --force`
 - `git push --force-with-lease`
