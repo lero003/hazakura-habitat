@@ -467,6 +467,7 @@ Forbidden in MVP-generated policy:
 - shell history reads, including `history`, `fc -l`, `cat ~/.zsh_history`, `cat ~/.bash_history`, `tail ~/.zsh_history`, and `grep ~/.zsh_history`
 - home SSH private key reads, including `cat ~/.ssh/id_rsa`, `less ~/.ssh/id_ed25519`, `head ~/.ssh/id_ecdsa`, `tail ~/.ssh/id_dsa`, and `grep <pattern> ~/.ssh/id_rsa`
 - concrete reads of detected secret-bearing project files, such as `cat .env`, `less .npmrc`, `head .netrc`, `tail .envrc.local`, `grep <pattern> .pypirc`, or `cat id_ed25519`
+- loading detected secret-bearing environment files, such as `source .env`, `. .env`, `source .envrc.local`, or `. .envrc.local`
 - `pipx install`
 - `pipx install-all`
 - `pipx uninstall`

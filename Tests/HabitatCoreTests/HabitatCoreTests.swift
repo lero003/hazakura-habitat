@@ -2067,6 +2067,7 @@ struct HabitatCoreTests {
 
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         #expect(context.contains("Do not read `.env` values."))
+        #expect(context.contains("Do not source or load secret environment files."))
         #expect(context.contains("Do not read package manager auth config values."))
         #expect(context.contains("Do not read SSH private keys."))
         #expect(!context.contains("Do not run `read"))
@@ -2092,7 +2093,14 @@ struct HabitatCoreTests {
             }
         }
 
+        for file in [".env", ".envrc.local"] {
+            for command in ["source \(file)", ". \(file)"] {
+                #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+            }
+        }
+
         #expect(!result.policy.forbiddenCommands.contains("cat .env.example"))
+        #expect(!result.policy.forbiddenCommands.contains("source .env.example"))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -2103,7 +2111,13 @@ struct HabitatCoreTests {
             #expect(policy.contains("`grep <pattern> \(file)`"), "Expected command_policy.md to forbid grep <pattern> \(file)")
         }
 
+        for file in [".env", ".envrc.local"] {
+            #expect(policy.contains("`source \(file)`"), "Expected command_policy.md to forbid source \(file)")
+            #expect(policy.contains("`. \(file)`"), "Expected command_policy.md to forbid . \(file)")
+        }
+
         #expect(!policy.contains("`cat .env.example`"))
+        #expect(!policy.contains("`source .env.example`"))
     }
 
     @Test

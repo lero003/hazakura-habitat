@@ -248,12 +248,14 @@ public struct HabitatScanner {
                 "go install",
                 "cargo install",
                 "cargo uninstall",
+                "load secret environment files",
                 "read .env values",
-            "read .envrc values",
-            "read .netrc values",
-            "read package manager auth config values",
-            "read SSH private keys"
-        ] + secretFileReadForbiddenCommands(project)
+                "read .envrc values",
+                "read .netrc values",
+                "read package manager auth config values",
+                "read SSH private keys"
+            ] + secretFileReadForbiddenCommands(project)
+            + secretEnvironmentFileLoadForbiddenCommands(project)
         )
         let commandPolicy = PolicySummary(
             preferredCommands: preferredCommands(project: project),
@@ -989,6 +991,23 @@ public struct HabitatScanner {
                 "grep <pattern> \(file)",
             ]
         }
+    }
+
+    private func secretEnvironmentFileLoadForbiddenCommands(_ project: ProjectInfo) -> [String] {
+        secretEnvironmentValueFiles(project).flatMap { file in
+            [
+                "source \(file)",
+                ". \(file)",
+            ]
+        }
+    }
+
+    private func secretEnvironmentValueFiles(_ project: ProjectInfo) -> [String] {
+        project.detectedFiles
+            .filter { file in
+                isSecretDotEnvFile(file) || isSecretEnvrcFile(file)
+            }
+            .sorted()
     }
 
     private func secretValueFiles(_ project: ProjectInfo) -> [String] {

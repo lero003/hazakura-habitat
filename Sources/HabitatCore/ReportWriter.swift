@@ -189,6 +189,8 @@ public struct ReportWriter {
             return "Do not dump environment variables."
         case "read shell history":
             return "Do not read shell history."
+        case "load secret environment files":
+            return "Do not source or load secret environment files."
         case "read .env values":
             return "Do not read `.env` values."
         case "read .envrc values":
@@ -478,6 +480,10 @@ public struct ReportWriter {
 
         if hasSecretEnvrcFile(result.project) || result.project.detectedFiles.contains(".envrc.example") {
             append("read .envrc values", to: &commands, from: result.policy.forbiddenCommands)
+        }
+
+        if hasSecretDotEnvFile(result.project) || hasSecretEnvrcFile(result.project) {
+            append("load secret environment files", to: &commands, from: result.policy.forbiddenCommands)
         }
 
         if hasNetrcFile(result.project) {
