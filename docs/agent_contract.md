@@ -208,6 +208,9 @@ Ask First:
 - `git worktree remove`
 - `git worktree move`
 - `git worktree prune`
+- `git push`
+- `git push -u`
+- `git push --set-upstream`
 - `git push -f`
 - `git push --force`
 - `git push --force-with-lease`
