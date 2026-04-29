@@ -1003,6 +1003,19 @@ struct HabitatCoreTests {
             "go install",
             "cargo install",
             "cargo uninstall",
+            "pipx install",
+            "pipx install-all",
+            "pipx uninstall",
+            "pipx uninstall-all",
+            "pipx upgrade",
+            "pipx upgrade-all",
+            "pipx reinstall",
+            "pipx reinstall-all",
+            "pipx inject",
+            "pipx uninject",
+            "pipx pin",
+            "pipx unpin",
+            "pipx ensurepath",
         ]
 
         for command in commands {
@@ -1033,6 +1046,8 @@ struct HabitatCoreTests {
             "yarn dlx",
             "bunx",
             "uvx",
+            "pipx run",
+            "pipx runpip",
         ]
 
         for command in commands {

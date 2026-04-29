@@ -145,6 +145,8 @@ Ask First:
 - `uv add`
 - `uv remove`
 - `uvx`
+- `pipx run`
+- `pipx runpip`
 - `bundle install`
 - `bundle remove`
 - `running Bundler commands before bundle version check succeeds`
@@ -305,6 +307,19 @@ Forbidden in MVP-generated policy:
 - `pip3 install --user`
 - `python -m pip install --user`
 - `python3 -m pip install --user`
+- `pipx install`
+- `pipx install-all`
+- `pipx uninstall`
+- `pipx uninstall-all`
+- `pipx upgrade`
+- `pipx upgrade-all`
+- `pipx reinstall`
+- `pipx reinstall-all`
+- `pipx inject`
+- `pipx uninject`
+- `pipx pin`
+- `pipx unpin`
+- `pipx ensurepath`
 - `gem install`
 - `gem uninstall`
 - `go install`
