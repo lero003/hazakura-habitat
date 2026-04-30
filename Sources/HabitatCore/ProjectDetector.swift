@@ -76,10 +76,12 @@ public struct ProjectDetector {
 
     public func detect(projectURL: URL) -> ProjectInfo {
         let detectedFiles = detectedProjectFiles(projectURL: projectURL)
+        let symlinkedFiles = symlinkedProjectFiles(projectURL: projectURL, detectedFiles: detectedFiles)
         let packageJSON = packageJSONMetadata(projectURL.appendingPathComponent("package.json"))
         let toolVersions = toolVersionsMetadata(projectURL.appendingPathComponent(".tool-versions"))
         let miseToml = miseTomlMetadata(projectURL: projectURL)
-        let packageManager = detectPackageManager(files: detectedFiles, declaredPackageManager: packageJSON.declaredPackageManager)
+        let packageManagerFiles = packageManagerSelectionFiles(detectedFiles: detectedFiles, symlinkedFiles: symlinkedFiles)
+        let packageManager = detectPackageManager(files: packageManagerFiles, declaredPackageManager: packageJSON.declaredPackageManager)
         let packageManagerVersion = packageManagerVersion(
             packageManager: packageManager,
             packageJSON: packageJSON,
@@ -90,6 +92,7 @@ public struct ProjectDetector {
 
         return ProjectInfo(
             detectedFiles: detectedFiles,
+            symlinkedFiles: symlinkedFiles,
             packageManager: packageManager,
             packageManagerVersion: packageManagerVersion.version,
             packageManagerVersionSource: packageManagerVersion.source,
@@ -110,6 +113,10 @@ public struct ProjectDetector {
     private func detectedProjectFiles(projectURL: URL) -> [String] {
         let manager = FileManager.default
         let explicitFiles = candidateFiles.filter {
+            guard !hasSymbolicLinkAncestor(relativePath: $0, projectURL: projectURL) else {
+                return false
+            }
+
             let path = projectURL.appendingPathComponent($0).path
             if $0 == ".venv/bin/python" {
                 return manager.isExecutableFile(atPath: path)
@@ -157,6 +164,46 @@ public struct ProjectDetector {
         return nil
     }
 
+    private func packageManagerSelectionFiles(detectedFiles: [String], symlinkedFiles: [String]) -> [String] {
+        let symlinked = Set(symlinkedFiles)
+        return detectedFiles.filter { file in
+            !(symlinked.contains(file) && isPackageManagerSelectionSignal(file))
+        }
+    }
+
+    private func isPackageManagerSelectionSignal(_ file: String) -> Bool {
+        switch file {
+        case "package.json",
+             "package-lock.json",
+             "npm-shrinkwrap.json",
+             "pnpm-lock.yaml",
+             "pnpm-workspace.yaml",
+             "yarn.lock",
+             "bun.lock",
+             "bun.lockb",
+             "pyproject.toml",
+             "requirements.txt",
+             "requirements-dev.txt",
+             "uv.lock",
+             "Pipfile",
+             "Pipfile.lock",
+             "Gemfile",
+             "Gemfile.lock",
+             "go.mod",
+             "Cargo.toml",
+             "Package.swift",
+             "Package.resolved",
+             "Podfile",
+             "Podfile.lock",
+             "Cartfile",
+             "Cartfile.resolved",
+             "Brewfile":
+            return true
+        default:
+            return isXcodeProjectContainer(file)
+        }
+    }
+
     private func isSecretEnvironmentFilename(_ name: String) -> Bool {
         name == ".env"
             || (name.hasPrefix(".env.") && name != ".env.example")
@@ -173,12 +220,28 @@ public struct ProjectDetector {
             .filter(isPrivateKeyFilename)
 
         let sshDirectoryURL = projectURL.appendingPathComponent(".ssh")
+        guard !isSymbolicLink(sshDirectoryURL) else {
+            return topLevelPrivateKeyFiles.sorted()
+        }
+
         let sshDirectoryEntries = (try? FileManager.default.contentsOfDirectory(atPath: sshDirectoryURL.path)) ?? []
         let sshPrivateKeyFiles = sshDirectoryEntries
             .filter(isPrivateKeyFilename)
             .map { ".ssh/\($0)" }
 
         return (topLevelPrivateKeyFiles + sshPrivateKeyFiles).sorted()
+    }
+
+    private func symlinkedProjectFiles(projectURL: URL, detectedFiles: [String]) -> [String] {
+        let detectedSymlinks = detectedFiles.filter {
+            isSymbolicLink(projectURL.appendingPathComponent($0))
+        }
+
+        let directorySymlinks = [".ssh"].filter {
+            isSymbolicLink(projectURL.appendingPathComponent($0))
+        }
+
+        return orderedUnique(detectedSymlinks + directorySymlinks).sorted()
     }
 
     private func isPrivateKeyFilename(_ name: String) -> Bool {
@@ -198,6 +261,7 @@ public struct ProjectDetector {
 
     private func packageJSONMetadata(_ url: URL) -> PackageJSONMetadata {
         guard FileManager.default.fileExists(atPath: url.path) else { return .empty }
+        guard !isSymbolicLink(url) else { return .empty }
         guard fileSize(at: url) <= 512 * 1024 else { return .empty }
         guard let data = try? Data(contentsOf: url),
               let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any]
@@ -257,6 +321,7 @@ public struct ProjectDetector {
 
     private func toolVersionsMetadata(_ url: URL) -> ToolVersionsMetadata {
         guard FileManager.default.fileExists(atPath: url.path) else { return .empty }
+        guard !isSymbolicLink(url) else { return .empty }
         guard fileSize(at: url) <= 64 * 1024 else { return .empty }
         guard let content = try? String(contentsOf: url, encoding: .utf8) else { return .empty }
 
@@ -305,6 +370,7 @@ public struct ProjectDetector {
 
     private func miseTomlMetadata(_ url: URL) -> ToolVersionsMetadata {
         guard FileManager.default.fileExists(atPath: url.path) else { return .empty }
+        guard !isSymbolicLink(url) else { return .empty }
         guard fileSize(at: url) <= 64 * 1024 else { return .empty }
         guard let content = try? String(contentsOf: url, encoding: .utf8) else { return .empty }
 
@@ -471,6 +537,7 @@ public struct ProjectDetector {
 
     private func firstLineIfSafe(_ url: URL) -> String? {
         guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+        guard !isSymbolicLink(url) else { return nil }
         let lastPath = url.lastPathComponent
         guard lastPath == ".nvmrc" || lastPath == ".node-version" || lastPath == ".python-version" || lastPath == ".ruby-version" else { return nil }
         guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
@@ -484,6 +551,25 @@ public struct ProjectDetector {
     private func orderedUnique(_ values: [String]) -> [String] {
         var seen = Set<String>()
         return values.filter { seen.insert($0).inserted }
+    }
+
+    private func isSymbolicLink(_ url: URL) -> Bool {
+        (try? FileManager.default.destinationOfSymbolicLink(atPath: url.path)) != nil
+    }
+
+    private func hasSymbolicLinkAncestor(relativePath: String, projectURL: URL) -> Bool {
+        let components = relativePath.split(separator: "/").map(String.init)
+        guard components.count > 1 else { return false }
+
+        var currentURL = projectURL
+        for component in components.dropLast() {
+            currentURL.appendPathComponent(component)
+            if isSymbolicLink(currentURL) {
+                return true
+            }
+        }
+
+        return false
     }
 }
 

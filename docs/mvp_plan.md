@@ -54,6 +54,14 @@ Current phase:
 > The goal is not to add broad environment coverage.
 > The goal is to make AI-facing outputs short, conservative, stable, and useful enough that an AI coding agent avoids wrong or unsafe commands before touching a repository.
 
+Public release target:
+
+> `v0.1.0 Developer Preview`.
+>
+> The next public milestone is not feature expansion. It is public readiness: README clarity, advisory-policy language, privacy notes, schema/generator versioning, sample outputs, repository hygiene, and prompt-injection guidance.
+>
+> See `docs/public_readiness.md` and `docs/roadmap.md`.
+
 ## MVP Core
 
 ### M0: Bootstrap
@@ -243,6 +251,7 @@ Focus:
 - missing tool handling
 - partial scanner failure handling
 - secret avoidance
+- symlinked project metadata and project-boundary safety
 - conservative command policy
 - fixture-based regression tests
 - Markdown snapshot stability
@@ -270,6 +279,8 @@ uv projects apply the same partial-failure rule to `uv --version`: a missing or 
 Homebrew Bundle, CocoaPods, and Carthage projects apply the same partial-failure rule to their selected tool checks: missing or resolved but failing `brew --version`, `pod --version`, or `carthage version` should keep related preferred commands out of `policy.preferredCommands` until the tool can be verified.
 
 Xcode projects apply the same partial-failure rule to `xcodebuild -version` and `xcode-select -p`: missing or unverifiable Xcode tooling should keep `xcodebuild -list` out of `policy.preferredCommands` until the tool can be verified.
+
+Symlinked project metadata should be handled conservatively. Record safety-relevant symlinks in `scan_result.json` as `project.symlinkedFiles`, do not read symlinked runtime/package metadata for hints, do not use symlinked workflow files to select the package manager or concrete preferred commands, do not traverse symlinked `.ssh` directories for private-key filenames, and require Ask First before following project symlinks or installing dependencies based on symlinked metadata.
 
 ## Near-Term Candidates
 

@@ -2,6 +2,7 @@ import Foundation
 
 public struct ScanResult: Codable {
     public let schemaVersion: String
+    public let generatorVersion: String
     public let scannedAt: String
     public let projectPath: String
     public let system: SystemInfo
@@ -14,7 +15,8 @@ public struct ScanResult: Codable {
     public let changes: [ScanChange]
 
     public init(
-        schemaVersion: String,
+        schemaVersion: String = HabitatMetadata.schemaVersion,
+        generatorVersion: String = HabitatMetadata.generatorVersion,
         scannedAt: String,
         projectPath: String,
         system: SystemInfo,
@@ -27,6 +29,7 @@ public struct ScanResult: Codable {
         changes: [ScanChange] = []
     ) {
         self.schemaVersion = schemaVersion
+        self.generatorVersion = generatorVersion
         self.scannedAt = scannedAt
         self.projectPath = projectPath
         self.system = system
@@ -42,6 +45,7 @@ public struct ScanResult: Codable {
     public func withChanges(_ changes: [ScanChange]) -> ScanResult {
         ScanResult(
             schemaVersion: schemaVersion,
+            generatorVersion: generatorVersion,
             scannedAt: scannedAt,
             projectPath: projectPath,
             system: system,
@@ -57,6 +61,7 @@ public struct ScanResult: Codable {
 
     private enum CodingKeys: String, CodingKey {
         case schemaVersion
+        case generatorVersion
         case scannedAt
         case projectPath
         case system
@@ -72,6 +77,7 @@ public struct ScanResult: Codable {
     public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         schemaVersion = try container.decode(String.self, forKey: .schemaVersion)
+        generatorVersion = try container.decodeIfPresent(String.self, forKey: .generatorVersion) ?? "unknown"
         scannedAt = try container.decode(String.self, forKey: .scannedAt)
         projectPath = try container.decode(String.self, forKey: .projectPath)
         system = try container.decode(SystemInfo.self, forKey: .system)
@@ -87,6 +93,7 @@ public struct ScanResult: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(schemaVersion, forKey: .schemaVersion)
+        try container.encode(generatorVersion, forKey: .generatorVersion)
         try container.encode(scannedAt, forKey: .scannedAt)
         try container.encode(projectPath, forKey: .projectPath)
         try container.encode(system, forKey: .system)
@@ -132,6 +139,7 @@ public struct CommandInfo: Codable {
 
 public struct ProjectInfo: Codable {
     public let detectedFiles: [String]
+    public let symlinkedFiles: [String]
     public let packageManager: String?
     public let packageManagerVersion: String?
     public let packageManagerVersionSource: String?
@@ -142,6 +150,7 @@ public struct ProjectInfo: Codable {
 
     public init(
         detectedFiles: [String],
+        symlinkedFiles: [String] = [],
         packageManager: String?,
         packageManagerVersion: String?,
         packageManagerVersionSource: String? = nil,
@@ -151,6 +160,7 @@ public struct ProjectInfo: Codable {
         declaredPackageManagerVersion: String? = nil
     ) {
         self.detectedFiles = detectedFiles
+        self.symlinkedFiles = symlinkedFiles
         self.packageManager = packageManager
         self.packageManagerVersion = packageManagerVersion
         self.packageManagerVersionSource = packageManagerVersionSource
@@ -158,6 +168,44 @@ public struct ProjectInfo: Codable {
         self.runtimeHints = runtimeHints
         self.declaredPackageManager = declaredPackageManager
         self.declaredPackageManagerVersion = declaredPackageManagerVersion
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case detectedFiles
+        case symlinkedFiles
+        case packageManager
+        case packageManagerVersion
+        case packageManagerVersionSource
+        case packageScripts
+        case runtimeHints
+        case declaredPackageManager
+        case declaredPackageManagerVersion
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        detectedFiles = try container.decode([String].self, forKey: .detectedFiles)
+        symlinkedFiles = try container.decodeIfPresent([String].self, forKey: .symlinkedFiles) ?? []
+        packageManager = try container.decodeIfPresent(String.self, forKey: .packageManager)
+        packageManagerVersion = try container.decodeIfPresent(String.self, forKey: .packageManagerVersion)
+        packageManagerVersionSource = try container.decodeIfPresent(String.self, forKey: .packageManagerVersionSource)
+        packageScripts = try container.decode([String].self, forKey: .packageScripts)
+        runtimeHints = try container.decode(RuntimeHints.self, forKey: .runtimeHints)
+        declaredPackageManager = try container.decodeIfPresent(String.self, forKey: .declaredPackageManager)
+        declaredPackageManagerVersion = try container.decodeIfPresent(String.self, forKey: .declaredPackageManagerVersion)
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(detectedFiles, forKey: .detectedFiles)
+        try container.encode(symlinkedFiles, forKey: .symlinkedFiles)
+        try container.encodeIfPresent(packageManager, forKey: .packageManager)
+        try container.encodeIfPresent(packageManagerVersion, forKey: .packageManagerVersion)
+        try container.encodeIfPresent(packageManagerVersionSource, forKey: .packageManagerVersionSource)
+        try container.encode(packageScripts, forKey: .packageScripts)
+        try container.encode(runtimeHints, forKey: .runtimeHints)
+        try container.encodeIfPresent(declaredPackageManager, forKey: .declaredPackageManager)
+        try container.encodeIfPresent(declaredPackageManagerVersion, forKey: .declaredPackageManagerVersion)
     }
 }
 

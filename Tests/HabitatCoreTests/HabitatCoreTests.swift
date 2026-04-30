@@ -65,6 +65,21 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func processCommandRunnerMarksEnvMissingTargetAsUnavailable() throws {
+        let missingTool = "hazakura-definitely-missing-tool-\(UUID().uuidString)"
+        let result = ProcessCommandRunner().run(
+            executable: "/usr/bin/env",
+            arguments: [missingTool, "--version"],
+            timeout: 1.0
+        )
+
+        #expect(result.available == false)
+        #expect(result.exitCode == 127)
+        #expect(result.timedOut == false)
+        #expect(result.args == [missingTool, "--version"])
+    }
+
+    @Test
     func scanPrefersPnpmWhenLockfileExists() throws {
         let projectURL = try makeProject(files: [
             "pnpm-lock.yaml": "lockfile",
@@ -79,6 +94,8 @@ struct HabitatCoreTests {
 
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
+        #expect(result.schemaVersion == HabitatMetadata.schemaVersion)
+        #expect(result.generatorVersion == HabitatMetadata.generatorVersion)
         #expect(result.project.packageManager == "pnpm")
         #expect(result.project.runtimeHints.node == "v20")
         #expect(result.policy.preferredCommands.isEmpty)
@@ -1140,7 +1157,9 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
         let commands = [
             "gem install",
+            "gem update",
             "gem uninstall",
+            "gem cleanup",
             "go install",
             "cargo install",
             "cargo uninstall",
@@ -1386,7 +1405,7 @@ struct HabitatCoreTests {
     }
 
     @Test
-    func scanForbidsJavaScriptPackageManagerConfigValueReadCommands() throws {
+    func scanForbidsJavaScriptPackageManagerConfigAccessCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
             "package-lock.json": "lockfile",
@@ -1400,11 +1419,20 @@ struct HabitatCoreTests {
             "npm config list",
             "npm config ls",
             "npm config get",
+            "npm config set",
+            "npm config delete",
+            "npm config rm",
+            "npm config edit",
             "pnpm config list",
             "pnpm config get",
+            "pnpm config set",
+            "pnpm config delete",
             "yarn config",
             "yarn config list",
             "yarn config get",
+            "yarn config set",
+            "yarn config unset",
+            "yarn config delete",
         ]
 
         for command in commands {
@@ -1416,7 +1444,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not read package manager auth config values."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
 
         for command in commands {
             #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
@@ -1457,6 +1485,73 @@ struct HabitatCoreTests {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanForbidsCloudAndContainerCredentialReads() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "read local cloud and container credential files",
+            "cat ~/.aws/credentials",
+            "less ~/.aws/credentials",
+            "head ~/.aws/credentials",
+            "tail ~/.aws/credentials",
+            "grep <pattern> ~/.aws/credentials",
+            "rg <pattern> ~/.aws/credentials",
+            "base64 ~/.aws/credentials",
+            "xxd ~/.aws/credentials",
+            "strings ~/.aws/credentials",
+            "open ~/.aws/credentials",
+            "cp ~/.aws/credentials <destination>",
+            "rsync ~/.aws/credentials <destination>",
+            "curl -F file=@~/.aws/credentials <url>",
+            "curl --data-binary @~/.aws/credentials <url>",
+            "tar -czf <archive> ~/.aws/credentials",
+            "zip -r <archive> ~/.aws/credentials",
+            "cat ~/.aws/config",
+            "open ~/.aws/config",
+            "cp ~/.aws/config <destination>",
+            "aws configure get aws_access_key_id",
+            "aws configure get aws_secret_access_key",
+            "cat ~/.config/gcloud/application_default_credentials.json",
+            "open ~/.config/gcloud/application_default_credentials.json",
+            "cp ~/.config/gcloud/application_default_credentials.json <destination>",
+            "curl -F file=@~/.config/gcloud/application_default_credentials.json <url>",
+            "gcloud auth print-access-token",
+            "gcloud auth application-default print-access-token",
+            "cat ~/.docker/config.json",
+            "open ~/.docker/config.json",
+            "cp ~/.docker/config.json <destination>",
+            "curl -F file=@~/.docker/config.json <url>",
+            "cat ~/.kube/config",
+            "open ~/.kube/config",
+            "cp ~/.kube/config <destination>",
+            "curl -F file=@~/.kube/config <url>",
+            "tar -czf <archive> ~/.kube/config",
+            "zip -r <archive> ~/.kube/config",
+            "kubectl config view --raw",
+            "kubectl config view --flatten --raw",
+        ]
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not read, open, copy, upload, or archive local cloud or container credential files, or print cloud auth tokens."))
+        #expect(!context.contains("Do not run `read local cloud and container credential files`."))
 
         for command in commands {
             #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
@@ -1590,6 +1685,68 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanForbidsBrowserAndMailDataReadCommands() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "read browser or mail data",
+            "ls ~/Library/Application\\ Support/Google/Chrome",
+            "find ~/Library/Application\\ Support/Google/Chrome",
+            "sqlite3 ~/Library/Application\\ Support/Google/Chrome/Default/Cookies",
+            "sqlite3 ~/Library/Application\\ Support/Google/Chrome/Default/Cookies .dump",
+            "cp ~/Library/Application\\ Support/Google/Chrome/Default/Cookies <destination>",
+            "sqlite3 ~/Library/Application\\ Support/Google/Chrome/Default/Login\\ Data",
+            "sqlite3 ~/Library/Application\\ Support/Google/Chrome/Default/Login\\ Data .dump",
+            "cp ~/Library/Application\\ Support/Google/Chrome/Default/Login\\ Data <destination>",
+            "open ~/Library/Application\\ Support/Google/Chrome",
+            "cp -R ~/Library/Application\\ Support/Google/Chrome <destination>",
+            "rsync -a ~/Library/Application\\ Support/Google/Chrome <destination>",
+            "tar -czf <archive> ~/Library/Application\\ Support/Google/Chrome",
+            "ls ~/Library/Application\\ Support/Firefox/Profiles",
+            "find ~/Library/Application\\ Support/Firefox/Profiles",
+            "open ~/Library/Application\\ Support/Firefox/Profiles",
+            "cp -R ~/Library/Application\\ Support/Firefox/Profiles <destination>",
+            "zip -r <archive> ~/Library/Application\\ Support/Firefox/Profiles",
+            "ls ~/Library/Safari",
+            "cat ~/Library/Safari/History.db",
+            "sqlite3 ~/Library/Safari/History.db",
+            "sqlite3 ~/Library/Safari/History.db .dump",
+            "strings ~/Library/Safari/History.db",
+            "cp ~/Library/Safari/History.db <destination>",
+            "open ~/Library/Safari",
+            "cp -R ~/Library/Safari <destination>",
+            "zip -r <archive> ~/Library/Safari",
+            "ls ~/Library/Mail",
+            "find ~/Library/Mail",
+            "mdfind kMDItemContentType == com.apple.mail.email",
+            "sqlite3 ~/Library/Mail",
+            "open ~/Library/Mail",
+            "cp -R ~/Library/Mail <destination>",
+            "rsync -a ~/Library/Mail <destination>",
+            "tar -czf <archive> ~/Library/Mail",
+        ]
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not inspect browser profiles, cookies, history, or local mail data."))
+        #expect(!context.contains("Do not run `read browser or mail data`."))
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
     func scanForbidsHomeSSHPrivateKeyReadCommands() throws {
         let projectURL = try makeProject(files: [
             "README.md": "# Demo\n",
@@ -1604,7 +1761,7 @@ struct HabitatCoreTests {
         ]
 
         for file in privateKeyFiles {
-            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "bat \(file)", "nl -ba \(file)"] {
+            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "diff \(file) <other>", "cmp \(file) <other>", "bat \(file)", "nl -ba \(file)", "base64 \(file)", "xxd \(file)", "hexdump -C \(file)", "strings \(file)", "open \(file)", "code \(file)", "vim \(file)", "vi \(file)", "nano \(file)", "emacs \(file)", "cp \(file) <destination>", "cp -R \(file) <destination>", "cp -r \(file) <destination>", "mv \(file) <destination>", "rsync \(file) <destination>", "rsync -a \(file) <destination>", "scp \(file) <destination>", "curl -F file=@\(file) <url>", "curl --data-binary @\(file) <url>", "curl -T \(file) <url>", "wget --post-file=\(file) <url>", "tar -cf <archive> \(file)", "tar -czf <archive> \(file)", "tar -cjf <archive> \(file)", "tar -cJf <archive> \(file)", "zip <archive> \(file)", "zip -r <archive> \(file)"] {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
             }
 
@@ -1618,7 +1775,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not read private keys."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(!context.contains("Do not run `read private keys`."))
 
         for file in privateKeyFiles {
@@ -1627,8 +1784,32 @@ struct HabitatCoreTests {
             #expect(policy.contains("`rg <pattern> \(file)`"), "Expected command_policy.md to forbid rg <pattern> \(file)")
             #expect(policy.contains("`sed -n <range> \(file)`"), "Expected command_policy.md to forbid sed -n <range> \(file)")
             #expect(policy.contains("`awk <program> \(file)`"), "Expected command_policy.md to forbid awk <program> \(file)")
+            #expect(policy.contains("`diff \(file) <other>`"), "Expected command_policy.md to forbid diff \(file)")
+            #expect(policy.contains("`cmp \(file) <other>`"), "Expected command_policy.md to forbid cmp \(file)")
             #expect(policy.contains("`bat \(file)`"), "Expected command_policy.md to forbid bat \(file)")
             #expect(policy.contains("`nl -ba \(file)`"), "Expected command_policy.md to forbid nl -ba \(file)")
+            #expect(policy.contains("`base64 \(file)`"), "Expected command_policy.md to forbid base64 \(file)")
+            #expect(policy.contains("`xxd \(file)`"), "Expected command_policy.md to forbid xxd \(file)")
+            #expect(policy.contains("`hexdump -C \(file)`"), "Expected command_policy.md to forbid hexdump -C \(file)")
+            #expect(policy.contains("`strings \(file)`"), "Expected command_policy.md to forbid strings \(file)")
+            #expect(policy.contains("`open \(file)`"), "Expected command_policy.md to forbid open \(file)")
+            #expect(policy.contains("`code \(file)`"), "Expected command_policy.md to forbid code \(file)")
+            #expect(policy.contains("`vim \(file)`"), "Expected command_policy.md to forbid vim \(file)")
+            #expect(policy.contains("`nano \(file)`"), "Expected command_policy.md to forbid nano \(file)")
+            #expect(policy.contains("`cp \(file) <destination>`"), "Expected command_policy.md to forbid cp \(file)")
+            #expect(policy.contains("`mv \(file) <destination>`"), "Expected command_policy.md to forbid mv \(file)")
+            #expect(policy.contains("`rsync \(file) <destination>`"), "Expected command_policy.md to forbid rsync \(file)")
+            #expect(policy.contains("`scp \(file) <destination>`"), "Expected command_policy.md to forbid scp \(file)")
+            #expect(policy.contains("`curl -F file=@\(file) <url>`"), "Expected command_policy.md to forbid curl form upload \(file)")
+            #expect(policy.contains("`curl --data-binary @\(file) <url>`"), "Expected command_policy.md to forbid curl data upload \(file)")
+            #expect(policy.contains("`curl -T \(file) <url>`"), "Expected command_policy.md to forbid curl transfer upload \(file)")
+            #expect(policy.contains("`wget --post-file=\(file) <url>`"), "Expected command_policy.md to forbid wget post-file \(file)")
+            #expect(policy.contains("`tar -cf <archive> \(file)`"), "Expected command_policy.md to forbid tar -cf \(file)")
+            #expect(policy.contains("`tar -czf <archive> \(file)`"), "Expected command_policy.md to forbid tar -czf \(file)")
+            #expect(policy.contains("`tar -cjf <archive> \(file)`"), "Expected command_policy.md to forbid tar -cjf \(file)")
+            #expect(policy.contains("`tar -cJf <archive> \(file)`"), "Expected command_policy.md to forbid tar -cJf \(file)")
+            #expect(policy.contains("`zip <archive> \(file)`"), "Expected command_policy.md to forbid zip \(file)")
+            #expect(policy.contains("`zip -r <archive> \(file)`"), "Expected command_policy.md to forbid zip -r \(file)")
             #expect(policy.contains("`ssh-add \(file)`"), "Expected command_policy.md to forbid ssh-add \(file)")
             #expect(policy.contains("`ssh-add --apple-use-keychain \(file)`"), "Expected command_policy.md to forbid ssh-add --apple-use-keychain \(file)")
             #expect(policy.contains("`ssh-keygen -y -f \(file)`"), "Expected command_policy.md to forbid ssh-keygen -y -f \(file)")
@@ -2225,15 +2406,17 @@ struct HabitatCoreTests {
         }
 
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
-        #expect(context.contains("Do not read `.env` values."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.env` files."))
         #expect(context.contains("Do not source or load secret environment files."))
-        #expect(context.contains("Do not read package manager auth config values."))
-        #expect(context.contains("Do not read private keys."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."))
+        #expect(!context.contains("Do not read `.env` values."))
+        #expect(!context.contains("Do not read private keys."))
         #expect(!context.contains("Do not run `read"))
     }
 
     @Test
-    func scanForbidsConcreteDetectedSecretFileReadCommands() throws {
+    func scanForbidsConcreteDetectedSecretFileAccessCommands() throws {
         let projectURL = try makeProject(files: [
             ".env": "TOKEN=secret\n",
             ".env.example": "TOKEN=\n",
@@ -2247,7 +2430,7 @@ struct HabitatCoreTests {
         let sensitiveFiles = [".env", ".envrc.local", ".netrc", ".npmrc", "id_ed25519"]
 
         for file in sensitiveFiles {
-            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "bat \(file)", "nl -ba \(file)"] {
+            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "git grep <pattern> -- \(file)", "git grep <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "diff \(file) <other>", "cmp \(file) <other>", "git diff -- \(file)", "git log -p -- \(file)", "git show HEAD:\(file)", "bat \(file)", "nl -ba \(file)", "base64 \(file)", "xxd \(file)", "hexdump -C \(file)", "strings \(file)", "open \(file)", "code \(file)", "vim \(file)", "vi \(file)", "nano \(file)", "emacs \(file)", "cp \(file) <destination>", "cp -R \(file) <destination>", "cp -r \(file) <destination>", "mv \(file) <destination>", "rsync \(file) <destination>", "rsync -a \(file) <destination>", "scp \(file) <destination>", "curl -F file=@\(file) <url>", "curl --data-binary @\(file) <url>", "curl -T \(file) <url>", "wget --post-file=\(file) <url>", "tar -cf <archive> \(file)", "tar -czf <archive> \(file)", "tar -cjf <archive> \(file)", "tar -cJf <archive> \(file)", "zip <archive> \(file)", "zip -r <archive> \(file)"] {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
             }
         }
@@ -2260,6 +2443,10 @@ struct HabitatCoreTests {
             for command in ["source \(file)", ". \(file)"] {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
             }
+        }
+
+        for command in ["direnv allow", "direnv reload", "direnv export <shell>", "direnv exec . <command>"] {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
         }
 
         #expect(!result.policy.forbiddenCommands.contains("cat .env.example"))
@@ -2275,8 +2462,35 @@ struct HabitatCoreTests {
             #expect(policy.contains("`rg <pattern> \(file)`"), "Expected command_policy.md to forbid rg <pattern> \(file)")
             #expect(policy.contains("`sed -n <range> \(file)`"), "Expected command_policy.md to forbid sed -n <range> \(file)")
             #expect(policy.contains("`awk <program> \(file)`"), "Expected command_policy.md to forbid awk <program> \(file)")
+            #expect(policy.contains("`diff \(file) <other>`"), "Expected command_policy.md to forbid diff \(file)")
+            #expect(policy.contains("`cmp \(file) <other>`"), "Expected command_policy.md to forbid cmp \(file)")
+            #expect(policy.contains("`git diff -- \(file)`"), "Expected command_policy.md to forbid git diff \(file)")
+            #expect(policy.contains("`git log -p -- \(file)`"), "Expected command_policy.md to forbid git log -p \(file)")
+            #expect(policy.contains("`git show HEAD:\(file)`"), "Expected command_policy.md to forbid git show HEAD:\(file)")
             #expect(policy.contains("`bat \(file)`"), "Expected command_policy.md to forbid bat \(file)")
             #expect(policy.contains("`nl -ba \(file)`"), "Expected command_policy.md to forbid nl -ba \(file)")
+            #expect(policy.contains("`base64 \(file)`"), "Expected command_policy.md to forbid base64 \(file)")
+            #expect(policy.contains("`xxd \(file)`"), "Expected command_policy.md to forbid xxd \(file)")
+            #expect(policy.contains("`hexdump -C \(file)`"), "Expected command_policy.md to forbid hexdump -C \(file)")
+            #expect(policy.contains("`strings \(file)`"), "Expected command_policy.md to forbid strings \(file)")
+            #expect(policy.contains("`open \(file)`"), "Expected command_policy.md to forbid open \(file)")
+            #expect(policy.contains("`code \(file)`"), "Expected command_policy.md to forbid code \(file)")
+            #expect(policy.contains("`vim \(file)`"), "Expected command_policy.md to forbid vim \(file)")
+            #expect(policy.contains("`nano \(file)`"), "Expected command_policy.md to forbid nano \(file)")
+            #expect(policy.contains("`cp \(file) <destination>`"), "Expected command_policy.md to forbid cp \(file)")
+            #expect(policy.contains("`mv \(file) <destination>`"), "Expected command_policy.md to forbid mv \(file)")
+            #expect(policy.contains("`rsync \(file) <destination>`"), "Expected command_policy.md to forbid rsync \(file)")
+            #expect(policy.contains("`scp \(file) <destination>`"), "Expected command_policy.md to forbid scp \(file)")
+            #expect(policy.contains("`curl -F file=@\(file) <url>`"), "Expected command_policy.md to forbid curl form upload \(file)")
+            #expect(policy.contains("`curl --data-binary @\(file) <url>`"), "Expected command_policy.md to forbid curl data upload \(file)")
+            #expect(policy.contains("`curl -T \(file) <url>`"), "Expected command_policy.md to forbid curl transfer upload \(file)")
+            #expect(policy.contains("`wget --post-file=\(file) <url>`"), "Expected command_policy.md to forbid wget post-file \(file)")
+            #expect(policy.contains("`tar -cf <archive> \(file)`"), "Expected command_policy.md to forbid tar -cf \(file)")
+            #expect(policy.contains("`tar -czf <archive> \(file)`"), "Expected command_policy.md to forbid tar -czf \(file)")
+            #expect(policy.contains("`tar -cjf <archive> \(file)`"), "Expected command_policy.md to forbid tar -cjf \(file)")
+            #expect(policy.contains("`tar -cJf <archive> \(file)`"), "Expected command_policy.md to forbid tar -cJf \(file)")
+            #expect(policy.contains("`zip <archive> \(file)`"), "Expected command_policy.md to forbid zip \(file)")
+            #expect(policy.contains("`zip -r <archive> \(file)`"), "Expected command_policy.md to forbid zip -r \(file)")
         }
 
         #expect(policy.contains("`ssh-add id_ed25519`"), "Expected command_policy.md to forbid ssh-add id_ed25519")
@@ -2288,8 +2502,269 @@ struct HabitatCoreTests {
             #expect(policy.contains("`. \(file)`"), "Expected command_policy.md to forbid . \(file)")
         }
 
+        for command in ["direnv allow", "direnv reload", "direnv export <shell>", "direnv exec . <command>"] {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to forbid \(command)")
+        }
+
         #expect(!policy.contains("`cat .env.example`"))
+        #expect(!policy.contains("`open .env.example`"))
+        #expect(!policy.contains("`diff .env.example <other>`"))
+        #expect(!policy.contains("`git diff -- .env.example`"))
+        #expect(!policy.contains("`base64 .env.example`"))
+        #expect(!policy.contains("`strings .env.example`"))
+        #expect(!policy.contains("`cp .env.example <destination>`"))
+        #expect(!policy.contains("`scp .env.example <destination>`"))
+        #expect(!policy.contains("`tar -czf <archive> .env.example`"))
+        #expect(!policy.contains("`zip -r <archive> .env.example`"))
         #expect(!policy.contains("`source .env.example`"))
+    }
+
+    @Test
+    func scanForbidsRecursiveSearchWhenSecretBearingProjectFilesExist() throws {
+        let projectURL = try makeProject(files: [
+            ".env": "TOKEN=secret\n",
+            ".env.example": "TOKEN=\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let recursiveSearchCommands = [
+            "recursive project search without excluding secret-bearing files",
+            "grep -R <pattern> .",
+            "grep -r <pattern> .",
+            "find . -type f -exec grep <pattern> {} +",
+            "find . -type f -exec grep -n <pattern> {} +",
+            "find . -type f -print0 | xargs -0 grep <pattern>",
+            "find . -type f -print0 | xargs -0 grep -n <pattern>",
+            "rg <pattern>",
+            "rg <pattern> .",
+            "rg --hidden <pattern> .",
+            "rg --no-ignore <pattern> .",
+            "rg -u <pattern> .",
+            "rg -uu <pattern> .",
+            "rg -uuu <pattern> .",
+            "git grep <pattern>",
+            "git grep <pattern> -- .",
+        ]
+
+        for command in recursiveSearchCommands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in recursiveSearchCommands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+
+        let exampleOnlyProjectURL = try makeProject(files: [
+            ".env.example": "TOKEN=\n",
+        ])
+        let exampleOnlyResult = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: exampleOnlyProjectURL)
+
+        for command in recursiveSearchCommands {
+            #expect(!exampleOnlyResult.policy.forbiddenCommands.contains(command), "Did not expect \(command) when only examples exist")
+        }
+    }
+
+    @Test
+    func scanForbidsProjectBulkExportWhenSecretBearingProjectFilesExist() throws {
+        let projectURL = try makeProject(files: [
+            ".env": "TOKEN=secret\n",
+            ".env.example": "TOKEN=\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let bulkExportCommands = [
+            "project copy, sync, or archive without excluding secret-bearing files",
+            "cp -R . <destination>",
+            "cp -r . <destination>",
+            "rsync -a . <destination>",
+            "rsync -av . <destination>",
+            "ditto . <destination>",
+            "tar -cf <archive> .",
+            "tar -czf <archive> .",
+            "tar -cjf <archive> .",
+            "tar -cJf <archive> .",
+            "zip -r <archive> .",
+        ]
+
+        for command in bulkExportCommands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in bulkExportCommands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+
+        let exampleOnlyProjectURL = try makeProject(files: [
+            ".env.example": "TOKEN=\n",
+        ])
+        let exampleOnlyResult = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: exampleOnlyProjectURL)
+
+        for command in bulkExportCommands {
+            #expect(!exampleOnlyResult.policy.forbiddenCommands.contains(command), "Did not expect \(command) when only examples exist")
+        }
+    }
+
+    @Test
+    func scanDoesNotReadSymlinkedRuntimeHintValues() throws {
+        let secretValue = "HH_SYMLINKED_NVMRC_SECRET_VALUE"
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+        let externalURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try secretValue.write(to: externalURL, atomically: true, encoding: .utf8)
+        try FileManager.default.createSymbolicLink(
+            at: projectURL.appendingPathComponent(".nvmrc"),
+            withDestinationURL: externalURL
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".nvmrc"))
+        #expect(result.project.symlinkedFiles.contains(".nvmrc"))
+        #expect(result.project.runtimeHints.node == nil)
+        #expect(result.policy.askFirstCommands.contains("following project symlinks before reviewing targets"))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before reviewing symlinked project metadata"))
+        #expect(result.warnings.contains("Project symlinks detected (.nvmrc); do not follow linked metadata or secret-bearing directories before reviewing targets."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+        }
+    }
+
+    @Test
+    func scanComparisonSurfacesSymlinkedProjectSignalDeltasWithoutValues() throws {
+        let secretValue = "HH_PREVIOUS_SCAN_SYMLINK_SECRET_VALUE"
+        let previousProjectURL = try makeProject(files: [:])
+        let currentProjectURL = try makeProject(files: [:])
+        let externalURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try secretValue.write(to: externalURL, atomically: true, encoding: .utf8)
+        try FileManager.default.createSymbolicLink(
+            at: currentProjectURL.appendingPathComponent(".nvmrc"),
+            withDestinationURL: externalURL
+        )
+        let runner = FakeCommandRunner(results: [:])
+        let previous = HabitatScanner(runner: runner).scan(projectURL: previousProjectURL)
+        let current = HabitatScanner(runner: runner).scan(projectURL: currentProjectURL)
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let symlinkChange = changes.first(where: { $0.category == "project_symlinks" })
+
+        #expect(symlinkChange?.summary == "Project symlink signals changed: added .nvmrc.")
+        #expect(symlinkChange?.impact == "Review symlink targets before following linked metadata or using dependency signals.")
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Project symlink signals changed: added .nvmrc. Review symlink targets before following linked metadata or using dependency signals."))
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+        }
+    }
+
+    @Test
+    func scanDoesNotSelectPackageManagerFromSymlinkedWorkflowSignals() throws {
+        let secretValue = "HH_SYMLINKED_PACKAGE_JSON_SECRET_VALUE"
+        let projectURL = try makeProject(files: [:])
+        let externalDirectoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: externalDirectoryURL, withIntermediateDirectories: true)
+        try """
+        {
+          "scripts": {
+            "test": "\(secretValue)"
+          }
+        }
+        """.write(to: externalDirectoryURL.appendingPathComponent("package.json"), atomically: true, encoding: .utf8)
+        try secretValue.write(
+            to: externalDirectoryURL.appendingPathComponent("package-lock.json"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try FileManager.default.createSymbolicLink(
+            at: projectURL.appendingPathComponent("package.json"),
+            withDestinationURL: externalDirectoryURL.appendingPathComponent("package.json")
+        )
+        try FileManager.default.createSymbolicLink(
+            at: projectURL.appendingPathComponent("package-lock.json"),
+            withDestinationURL: externalDirectoryURL.appendingPathComponent("package-lock.json")
+        )
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/env npm --version": .init(name: "/usr/bin/env", args: ["npm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "10.9.0", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("package.json"))
+        #expect(result.project.detectedFiles.contains("package-lock.json"))
+        #expect(result.project.symlinkedFiles.contains("package.json"))
+        #expect(result.project.symlinkedFiles.contains("package-lock.json"))
+        #expect(result.project.packageManager == nil)
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("following project symlinks before reviewing targets"))
+        #expect(result.warnings.contains("Project symlinks detected (package-lock.json, package.json); do not follow linked metadata or secret-bearing directories before reviewing targets."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("npm run"))
+        }
+    }
+
+    @Test
+    func scanDoesNotTraverseSymlinkedSSHDirectory() throws {
+        let secretValue = "HH_SYMLINKED_SSH_SECRET_VALUE"
+        let projectURL = try makeProject(files: [:])
+        let externalDirectoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: externalDirectoryURL, withIntermediateDirectories: true)
+        try secretValue.write(
+            to: externalDirectoryURL.appendingPathComponent("id_ed25519"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try FileManager.default.createSymbolicLink(
+            at: projectURL.appendingPathComponent(".ssh"),
+            withDestinationURL: externalDirectoryURL
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.symlinkedFiles.contains(".ssh"))
+        #expect(!result.project.detectedFiles.contains(".ssh/id_ed25519"))
+        #expect(result.policy.askFirstCommands.contains("following project symlinks before reviewing targets"))
+        #expect(!result.policy.forbiddenCommands.contains("cat .ssh/id_ed25519"))
+        #expect(result.warnings.contains("Project symlinks detected (.ssh); do not follow linked metadata or secret-bearing directories before reviewing targets."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("cat .ssh/id_ed25519"))
+            #expect(!artifact.contains("- .ssh/id_ed25519"))
+        }
     }
 
     @Test
@@ -2318,7 +2793,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains(".pnpmrc"))
-        #expect(context.contains("Do not read package manager auth config values."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
     }
 
@@ -2362,7 +2837,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".pypirc"))
         #expect(scanResult.contains("pip.conf"))
-        #expect(context.contains("Do not read package manager auth config values."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(context.contains("Package manager auth config files detected (.pypirc, pip.conf); do not read credential values."))
         #expect(policy.contains("`read package manager auth config values`"))
@@ -2405,7 +2880,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".gem/credentials"))
         #expect(scanResult.contains(".bundle/config"))
-        #expect(context.contains("Do not read package manager auth config values."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(policy.contains("`read package manager auth config values`"))
     }
@@ -2445,7 +2920,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".cargo/credentials.toml"))
         #expect(scanResult.contains(".cargo/credentials"))
-        #expect(context.contains("Do not read package manager auth config values."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(policy.contains("`read package manager auth config values`"))
     }
@@ -2489,7 +2964,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains("auth.json"))
         #expect(scanResult.contains(".composer/auth.json"))
-        #expect(context.contains("Do not read package manager auth config values."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(policy.contains("`read package manager auth config values`"))
     }
@@ -2522,7 +2997,7 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(scanResult.contains(".netrc"))
-        #expect(context.contains("Do not read `.netrc` values."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.netrc` files."))
         #expect(context.contains("Netrc credentials file exists; do not read .netrc values."))
         #expect(policy.contains("`read .netrc values`"))
     }
@@ -2554,7 +3029,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains("id_ed25519"))
-        #expect(context.contains("Do not read private keys."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(context.contains("Private key file exists; do not read private key values."))
     }
 
@@ -2586,7 +3061,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains(".ssh/id_ed25519"))
-        #expect(context.contains("Do not read private keys."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(context.contains("Private key file exists; do not read private key values."))
     }
 
@@ -2612,6 +3087,23 @@ struct HabitatCoreTests {
         for file in privateKeyFiles {
             #expect(result.project.detectedFiles.contains(file), "Expected \(file) to be detected")
             #expect(result.policy.forbiddenCommands.contains("cat \(file)"), "Expected cat \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("base64 \(file)"), "Expected base64 \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("xxd \(file)"), "Expected xxd \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("hexdump -C \(file)"), "Expected hexdump -C \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("strings \(file)"), "Expected strings \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("diff \(file) <other>"), "Expected diff \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("cmp \(file) <other>"), "Expected cmp \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git grep <pattern> -- \(file)"), "Expected git grep -- \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git grep <pattern> \(file)"), "Expected git grep \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git diff -- \(file)"), "Expected git diff \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git log -p -- \(file)"), "Expected git log -p \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git show HEAD:\(file)"), "Expected git show HEAD:\(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("cp \(file) <destination>"), "Expected cp \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("scp \(file) <destination>"), "Expected scp \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("curl -F file=@\(file) <url>"), "Expected curl form upload \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("curl --data-binary @\(file) <url>"), "Expected curl data upload \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("curl -T \(file) <url>"), "Expected curl transfer upload \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("wget --post-file=\(file) <url>"), "Expected wget post-file \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("ssh-add \(file)"), "Expected ssh-add \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("ssh-keygen -y -f \(file)"), "Expected ssh-keygen -y -f \(file) to be forbidden")
         }
@@ -2632,8 +3124,22 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not read private keys."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(policy.contains("`cat deploy.pem`"))
+        #expect(policy.contains("`base64 deploy.pem`"))
+        #expect(policy.contains("`xxd deploy.pem`"))
+        #expect(policy.contains("`hexdump -C deploy.pem`"))
+        #expect(policy.contains("`strings deploy.pem`"))
+        #expect(policy.contains("`diff deploy.pem <other>`"))
+        #expect(policy.contains("`git diff -- deploy.pem`"))
+        #expect(policy.contains("`git log -p -- deploy.pem`"))
+        #expect(policy.contains("`git show HEAD:deploy.pem`"))
+        #expect(policy.contains("`cp deploy.pem <destination>`"))
+        #expect(policy.contains("`scp deploy.pem <destination>`"))
+        #expect(policy.contains("`curl -F file=@deploy.pem <url>`"))
+        #expect(policy.contains("`curl --data-binary @deploy.pem <url>`"))
+        #expect(policy.contains("`curl -T deploy.pem <url>`"))
+        #expect(policy.contains("`wget --post-file=deploy.pem <url>`"))
         #expect(policy.contains("`ssh-add .ssh/deploy.pem`"))
         #expect(!policy.contains("`.ssh/id_ed25519.pub`"))
     }
@@ -2682,7 +3188,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".env.staging"))
         #expect(report.contains(".env.staging"))
-        #expect(context.contains("Do not read `.env` values."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.env` files."))
     }
 
     @Test
@@ -2713,9 +3219,13 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not read `.envrc` values."))
-        #expect(!context.contains("Do not read `.env` values."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.envrc` files."))
+        #expect(!context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.env` files."))
         #expect(policy.contains("`read .envrc values`"))
+        #expect(policy.contains("`direnv allow`"))
+        #expect(policy.contains("`direnv reload`"))
+        #expect(policy.contains("`direnv export <shell>`"))
+        #expect(policy.contains("`direnv exec . <command>`"))
     }
 
     @Test
@@ -2742,8 +3252,9 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not read `.envrc` values."))
+        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.envrc` files."))
         #expect(policy.contains("`read .envrc values`"))
+        #expect(!policy.contains("`direnv allow`"))
     }
 
     @Test
@@ -2989,18 +3500,6 @@ struct HabitatCoreTests {
             "pip3 cache remove",
             "python -m pip cache remove",
             "python3 -m pip cache remove",
-            "pip config set",
-            "pip3 config set",
-            "python -m pip config set",
-            "python3 -m pip config set",
-            "pip config unset",
-            "pip3 config unset",
-            "python -m pip config unset",
-            "python3 -m pip config unset",
-            "pip config edit",
-            "pip3 config edit",
-            "python -m pip config edit",
-            "python3 -m pip config edit",
         ] {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
         }
@@ -3030,6 +3529,18 @@ struct HabitatCoreTests {
             "pip3 config debug",
             "python -m pip config debug",
             "python3 -m pip config debug",
+            "pip config set",
+            "pip3 config set",
+            "python -m pip config set",
+            "python3 -m pip config set",
+            "pip config unset",
+            "pip3 config unset",
+            "python -m pip config unset",
+            "python3 -m pip config unset",
+            "pip config edit",
+            "pip3 config edit",
+            "python -m pip config edit",
+            "python3 -m pip config edit",
         ] {
             #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
         }
@@ -3320,6 +3831,58 @@ struct HabitatCoreTests {
         #expect(!context.contains("Prefer `bundle exec`."))
         #expect(!policy.contains("`bundle exec`"))
         #expect(policy.contains("`read-only project inspection`"))
+    }
+
+    @Test
+    func scanClassifiesBundlerDependencyMutationsAsAskFirst() throws {
+        let projectURL = try makeProject(files: [
+            "Gemfile": "source \"https://rubygems.org\"\n",
+            "Gemfile.lock": "GEM\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env bundle --version": .init(name: "/usr/bin/env", args: ["bundle", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Bundler version 2.5.10", stderr: ""),
+            "/usr/bin/which -a bundle": .init(name: "/usr/bin/which", args: ["-a", "bundle"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/bundle", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        for command in ["bundle install", "bundle add", "bundle update", "bundle lock", "bundle remove"] {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `bundle update`."))
+        #expect(policy.contains("`bundle add`"))
+        #expect(policy.contains("`bundle update`"))
+        #expect(policy.contains("`bundle lock`"))
+    }
+
+    @Test
+    func scanForbidsBundlerConfigValueReads() throws {
+        let projectURL = try makeProject(files: [
+            "Gemfile": "source \"https://rubygems.org\"\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        for command in ["bundle config", "bundle config list", "bundle config get", "bundle config set", "bundle config unset"] {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(policy.contains("`bundle config`"))
+        #expect(policy.contains("`bundle config list`"))
+        #expect(policy.contains("`bundle config get`"))
+        #expect(policy.contains("`bundle config set`"))
+        #expect(policy.contains("`bundle config unset`"))
     }
 
     @Test
@@ -4077,6 +4640,10 @@ struct HabitatCoreTests {
         for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
             #expect(FileManager.default.fileExists(atPath: outputURL.appendingPathComponent(name).path))
         }
+
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        #expect(scanResult.contains("\"schemaVersion\" : \"0.1\""))
+        #expect(scanResult.contains("\"generatorVersion\" : \"0.1.0\""))
     }
 
     @Test
@@ -4263,6 +4830,42 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanComparisonSurfacesGeneratorVersionDeltas() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            generatorVersion: "0.0.9",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["swift test"], askFirstCommands: [], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            generatorVersion: HabitatMetadata.generatorVersion,
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["swift test"], askFirstCommands: [], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.first?.category == "generator")
+        #expect(changes.first?.summary == "Generator version changed from 0.0.9 to \(HabitatMetadata.generatorVersion).")
+        #expect(changes.first?.impact.contains("before assuming the local environment changed") == true)
+    }
+
+    @Test
     func scanComparisonSurfacesSecretFileSignalDeltasWithoutValues() throws {
         let secretValue = "hh_previous_scan_secret_value"
         let privateKeyMarker = "-----BEGIN OPENSSH PRIVATE KEY-----"
@@ -4273,6 +4876,7 @@ struct HabitatCoreTests {
             "package.json": "{}",
             ".env.local": "LOCAL_TOKEN=\(secretValue)\n",
             ".pnpmrc": "//registry.npmjs.org/:_authToken=\(secretValue)\n",
+            "deploy.pem": "\(privateKeyMarker)\n\(secretValue)\n",
             "id_ed25519": "\(privateKeyMarker)\n\(secretValue)\n",
         ])
         let runner = FakeCommandRunner(results: [:])
@@ -4282,8 +4886,8 @@ struct HabitatCoreTests {
         let changes = ScanComparator().compare(previous: previous, current: current)
         let secretChange = changes.first(where: { $0.category == "secret_files" })
 
-        #expect(secretChange?.summary == "Secret-bearing file signals changed: added .env.local, .pnpmrc, id_ed25519.")
-        #expect(secretChange?.impact == "Do not read secret, auth-token, or private-key values; follow current Avoid and Forbidden guidance.")
+        #expect(secretChange?.summary == "Secret-bearing file signals changed: added .env.local, .pnpmrc, deploy.pem, and 1 more.")
+        #expect(secretChange?.impact == "Do not read, compare, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance.")
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
@@ -4292,7 +4896,7 @@ struct HabitatCoreTests {
         let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
 
         #expect(scanResult.contains("\"category\" : \"secret_files\""))
-        #expect(context.contains("Secret-bearing file signals changed: added .env.local, .pnpmrc, id_ed25519. Do not read secret, auth-token, or private-key values; follow current Avoid and Forbidden guidance."))
+        #expect(context.contains("Secret-bearing file signals changed: added .env.local, .pnpmrc, deploy.pem, and 1 more. Do not read, compare, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance."))
         #expect(report.contains("[secret_files] Secret-bearing file signals changed"))
 
         for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
@@ -4979,12 +5583,18 @@ struct HabitatCoreTests {
         let result = markdownSnapshotScanResult()
         let data = try JSONEncoder().encode(result)
         var object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
+        object.removeValue(forKey: "generatorVersion")
         object.removeValue(forKey: "changes")
+        var project = try #require(object["project"] as? [String: Any])
+        project.removeValue(forKey: "symlinkedFiles")
+        object["project"] = project
         let olderData = try JSONSerialization.data(withJSONObject: object)
 
         let decoded = try JSONDecoder().decode(ScanResult.self, from: olderData)
 
+        #expect(decoded.generatorVersion == "unknown")
         #expect(decoded.changes.isEmpty)
+        #expect(decoded.project.symlinkedFiles.isEmpty)
         #expect(decoded.project.packageManager == "pnpm")
     }
 
@@ -5492,6 +6102,7 @@ struct HabitatCoreTests {
 
         for (path, contents) in files {
             let fileURL = root.appendingPathComponent(path)
+            try FileManager.default.createDirectory(at: fileURL.deletingLastPathComponent(), withIntermediateDirectories: true)
             try contents.write(to: fileURL, atomically: true, encoding: .utf8)
         }
 

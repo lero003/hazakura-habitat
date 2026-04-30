@@ -15,7 +15,7 @@ struct CLI {
             print(helpText)
             return 0
         case "--version", "-v", "version":
-            print("habitat-scan 0.1.0")
+            print("\(HabitatMetadata.cliName) \(HabitatMetadata.generatorVersion)")
             return 0
         default:
             fputs("Unknown command: \(arguments[1])\n\n\(helpText)\n", stderr)
@@ -56,7 +56,7 @@ struct CLI {
 
     private var helpText: String {
         """
-        habitat-scan 0.1.0
+        \(HabitatMetadata.cliName) \(HabitatMetadata.generatorVersion)
 
         Usage:
           habitat-scan scan --project /path/to/project --output ./habitat-report

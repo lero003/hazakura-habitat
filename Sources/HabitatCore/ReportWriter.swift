@@ -52,7 +52,7 @@ public struct ReportWriter {
             useLines = ([packageManagerUse] + preferredCommands.prefix(2).map { "Prefer `\($0)`." })
                 .compactMap { $0 }
         }
-        let avoidLines = prioritizedForbiddenCommands(result).prefix(7).map(avoidLine)
+        let avoidLines = prioritizedForbiddenCommands(result).prefix(9).map(avoidLine)
         let askLines = result.policy.askFirstCommands.prefix(4).map { "Ask before `\($0)`." }
         let mismatchLines = result.warnings.isEmpty ? ["- None detected."] : result.warnings.map { "- \($0)" }
         let changeLines = result.changes.map { "- \($0.summary) \($0.impact)" }
@@ -134,6 +134,9 @@ public struct ReportWriter {
         let files = result.project.detectedFiles.isEmpty
             ? "- None"
             : result.project.detectedFiles.map { "- \($0)" }.joined(separator: "\n")
+        let symlinkedFiles = result.project.symlinkedFiles.isEmpty
+            ? "- None"
+            : result.project.symlinkedFiles.map { "- \($0)" }.joined(separator: "\n")
 
         return """
         # Environment Report
@@ -145,6 +148,9 @@ public struct ReportWriter {
 
         ## Project Signals
         \(files)
+
+        ## Symlinked Project Signals
+        \(symlinkedFiles)
 
         ## Resolved Tools
         \(tools)
@@ -183,18 +189,22 @@ public struct ReportWriter {
             return "Do not read clipboard contents."
         case "read shell history":
             return "Do not read shell history."
+        case "read browser or mail data":
+            return "Do not inspect browser profiles, cookies, history, or local mail data."
         case "load secret environment files":
             return "Do not source or load secret environment files."
         case "read .env values":
-            return "Do not read `.env` values."
+            return "Do not read, compare, open, edit, copy, move, sync, upload, or archive `.env` files."
         case "read .envrc values":
-            return "Do not read `.envrc` values."
+            return "Do not read, compare, open, edit, copy, move, sync, upload, or archive `.envrc` files."
         case "read .netrc values":
-            return "Do not read `.netrc` values."
+            return "Do not read, compare, open, edit, copy, move, sync, upload, or archive `.netrc` files."
         case "read package manager auth config values":
-            return "Do not read package manager auth config values."
+            return "Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."
         case "read private keys":
-            return "Do not read private keys."
+            return "Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."
+        case "read local cloud and container credential files":
+            return "Do not read, open, copy, upload, or archive local cloud or container credential files, or print cloud auth tokens."
         default:
             return "Do not run `\(command)`."
         }
@@ -434,6 +444,8 @@ public struct ReportWriter {
         append("dump environment variables", to: &commands, from: result.policy.forbiddenCommands)
         append("read clipboard contents", to: &commands, from: result.policy.forbiddenCommands)
         append("read shell history", to: &commands, from: result.policy.forbiddenCommands)
+        append("read browser or mail data", to: &commands, from: result.policy.forbiddenCommands)
+        append("read local cloud and container credential files", to: &commands, from: result.policy.forbiddenCommands)
         append("remote script execution through curl or wget", to: &commands, from: result.policy.forbiddenCommands)
 
         for command in result.policy.forbiddenCommands where !commands.contains(command) {

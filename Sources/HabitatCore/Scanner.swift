@@ -145,14 +145,35 @@ public struct HabitatScanner {
                 "pip3 config debug",
                 "python -m pip config debug",
                 "python3 -m pip config debug",
+                "pip config set",
+                "pip3 config set",
+                "python -m pip config set",
+                "python3 -m pip config set",
+                "pip config unset",
+                "pip3 config unset",
+                "python -m pip config unset",
+                "python3 -m pip config unset",
+                "pip config edit",
+                "pip3 config edit",
+                "python -m pip config edit",
+                "python3 -m pip config edit",
                 "npm config list",
                 "npm config ls",
                 "npm config get",
+                "npm config set",
+                "npm config delete",
+                "npm config rm",
+                "npm config edit",
                 "pnpm config list",
                 "pnpm config get",
+                "pnpm config set",
+                "pnpm config delete",
                 "yarn config",
                 "yarn config list",
                 "yarn config get",
+                "yarn config set",
+                "yarn config unset",
+                "yarn config delete",
                 "npm token",
                 "npm token create",
                 "npm token list",
@@ -169,6 +190,11 @@ public struct HabitatScanner {
                 "yarn npm whoami",
                 "gem signin",
                 "gem signout",
+                "bundle config",
+                "bundle config list",
+                "bundle config get",
+                "bundle config set",
+                "bundle config unset",
                 "cargo login",
                 "cargo logout",
                 "pod trunk register",
@@ -190,6 +216,46 @@ public struct HabitatScanner {
                 "security find-internet-password -w",
                 "security dump-keychain",
                 "security export",
+                "read local cloud and container credential files",
+                "cat ~/.aws/credentials",
+                "less ~/.aws/credentials",
+                "head ~/.aws/credentials",
+                "tail ~/.aws/credentials",
+                "grep <pattern> ~/.aws/credentials",
+                "rg <pattern> ~/.aws/credentials",
+                "base64 ~/.aws/credentials",
+                "xxd ~/.aws/credentials",
+                "strings ~/.aws/credentials",
+                "open ~/.aws/credentials",
+                "cp ~/.aws/credentials <destination>",
+                "rsync ~/.aws/credentials <destination>",
+                "curl -F file=@~/.aws/credentials <url>",
+                "curl --data-binary @~/.aws/credentials <url>",
+                "tar -czf <archive> ~/.aws/credentials",
+                "zip -r <archive> ~/.aws/credentials",
+                "cat ~/.aws/config",
+                "open ~/.aws/config",
+                "cp ~/.aws/config <destination>",
+                "aws configure get aws_access_key_id",
+                "aws configure get aws_secret_access_key",
+                "cat ~/.config/gcloud/application_default_credentials.json",
+                "open ~/.config/gcloud/application_default_credentials.json",
+                "cp ~/.config/gcloud/application_default_credentials.json <destination>",
+                "curl -F file=@~/.config/gcloud/application_default_credentials.json <url>",
+                "gcloud auth print-access-token",
+                "gcloud auth application-default print-access-token",
+                "cat ~/.docker/config.json",
+                "open ~/.docker/config.json",
+                "cp ~/.docker/config.json <destination>",
+                "curl -F file=@~/.docker/config.json <url>",
+                "cat ~/.kube/config",
+                "open ~/.kube/config",
+                "cp ~/.kube/config <destination>",
+                "curl -F file=@~/.kube/config <url>",
+                "tar -czf <archive> ~/.kube/config",
+                "zip -r <archive> ~/.kube/config",
+                "kubectl config view --raw",
+                "kubectl config view --flatten --raw",
                 "dump environment variables",
                 "env",
                 "printenv",
@@ -235,6 +301,41 @@ public struct HabitatScanner {
                 "awk <program> ~/.zsh_history",
                 "awk <program> ~/.bash_history",
                 "awk <program> ~/.history",
+                "read browser or mail data",
+                "ls ~/Library/Application\\ Support/Google/Chrome",
+                "find ~/Library/Application\\ Support/Google/Chrome",
+                "sqlite3 ~/Library/Application\\ Support/Google/Chrome/Default/Cookies",
+                "sqlite3 ~/Library/Application\\ Support/Google/Chrome/Default/Cookies .dump",
+                "cp ~/Library/Application\\ Support/Google/Chrome/Default/Cookies <destination>",
+                "sqlite3 ~/Library/Application\\ Support/Google/Chrome/Default/Login\\ Data",
+                "sqlite3 ~/Library/Application\\ Support/Google/Chrome/Default/Login\\ Data .dump",
+                "cp ~/Library/Application\\ Support/Google/Chrome/Default/Login\\ Data <destination>",
+                "open ~/Library/Application\\ Support/Google/Chrome",
+                "cp -R ~/Library/Application\\ Support/Google/Chrome <destination>",
+                "rsync -a ~/Library/Application\\ Support/Google/Chrome <destination>",
+                "tar -czf <archive> ~/Library/Application\\ Support/Google/Chrome",
+                "ls ~/Library/Application\\ Support/Firefox/Profiles",
+                "find ~/Library/Application\\ Support/Firefox/Profiles",
+                "open ~/Library/Application\\ Support/Firefox/Profiles",
+                "cp -R ~/Library/Application\\ Support/Firefox/Profiles <destination>",
+                "zip -r <archive> ~/Library/Application\\ Support/Firefox/Profiles",
+                "ls ~/Library/Safari",
+                "cat ~/Library/Safari/History.db",
+                "sqlite3 ~/Library/Safari/History.db",
+                "sqlite3 ~/Library/Safari/History.db .dump",
+                "strings ~/Library/Safari/History.db",
+                "cp ~/Library/Safari/History.db <destination>",
+                "open ~/Library/Safari",
+                "cp -R ~/Library/Safari <destination>",
+                "zip -r <archive> ~/Library/Safari",
+                "ls ~/Library/Mail",
+                "find ~/Library/Mail",
+                "mdfind kMDItemContentType == com.apple.mail.email",
+                "sqlite3 ~/Library/Mail",
+                "open ~/Library/Mail",
+                "cp -R ~/Library/Mail <destination>",
+                "rsync -a ~/Library/Mail <destination>",
+                "tar -czf <archive> ~/Library/Mail",
                 "cat ~/.ssh/id_rsa",
                 "cat ~/.ssh/id_dsa",
                 "cat ~/.ssh/id_ecdsa",
@@ -251,6 +352,22 @@ public struct HabitatScanner {
                 "nl -ba ~/.ssh/id_dsa",
                 "nl -ba ~/.ssh/id_ecdsa",
                 "nl -ba ~/.ssh/id_ed25519",
+                "base64 ~/.ssh/id_rsa",
+                "base64 ~/.ssh/id_dsa",
+                "base64 ~/.ssh/id_ecdsa",
+                "base64 ~/.ssh/id_ed25519",
+                "xxd ~/.ssh/id_rsa",
+                "xxd ~/.ssh/id_dsa",
+                "xxd ~/.ssh/id_ecdsa",
+                "xxd ~/.ssh/id_ed25519",
+                "hexdump -C ~/.ssh/id_rsa",
+                "hexdump -C ~/.ssh/id_dsa",
+                "hexdump -C ~/.ssh/id_ecdsa",
+                "hexdump -C ~/.ssh/id_ed25519",
+                "strings ~/.ssh/id_rsa",
+                "strings ~/.ssh/id_dsa",
+                "strings ~/.ssh/id_ecdsa",
+                "strings ~/.ssh/id_ed25519",
                 "head ~/.ssh/id_rsa",
                 "head ~/.ssh/id_dsa",
                 "head ~/.ssh/id_ecdsa",
@@ -275,6 +392,106 @@ public struct HabitatScanner {
                 "awk <program> ~/.ssh/id_dsa",
                 "awk <program> ~/.ssh/id_ecdsa",
                 "awk <program> ~/.ssh/id_ed25519",
+                "diff ~/.ssh/id_rsa <other>",
+                "diff ~/.ssh/id_dsa <other>",
+                "diff ~/.ssh/id_ecdsa <other>",
+                "diff ~/.ssh/id_ed25519 <other>",
+                "cmp ~/.ssh/id_rsa <other>",
+                "cmp ~/.ssh/id_dsa <other>",
+                "cmp ~/.ssh/id_ecdsa <other>",
+                "cmp ~/.ssh/id_ed25519 <other>",
+                "open ~/.ssh/id_rsa",
+                "open ~/.ssh/id_dsa",
+                "open ~/.ssh/id_ecdsa",
+                "open ~/.ssh/id_ed25519",
+                "code ~/.ssh/id_rsa",
+                "code ~/.ssh/id_dsa",
+                "code ~/.ssh/id_ecdsa",
+                "code ~/.ssh/id_ed25519",
+                "vim ~/.ssh/id_rsa",
+                "vim ~/.ssh/id_dsa",
+                "vim ~/.ssh/id_ecdsa",
+                "vim ~/.ssh/id_ed25519",
+                "vi ~/.ssh/id_rsa",
+                "vi ~/.ssh/id_dsa",
+                "vi ~/.ssh/id_ecdsa",
+                "vi ~/.ssh/id_ed25519",
+                "nano ~/.ssh/id_rsa",
+                "nano ~/.ssh/id_dsa",
+                "nano ~/.ssh/id_ecdsa",
+                "nano ~/.ssh/id_ed25519",
+                "emacs ~/.ssh/id_rsa",
+                "emacs ~/.ssh/id_dsa",
+                "emacs ~/.ssh/id_ecdsa",
+                "emacs ~/.ssh/id_ed25519",
+                "cp ~/.ssh/id_rsa <destination>",
+                "cp ~/.ssh/id_dsa <destination>",
+                "cp ~/.ssh/id_ecdsa <destination>",
+                "cp ~/.ssh/id_ed25519 <destination>",
+                "cp -R ~/.ssh/id_rsa <destination>",
+                "cp -R ~/.ssh/id_dsa <destination>",
+                "cp -R ~/.ssh/id_ecdsa <destination>",
+                "cp -R ~/.ssh/id_ed25519 <destination>",
+                "cp -r ~/.ssh/id_rsa <destination>",
+                "cp -r ~/.ssh/id_dsa <destination>",
+                "cp -r ~/.ssh/id_ecdsa <destination>",
+                "cp -r ~/.ssh/id_ed25519 <destination>",
+                "mv ~/.ssh/id_rsa <destination>",
+                "mv ~/.ssh/id_dsa <destination>",
+                "mv ~/.ssh/id_ecdsa <destination>",
+                "mv ~/.ssh/id_ed25519 <destination>",
+                "rsync ~/.ssh/id_rsa <destination>",
+                "rsync ~/.ssh/id_dsa <destination>",
+                "rsync ~/.ssh/id_ecdsa <destination>",
+                "rsync ~/.ssh/id_ed25519 <destination>",
+                "rsync -a ~/.ssh/id_rsa <destination>",
+                "rsync -a ~/.ssh/id_dsa <destination>",
+                "rsync -a ~/.ssh/id_ecdsa <destination>",
+                "rsync -a ~/.ssh/id_ed25519 <destination>",
+                "scp ~/.ssh/id_rsa <destination>",
+                "scp ~/.ssh/id_dsa <destination>",
+                "scp ~/.ssh/id_ecdsa <destination>",
+                "scp ~/.ssh/id_ed25519 <destination>",
+                "curl -F file=@~/.ssh/id_rsa <url>",
+                "curl -F file=@~/.ssh/id_dsa <url>",
+                "curl -F file=@~/.ssh/id_ecdsa <url>",
+                "curl -F file=@~/.ssh/id_ed25519 <url>",
+                "curl --data-binary @~/.ssh/id_rsa <url>",
+                "curl --data-binary @~/.ssh/id_dsa <url>",
+                "curl --data-binary @~/.ssh/id_ecdsa <url>",
+                "curl --data-binary @~/.ssh/id_ed25519 <url>",
+                "curl -T ~/.ssh/id_rsa <url>",
+                "curl -T ~/.ssh/id_dsa <url>",
+                "curl -T ~/.ssh/id_ecdsa <url>",
+                "curl -T ~/.ssh/id_ed25519 <url>",
+                "wget --post-file=~/.ssh/id_rsa <url>",
+                "wget --post-file=~/.ssh/id_dsa <url>",
+                "wget --post-file=~/.ssh/id_ecdsa <url>",
+                "wget --post-file=~/.ssh/id_ed25519 <url>",
+                "tar -cf <archive> ~/.ssh/id_rsa",
+                "tar -cf <archive> ~/.ssh/id_dsa",
+                "tar -cf <archive> ~/.ssh/id_ecdsa",
+                "tar -cf <archive> ~/.ssh/id_ed25519",
+                "tar -czf <archive> ~/.ssh/id_rsa",
+                "tar -czf <archive> ~/.ssh/id_dsa",
+                "tar -czf <archive> ~/.ssh/id_ecdsa",
+                "tar -czf <archive> ~/.ssh/id_ed25519",
+                "tar -cjf <archive> ~/.ssh/id_rsa",
+                "tar -cjf <archive> ~/.ssh/id_dsa",
+                "tar -cjf <archive> ~/.ssh/id_ecdsa",
+                "tar -cjf <archive> ~/.ssh/id_ed25519",
+                "tar -cJf <archive> ~/.ssh/id_rsa",
+                "tar -cJf <archive> ~/.ssh/id_dsa",
+                "tar -cJf <archive> ~/.ssh/id_ecdsa",
+                "tar -cJf <archive> ~/.ssh/id_ed25519",
+                "zip <archive> ~/.ssh/id_rsa",
+                "zip <archive> ~/.ssh/id_dsa",
+                "zip <archive> ~/.ssh/id_ecdsa",
+                "zip <archive> ~/.ssh/id_ed25519",
+                "zip -r <archive> ~/.ssh/id_rsa",
+                "zip -r <archive> ~/.ssh/id_dsa",
+                "zip -r <archive> ~/.ssh/id_ecdsa",
+                "zip -r <archive> ~/.ssh/id_ed25519",
                 "ssh-add ~/.ssh/id_rsa",
                 "ssh-add ~/.ssh/id_dsa",
                 "ssh-add ~/.ssh/id_ecdsa",
@@ -309,7 +526,9 @@ public struct HabitatScanner {
                 "uv tool upgrade --all",
                 "uv tool uninstall",
                 "gem install",
+                "gem update",
                 "gem uninstall",
+                "gem cleanup",
                 "go install",
                 "cargo install",
                 "cargo uninstall",
@@ -319,8 +538,10 @@ public struct HabitatScanner {
                 "read .netrc values",
                 "read package manager auth config values",
                 "read private keys"
-            ] + secretFileReadForbiddenCommands(project)
+            ] + secretFileAccessForbiddenCommands(project)
             + secretEnvironmentFileLoadForbiddenCommands(project)
+            + recursiveSecretSearchForbiddenCommands(project)
+            + secretProjectBulkExportForbiddenCommands(project)
         )
         let preferredCommands = preferredCommands(project: project)
         let askFirstCommands = askFirstCommands(
@@ -343,7 +564,8 @@ public struct HabitatScanner {
         let diagnostics = commands.compactMap(commandDiagnostic)
 
         return ScanResult(
-            schemaVersion: "0.1",
+            schemaVersion: HabitatMetadata.schemaVersion,
+            generatorVersion: HabitatMetadata.generatorVersion,
             scannedAt: ISO8601DateFormatter().string(from: Date()),
             projectPath: projectURL.path,
             system: SystemInfo(
@@ -596,18 +818,6 @@ public struct HabitatScanner {
             "pip3 cache remove",
             "python -m pip cache remove",
             "python3 -m pip cache remove",
-            "pip config set",
-            "pip3 config set",
-            "python -m pip config set",
-            "python3 -m pip config set",
-            "pip config unset",
-            "pip3 config unset",
-            "python -m pip config unset",
-            "python3 -m pip config unset",
-            "pip config edit",
-            "pip3 config edit",
-            "python -m pip config edit",
-            "python3 -m pip config edit",
             "npm install",
             "npm ci",
             "npm update",
@@ -677,6 +887,9 @@ public struct HabitatScanner {
             "pipx run",
             "pipx runpip",
             "bundle install",
+            "bundle add",
+            "bundle update",
+            "bundle lock",
             "bundle remove",
             "brew bundle",
             "brew bundle install",
@@ -874,6 +1087,11 @@ public struct HabitatScanner {
             commands.insert("dependency installs before choosing between uv.lock and requirements files", at: 0)
         }
 
+        if hasSymlinkedProjectSignals(project) {
+            commands.insert("dependency installs before reviewing symlinked project metadata", at: 0)
+            commands.insert("following project symlinks before reviewing targets", at: 0)
+        }
+
         if hasBrokenProjectVirtualEnvironment(project) {
             commands.insert("running Python commands before project .venv/bin/python exists", at: 0)
         }
@@ -913,7 +1131,7 @@ public struct HabitatScanner {
         case "python":
             return ["pip install", "pip3 install", "python -m pip install", "python3 -m pip install", "pip uninstall", "pip3 uninstall", "python -m pip uninstall", "python3 -m pip uninstall"]
         case "bundler":
-            return ["bundle install", "bundle remove"]
+            return ["bundle install", "bundle add", "bundle update", "bundle lock", "bundle remove"]
         case "homebrew":
             return ["brew bundle", "brew bundle install", "brew bundle cleanup", "brew bundle dump", "brew update", "brew cleanup", "brew autoremove", "brew tap", "brew tap-new"]
         case "swiftpm":
@@ -1007,6 +1225,10 @@ public struct HabitatScanner {
         if hasPackageManagerAuthConfig(project) {
             warnings.append("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files.")
             warnings.append("Package manager auth config files detected (\(packageManagerAuthConfigFiles(project).joined(separator: ", "))); do not read credential values.")
+        }
+
+        if hasSymlinkedProjectSignals(project) {
+            warnings.append("Project symlinks detected (\(project.symlinkedFiles.joined(separator: ", "))); do not follow linked metadata or secret-bearing directories before reviewing targets.")
         }
 
         if hasSSHPrivateKeyFile(project) {
@@ -1175,13 +1397,17 @@ public struct HabitatScanner {
             && (project.detectedFiles.contains("requirements.txt") || project.detectedFiles.contains("requirements-dev.txt"))
     }
 
+    private func hasSymlinkedProjectSignals(_ project: ProjectInfo) -> Bool {
+        !project.symlinkedFiles.isEmpty
+    }
+
     private func hasSecretDotEnvFile(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains { file in
             isSecretDotEnvFile(file)
         }
     }
 
-    private func secretFileReadForbiddenCommands(_ project: ProjectInfo) -> [String] {
+    private func secretFileAccessForbiddenCommands(_ project: ProjectInfo) -> [String] {
         secretValueFiles(project).flatMap { file in
             var commands = [
                 "cat \(file)",
@@ -1190,10 +1416,44 @@ public struct HabitatScanner {
                 "tail \(file)",
                 "grep <pattern> \(file)",
                 "rg <pattern> \(file)",
+                "git grep <pattern> -- \(file)",
+                "git grep <pattern> \(file)",
                 "sed -n <range> \(file)",
                 "awk <program> \(file)",
+                "diff \(file) <other>",
+                "cmp \(file) <other>",
+                "git diff -- \(file)",
+                "git log -p -- \(file)",
+                "git show HEAD:\(file)",
                 "bat \(file)",
                 "nl -ba \(file)",
+                "base64 \(file)",
+                "xxd \(file)",
+                "hexdump -C \(file)",
+                "strings \(file)",
+                "open \(file)",
+                "code \(file)",
+                "vim \(file)",
+                "vi \(file)",
+                "nano \(file)",
+                "emacs \(file)",
+                "cp \(file) <destination>",
+                "cp -R \(file) <destination>",
+                "cp -r \(file) <destination>",
+                "mv \(file) <destination>",
+                "rsync \(file) <destination>",
+                "rsync -a \(file) <destination>",
+                "scp \(file) <destination>",
+                "curl -F file=@\(file) <url>",
+                "curl --data-binary @\(file) <url>",
+                "curl -T \(file) <url>",
+                "wget --post-file=\(file) <url>",
+                "tar -cf <archive> \(file)",
+                "tar -czf <archive> \(file)",
+                "tar -cjf <archive> \(file)",
+                "tar -cJf <archive> \(file)",
+                "zip <archive> \(file)",
+                "zip -r <archive> \(file)",
             ]
 
             if isSSHPrivateKeyFilename(file) {
@@ -1210,12 +1470,64 @@ public struct HabitatScanner {
     }
 
     private func secretEnvironmentFileLoadForbiddenCommands(_ project: ProjectInfo) -> [String] {
-        secretEnvironmentValueFiles(project).flatMap { file in
+        var commands = secretEnvironmentValueFiles(project).flatMap { file in
             [
                 "source \(file)",
                 ". \(file)",
             ]
         }
+
+        if hasSecretEnvrcFile(project) {
+            commands += [
+                "direnv allow",
+                "direnv reload",
+                "direnv export <shell>",
+                "direnv exec . <command>",
+            ]
+        }
+
+        return commands
+    }
+
+    private func recursiveSecretSearchForbiddenCommands(_ project: ProjectInfo) -> [String] {
+        guard !secretValueFiles(project).isEmpty else { return [] }
+
+        return [
+            "recursive project search without excluding secret-bearing files",
+            "grep -R <pattern> .",
+            "grep -r <pattern> .",
+            "find . -type f -exec grep <pattern> {} +",
+            "find . -type f -exec grep -n <pattern> {} +",
+            "find . -type f -print0 | xargs -0 grep <pattern>",
+            "find . -type f -print0 | xargs -0 grep -n <pattern>",
+            "rg <pattern>",
+            "rg <pattern> .",
+            "rg --hidden <pattern> .",
+            "rg --no-ignore <pattern> .",
+            "rg -u <pattern> .",
+            "rg -uu <pattern> .",
+            "rg -uuu <pattern> .",
+            "git grep <pattern>",
+            "git grep <pattern> -- .",
+        ]
+    }
+
+    private func secretProjectBulkExportForbiddenCommands(_ project: ProjectInfo) -> [String] {
+        guard !secretValueFiles(project).isEmpty else { return [] }
+
+        return [
+            "project copy, sync, or archive without excluding secret-bearing files",
+            "cp -R . <destination>",
+            "cp -r . <destination>",
+            "rsync -a . <destination>",
+            "rsync -av . <destination>",
+            "ditto . <destination>",
+            "tar -cf <archive> .",
+            "tar -czf <archive> .",
+            "tar -cjf <archive> .",
+            "tar -cJf <archive> .",
+            "zip -r <archive> .",
+        ]
     }
 
     private func secretEnvironmentValueFiles(_ project: ProjectInfo) -> [String] {

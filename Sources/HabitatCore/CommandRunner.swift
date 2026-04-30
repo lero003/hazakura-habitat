@@ -41,16 +41,37 @@ public struct ProcessCommandRunner: CommandRunning {
         let stdout = String(data: stdoutPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
         let stderr = String(data: stderrPipe.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
 
+        let exitCode = timedOut ? nil : process.terminationStatus
+
         return CommandInfo(
             name: executable,
             args: arguments,
-            exitCode: timedOut ? nil : process.terminationStatus,
+            exitCode: exitCode,
             durationMs: Int(Date().timeIntervalSince(start) * 1000),
             timedOut: timedOut,
-            available: true,
+            available: commandWasAvailable(executable: executable, arguments: arguments, exitCode: exitCode, stderr: stderr),
             stdout: stdout.trimmingCharacters(in: .whitespacesAndNewlines),
             stderr: stderr.trimmingCharacters(in: .whitespacesAndNewlines)
         )
+    }
+
+    private func commandWasAvailable(executable: String, arguments: [String], exitCode: Int32?, stderr: String) -> Bool {
+        guard executable == "/usr/bin/env",
+              exitCode == 127,
+              !arguments.isEmpty
+        else {
+            return true
+        }
+
+        let lowercasedError = stderr
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .lowercased()
+        guard lowercasedError.hasPrefix("env:") else {
+            return true
+        }
+
+        return !lowercasedError.contains("no such file or directory")
+            && !lowercasedError.contains("not found")
     }
 
     private func wait(process: Process, timeout: TimeInterval) -> Bool {

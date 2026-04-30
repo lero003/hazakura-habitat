@@ -18,6 +18,22 @@ AI agents working on local projects often lack reliable context about:
 
 Hazakura Habitat exists to generate that context before work begins.
 
+## Product Principles
+
+1. Command decisions over environment inventory.
+2. Project-local signals over global machine state.
+3. Conservative guidance over automatic mutation.
+4. Secret presence over secret contents.
+5. Short agent context over exhaustive reports.
+
+Every proposed feature should pass this question:
+
+> Will this signal change the AI agent's next command choice?
+
+If not, defer it.
+
+The public roadmap should strengthen the reliability of this decision context before it expands the product surface. Prefer output quality, behavior evaluation, and policy maintainability over new integrations or broad ecosystem coverage.
+
 ## What Good Looks Like
 
 The best output is short enough for an AI agent to actually follow and structured enough for future MCP/GUI integrations to reuse.

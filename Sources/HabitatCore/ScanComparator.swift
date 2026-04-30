@@ -6,6 +6,10 @@ public struct ScanComparator {
     public func compare(previous: ScanResult, current: ScanResult) -> [ScanChange] {
         var changes: [ScanChange] = []
 
+        if let generatorVersionChange = generatorVersionChange(previous: previous, current: current) {
+            changes.append(generatorVersionChange)
+        }
+
         if previous.project.packageManager != current.project.packageManager {
             changes.append(packageManagerChange(previous: previous, current: current))
         }
@@ -26,12 +30,26 @@ public struct ScanComparator {
             changes.append(secretFileChange)
         }
 
+        if let symlinkedProjectSignalChange = symlinkedProjectSignalChange(previous: previous, current: current) {
+            changes.append(symlinkedProjectSignalChange)
+        }
+
         changes.append(contentsOf: missingToolChanges(previous: previous, current: current))
         changes.append(contentsOf: toolVerificationChanges(previous: previous, current: current))
         changes.append(contentsOf: preferredCommandChanges(previous: previous, current: current))
         changes.append(contentsOf: policyChanges(previous: previous, current: current))
 
         return changes
+    }
+
+    private func generatorVersionChange(previous: ScanResult, current: ScanResult) -> ScanChange? {
+        guard previous.generatorVersion != current.generatorVersion else { return nil }
+
+        return ScanChange(
+            category: "generator",
+            summary: "Generator version changed from \(previous.generatorVersion) to \(current.generatorVersion).",
+            impact: "Treat report-shape or policy differences as generator changes before assuming the local environment changed."
+        )
     }
 
     private func packageManagerChange(previous: ScanResult, current: ScanResult) -> ScanChange {
@@ -108,7 +126,26 @@ public struct ScanComparator {
         return ScanChange(
             category: "secret_files",
             summary: "Secret-bearing file signals changed: \(parts.joined(separator: "; ")).",
-            impact: "Do not read secret, auth-token, or private-key values; follow current Avoid and Forbidden guidance."
+            impact: "Do not read, compare, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance."
+        )
+    }
+
+    private func symlinkedProjectSignalChange(previous: ScanResult, current: ScanResult) -> ScanChange? {
+        let previousSymlinks = Set(previous.project.symlinkedFiles)
+        let currentSymlinks = Set(current.project.symlinkedFiles)
+        let added = currentSymlinks.subtracting(previousSymlinks).sorted()
+        let removed = previousSymlinks.subtracting(currentSymlinks).sorted()
+        guard !added.isEmpty || !removed.isEmpty else { return nil }
+
+        let parts = [
+            added.isEmpty ? nil : "added \(summarize(added))",
+            removed.isEmpty ? nil : "removed \(summarize(removed))",
+        ].compactMap { $0 }
+
+        return ScanChange(
+            category: "project_symlinks",
+            summary: "Project symlink signals changed: \(parts.joined(separator: "; ")).",
+            impact: "Review symlink targets before following linked metadata or using dependency signals."
         )
     }
 
@@ -329,7 +366,14 @@ public struct ScanComparator {
     }
 
     private func isSSHPrivateKeyFilename(_ file: String) -> Bool {
-        ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(URL(fileURLWithPath: file).lastPathComponent)
+        let basename = URL(fileURLWithPath: file).lastPathComponent.lowercased()
+        guard !basename.hasSuffix(".pub") else { return false }
+
+        if ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(basename) {
+            return true
+        }
+
+        return [".pem", ".key", ".p8", ".p12", ".ppk"].contains { basename.hasSuffix($0) }
     }
 
     private func missingTools(in result: ScanResult, limitedTo relevantTools: Set<String>) -> Set<String> {
