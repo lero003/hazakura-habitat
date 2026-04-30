@@ -5048,6 +5048,40 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeSwiftBuildWhenDeveloperDirectoryOutputIsEmpty() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift package"
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Swift version 6.1", stderr: ""),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: " \n", stderr: ""),
+            "/usr/bin/which -a swift": .init(name: "/usr/bin/which", args: ["-a", "swift"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/swift", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
+        #expect(result.diagnostics.contains("xcode-select -p returned empty output"))
+        #expect(result.tools.versions.contains(where: { $0.name == "xcode-select" && !$0.available && $0.version == nil }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `Swift/Xcode build commands before xcode-select -p succeeds`."))
+        #expect(context.contains("xcode-select -p returned empty output"))
+        #expect(!context.contains("Prefer `swift test`."))
+        #expect(!context.contains("Prefer `swift build`."))
+        #expect(policy.contains("`Swift/Xcode build commands before xcode-select -p succeeds`"))
+        #expect(!policy.contains("`swift test`"))
+        #expect(!policy.contains("`swift build`"))
+    }
+
+    @Test
     func scanAsksBeforeSwiftPMCommandsWhenSwiftVersionCheckFails() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift package"

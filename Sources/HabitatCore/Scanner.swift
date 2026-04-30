@@ -58,7 +58,7 @@ public struct HabitatScanner {
 
         let versions = commandSpecs.map { spec in
             let result = commands.first(where: { $0.args == spec.2 })!
-            let versionCommandSucceeded = result.available && !result.timedOut && result.exitCode == 0
+            let versionCommandSucceeded = versionCommandSucceeded(spec: spec, result: result)
             let output = versionCommandSucceeded
                 ? [result.stdout, result.stderr].first(where: { !$0.isEmpty })
                 : nil
@@ -334,16 +334,7 @@ public struct HabitatScanner {
             askFirstCommands: askFirstCommands,
             forbiddenCommands: forbiddenCommands
         )
-        let diagnostics = commands.compactMap { command -> String? in
-            let label = commandLabel(command)
-            if command.timedOut { return "\(label) timed out" }
-            if !command.available { return "\(label) unavailable: \(command.stderr)" }
-            if let exitCode = command.exitCode, exitCode != 0 {
-                let detail = [command.stderr, command.stdout].first(where: { !$0.isEmpty })
-                return "\(label) failed with exit code \(exitCode)\(detail.map { ": \($0)" } ?? "")"
-            }
-            return nil
-        }
+        let diagnostics = commands.compactMap(commandDiagnostic)
 
         return ScanResult(
             schemaVersion: "0.1",
@@ -375,6 +366,34 @@ public struct HabitatScanner {
         #else
         return "unknown"
         #endif
+    }
+
+    private func versionCommandSucceeded(spec: (String, String, [String]), result: CommandInfo) -> Bool {
+        guard result.available, !result.timedOut, result.exitCode == 0 else {
+            return false
+        }
+
+        if spec.0 == "xcode-select", spec.2 == ["-p"] {
+            return !result.stdout.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        }
+
+        return true
+    }
+
+    private func commandDiagnostic(_ command: CommandInfo) -> String? {
+        let label = commandLabel(command)
+        if command.timedOut { return "\(label) timed out" }
+        if !command.available { return "\(label) unavailable: \(command.stderr)" }
+        if let exitCode = command.exitCode, exitCode != 0 {
+            let detail = [command.stderr, command.stdout].first(where: { !$0.isEmpty })
+            return "\(label) failed with exit code \(exitCode)\(detail.map { ": \($0)" } ?? "")"
+        }
+        if command.args == ["-p"],
+           command.name == "/usr/bin/xcode-select",
+           command.stdout.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return "\(label) returned empty output"
+        }
+        return nil
     }
 
     private func projectPathIsExistingDirectory(_ projectURL: URL) -> Bool {
