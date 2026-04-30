@@ -257,17 +257,17 @@ Automation guidance:
 - Do not expand into broad environment diagnostics unless the added data changes command choice, approval requirements, or refusal decisions.
 - When the improvement cannot be finished in one hour, leave the repo with passing focused tests and a clear next artifact boundary.
 
-Project-relevant version command failures should affect command policy, not only diagnostics. When a selected project tool is present on `PATH` but its version check fails or times out, generated Markdown should keep related build/test commands out of Allowed and require Ask First until the tool can be verified.
+Project-relevant version command failures should affect command policy, not only diagnostics. When a selected project tool is missing from `PATH`, or is present but its version check fails or times out, `scan_result.json` should keep related build/test commands out of `policy.preferredCommands` and require Ask First until the tool can be verified.
 
-JavaScript projects apply this partial-failure rule to the selected package manager even when `package.json` does not pin a package-manager version. A resolved but failing `npm --version`, `pnpm --version`, `yarn --version`, or `bun --version` should keep related preferred commands out of Markdown guidance until the tool can be verified.
+JavaScript projects apply this partial-failure rule to Node and the selected package manager even when `package.json` does not pin a package-manager version. Missing Node, a missing selected package manager, or a resolved but failing `npm --version`, `pnpm --version`, `yarn --version`, or `bun --version` should keep related preferred commands out of `policy.preferredCommands` until the tool can be verified.
 
-Bundler projects apply the same partial-failure rule to `bundle --version`: a resolved but failing `bundle` should keep `bundle exec` out of `agent_context.md` / `command_policy.md` until the tool can be verified.
+Bundler projects apply the same partial-failure rule to `bundle --version`: a missing or resolved but failing `bundle` should keep `bundle exec` out of `policy.preferredCommands` until the tool can be verified.
 
-uv projects apply the same partial-failure rule to `uv --version`: a resolved but failing `uv` should keep `uv run` out of `agent_context.md` / `command_policy.md` until the tool can be verified.
+uv projects apply the same partial-failure rule to `uv --version`: a missing or resolved but failing `uv` should keep `uv run` out of `policy.preferredCommands` until the tool can be verified. A project-local `.venv/bin/python` command may remain when that executable is detected.
 
-Homebrew Bundle, CocoaPods, and Carthage projects apply the same partial-failure rule to their selected tool checks: resolved but failing `brew --version`, `pod --version`, or `carthage version` should keep related preferred commands out of Markdown guidance until the tool can be verified.
+Homebrew Bundle, CocoaPods, and Carthage projects apply the same partial-failure rule to their selected tool checks: missing or resolved but failing `brew --version`, `pod --version`, or `carthage version` should keep related preferred commands out of `policy.preferredCommands` until the tool can be verified.
 
-Xcode projects apply the same partial-failure rule to `xcodebuild -version`: a resolved but failing `xcodebuild` should keep `xcodebuild -list` out of `agent_context.md` / `command_policy.md` until the tool can be verified.
+Xcode projects apply the same partial-failure rule to `xcodebuild -version` and `xcode-select -p`: missing or unverifiable Xcode tooling should keep `xcodebuild -list` out of `policy.preferredCommands` until the tool can be verified.
 
 ## Near-Term Candidates
 

@@ -316,15 +316,22 @@ public struct HabitatScanner {
             ] + secretFileReadForbiddenCommands(project)
             + secretEnvironmentFileLoadForbiddenCommands(project)
         )
+        let preferredCommands = preferredCommands(project: project)
+        let askFirstCommands = askFirstCommands(
+            project: project,
+            projectPathIsExistingDirectory: projectPathIsExistingDirectory,
+            resolvedPaths: resolvedPaths,
+            versions: versions,
+            commands: commands
+        )
         let commandPolicy = PolicySummary(
-            preferredCommands: preferredCommands(project: project),
-            askFirstCommands: askFirstCommands(
+            preferredCommands: actionablePreferredCommands(
+                preferredCommands,
                 project: project,
-                projectPathIsExistingDirectory: projectPathIsExistingDirectory,
                 resolvedPaths: resolvedPaths,
-                versions: versions,
-                commands: commands
+                askFirstCommands: askFirstCommands
             ),
+            askFirstCommands: askFirstCommands,
             forbiddenCommands: forbiddenCommands
         )
         let diagnostics = commands.compactMap { command -> String? in
@@ -458,6 +465,67 @@ public struct HabitatScanner {
             return "\(packageManager) run \(script)"
         case (_, nil):
             return "\(packageManager) run"
+        }
+    }
+
+    private func actionablePreferredCommands(
+        _ preferredCommands: [String],
+        project: ProjectInfo,
+        resolvedPaths: [ResolvedTool],
+        askFirstCommands: [String]
+    ) -> [String] {
+        guard let packageManager = project.packageManager,
+              let executable = executableName(forPackageManager: packageManager)
+        else {
+            return preferredCommands
+        }
+
+        if packageManager == "python",
+           hasUsableProjectVirtualEnvironment(project),
+           preferredCommands.allSatisfy({ $0.hasPrefix(".venv/bin/python") }) {
+            return preferredCommands
+        }
+
+        if ["npm", "pnpm", "yarn", "bun"].contains(packageManager),
+           askFirstCommands.contains("running JavaScript commands before node is available") {
+            return []
+        }
+
+        if ["swiftpm", "xcodebuild"].contains(packageManager),
+           askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds") {
+            return []
+        }
+
+        if selectedExecutableIsMissing(executable, resolvedPaths: resolvedPaths) || projectRelevantVersionCheckGuardApplies(askFirstCommands) {
+            return preferredCommands.filter {
+                isAvailableProjectLocalPreferredCommand($0, project: project)
+            }
+        }
+
+        return preferredCommands
+    }
+
+    private func selectedExecutableIsMissing(_ executable: String, resolvedPaths: [ResolvedTool]) -> Bool {
+        resolvedPaths.first(where: { $0.name == executable })?.paths.isEmpty ?? true
+    }
+
+    private func projectRelevantVersionCheckGuardApplies(_ askFirstCommands: [String]) -> Bool {
+        askFirstCommands.contains { command in
+            command.contains("version check succeeds")
+        }
+    }
+
+    private func isAvailableProjectLocalPreferredCommand(_ command: String, project: ProjectInfo) -> Bool {
+        let executable = command
+            .split(whereSeparator: \.isWhitespace)
+            .first
+            .map(String.init)
+
+        switch executable {
+        case ".venv/bin/python":
+            return hasUsableProjectVirtualEnvironment(project)
+        default:
+            return false
         }
     }
 

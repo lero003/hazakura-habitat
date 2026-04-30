@@ -81,7 +81,7 @@ struct HabitatCoreTests {
 
         #expect(result.project.packageManager == "pnpm")
         #expect(result.project.runtimeHints.node == "v20")
-        #expect(result.policy.preferredCommands.contains("pnpm run"))
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.warnings.contains(where: { $0.contains("do not read real .env values") }))
     }
 
@@ -327,7 +327,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "npm")
-        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running npm commands before npm is available"))
         #expect(result.policy.askFirstCommands.contains("npm install"))
         #expect(result.warnings.contains("Project files prefer npm, but npm was not found on PATH; ask before running npm commands or substituting another package manager."))
@@ -366,7 +366,7 @@ struct HabitatCoreTests {
 
         #expect(result.project.detectedFiles.contains("npm-shrinkwrap.json"))
         #expect(result.project.packageManager == "npm")
-        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running npm commands before npm is available"))
         #expect(result.warnings.contains("Project files prefer npm, but npm was not found on PATH; ask before running npm commands or substituting another package manager."))
 
@@ -412,7 +412,7 @@ struct HabitatCoreTests {
             let missingToolWarning = "Project files prefer \(testCase.packageManager), but \(testCase.packageManager) was not found on PATH; ask before running \(testCase.packageManager) commands or substituting another package manager."
 
             #expect(result.project.packageManager == testCase.packageManager)
-            #expect(result.policy.preferredCommands == [testCase.preferredCommand])
+            #expect(result.policy.preferredCommands.isEmpty)
             #expect(result.policy.askFirstCommands.contains(missingToolGuard))
             #expect(result.policy.askFirstCommands.contains(testCase.installCommand))
             #expect(result.warnings.contains(missingToolWarning))
@@ -917,7 +917,7 @@ struct HabitatCoreTests {
 
         #expect(result.project.packageManager == "npm")
         #expect(result.project.packageScripts.isEmpty)
-        #expect(result.policy.preferredCommands == ["npm run"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("npm ci"))
         #expect(result.policy.askFirstCommands.contains("npm update"))
         #expect(result.policy.askFirstCommands.contains("running npm commands before npm is available"))
@@ -991,7 +991,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "npm")
-        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running JavaScript commands before node is available"))
         #expect(!result.policy.askFirstCommands.contains("running npm commands before npm is available"))
         #expect(result.warnings.contains("Project files need Node, but node was not found on PATH; ask before running JavaScript commands."))
@@ -2755,7 +2755,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "python")
-        #expect(result.policy.preferredCommands == ["python3 -m pytest"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Python commands before python3 is available"))
         #expect(result.policy.askFirstCommands.contains("python3 -m pip install"))
         #expect(result.warnings.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
@@ -3102,7 +3102,7 @@ struct HabitatCoreTests {
             let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
             #expect(result.project.packageManager == "bundler", "Expected \(signal) to select Bundler commands")
-            #expect(result.policy.preferredCommands == ["bundle exec"])
+            #expect(result.policy.preferredCommands.isEmpty)
             #expect(result.policy.askFirstCommands.contains("running Bundler commands before bundle is available"))
             #expect(result.policy.askFirstCommands.contains("bundle install"))
             #expect(result.warnings.contains("Project files prefer Bundler, but bundle was not found on PATH; ask before running Bundler commands."))
@@ -3136,7 +3136,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "bundler")
-        #expect(result.policy.preferredCommands == ["bundle exec"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Bundler commands before bundle version check succeeds"))
         #expect(!result.policy.askFirstCommands.contains("running Bundler commands before bundle is available"))
         #expect(result.diagnostics.contains("bundle --version failed with exit code 1: bundle: failed to load command"))
@@ -3206,7 +3206,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "go")
-        #expect(result.policy.preferredCommands == ["go test ./...", "go build ./..."])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Go commands before go is available"))
         #expect(result.policy.askFirstCommands.contains("go get"))
         #expect(result.warnings.contains("Project files prefer Go, but go was not found on PATH; ask before running Go commands."))
@@ -3239,7 +3239,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "go")
-        #expect(result.policy.preferredCommands == ["go test ./...", "go build ./..."])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Go commands before go version check succeeds"))
         #expect(!result.policy.askFirstCommands.contains("running Go commands before go is available"))
         #expect(result.diagnostics.contains("go version failed with exit code 1: go: invalid toolchain"))
@@ -3273,7 +3273,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "cargo")
-        #expect(result.policy.preferredCommands == ["cargo test", "cargo build"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Cargo commands before cargo is available"))
         #expect(result.policy.askFirstCommands.contains("cargo add"))
         #expect(result.policy.askFirstCommands.contains("cargo update"))
@@ -3314,7 +3314,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "cargo")
-        #expect(result.policy.preferredCommands == ["cargo test", "cargo build"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Cargo commands before cargo version check succeeds"))
         #expect(!result.policy.askFirstCommands.contains("running Cargo commands before cargo is available"))
         #expect(result.diagnostics.contains("cargo --version failed with exit code 1: cargo: rustup toolchain is not installed"))
@@ -3341,7 +3341,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "homebrew")
-        #expect(result.policy.preferredCommands == ["brew bundle check"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Homebrew Bundle commands before brew is available"))
         #expect(result.policy.askFirstCommands.contains("brew bundle"))
         #expect(result.policy.askFirstCommands.contains("brew bundle install"))
@@ -3386,7 +3386,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "homebrew")
-        #expect(result.policy.preferredCommands == ["brew bundle check"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Homebrew Bundle commands before brew version check succeeds"))
         #expect(!result.policy.askFirstCommands.contains("running Homebrew Bundle commands before brew is available"))
         #expect(result.diagnostics.contains("brew --version failed with exit code 1: brew: failed to load"))
@@ -3415,7 +3415,7 @@ struct HabitatCoreTests {
 
             #expect(result.project.packageManager == "cocoapods", "Expected \(signal) to select CocoaPods guidance")
             #expect(result.project.detectedFiles.contains(signal))
-            #expect(result.policy.preferredCommands == ["pod --version"])
+            #expect(result.policy.preferredCommands.isEmpty)
             #expect(result.policy.askFirstCommands.contains("running CocoaPods commands before pod is available"))
             #expect(result.policy.askFirstCommands.contains("pod install"))
             #expect(result.policy.askFirstCommands.contains("pod update"))
@@ -3456,7 +3456,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "cocoapods")
-        #expect(result.policy.preferredCommands == ["pod --version"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running CocoaPods commands before pod version check succeeds"))
         #expect(!result.policy.askFirstCommands.contains("running CocoaPods commands before pod is available"))
         #expect(result.diagnostics.contains("pod --version failed with exit code 1: pod: failed to load"))
@@ -3485,7 +3485,7 @@ struct HabitatCoreTests {
 
             #expect(result.project.packageManager == "carthage", "Expected \(signal) to select Carthage guidance")
             #expect(result.project.detectedFiles.contains(signal))
-            #expect(result.policy.preferredCommands == ["carthage version"])
+            #expect(result.policy.preferredCommands.isEmpty)
             #expect(result.policy.askFirstCommands.contains("running Carthage commands before carthage is available"))
             #expect(result.policy.askFirstCommands.contains("carthage bootstrap"))
             #expect(result.policy.askFirstCommands.contains("carthage update"))
@@ -3526,7 +3526,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "carthage")
-        #expect(result.policy.preferredCommands == ["carthage version"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Carthage commands before carthage version check succeeds"))
         #expect(!result.policy.askFirstCommands.contains("running Carthage commands before carthage is available"))
         #expect(result.diagnostics.contains("carthage version failed with exit code 1: carthage: failed to load"))
@@ -3564,7 +3564,7 @@ struct HabitatCoreTests {
         #expect(result.project.packageManager == "uv")
         #expect(result.project.detectedFiles.contains("uv.lock"))
         #expect(result.project.detectedFiles.contains(".venv/bin/python"))
-        #expect(result.policy.preferredCommands == ["uv run", ".venv/bin/python -m pytest"])
+        #expect(result.policy.preferredCommands == [".venv/bin/python -m pytest"])
         #expect(result.policy.askFirstCommands.contains("running uv commands before uv is available"))
         #expect(result.warnings.contains("Project files prefer uv, but uv was not found on PATH; ask before running uv commands or substituting another package manager."))
         #expect(result.warnings.contains("Project .venv exists; use .venv/bin/python for Python commands before system python3."))
@@ -3602,7 +3602,7 @@ struct HabitatCoreTests {
         #expect(result.project.packageManager == "uv")
         #expect(result.commands.filter { $0.args == ["uv", "--version"] }.count == 1)
         #expect(result.tools.versions.filter { $0.name == "uv" }.count == 1)
-        #expect(result.policy.preferredCommands == ["uv run"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running uv commands before uv version check succeeds"))
         #expect(!result.policy.askFirstCommands.contains("running uv commands before uv is available"))
         #expect(result.diagnostics.filter { $0 == "uv --version failed with exit code 1: uv: failed to load" }.count == 1)
@@ -3636,7 +3636,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "python")
-        #expect(result.policy.preferredCommands == ["python3 -m pytest"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Python commands before python3 version check succeeds"))
         #expect(result.policy.askFirstCommands.contains("python3 -m pip install"))
         #expect(!result.policy.askFirstCommands.contains("running Python commands before python3 is available"))
@@ -3791,7 +3791,7 @@ struct HabitatCoreTests {
 
         #expect(result.project.packageManager == "pnpm")
         #expect(result.project.packageManagerVersion == nil)
-        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running pnpm commands before pnpm version check succeeds"))
         #expect(!result.policy.askFirstCommands.contains("running pnpm commands before pnpm is available"))
         #expect(result.diagnostics.contains("pnpm --version failed with exit code 1: pnpm: failed to load"))
@@ -3836,7 +3836,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "npm")
-        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running JavaScript commands before node version check succeeds"))
         #expect(result.diagnostics.contains("node --version failed with exit code 1: node: failed to load"))
         #expect(result.tools.versions.contains(where: { $0.name == "node" && !$0.available }))
@@ -4917,7 +4917,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "xcodebuild")
-        #expect(result.policy.preferredCommands == ["xcodebuild -list -project Demo.xcodeproj"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild is available"))
         #expect(result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
         #expect(result.policy.askFirstCommands.contains("xcodebuild build/test/archive before selecting a scheme"))
@@ -4955,7 +4955,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "xcodebuild")
-        #expect(result.policy.preferredCommands == ["xcodebuild -list -project Demo.xcodeproj"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild version check succeeds"))
         #expect(!result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild is available"))
         #expect(!result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
@@ -4991,7 +4991,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "xcodebuild")
-        #expect(result.policy.preferredCommands == ["xcodebuild -list -project Demo.xcodeproj"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(!result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild is available"))
         #expect(result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
         #expect(result.warnings.contains("xcode-select -p did not return a developer directory; ask before Swift/Xcode build or test commands."))
@@ -5025,7 +5025,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "swiftpm")
-        #expect(result.policy.preferredCommands == ["swift test", "swift build"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(!result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
         #expect(result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
         #expect(result.warnings.contains("xcode-select -p did not return a developer directory; ask before Swift/Xcode build or test commands."))
@@ -5062,7 +5062,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "swiftpm")
-        #expect(result.policy.preferredCommands == ["swift test", "swift build"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running SwiftPM commands before swift version check succeeds"))
         #expect(!result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
         #expect(!result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
@@ -5133,7 +5133,7 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
         #expect(result.project.packageManager == "swiftpm")
-        #expect(result.policy.preferredCommands == ["swift test", "swift build"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
         #expect(result.policy.askFirstCommands.contains("swift package update"))
         #expect(result.policy.askFirstCommands.contains("swift package resolve"))
@@ -5167,7 +5167,7 @@ struct HabitatCoreTests {
 
         #expect(result.project.packageManager == "swiftpm")
         #expect(result.project.detectedFiles.contains("Package.resolved"))
-        #expect(result.policy.preferredCommands == ["swift test", "swift build"])
+        #expect(result.policy.preferredCommands.isEmpty)
         #expect(result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
         #expect(result.policy.askFirstCommands.contains("swift package resolve"))
         #expect(result.policy.askFirstCommands.contains("swift package update"))
