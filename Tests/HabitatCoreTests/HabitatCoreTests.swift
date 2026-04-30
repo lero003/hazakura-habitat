@@ -2437,7 +2437,7 @@ struct HabitatCoreTests {
         let sensitiveFiles = [".env", ".envrc.local", ".netrc", ".npmrc", "id_ed25519"]
 
         for file in sensitiveFiles {
-            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "git grep <pattern> -- \(file)", "git grep <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "diff \(file) <other>", "cmp \(file) <other>", "git diff -- \(file)", "git log -p -- \(file)", "git show HEAD:\(file)", "bat \(file)", "nl -ba \(file)", "base64 \(file)", "xxd \(file)", "hexdump -C \(file)", "strings \(file)", "open \(file)", "code \(file)", "vim \(file)", "vi \(file)", "nano \(file)", "emacs \(file)", "cp \(file) <destination>", "cp -R \(file) <destination>", "cp -r \(file) <destination>", "mv \(file) <destination>", "rsync \(file) <destination>", "rsync -a \(file) <destination>", "scp \(file) <destination>", "curl -F file=@\(file) <url>", "curl --data-binary @\(file) <url>", "curl -T \(file) <url>", "wget --post-file=\(file) <url>", "tar -cf <archive> \(file)", "tar -czf <archive> \(file)", "tar -cjf <archive> \(file)", "tar -cJf <archive> \(file)", "zip <archive> \(file)", "zip -r <archive> \(file)"] {
+            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "git grep <pattern> -- \(file)", "git grep <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "diff \(file) <other>", "cmp \(file) <other>", "git diff -- \(file)", "git diff --cached -- \(file)", "git diff --staged -- \(file)", "git diff HEAD -- \(file)", "git log -p -- \(file)", "git show :\(file)", "git show HEAD:\(file)", "bat \(file)", "nl -ba \(file)", "base64 \(file)", "xxd \(file)", "hexdump -C \(file)", "strings \(file)", "open \(file)", "code \(file)", "vim \(file)", "vi \(file)", "nano \(file)", "emacs \(file)", "cp \(file) <destination>", "cp -R \(file) <destination>", "cp -r \(file) <destination>", "mv \(file) <destination>", "rsync \(file) <destination>", "rsync -a \(file) <destination>", "scp \(file) <destination>", "curl -F file=@\(file) <url>", "curl --data-binary @\(file) <url>", "curl -T \(file) <url>", "wget --post-file=\(file) <url>", "tar -cf <archive> \(file)", "tar -czf <archive> \(file)", "tar -cjf <archive> \(file)", "tar -cJf <archive> \(file)", "zip <archive> \(file)", "zip -r <archive> \(file)"] {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
             }
         }
@@ -2472,7 +2472,11 @@ struct HabitatCoreTests {
             #expect(policy.contains("`diff \(file) <other>`"), "Expected command_policy.md to forbid diff \(file)")
             #expect(policy.contains("`cmp \(file) <other>`"), "Expected command_policy.md to forbid cmp \(file)")
             #expect(policy.contains("`git diff -- \(file)`"), "Expected command_policy.md to forbid git diff \(file)")
+            #expect(policy.contains("`git diff --cached -- \(file)`"), "Expected command_policy.md to forbid git diff --cached \(file)")
+            #expect(policy.contains("`git diff --staged -- \(file)`"), "Expected command_policy.md to forbid git diff --staged \(file)")
+            #expect(policy.contains("`git diff HEAD -- \(file)`"), "Expected command_policy.md to forbid git diff HEAD \(file)")
             #expect(policy.contains("`git log -p -- \(file)`"), "Expected command_policy.md to forbid git log -p \(file)")
+            #expect(policy.contains("`git show :\(file)`"), "Expected command_policy.md to forbid git show :\(file)")
             #expect(policy.contains("`git show HEAD:\(file)`"), "Expected command_policy.md to forbid git show HEAD:\(file)")
             #expect(policy.contains("`bat \(file)`"), "Expected command_policy.md to forbid bat \(file)")
             #expect(policy.contains("`nl -ba \(file)`"), "Expected command_policy.md to forbid nl -ba \(file)")
@@ -2517,6 +2521,8 @@ struct HabitatCoreTests {
         #expect(!policy.contains("`open .env.example`"))
         #expect(!policy.contains("`diff .env.example <other>`"))
         #expect(!policy.contains("`git diff -- .env.example`"))
+        #expect(!policy.contains("`git diff --cached -- .env.example`"))
+        #expect(!policy.contains("`git show :.env.example`"))
         #expect(!policy.contains("`base64 .env.example`"))
         #expect(!policy.contains("`strings .env.example`"))
         #expect(!policy.contains("`cp .env.example <destination>`"))
@@ -3109,7 +3115,11 @@ struct HabitatCoreTests {
             #expect(result.policy.forbiddenCommands.contains("git grep <pattern> -- \(file)"), "Expected git grep -- \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git grep <pattern> \(file)"), "Expected git grep \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git diff -- \(file)"), "Expected git diff \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git diff --cached -- \(file)"), "Expected git diff --cached \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git diff --staged -- \(file)"), "Expected git diff --staged \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git diff HEAD -- \(file)"), "Expected git diff HEAD \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git log -p -- \(file)"), "Expected git log -p \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git show :\(file)"), "Expected git show :\(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git show HEAD:\(file)"), "Expected git show HEAD:\(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("cp \(file) <destination>"), "Expected cp \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("scp \(file) <destination>"), "Expected scp \(file) to be forbidden")
