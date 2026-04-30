@@ -6,6 +6,16 @@ Hazakura Habitat is AI-first.
 
 The product should be judged by whether it changes an AI coding agent's behavior for the better, not by whether it gives a human a complete environment dashboard.
 
+## Open Source Intent
+
+Hazakura Habitat is not only an app implementation. It is also an argument for a development pattern:
+
+> AI coding agents should receive short, project-derived, conservative command context before they act.
+
+If other tools copy this idea, reuse parts of the mechanism, or build better versions of the same concept, that is a good outcome. The project should be useful as a working CLI, but it should also make the surrounding ecosystem better by making AI-first development more legible and more cautious.
+
+The goal is not to own the category. The goal is to help the idea spread.
+
 ## Product Thesis
 
 AI agents working on local projects often lack reliable context about:
@@ -33,6 +43,14 @@ Every proposed feature should pass this question:
 If not, defer it.
 
 The public roadmap should strengthen the reliability of this decision context before it expands the product surface. Prefer output quality, behavior evaluation, and policy maintainability over new integrations or broad ecosystem coverage.
+
+## Positioning
+
+Hazakura Habitat should sit before AI coding agents, not replace them.
+
+It is not an agent, sandbox, permission system, or runtime security monitor. It is an agent-neutral context layer that gives tools such as Codex CLI, Claude Code, OpenCode, Cline, Goose, and sandboxed development environments better project-specific command context before work starts.
+
+See `docs/positioning.md` for the current positioning note.
 
 ## What Good Looks Like
 

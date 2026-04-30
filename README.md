@@ -23,6 +23,16 @@ It does not enforce commands. It generates conservative pre-execution context fo
 
 In generated policy, `Forbidden` means "the generated context tells the agent not to run this." It is advisory guidance, not an operating-system-level block.
 
+## Positioning
+
+Hazakura Habitat is not an AI coding agent, sandbox, or runtime security monitor.
+
+It does not execute, approve, or block commands.
+
+Instead, it generates short, conservative, project-derived context before an AI coding agent starts working. The goal is to help agents choose better commands, avoid risky defaults, and ask before mutating dependencies or touching sensitive files.
+
+Habitat is designed to complement tools such as Codex CLI, Claude Code, OpenCode, Cline, Goose, and sandboxed development environments.
+
 ## Core Bet
 
 AI agents do not need a beautiful inventory of everything installed on a machine. They need a short, current, structured answer to:
@@ -59,6 +69,16 @@ It is designed for AI coding agents, and it is also developed with AI coding age
 
 The goal is to make AI-led development safer, more legible, and more conservative before commands are executed.
 
+## Open Source Intent
+
+Hazakura Habitat is meant to share an idea as much as an implementation.
+
+If the project helps other tools, developers, or agents adopt better pre-execution context, that is success. Forks, reimplementations, and projects that take the underlying ideas further are welcome.
+
+The goal is not to own this category. The goal is to help the AI-first development ecosystem become safer, more legible, and more conservative before commands run.
+
+Credit, citations, or special thanks are warmly appreciated when this project or its ideas help your work, but the license only requires preserving the copyright and license notice.
+
 ## MVP Outputs
 
 The primary outputs are:
@@ -90,6 +110,7 @@ Generated AI-facing Markdown should treat project-derived strings as untrusted d
 - [Current Status](docs/current_status.md)
 - [Public Readiness](docs/public_readiness.md)
 - [Roadmap](docs/roadmap.md)
+- [Positioning](docs/positioning.md)
 - [Agent Contract](docs/agent_contract.md)
 - [Development Loop](docs/development_loop.md)
 - [GitHub Workflow](docs/github_workflow.md)
@@ -133,3 +154,7 @@ Manual artifact build:
 ```bash
 ./scripts/build_release_artifacts.sh
 ```
+
+## License
+
+Hazakura Habitat is released under the [MIT License](LICENSE).

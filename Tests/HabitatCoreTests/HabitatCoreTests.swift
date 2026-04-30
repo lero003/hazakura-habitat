@@ -1388,6 +1388,13 @@ struct HabitatCoreTests {
             "gh release upload",
             "gh release delete",
             "gh release delete-asset",
+            "gh secret list",
+            "gh secret set",
+            "gh secret delete",
+            "gh variable list",
+            "gh variable get",
+            "gh variable set",
+            "gh variable delete",
             "gh api",
         ]
 
