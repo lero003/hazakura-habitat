@@ -52,7 +52,7 @@ public struct ReportWriter {
             useLines = ([packageManagerUse] + preferredCommands.prefix(2).map { "Prefer `\($0)`." })
                 .compactMap { $0 }
         }
-        let avoidLines = prioritizedForbiddenCommands(result).prefix(6).map(avoidLine)
+        let avoidLines = prioritizedForbiddenCommands(result).prefix(7).map(avoidLine)
         let askLines = result.policy.askFirstCommands.prefix(4).map { "Ask before `\($0)`." }
         let mismatchLines = result.warnings.isEmpty ? ["- None detected."] : result.warnings.map { "- \($0)" }
         let changeLines = result.changes.map { "- \($0.summary) \($0.impact)" }
@@ -179,6 +179,8 @@ public struct ReportWriter {
             return "Do not execute remote scripts through `curl` or `wget` piped into a shell."
         case "dump environment variables":
             return "Do not dump environment variables."
+        case "read clipboard contents":
+            return "Do not read clipboard contents."
         case "read shell history":
             return "Do not read shell history."
         case "load secret environment files":
@@ -410,6 +412,7 @@ public struct ReportWriter {
         }
 
         append("dump environment variables", to: &commands, from: result.policy.forbiddenCommands)
+        append("read clipboard contents", to: &commands, from: result.policy.forbiddenCommands)
         append("read shell history", to: &commands, from: result.policy.forbiddenCommands)
         append("remote script execution through curl or wget", to: &commands, from: result.policy.forbiddenCommands)
 

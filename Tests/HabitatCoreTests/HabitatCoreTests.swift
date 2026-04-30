@@ -1408,6 +1408,39 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanForbidsClipboardReadCommands() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "read clipboard contents",
+            "pbpaste",
+            "osascript -e 'the clipboard'",
+            "osascript -e 'the clipboard as text'",
+            "osascript -e \"the clipboard\"",
+            "osascript -e \"the clipboard as text\"",
+        ]
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not read clipboard contents."))
+        #expect(!context.contains("Do not run `read clipboard contents`."))
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
     func scanForbidsShellHistoryReadCommands() throws {
         let projectURL = try makeProject(files: [
             "README.md": "# Demo\n",
