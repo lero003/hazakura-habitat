@@ -193,8 +193,8 @@ public struct ReportWriter {
             return "Do not read `.netrc` values."
         case "read package manager auth config values":
             return "Do not read package manager auth config values."
-        case "read SSH private keys":
-            return "Do not read SSH private keys."
+        case "read private keys":
+            return "Do not read private keys."
         default:
             return "Do not run `\(command)`."
         }
@@ -389,7 +389,7 @@ public struct ReportWriter {
 
         append("sudo", to: &commands, from: result.policy.forbiddenCommands)
         append("destructive file deletion outside the selected project", to: &commands, from: result.policy.forbiddenCommands)
-        append("read SSH private keys", to: &commands, from: result.policy.forbiddenCommands)
+        append("read private keys", to: &commands, from: result.policy.forbiddenCommands)
 
         if hasSecretDotEnvFile(result.project) || result.project.detectedFiles.contains(".env.example") {
             append("read .env values", to: &commands, from: result.policy.forbiddenCommands)

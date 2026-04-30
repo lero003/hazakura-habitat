@@ -1618,8 +1618,8 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not read SSH private keys."))
-        #expect(!context.contains("Do not run `read SSH private keys`."))
+        #expect(context.contains("Do not read private keys."))
+        #expect(!context.contains("Do not run `read private keys`."))
 
         for file in privateKeyFiles {
             #expect(policy.contains("`cat \(file)`"), "Expected command_policy.md to forbid cat \(file)")
@@ -2207,9 +2207,9 @@ struct HabitatCoreTests {
         #expect(result.project.runtimeHints.node == "v20")
         #expect(result.warnings.contains("Environment file exists; do not read .env values."))
         #expect(result.warnings.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
-        #expect(result.warnings.contains("SSH private key file exists; do not read private key values."))
+        #expect(result.warnings.contains("Private key file exists; do not read private key values."))
         #expect(result.policy.forbiddenCommands.contains("read package manager auth config values"))
-        #expect(result.policy.forbiddenCommands.contains("read SSH private keys"))
+        #expect(result.policy.forbiddenCommands.contains("read private keys"))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -2228,7 +2228,7 @@ struct HabitatCoreTests {
         #expect(context.contains("Do not read `.env` values."))
         #expect(context.contains("Do not source or load secret environment files."))
         #expect(context.contains("Do not read package manager auth config values."))
-        #expect(context.contains("Do not read SSH private keys."))
+        #expect(context.contains("Do not read private keys."))
         #expect(!context.contains("Do not run `read"))
     }
 
@@ -2538,8 +2538,8 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
         #expect(result.project.detectedFiles.contains("id_ed25519"))
-        #expect(result.warnings.contains("SSH private key file exists; do not read private key values."))
-        #expect(result.policy.forbiddenCommands.contains("read SSH private keys"))
+        #expect(result.warnings.contains("Private key file exists; do not read private key values."))
+        #expect(result.policy.forbiddenCommands.contains("read private keys"))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -2554,8 +2554,8 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains("id_ed25519"))
-        #expect(context.contains("Do not read SSH private keys."))
-        #expect(context.contains("SSH private key file exists; do not read private key values."))
+        #expect(context.contains("Do not read private keys."))
+        #expect(context.contains("Private key file exists; do not read private key values."))
     }
 
     @Test
@@ -2570,8 +2570,8 @@ struct HabitatCoreTests {
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
 
         #expect(result.project.detectedFiles.contains(".ssh/id_ed25519"))
-        #expect(result.warnings.contains("SSH private key file exists; do not read private key values."))
-        #expect(result.policy.forbiddenCommands.contains("read SSH private keys"))
+        #expect(result.warnings.contains("Private key file exists; do not read private key values."))
+        #expect(result.policy.forbiddenCommands.contains("read private keys"))
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -2586,8 +2586,56 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains(".ssh/id_ed25519"))
-        #expect(context.contains("Do not read SSH private keys."))
-        #expect(context.contains("SSH private key file exists; do not read private key values."))
+        #expect(context.contains("Do not read private keys."))
+        #expect(context.contains("Private key file exists; do not read private key values."))
+    }
+
+    @Test
+    func scanDetectsPrivateKeyLikeFilenamesWithoutReadingValues() throws {
+        let privateKeyMarker = "-----BEGIN PRIVATE KEY-----"
+        let secretValue = "hh_extension_private_key_secret_value"
+        let projectURL = try makeProject(files: [
+            "deploy.pem": "\(privateKeyMarker)\n\(secretValue)\n",
+            "server.key": "\(privateKeyMarker)\n\(secretValue)\n",
+            "AuthKey_ABC123.p8": "\(privateKeyMarker)\n\(secretValue)\n",
+            "codesign.p12": "\(secretValue)\n",
+            "windows.ppk": "\(secretValue)\n",
+        ])
+        let sshDirectoryURL = projectURL.appendingPathComponent(".ssh")
+        try FileManager.default.createDirectory(at: sshDirectoryURL, withIntermediateDirectories: true)
+        try "\(privateKeyMarker)\n\(secretValue)\n".write(to: sshDirectoryURL.appendingPathComponent("deploy.pem"), atomically: true, encoding: .utf8)
+        try "ssh-ed25519 public-key\n".write(to: sshDirectoryURL.appendingPathComponent("id_ed25519.pub"), atomically: true, encoding: .utf8)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let privateKeyFiles = ["AuthKey_ABC123.p8", "codesign.p12", "deploy.pem", "server.key", "windows.ppk", ".ssh/deploy.pem"]
+
+        for file in privateKeyFiles {
+            #expect(result.project.detectedFiles.contains(file), "Expected \(file) to be detected")
+            #expect(result.policy.forbiddenCommands.contains("cat \(file)"), "Expected cat \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("ssh-add \(file)"), "Expected ssh-add \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("ssh-keygen -y -f \(file)"), "Expected ssh-keygen -y -f \(file) to be forbidden")
+        }
+
+        #expect(!result.project.detectedFiles.contains(".ssh/id_ed25519.pub"))
+        #expect(result.warnings.contains("Private key file exists; do not read private key values."))
+        #expect(result.policy.forbiddenCommands.contains("read private keys"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(privateKeyMarker))
+            #expect(!artifact.contains(secretValue))
+        }
+
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not read private keys."))
+        #expect(policy.contains("`cat deploy.pem`"))
+        #expect(policy.contains("`ssh-add .ssh/deploy.pem`"))
+        #expect(!policy.contains("`.ssh/id_ed25519.pub`"))
     }
 
     @Test

@@ -318,7 +318,7 @@ public struct HabitatScanner {
                 "read .envrc values",
                 "read .netrc values",
                 "read package manager auth config values",
-                "read SSH private keys"
+                "read private keys"
             ] + secretFileReadForbiddenCommands(project)
             + secretEnvironmentFileLoadForbiddenCommands(project)
         )
@@ -1010,7 +1010,7 @@ public struct HabitatScanner {
         }
 
         if hasSSHPrivateKeyFile(project) {
-            warnings.append("SSH private key file exists; do not read private key values.")
+            warnings.append("Private key file exists; do not read private key values.")
         }
 
         if project.packageManager == nil, projectPathIsExistingDirectory {
@@ -1288,7 +1288,14 @@ public struct HabitatScanner {
     }
 
     private func isSSHPrivateKeyFilename(_ file: String) -> Bool {
-        ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(URL(fileURLWithPath: file).lastPathComponent)
+        let basename = URL(fileURLWithPath: file).lastPathComponent.lowercased()
+        guard !basename.hasSuffix(".pub") else { return false }
+
+        if ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(basename) {
+            return true
+        }
+
+        return [".pem", ".key", ".p8", ".p12", ".ppk"].contains { basename.hasSuffix($0) }
     }
 
     private func orderedUnique(_ values: [String]) -> [String] {

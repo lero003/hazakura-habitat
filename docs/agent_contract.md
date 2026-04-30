@@ -599,7 +599,7 @@ Compatibility:
 - `declaredPackageManager` records the safe `package.json` `packageManager` hint even when a lockfile selects a different package manager.
 - Secret-bearing environment files such as `.env`, `.env.*`, `.envrc`, `.envrc.*`, and `.envrc.example` may be detected by filename, but values must not be read or emitted.
 - Package-manager auth config files such as `.npmrc`, `.pnpmrc`, `.yarnrc`, `.yarnrc.yml`, `.pypirc`, `pip.conf`, `.gem/credentials`, `.bundle/config`, `.cargo/credentials.toml`, `.cargo/credentials`, `auth.json`, and `.composer/auth.json` may be detected by filename, but token values must not be read or emitted.
-- Common SSH private key filenames such as `id_rsa`, `id_dsa`, `id_ecdsa`, `id_ed25519`, and the same names under `.ssh/` may be detected by filename, but key contents must not be read or emitted.
+- Common SSH/private-key-like filenames such as `id_rsa`, `id_dsa`, `id_ecdsa`, `id_ed25519`, and top-level or `.ssh/` files ending in `.pem`, `.key`, `.p8`, `.p12`, or `.ppk` may be detected by filename, but key contents must not be read or emitted.
 - `policy.preferredCommands` is an actionable list, not a raw candidate list. Omit concrete commands when their required executable is missing, when a project-relevant version check fails, times out, or returns empty output, when JavaScript needs a missing Node runtime, or when `xcode-select -p` cannot verify Swift/Xcode tooling.
 - Markdown artifacts should render `policy.preferredCommands` directly for `Use` / `Allowed` and keep generic selected-project test/build allowances out.
 - When Xcode tooling is missing or unverifiable, `agent_context.md` should tell agents to verify Xcode tooling instead of saying to use `xcodebuild`.
@@ -608,7 +608,7 @@ Compatibility:
 - `changes` is empty unless `--previous-scan` is supplied. `--previous-scan` may point to a previous report directory or a direct `scan_result.json` file. It is limited to AI-actionable deltas such as package-manager changes, lockfile changes, runtime version guidance changes, secret-bearing file signal changes, missing-tool changes, project-relevant tool verification failures or recoveries, preferred command changes when the selected package manager stays the same, command-policy risk classification changes, and command-policy entries that are no longer highlighted by the current scan.
 - Missing-tool comparison must not imply a tool became available just because it stopped being relevant to the current project. Report currently relevant tools with paths as available, and report previously missing tools that are no longer relevant as a separate current-policy guidance change.
 - Missing-tool comparison must not report a previously missing tool as recovered when the current version check fails; surface the tool verification failure instead so agents keep related commands Ask First.
-- Secret-bearing file comparison must remain filename-only. It may report added or removed `.env*`, `.envrc*`, package-manager auth config, and common top-level or `.ssh/` SSH private-key filename signals, but must not read or emit their values.
+- Secret-bearing file comparison must remain filename-only. It may report added or removed `.env*`, `.envrc*`, package-manager auth config, and common top-level or `.ssh/` private-key filename signals, but must not read or emit their values.
 
 ## Secondary Artifact: environment_report.md
 

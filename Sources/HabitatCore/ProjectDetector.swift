@@ -125,8 +125,9 @@ public struct ProjectDetector {
             .filter(isSecretEnvironmentFilename)
             .filter { !candidateFiles.contains($0) }
             .sorted()
+        let extraPrivateKeyFiles = privateKeyFiles(projectURL: projectURL, directoryEntries: directoryEntries)
 
-        return orderedUnique(explicitFiles + xcodeProjectContainers + extraSecretEnvironmentFiles)
+        return orderedUnique(explicitFiles + xcodeProjectContainers + extraSecretEnvironmentFiles + extraPrivateKeyFiles)
     }
 
     private func detectPackageManager(files: [String], declaredPackageManager: DeclaredPackageManager?) -> String? {
@@ -165,6 +166,30 @@ public struct ProjectDetector {
 
     private func isXcodeProjectContainer(_ name: String) -> Bool {
         name.hasSuffix(".xcworkspace") || name.hasSuffix(".xcodeproj")
+    }
+
+    private func privateKeyFiles(projectURL: URL, directoryEntries: [String]) -> [String] {
+        let topLevelPrivateKeyFiles = directoryEntries
+            .filter(isPrivateKeyFilename)
+
+        let sshDirectoryURL = projectURL.appendingPathComponent(".ssh")
+        let sshDirectoryEntries = (try? FileManager.default.contentsOfDirectory(atPath: sshDirectoryURL.path)) ?? []
+        let sshPrivateKeyFiles = sshDirectoryEntries
+            .filter(isPrivateKeyFilename)
+            .map { ".ssh/\($0)" }
+
+        return (topLevelPrivateKeyFiles + sshPrivateKeyFiles).sorted()
+    }
+
+    private func isPrivateKeyFilename(_ name: String) -> Bool {
+        let basename = URL(fileURLWithPath: name).lastPathComponent.lowercased()
+        guard !basename.hasSuffix(".pub") else { return false }
+
+        if ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(basename) {
+            return true
+        }
+
+        return [".pem", ".key", ".p8", ".p12", ".ppk"].contains { basename.hasSuffix($0) }
     }
 
     private func hasXcodeProjectContainer(_ files: [String]) -> Bool {
