@@ -92,9 +92,11 @@ Default classifications:
 Allowed:
 
 - read-only project inspection
-- test commands for the selected project, only when generated preferred commands include a concrete test command and the selected executable is available or a project-local executable path is preferred
-- build commands for the selected project, only when generated preferred commands include a concrete build command and the selected executable is available
+- concrete generated preferred commands, only when the selected executable is available, its version check succeeds, or a project-local executable path is preferred
 - package manager commands that do not install, update, delete, or mutate global state
+
+`command_policy.md` should list concrete allowed commands such as `swift test` or `.venv/bin/python -m pytest`.
+It should not emit broad Allowed entries like `test commands for the selected project` or `build commands for the selected project`, because those can cause an AI agent to improvise outside the verified command set.
 
 Ask First:
 

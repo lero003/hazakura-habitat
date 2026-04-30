@@ -96,14 +96,6 @@ public struct ReportWriter {
             allowed = preferredCommands + [
                 "read-only project inspection"
             ]
-
-            if canAllowSelectedProjectTestCommands(result, preferredCommands: preferredCommands) {
-                allowed.append("test commands for the selected project")
-            }
-
-            if canAllowSelectedProjectBuildCommands(result, preferredCommands: preferredCommands) {
-                allowed.append("build commands for the selected project")
-            }
         }
 
         return """
@@ -259,83 +251,6 @@ public struct ReportWriter {
         }
 
         return result.policy.preferredCommands
-    }
-
-    private func canAllowSelectedProjectTestCommands(_ result: ScanResult, preferredCommands: [String]) -> Bool {
-        guard canAllowSelectedProjectCommands(result, preferredCommands: preferredCommands) else {
-            return false
-        }
-
-        guard preferredCommandsContainTestCommand(preferredCommands) else {
-            return false
-        }
-
-        guard let packageManager = result.project.packageManager,
-              let executable = executableName(forPackageManager: packageManager),
-              selectedExecutableIsMissing(result, executable: executable)
-        else {
-            return true
-        }
-
-        return preferredCommands.contains {
-            isAvailableProjectLocalPreferredCommand($0, result: result)
-        }
-    }
-
-    private func canAllowSelectedProjectBuildCommands(_ result: ScanResult, preferredCommands: [String]) -> Bool {
-        guard canAllowSelectedProjectCommands(result, preferredCommands: preferredCommands) else {
-            return false
-        }
-
-        guard preferredCommandsContainBuildCommand(preferredCommands) else {
-            return false
-        }
-
-        guard let packageManager = result.project.packageManager,
-              let executable = executableName(forPackageManager: packageManager)
-        else {
-            return true
-        }
-
-        return !selectedExecutableIsMissing(result, executable: executable)
-    }
-
-    private func canAllowSelectedProjectCommands(_ result: ScanResult, preferredCommands: [String]) -> Bool {
-        guard !preferredCommands.isEmpty else { return false }
-        guard result.project.packageManager != "xcodebuild" else { return false }
-        guard !result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds") else {
-            return false
-        }
-        guard !result.policy.askFirstCommands.contains("running JavaScript commands before node is available") else {
-            return false
-        }
-        guard !projectRelevantVersionCheckGuardApplies(result) else {
-            return false
-        }
-        guard !result.policy.askFirstCommands.contains("running Python commands before project .venv/bin/python exists") else {
-            return false
-        }
-
-        return true
-    }
-
-    private func preferredCommandsContainTestCommand(_ preferredCommands: [String]) -> Bool {
-        preferredCommands.contains { command in
-            let tokens = commandTokens(command)
-            return tokens.contains("test") || tokens.contains("pytest")
-        }
-    }
-
-    private func preferredCommandsContainBuildCommand(_ preferredCommands: [String]) -> Bool {
-        preferredCommands.contains { command in
-            commandTokens(command).contains("build")
-        }
-    }
-
-    private func commandTokens(_ command: String) -> [String] {
-        command
-            .split(whereSeparator: \.isWhitespace)
-            .map(String.init)
     }
 
     private func xcodeToolingNeedsVerification(_ result: ScanResult) -> Bool {

@@ -1581,8 +1581,10 @@ struct HabitatCoreTests {
 
         #expect(context.contains("Prefer `npm run test`."))
         #expect(context.contains("Prefer `npm run build`."))
-        #expect(policy.contains("`test commands for the selected project`"))
-        #expect(policy.contains("`build commands for the selected project`"))
+        #expect(policy.contains("`npm run test`"))
+        #expect(policy.contains("`npm run build`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
         #expect(!context.contains("secret deploy target"))
         #expect(!context.contains("npm run deploy"))
     }
@@ -2648,7 +2650,7 @@ struct HabitatCoreTests {
         #expect(!context.contains("Ask before `running Python commands before python3 is available`."))
         #expect(!context.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
         #expect(policy.contains("`.venv/bin/python -m pytest`"))
-        #expect(policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
         #expect(!policy.contains("`running Python commands before python3 is available`"))
         #expect(!policy.contains("`build commands for the selected project`"))
     }
@@ -3578,7 +3580,7 @@ struct HabitatCoreTests {
         #expect(!context.contains("Prefer `uv run`."))
         #expect(policy.contains("`.venv/bin/python -m pytest`"))
         #expect(!policy.contains("`uv run`"))
-        #expect(policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
         #expect(!policy.contains("`build commands for the selected project`"))
         #expect(policy.contains("`running uv commands before uv is available`"))
     }
