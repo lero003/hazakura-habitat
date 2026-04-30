@@ -5122,6 +5122,46 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeSwiftPMCommandsWhenSwiftVersionCheckOutputIsEmpty() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift package"
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: " \n", stderr: ""),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: ""),
+            "/usr/bin/which -a swift": .init(name: "/usr/bin/which", args: ["-a", "swift"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/swift", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running SwiftPM commands before swift version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
+        #expect(!result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
+        #expect(result.diagnostics.contains("swift --version returned empty output"))
+        #expect(result.tools.versions.contains(where: { $0.name == "swift" && !$0.available && $0.version == nil }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `swift` before running SwiftPM commands."))
+        #expect(context.contains("Ask before `running SwiftPM commands before swift version check succeeds`."))
+        #expect(context.contains("swift --version returned empty output"))
+        #expect(!context.contains("Use `swiftpm` because project files point to it."))
+        #expect(!context.contains("Prefer `swift test`."))
+        #expect(!context.contains("Prefer `swift build`."))
+        #expect(policy.contains("`running SwiftPM commands before swift version check succeeds`"))
+        #expect(!policy.contains("`swift test`"))
+        #expect(!policy.contains("`swift build`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
     func scanAsksBeforeSwiftPMCommandsWhenSwiftVersionCheckTimesOut() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift package"

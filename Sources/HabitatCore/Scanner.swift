@@ -373,11 +373,7 @@ public struct HabitatScanner {
             return false
         }
 
-        if spec.0 == "xcode-select", spec.2 == ["-p"] {
-            return !result.stdout.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
-        }
-
-        return true
+        return !versionCommandOutputIsEmpty(result)
     }
 
     private func commandDiagnostic(_ command: CommandInfo) -> String? {
@@ -388,12 +384,18 @@ public struct HabitatScanner {
             let detail = [command.stderr, command.stdout].first(where: { !$0.isEmpty })
             return "\(label) failed with exit code \(exitCode)\(detail.map { ": \($0)" } ?? "")"
         }
-        if command.args == ["-p"],
-           command.name == "/usr/bin/xcode-select",
-           command.stdout.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+        if command.available,
+           command.exitCode == 0,
+           !command.timedOut,
+           versionCommandOutputIsEmpty(command) {
             return "\(label) returned empty output"
         }
         return nil
+    }
+
+    private func versionCommandOutputIsEmpty(_ command: CommandInfo) -> Bool {
+        [command.stdout, command.stderr]
+            .allSatisfy { $0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     }
 
     private func projectPathIsExistingDirectory(_ projectURL: URL) -> Bool {
@@ -1047,7 +1049,11 @@ public struct HabitatScanner {
             return false
         }
 
-        return command.available && (command.timedOut || command.exitCode != 0)
+        return command.available && (
+            command.timedOut
+                || command.exitCode != 0
+                || (command.exitCode == 0 && versionCommandOutputIsEmpty(command))
+        )
     }
 
     private func commandInfoMatchesTool(_ command: CommandInfo, executable: String) -> Bool {

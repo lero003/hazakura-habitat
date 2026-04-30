@@ -258,7 +258,7 @@ Automation guidance:
 - Do not expand into broad environment diagnostics unless the added data changes command choice, approval requirements, or refusal decisions.
 - When the improvement cannot be finished in one hour, leave the repo with passing focused tests and a clear next artifact boundary.
 
-Project-relevant version command failures should affect command policy, not only diagnostics. When a selected project tool is missing from `PATH`, or is present but its version check fails or times out, `scan_result.json` should keep related build/test commands out of `policy.preferredCommands` and require Ask First until the tool can be verified.
+Project-relevant version command failures should affect command policy, not only diagnostics. When a selected project tool is missing from `PATH`, or is present but its version check fails, times out, or returns empty output, `scan_result.json` should keep related build/test commands out of `policy.preferredCommands` and require Ask First until the tool can be verified.
 
 JavaScript projects apply this partial-failure rule to Node and the selected package manager even when `package.json` does not pin a package-manager version. Missing Node, a missing selected package manager, or a resolved but failing `npm --version`, `pnpm --version`, `yarn --version`, or `bun --version` should keep related preferred commands out of `policy.preferredCommands` until the tool can be verified.
 
