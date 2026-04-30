@@ -1297,6 +1297,47 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanAsksBeforeGitHubCliLocalAndRemoteMutationCommands() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "gh pr checkout",
+            "gh pr create",
+            "gh pr edit",
+            "gh pr close",
+            "gh pr reopen",
+            "gh pr merge",
+            "gh issue create",
+            "gh issue edit",
+            "gh issue close",
+            "gh issue reopen",
+            "gh repo clone",
+            "gh repo fork",
+            "gh workflow run",
+            "gh workflow enable",
+            "gh workflow disable",
+            "gh release create",
+            "gh release upload",
+            "gh release delete",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
     func scanForbidsJavaScriptPackageManagerConfigValueReadCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
