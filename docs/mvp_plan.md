@@ -263,9 +263,9 @@ Project-relevant version command failures should affect command policy, not only
 
 JavaScript projects apply this partial-failure rule to Node and the selected package manager even when `package.json` does not pin a package-manager version. Missing Node, a missing selected package manager, or a resolved but failing `npm --version`, `pnpm --version`, `yarn --version`, or `bun --version` should keep related preferred commands out of `policy.preferredCommands` until the tool can be verified.
 
-Bundler projects apply the same partial-failure rule to `bundle --version`: a missing or resolved but failing `bundle` should keep `bundle exec` out of `policy.preferredCommands` until the tool can be verified.
+Bundler projects apply the same partial-failure rule to `bundle --version`: a missing or resolved but failing `bundle` should keep Bundler commands out of `policy.preferredCommands` until the tool can be verified. Even when verified, do not emit incomplete command prefixes such as `bundle exec` without a concrete target.
 
-uv projects apply the same partial-failure rule to `uv --version`: a missing or resolved but failing `uv` should keep `uv run` out of `policy.preferredCommands` until the tool can be verified. A project-local `.venv/bin/python` command may remain when that executable is detected.
+uv projects apply the same partial-failure rule to `uv --version`: a missing or resolved but failing `uv` should keep uv commands out of `policy.preferredCommands` until the tool can be verified. Even when verified, do not emit incomplete command prefixes such as `uv run` without a concrete target. A project-local `.venv/bin/python` command may remain when that executable is detected.
 
 Homebrew Bundle, CocoaPods, and Carthage projects apply the same partial-failure rule to their selected tool checks: missing or resolved but failing `brew --version`, `pod --version`, or `carthage version` should keep related preferred commands out of `policy.preferredCommands` until the tool can be verified.
 

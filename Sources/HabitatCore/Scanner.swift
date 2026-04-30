@@ -433,7 +433,7 @@ public struct HabitatScanner {
         case "xcodebuild":
             return xcodebuildPreferredCommands(project: project)
         case "uv":
-            return hasUsableProjectVirtualEnvironment(project) ? ["uv run", ".venv/bin/python -m pytest"] : ["uv run"]
+            return hasUsableProjectVirtualEnvironment(project) ? [".venv/bin/python -m pytest"] : []
         case "python":
             if hasUsableProjectVirtualEnvironment(project) {
                 return [".venv/bin/python -m pytest", ".venv/bin/python"]
@@ -443,7 +443,7 @@ public struct HabitatScanner {
             }
             return ["python3 -m pytest"]
         case "bundler":
-            return ["bundle exec"]
+            return []
         case "homebrew":
             return ["brew bundle check"]
         default:
