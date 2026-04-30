@@ -53,11 +53,28 @@ public struct ReportWriter {
                 .compactMap { $0 }
         }
         let avoidLines = prioritizedForbiddenCommands(result).prefix(9).map(avoidLine)
-        let askLines = result.policy.askFirstCommands.prefix(4).map { "Ask before `\($0)`." }
-        let mismatchLines = result.warnings.isEmpty ? ["- None detected."] : result.warnings.map { "- \($0)" }
-        let changeLines = result.changes.map { "- \($0.summary) \($0.impact)" }
+        let askLines = result.policy.askFirstCommands.isEmpty
+            ? ["- Ask before dependency installation or version changes."]
+            : limitedBulletLines(
+                result.policy.askFirstCommands.map { "Ask before `\($0)`." },
+                limit: 4,
+                overflowLabel: "Ask First commands",
+                overflowDestination: "command_policy.md"
+            )
         let relevantDiagnostics = agentRelevantDiagnostics(result)
-        let diagnosticLines = relevantDiagnostics.map { "- \($0)" }
+        let mismatchLines = result.warnings.isEmpty
+            ? ["- None detected."]
+            : limitedBulletLines(result.warnings, limit: 10, overflowLabel: "warnings")
+        let changeLines = limitedBulletLines(
+            result.changes.map { "\($0.summary) \($0.impact)" },
+            limit: 6,
+            overflowLabel: "scan changes"
+        )
+        let diagnosticLines = limitedBulletLines(
+            relevantDiagnostics,
+            limit: 4,
+            overflowLabel: "relevant command diagnostics"
+        )
         let noteLines = (changeLines + diagnosticLines).isEmpty
             ? ["- Scan completed without relevant command diagnostics."]
             : changeLines + diagnosticLines
@@ -76,7 +93,7 @@ public struct ReportWriter {
         \(bulletList(avoidLines, fallback: "- Do not mutate global environment state."))
 
         ## Ask First
-        \(bulletList(askLines, fallback: "- Ask before dependency installation or version changes."))
+        \(askLines.joined(separator: "\n"))
 
         ## Mismatches
         \(mismatchLines.joined(separator: "\n"))
@@ -175,6 +192,21 @@ public struct ReportWriter {
     private func bulletList(_ items: [String], fallback: String) -> String {
         guard !items.isEmpty else { return fallback }
         return items.map { "- \($0)" }.joined(separator: "\n")
+    }
+
+    private func limitedBulletLines(
+        _ items: [String],
+        limit: Int,
+        overflowLabel: String,
+        overflowDestination: String = "environment_report.md"
+    ) -> [String] {
+        guard items.count > limit else {
+            return items.map { "- \($0)" }
+        }
+
+        let shown = items.prefix(limit).map { "- \($0)" }
+        let hiddenCount = items.count - limit
+        return shown + ["- \(hiddenCount) additional \(overflowLabel) in `\(overflowDestination)`."]
     }
 
     private func avoidLine(for command: String) -> String {

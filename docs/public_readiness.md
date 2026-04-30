@@ -268,7 +268,7 @@ Documented behavior should cover:
 
 ### Phase 1: Output Quality Hardening
 
-- `agent_context.md` structure and line budget
+- `agent_context.md` structure and line budget caps for warning-heavy scans
 - command-policy reasons
 - policy reason codes
 - snapshot tests for shape and length

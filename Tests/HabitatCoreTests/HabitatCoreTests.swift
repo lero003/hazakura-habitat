@@ -5643,6 +5643,56 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func agentContextCapsActionableBullets() throws {
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let warnings = (1...12).map { "Warning \($0)" }
+        let askFirstCommands = (1...6).map { "ask-first-\($0)" }
+        let changes = (1...8).map {
+            ScanChange(
+                category: "test",
+                summary: "Change \($0).",
+                impact: "Impact \($0)."
+            )
+        }
+        let diagnostics = (1...6).map { "swift --version failed with exit code \($0): failure \($0)" }
+        let result = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [.init(name: "swift", paths: ["/usr/bin/swift"])], versions: [.init(name: "swift", version: "Swift version 6.1", available: true)]),
+            policy: .init(preferredCommands: ["swift test"], askFirstCommands: askFirstCommands, forbiddenCommands: ["sudo"]),
+            warnings: warnings,
+            diagnostics: diagnostics,
+            changes: changes
+        )
+
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `ask-first-4`."))
+        #expect(!context.contains("Ask before `ask-first-5`."))
+        #expect(context.contains("2 additional Ask First commands in `command_policy.md`."))
+        #expect(policy.contains("`ask-first-6`"))
+        #expect(context.contains("Warning 10"))
+        #expect(!context.contains("Warning 11"))
+        #expect(context.contains("2 additional warnings in `environment_report.md`."))
+        #expect(context.contains("Change 6. Impact 6."))
+        #expect(!context.contains("Change 7. Impact 7."))
+        #expect(context.contains("2 additional scan changes in `environment_report.md`."))
+        #expect(context.contains("swift --version failed with exit code 4: failure 4"))
+        #expect(!context.contains("swift --version failed with exit code 5: failure 5"))
+        #expect(context.contains("2 additional relevant command diagnostics in `environment_report.md`."))
+        #expect(context.split(whereSeparator: \.isNewline).count <= 50)
+        #expect(report.contains("Warning 12"))
+        #expect(report.contains("swift --version failed with exit code 6: failure 6"))
+    }
+
+    @Test
     func scanGuardsMissingProjectPathBeforeProjectCommands() throws {
         let projectURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
 

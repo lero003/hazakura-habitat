@@ -44,6 +44,7 @@ Guidelines:
 - Mention only details that can affect project work.
 - If the selected project path is not an existing directory, tell the agent to verify the path before running project commands.
 - When a previous scan is supplied, include only AI-actionable deltas in `Notes`.
+- When `Ask First` is capped for brevity, include an overflow line that points agents to `command_policy.md` for the complete approval list.
 - When symlinked project signals change between scans, include a concise `Notes` delta that tells agents to review symlink targets before following linked metadata or using dependency signals.
 - Prioritize project-relevant secret access/exfiltration bans in `Avoid` when secret-bearing files are detected.
 - When project metadata or secret-bearing directories are symlinks, tell the agent to review symlink targets before following them or trusting linked metadata.
