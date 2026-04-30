@@ -208,6 +208,9 @@ public struct HabitatScanner {
                 "bat ~/.zsh_history",
                 "bat ~/.bash_history",
                 "bat ~/.history",
+                "nl -ba ~/.zsh_history",
+                "nl -ba ~/.bash_history",
+                "nl -ba ~/.history",
                 "head ~/.zsh_history",
                 "head ~/.bash_history",
                 "head ~/.history",
@@ -238,6 +241,10 @@ public struct HabitatScanner {
                 "bat ~/.ssh/id_dsa",
                 "bat ~/.ssh/id_ecdsa",
                 "bat ~/.ssh/id_ed25519",
+                "nl -ba ~/.ssh/id_rsa",
+                "nl -ba ~/.ssh/id_dsa",
+                "nl -ba ~/.ssh/id_ecdsa",
+                "nl -ba ~/.ssh/id_ed25519",
                 "head ~/.ssh/id_rsa",
                 "head ~/.ssh/id_dsa",
                 "head ~/.ssh/id_ecdsa",
@@ -1045,6 +1052,7 @@ public struct HabitatScanner {
                 "sed -n <range> \(file)",
                 "awk <program> \(file)",
                 "bat \(file)",
+                "nl -ba \(file)",
             ]
 
             if isSSHPrivateKeyFilename(file) {

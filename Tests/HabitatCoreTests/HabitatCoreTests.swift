@@ -1427,6 +1427,9 @@ struct HabitatCoreTests {
             "bat ~/.zsh_history",
             "bat ~/.bash_history",
             "bat ~/.history",
+            "nl -ba ~/.zsh_history",
+            "nl -ba ~/.bash_history",
+            "nl -ba ~/.history",
             "head ~/.zsh_history",
             "head ~/.bash_history",
             "head ~/.history",
@@ -1479,7 +1482,7 @@ struct HabitatCoreTests {
         ]
 
         for file in privateKeyFiles {
-            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "bat \(file)"] {
+            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "bat \(file)", "nl -ba \(file)"] {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
             }
 
@@ -1503,6 +1506,7 @@ struct HabitatCoreTests {
             #expect(policy.contains("`sed -n <range> \(file)`"), "Expected command_policy.md to forbid sed -n <range> \(file)")
             #expect(policy.contains("`awk <program> \(file)`"), "Expected command_policy.md to forbid awk <program> \(file)")
             #expect(policy.contains("`bat \(file)`"), "Expected command_policy.md to forbid bat \(file)")
+            #expect(policy.contains("`nl -ba \(file)`"), "Expected command_policy.md to forbid nl -ba \(file)")
             #expect(policy.contains("`ssh-add \(file)`"), "Expected command_policy.md to forbid ssh-add \(file)")
             #expect(policy.contains("`ssh-add --apple-use-keychain \(file)`"), "Expected command_policy.md to forbid ssh-add --apple-use-keychain \(file)")
             #expect(policy.contains("`ssh-keygen -y -f \(file)`"), "Expected command_policy.md to forbid ssh-keygen -y -f \(file)")
@@ -2119,7 +2123,7 @@ struct HabitatCoreTests {
         let sensitiveFiles = [".env", ".envrc.local", ".netrc", ".npmrc", "id_ed25519"]
 
         for file in sensitiveFiles {
-            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "bat \(file)"] {
+            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "bat \(file)", "nl -ba \(file)"] {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
             }
         }
@@ -2148,6 +2152,7 @@ struct HabitatCoreTests {
             #expect(policy.contains("`sed -n <range> \(file)`"), "Expected command_policy.md to forbid sed -n <range> \(file)")
             #expect(policy.contains("`awk <program> \(file)`"), "Expected command_policy.md to forbid awk <program> \(file)")
             #expect(policy.contains("`bat \(file)`"), "Expected command_policy.md to forbid bat \(file)")
+            #expect(policy.contains("`nl -ba \(file)`"), "Expected command_policy.md to forbid nl -ba \(file)")
         }
 
         #expect(policy.contains("`ssh-add id_ed25519`"), "Expected command_policy.md to forbid ssh-add id_ed25519")
