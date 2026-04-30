@@ -1527,6 +1527,12 @@ public struct HabitatScanner {
             "tar -cjf <archive> .",
             "tar -cJf <archive> .",
             "zip -r <archive> .",
+            "git archive HEAD",
+            "git archive --format=tar HEAD",
+            "git archive --format=zip HEAD",
+            "git archive -o <archive> HEAD",
+            "git archive --output <archive> HEAD",
+            "git archive --output=<archive> HEAD",
         ]
     }
 
