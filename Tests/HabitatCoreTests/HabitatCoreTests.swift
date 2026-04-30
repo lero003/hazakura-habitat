@@ -5252,6 +5252,33 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func agentContextNamesSwiftPMExecutableWhenCommandsAreAllowed() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift package"
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Swift version 6.1", stderr: ""),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: ""),
+            "/usr/bin/which -a swift": .init(name: "/usr/bin/which", args: ["-a", "swift"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/swift", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.policy.preferredCommands == ["swift test", "swift build"])
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Use SwiftPM (`swift`) because project files point to it."))
+        #expect(!context.contains("Use `swiftpm` because project files point to it."))
+        #expect(context.contains("Prefer `swift test`."))
+        #expect(context.contains("Prefer `swift build`."))
+    }
+
+    @Test
     func scanAsksBeforeSwiftPMCommandsWhenSwiftVersionCheckFails() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift package"

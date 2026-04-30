@@ -46,7 +46,7 @@ public struct ReportWriter {
                     return "Use `\(packageManager)@\(version)` because project metadata pins it."
                 }
 
-                return "Use `\(packageManager)` because project files point to it."
+                return "Use \(packageManagerUsePhrase(packageManager, result: result)) because project files point to it."
             }
 
             useLines = ([packageManagerUse] + preferredCommands.prefix(2).map { "Prefer `\($0)`." })
@@ -297,6 +297,26 @@ public struct ReportWriter {
         }
 
         return "Verify `\(match.executable)` before running \(match.label) commands."
+    }
+
+    private func packageManagerUsePhrase(_ packageManager: String, result: ScanResult) -> String {
+        if packageManager == "python",
+           result.project.detectedFiles.contains(".venv/bin/python") {
+            return "project Python (`.venv/bin/python`)"
+        }
+
+        switch packageManager {
+        case "swiftpm":
+            return "SwiftPM (`swift`)"
+        case "bundler":
+            return "Bundler (`bundle`)"
+        case "homebrew":
+            return "Homebrew Bundle (`brew`)"
+        case "cocoapods":
+            return "CocoaPods (`pod`)"
+        default:
+            return "`\(packageManager)`"
+        }
     }
 
     private func javaScriptToolVerificationUseLine(_ result: ScanResult, packageManager: String) -> String? {
