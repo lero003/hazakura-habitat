@@ -244,6 +244,7 @@ struct HabitatCoreTests {
         #expect(commandCounts.withReasons == result.policy.commandReasons.count)
         #expect(reasonCodes.contains("missing_tool"))
         #expect(reasonCodes.contains("dependency_resolution_mutation"))
+        #expect(reasonCodes.contains("ephemeral_package_execution"))
         #expect(reasonCodes.contains("privileged_command"))
         #expect(reasonCodes.count == Set(reasonCodes).count)
         #expect(commandReasons.contains(PolicyCommandReason(
@@ -257,6 +258,12 @@ struct HabitatCoreTests {
             classification: "ask_first",
             reasonCode: "dependency_resolution_mutation",
             reason: "Dependency resolution or lockfile changes can change project state."
+        )))
+        #expect(commandReasons.contains(PolicyCommandReason(
+            command: "npx",
+            classification: "ask_first",
+            reasonCode: "ephemeral_package_execution",
+            reason: "Ephemeral package execution can fetch or run unpinned code outside the selected workflow."
         )))
         #expect(commandReasons.contains(PolicyCommandReason(
             command: "sudo",
@@ -302,6 +309,7 @@ struct HabitatCoreTests {
                 "pnpm install",
                 "swift package update",
                 "running pnpm commands before pnpm is available",
+                "npx",
             ],
             forbiddenCommands: [
                 "brew upgrade",
@@ -315,6 +323,7 @@ struct HabitatCoreTests {
                 "running pnpm commands before pnpm is available",
                 "swift package update",
                 "pnpm install",
+                "npx",
             ],
             forbiddenCommands: [
                 "sudo",
@@ -327,6 +336,7 @@ struct HabitatCoreTests {
             "missing_tool",
             "dependency_resolution_mutation",
             "dependency_mutation",
+            "ephemeral_package_execution",
             "privileged_command",
             "host_private_data",
             "global_environment_mutation",

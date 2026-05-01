@@ -24,6 +24,7 @@ enum PolicyReasonCatalog {
         .init(code: "version_manager_mutation", text: "Runtime or tool-version edits change future command behavior."),
         .init(code: "git_mutation", text: "Git/GitHub mutation can change workspace, history, branches, or remotes."),
         .init(code: "dependency_mutation", text: "Dependency install, update, or removal can mutate project state."),
+        .init(code: "ephemeral_package_execution", text: "Ephemeral package execution can fetch or run unpinned code outside the selected workflow."),
         .init(code: "user_approval_required", text: "Requires user approval before execution."),
         .init(code: "privileged_command", text: "Privileged commands can mutate the host outside the project."),
         .init(code: "outside_project_deletion", text: "Deletion outside the selected project is out of scope."),
@@ -109,6 +110,10 @@ enum PolicyReasonCatalog {
 
         if isDependencyMutationCommand(command) {
             return .init(code: "dependency_mutation", text: "Dependency install, update, or removal can mutate project state.")
+        }
+
+        if isEphemeralPackageExecutionCommand(command) {
+            return .init(code: "ephemeral_package_execution", text: "Ephemeral package execution can fetch or run unpinned code outside the selected workflow.")
         }
 
         return .init(code: "user_approval_required", text: "Requires user approval before execution.")
@@ -201,5 +206,19 @@ enum PolicyReasonCatalog {
         ]
         let commandWords = command.split(whereSeparator: \.isWhitespace).map(String.init)
         return commandWords.contains { mutationWords.contains($0) }
+    }
+
+    private static func isEphemeralPackageExecutionCommand(_ command: String) -> Bool {
+        [
+            "npm exec",
+            "npx",
+            "pnpm dlx",
+            "yarn dlx",
+            "bunx",
+            "uvx",
+            "uv tool run",
+            "pipx run",
+            "pipx runpip",
+        ].contains(command)
     }
 }

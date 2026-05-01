@@ -44,11 +44,12 @@ Observed output from scanning this repository:
 - Package manager: SwiftPM.
 - Preferred commands: `swift test`, `swift build`.
 - `agent_context.md`: 33 lines in `scan_result.json` artifact metadata.
-- `command_policy.md`: 797 lines in `scan_result.json` artifact metadata.
+- `command_policy.md`: 798 lines in `scan_result.json` artifact metadata.
 - `environment_report.md`: 75 lines in `scan_result.json` artifact metadata.
 - Ask First commands: 262.
 - Forbidden commands: 489.
 - `scan_result.json` `policy.commandCounts`: 2 preferred, 262 Ask First, 489 Forbidden, 751 with reasons.
+- `scan_result.json` `policy.reasonCodes`: 13 reason families, including `ephemeral_package_execution`.
 - Warnings: none.
 
 Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in machine-readable data, but they did not pollute `agent_context.md` because they were not relevant to the SwiftPM command decision.
@@ -64,6 +65,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - `Review First` now carries reason codes, and the `Reason Codes` legend gives compact explanations without expanding `agent_context.md`.
 - Full `Ask First` and `Forbidden` entries now carry reason code annotations, so long policy lists remain explainable at the point of use.
 - The `agent_context.md` Ask First overflow line now names the leading hidden reason codes, so Codex can tell whether hidden approval rules are dependency, Git, or other safety guards before opening the full policy.
+- Ephemeral package execution commands now carry their own `ephemeral_package_execution` reason code, so `npx`/`dlx`/`uvx`/`pipx run` guards no longer collapse into generic approval metadata.
 - `scan_result.json` now records generated Markdown artifact roles, read order, line counts, the `agent_context.md` line limit, and whether line-limited outputs are within budget, so agents can identify and read the short working context first without parsing every report.
 - `scan_result.json` now records `policy.commandCounts`, so agents can see policy size and reason coverage before deciding whether to inspect the full `command_policy.md`.
 - The bundled helper must use the current source checkout for self-scans instead of silently falling back to `dist/`, otherwise a stale local release artifact can hide new output-contract sections.

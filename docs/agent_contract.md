@@ -122,6 +122,7 @@ When the short `agent_context.md` Ask First list hides Git/GitHub mutation guard
 When `Review First` repeats the highest-priority Ask First commands, each entry should include a stable snake_case reason code plus short reason text.
 `Reason Codes` should list only codes that appear in the generated policy and explain why those command families are conservative.
 The full `Ask First` and `Forbidden` lists should annotate each command with the same stable reason code family, while leaving detailed reason text in `Review First`, `Reason Codes`, and `scan_result.json`.
+Ephemeral package execution commands such as `npx`, `npm exec`, `pnpm dlx`, `yarn dlx`, `bunx`, `uvx`, `uv tool run`, `pipx run`, and `pipx runpip` should use `ephemeral_package_execution` instead of the generic approval reason, because they can fetch or run unpinned code outside the selected workflow.
 
 Ask First:
 
