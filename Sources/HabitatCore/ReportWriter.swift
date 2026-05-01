@@ -191,11 +191,11 @@ public struct ReportWriter {
             """,
             """
             ## Ask First
-            \(bulletList(askFirstCommands.map { "`\($0)`" }, fallback: "- `dependency installation`"))
+            \(bulletList(askFirstCommands.map(askFirstPolicyLine), fallback: "- `dependency installation`"))
             """,
             """
             ## Forbidden
-            \(bulletList(result.policy.forbiddenCommands.map { "`\($0)`" }, fallback: "- `sudo`"))
+            \(bulletList(result.policy.forbiddenCommands.map(forbiddenPolicyLine), fallback: "- `sudo`"))
             """
         ])
 
@@ -242,6 +242,16 @@ public struct ReportWriter {
                 let reason = PolicyReasonCatalog.askFirstReason(for: $0)
                 return "`\($0)` (`\(reason.code)`) - \(reason.text)"
             }
+    }
+
+    private func askFirstPolicyLine(for command: String) -> String {
+        let reason = PolicyReasonCatalog.askFirstReason(for: command)
+        return "`\(command)` (`\(reason.code)`)"
+    }
+
+    private func forbiddenPolicyLine(for command: String) -> String {
+        let reason = PolicyReasonCatalog.forbiddenReason(for: command)
+        return "`\(command)` (`\(reason.code)`)"
     }
 
     private func commandPolicyReasonLegend(_ result: ScanResult) -> [String] {

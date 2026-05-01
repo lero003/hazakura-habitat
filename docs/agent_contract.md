@@ -121,6 +121,7 @@ When the short `agent_context.md` Ask First list hides Git/GitHub mutation guard
 `Policy Index` should stay near the top of `command_policy.md` and give agents compact counts for the major sections before they scan a long policy.
 When `Review First` repeats the highest-priority Ask First commands, each entry should include a stable snake_case reason code plus short reason text.
 `Reason Codes` should list only codes that appear in the generated policy and explain why those command families are conservative.
+The full `Ask First` and `Forbidden` lists should annotate each command with the same stable reason code family, while leaving detailed reason text in `Review First`, `Reason Codes`, and `scan_result.json`.
 
 Ask First:
 

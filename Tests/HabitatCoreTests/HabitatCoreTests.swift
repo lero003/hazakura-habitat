@@ -5483,14 +5483,14 @@ struct HabitatCoreTests {
         - `read-only project inspection`
 
         ## Ask First
-        - `running pnpm commands before pnpm is available`
-        - `dependency installs before matching active Node to project version hints`
-        - `pnpm install`
-        - `modifying lockfiles`
+        - `running pnpm commands before pnpm is available` (`missing_tool`)
+        - `dependency installs before matching active Node to project version hints` (`runtime_version_mismatch`)
+        - `pnpm install` (`dependency_mutation`)
+        - `modifying lockfiles` (`dependency_resolution_mutation`)
 
         ## Forbidden
-        - `sudo`
-        - `brew upgrade`
+        - `sudo` (`privileged_command`)
+        - `brew upgrade` (`global_environment_mutation`)
 
         ## If Dependency Installation Seems Necessary
         - Re-check lockfiles and version hints first.

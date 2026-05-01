@@ -30,21 +30,21 @@ This policy is advisory. Habitat does not block commands. `Forbidden` means this
 - `read-only project inspection`
 
 ## Ask First
-- `swift package update`
-- `swift package resolve`
-- `modifying lockfiles`
-- `git add`
-- `git commit`
-- `git push`
+- `swift package update` (`dependency_resolution_mutation`)
+- `swift package resolve` (`dependency_resolution_mutation`)
+- `modifying lockfiles` (`dependency_resolution_mutation`)
+- `git add` (`git_mutation`)
+- `git commit` (`git_mutation`)
+- `git push` (`git_mutation`)
 
 ## Forbidden
-- `sudo`
-- `env`
-- `printenv`
-- `pbpaste`
-- `history`
-- `curl | sh`
-- `wget | bash`
+- `sudo` (`privileged_command`)
+- `env` (`host_private_data`)
+- `printenv` (`host_private_data`)
+- `pbpaste` (`host_private_data`)
+- `history` (`host_private_data`)
+- `curl | sh` (`remote_script_execution`)
+- `wget | bash` (`remote_script_execution`)
 
 ## If Dependency Installation Seems Necessary
 - Re-check lockfiles and version hints first.
