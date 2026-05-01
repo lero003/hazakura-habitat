@@ -56,6 +56,19 @@ When generated output changes, update tests and representative examples in the s
 When versioned output behavior changes after a public release, do not move existing tags; use a transparent patch release.
 ```
 
+## Self-Use Before Substantial Work
+
+Before larger Habitat changes, run Habitat on this repository and read the generated agent context:
+
+```bash
+swift build
+./.build/debug/habitat-scan scan --project . --output ./habitat-report
+```
+
+Use `habitat-report/agent_context.md` as the working context for Codex. Consult `habitat-report/command_policy.md` before dependency, Git/GitHub, secret-adjacent, archive, copy, sync, or environment-sensitive commands.
+
+Do not commit `habitat-report/`. Turn useful findings into docs, fixtures, tests, examples, or roadmap items. See [Self-Use Loop](self_use.md) for the current snapshot and v0.2 findings.
+
 The v0.2 acceptance question is:
 
 > Does this make the generated output shorter, more stable, more explainable, or more reliable for an AI agent's next command choice?

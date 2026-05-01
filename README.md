@@ -128,6 +128,7 @@ Runtime version hints from `.nvmrc`, `.node-version`, `.python-version`, `.ruby-
 - [Contributing](CONTRIBUTING.md)
 - [Agent Contract](docs/agent_contract.md)
 - [Development Loop](docs/development_loop.md)
+- [Self-Use Loop](docs/self_use.md)
 - [GitHub Workflow](docs/github_workflow.md)
 - [ADR 0001](docs/adr/0001-ai-first-core-cli.md)
 - [ADR 0002](docs/adr/0002-agent-safe-secret-handling.md)

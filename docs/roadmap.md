@@ -87,6 +87,13 @@ Starting point:
 - Keep released tags immutable.
 - Treat generated-output changes as product behavior, not docs-only polish.
 - Update README, examples, and tests whenever generated artifacts change shape or meaning.
+- Use Habitat on this repository before substantial v0.2 work; see [Self-Use Loop](self_use.md).
+
+Current self-use finding:
+
+- The 2026-05-01 self-scan produced a 34-line `agent_context.md` and a 767-line `command_policy.md`.
+- The short context was useful: it preferred SwiftPM, `swift test`, and `swift build`, while keeping irrelevant missing-tool diagnostics out of the agent-facing summary.
+- The full command policy needs stronger navigation, grouping, or explanation before it feels like a stable output contract.
 
 Focus:
 

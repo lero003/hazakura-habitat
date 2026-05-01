@@ -1,0 +1,70 @@
+# Self-Use Loop
+
+Hazakura Habitat should be used by Codex before substantial work on Hazakura Habitat itself.
+
+This is not a marketing demo. It is a product feedback loop: if the generated context does not help an AI coding agent choose a better next command in this repository, the output contract needs work.
+
+## Workflow
+
+Run a local build first, then scan the repository:
+
+```bash
+swift build
+./.build/debug/habitat-scan scan --project . --output ./habitat-report
+```
+
+Read the generated files before continuing:
+
+- `habitat-report/agent_context.md` for the short working context.
+- `habitat-report/command_policy.md` before dependency, Git/GitHub, secret-adjacent, archive, copy, sync, or environment-sensitive commands.
+- `habitat-report/environment_report.md` only when audit or debug detail is needed.
+
+Do not commit `habitat-report/`. Convert useful findings into docs, fixtures, tests, examples, or roadmap items.
+
+## Current Self-Scan Snapshot
+
+Snapshot date: 2026-05-01.
+
+Observed output from scanning this repository:
+
+- Package manager: SwiftPM.
+- Preferred commands: `swift test`, `swift build`.
+- `agent_context.md`: 34 lines.
+- `command_policy.md`: 767 lines.
+- Ask First commands: 262.
+- Forbidden commands: 489.
+- Warnings: none.
+
+Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in machine-readable data, but they did not pollute `agent_context.md` because they were not relevant to the SwiftPM command decision.
+
+## What Worked
+
+- The first screen tells Codex to use SwiftPM and prefer `swift test` and `swift build`.
+- The generated context asks before dependency resolution, lockfile mutation, and Git/GitHub mutations.
+- Secret-bearing file, browser, mail, shell history, clipboard, and environment dump guidance is clear.
+- Irrelevant missing-tool diagnostics stay out of the short agent context.
+- The generated command policy states that it is advisory and does not block commands.
+
+## v0.2 Findings
+
+The self-scan supports the v0.2 Output Contract Hardening focus.
+
+Keep:
+
+- `agent_context.md` short and command-changing.
+- Missing-tool diagnostics available in audit or JSON data without making the short context noisy.
+- Advisory-only wording in generated policy output.
+
+Improve:
+
+- Make `command_policy.md` easier to navigate when it is hundreds of lines long.
+- Separate project-relevant policy from broad baseline safety policy more clearly.
+- Add reason text and reason-code groundwork so large policy sections are explainable.
+- Add output shape tests that catch growth before it becomes normal.
+- Update representative examples whenever generated output wording or structure changes.
+
+## Acceptance Question
+
+After reading `agent_context.md`, would Codex choose a better next command?
+
+If `command_policy.md` is needed, can Codex find the relevant rule quickly enough to act conservatively?
