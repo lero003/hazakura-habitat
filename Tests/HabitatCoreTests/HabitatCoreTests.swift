@@ -2437,7 +2437,7 @@ struct HabitatCoreTests {
         let sensitiveFiles = [".env", ".envrc.local", ".netrc", ".npmrc", "id_ed25519"]
 
         for file in sensitiveFiles {
-            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "git grep <pattern> -- \(file)", "git grep <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "diff \(file) <other>", "cmp \(file) <other>", "git diff -- \(file)", "git diff --cached -- \(file)", "git diff --staged -- \(file)", "git diff HEAD -- \(file)", "git log -p -- \(file)", "git blame \(file)", "git blame -- \(file)", "git annotate \(file)", "git annotate -- \(file)", "git show :\(file)", "git show HEAD:\(file)", "bat \(file)", "nl -ba \(file)", "base64 \(file)", "xxd \(file)", "hexdump -C \(file)", "strings \(file)", "open \(file)", "code \(file)", "vim \(file)", "vi \(file)", "nano \(file)", "emacs \(file)", "cp \(file) <destination>", "cp -R \(file) <destination>", "cp -r \(file) <destination>", "mv \(file) <destination>", "rsync \(file) <destination>", "rsync -a \(file) <destination>", "scp \(file) <destination>", "curl -F file=@\(file) <url>", "curl --data-binary @\(file) <url>", "curl -T \(file) <url>", "wget --post-file=\(file) <url>", "tar -cf <archive> \(file)", "tar -czf <archive> \(file)", "tar -cjf <archive> \(file)", "tar -cJf <archive> \(file)", "zip <archive> \(file)", "zip -r <archive> \(file)"] {
+            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "git grep <pattern> -- \(file)", "git grep <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "diff \(file) <other>", "cmp \(file) <other>", "git diff -- \(file)", "git diff --cached -- \(file)", "git diff --staged -- \(file)", "git diff HEAD -- \(file)", "git log -p -- \(file)", "git blame \(file)", "git blame -- \(file)", "git annotate \(file)", "git annotate -- \(file)", "git show -- \(file)", "git show HEAD -- \(file)", "git show :\(file)", "git show HEAD:\(file)", "bat \(file)", "nl -ba \(file)", "base64 \(file)", "xxd \(file)", "hexdump -C \(file)", "strings \(file)", "open \(file)", "code \(file)", "vim \(file)", "vi \(file)", "nano \(file)", "emacs \(file)", "cp \(file) <destination>", "cp -R \(file) <destination>", "cp -r \(file) <destination>", "mv \(file) <destination>", "rsync \(file) <destination>", "rsync -a \(file) <destination>", "scp \(file) <destination>", "curl -F file=@\(file) <url>", "curl --data-binary @\(file) <url>", "curl -T \(file) <url>", "wget --post-file=\(file) <url>", "tar -cf <archive> \(file)", "tar -czf <archive> \(file)", "tar -cjf <archive> \(file)", "tar -cJf <archive> \(file)", "zip <archive> \(file)", "zip -r <archive> \(file)"] {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
             }
         }
@@ -2480,6 +2480,8 @@ struct HabitatCoreTests {
             #expect(policy.contains("`git blame -- \(file)`"), "Expected command_policy.md to forbid git blame -- \(file)")
             #expect(policy.contains("`git annotate \(file)`"), "Expected command_policy.md to forbid git annotate \(file)")
             #expect(policy.contains("`git annotate -- \(file)`"), "Expected command_policy.md to forbid git annotate -- \(file)")
+            #expect(policy.contains("`git show -- \(file)`"), "Expected command_policy.md to forbid git show -- \(file)")
+            #expect(policy.contains("`git show HEAD -- \(file)`"), "Expected command_policy.md to forbid git show HEAD -- \(file)")
             #expect(policy.contains("`git show :\(file)`"), "Expected command_policy.md to forbid git show :\(file)")
             #expect(policy.contains("`git show HEAD:\(file)`"), "Expected command_policy.md to forbid git show HEAD:\(file)")
             #expect(policy.contains("`bat \(file)`"), "Expected command_policy.md to forbid bat \(file)")
@@ -2528,6 +2530,8 @@ struct HabitatCoreTests {
         #expect(!policy.contains("`git diff --cached -- .env.example`"))
         #expect(!policy.contains("`git blame .env.example`"))
         #expect(!policy.contains("`git annotate .env.example`"))
+        #expect(!policy.contains("`git show -- .env.example`"))
+        #expect(!policy.contains("`git show HEAD -- .env.example`"))
         #expect(!policy.contains("`git show :.env.example`"))
         #expect(!policy.contains("`base64 .env.example`"))
         #expect(!policy.contains("`strings .env.example`"))
@@ -3129,6 +3133,8 @@ struct HabitatCoreTests {
             #expect(result.policy.forbiddenCommands.contains("git blame -- \(file)"), "Expected git blame -- \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git annotate \(file)"), "Expected git annotate \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git annotate -- \(file)"), "Expected git annotate -- \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git show -- \(file)"), "Expected git show -- \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git show HEAD -- \(file)"), "Expected git show HEAD -- \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git show :\(file)"), "Expected git show :\(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git show HEAD:\(file)"), "Expected git show HEAD:\(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("cp \(file) <destination>"), "Expected cp \(file) to be forbidden")
@@ -3168,6 +3174,8 @@ struct HabitatCoreTests {
         #expect(policy.contains("`git log -p -- deploy.pem`"))
         #expect(policy.contains("`git blame deploy.pem`"))
         #expect(policy.contains("`git annotate deploy.pem`"))
+        #expect(policy.contains("`git show -- deploy.pem`"))
+        #expect(policy.contains("`git show HEAD -- deploy.pem`"))
         #expect(policy.contains("`git show HEAD:deploy.pem`"))
         #expect(policy.contains("`cp deploy.pem <destination>`"))
         #expect(policy.contains("`scp deploy.pem <destination>`"))

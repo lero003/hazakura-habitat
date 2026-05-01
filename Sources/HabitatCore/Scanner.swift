@@ -1438,6 +1438,8 @@ public struct HabitatScanner {
                 "git blame -- \(file)",
                 "git annotate \(file)",
                 "git annotate -- \(file)",
+                "git show -- \(file)",
+                "git show HEAD -- \(file)",
                 "git show :\(file)",
                 "git show HEAD:\(file)",
                 "bat \(file)",
