@@ -52,7 +52,8 @@ public struct ReportWriter {
             useLines = ([packageManagerUse] + preferredCommands.prefix(2).map { "Prefer `\($0)`." })
                 .compactMap { $0 }
         }
-        let avoidLines = prioritizedForbiddenCommands(result).prefix(9).map(avoidLine)
+        let avoidLimit = hasDetectedSecretValueFile(result.project) ? 11 : 9
+        let avoidLines = prioritizedForbiddenCommands(result).prefix(avoidLimit).map(avoidLine)
         let askFirstCommands = prioritizedAskFirstCommands(result)
         let askLines = agentContextAskFirstLines(askFirstCommands)
         let relevantDiagnostics = agentRelevantDiagnostics(result)
@@ -255,6 +256,10 @@ public struct ReportWriter {
             return "Do not source or load secret environment files."
         case "render Docker Compose config when secret environment files exist":
             return "Do not render Docker Compose config while secret environment files may be interpolated."
+        case "recursive project search without excluding secret-bearing files":
+            return "Do not run recursive project search unless detected secret-bearing files are excluded."
+        case "project copy, sync, or archive without excluding secret-bearing files":
+            return "Do not copy, sync, or archive the project without excluding detected secret-bearing files."
         case "read .env values":
             return "Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.env` files."
         case "read .envrc values":
@@ -596,6 +601,9 @@ public struct ReportWriter {
             append("read local cloud and container credential files", to: &commands, from: result.policy.forbiddenCommands)
         }
 
+        append("recursive project search without excluding secret-bearing files", to: &commands, from: result.policy.forbiddenCommands)
+        append("project copy, sync, or archive without excluding secret-bearing files", to: &commands, from: result.policy.forbiddenCommands)
+
         if !hasSSHPrivateKeyFile(result.project) {
             append("read private keys", to: &commands, from: result.policy.forbiddenCommands)
         }
@@ -669,6 +677,15 @@ public struct ReportWriter {
         project.detectedFiles.contains { file in
             isSSHPrivateKeyFilename(file)
         }
+    }
+
+    private func hasDetectedSecretValueFile(_ project: ProjectInfo) -> Bool {
+        hasSecretDotEnvFile(project)
+            || hasSecretEnvrcFile(project)
+            || hasNetrcFile(project)
+            || hasPackageManagerAuthConfig(project)
+            || hasProjectCloudOrContainerCredentialFiles(project)
+            || hasSSHPrivateKeyFile(project)
     }
 
     private func isSSHPrivateKeyFilename(_ file: String) -> Bool {

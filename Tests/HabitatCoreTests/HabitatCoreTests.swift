@@ -1657,6 +1657,8 @@ struct HabitatCoreTests {
         #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.netrc` files."))
         #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Do not read, open, copy, upload, or archive local cloud or container credential files, or print cloud auth tokens."))
+        #expect(context.contains("Do not run recursive project search unless detected secret-bearing files are excluded."))
+        #expect(context.contains("Do not copy, sync, or archive the project without excluding detected secret-bearing files."))
         #expect(!context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(!context.contains(secretValue))
     }
@@ -2725,10 +2727,12 @@ struct HabitatCoreTests {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         for command in recursiveSearchCommands {
             #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
         }
+        #expect(context.contains("Do not run recursive project search unless detected secret-bearing files are excluded."))
 
         let exampleOnlyProjectURL = try makeProject(files: [
             ".env.example": "TOKEN=\n",
@@ -2775,10 +2779,12 @@ struct HabitatCoreTests {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         for command in bulkExportCommands {
             #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
         }
+        #expect(context.contains("Do not copy, sync, or archive the project without excluding detected secret-bearing files."))
 
         let exampleOnlyProjectURL = try makeProject(files: [
             ".env.example": "TOKEN=\n",
