@@ -153,6 +153,24 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func pythonUvMissingToolExampleMatchesCurrentGuidanceShape() throws {
+        let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        let context = try String(
+            contentsOf: rootURL.appendingPathComponent("examples/python-uv-missing-tool/agent_context.md"),
+            encoding: .utf8
+        )
+
+        #expect(context.contains("- Verify `uv` before running uv commands."))
+        #expect(context.contains("- Prefer read-only inspection before mutation."))
+        #expect(context.contains("- Ask before `running uv commands before uv is available`."))
+        #expect(context.contains("- Ask before `uv sync`."))
+        #expect(context.contains("reason codes: `dependency_mutation`, `dependency_resolution_mutation`, `version_manager_mutation`, more"))
+        #expect(context.contains("Project files prefer uv, but uv was not found on PATH; ask before running uv commands or substituting another package manager."))
+        #expect(!context.contains("Do not auto-install uv."))
+        #expect(!context.contains("Ask before using `pip install`, `pip sync`, or `python -m pip install` as a fallback."))
+    }
+
+    @Test
     func swiftPackageExampleArtifactMetadataMatchesFiles() throws {
         let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
         let exampleDirectories = [

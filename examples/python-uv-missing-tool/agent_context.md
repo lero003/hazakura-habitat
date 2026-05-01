@@ -1,23 +1,32 @@
 # Agent Context
 
 ## Use
-- `uv.lock` indicates uv is the preferred dependency workflow.
+- Verify `uv` before running uv commands.
 
 ## Prefer
-- Prefer read-only project inspection until uv availability is verified.
+- Prefer read-only inspection before mutation.
 
 ## Ask First
-- Ask before running uv commands because `uv` was not found on PATH.
-- Ask before using `pip install`, `pip sync`, or `python -m pip install` as a fallback.
-- Ask before creating or recreating virtual environments.
+- Ask before `running uv commands before uv is available`.
+- Ask before `uv sync`.
+- Ask before `uv add`.
+- Ask before `uv remove`.
+- Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`.
+- 257 additional Ask First commands or command families in `command_policy.md` (reason codes: `dependency_mutation`, `dependency_resolution_mutation`, `version_manager_mutation`, more).
 
 ## Do Not
-- Do not silently fall back to pip for dependency changes.
-- Do not auto-install uv.
+- Do not run `sudo`.
+- Do not delete files outside the selected project.
+- Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys.
+- Do not read, open, copy, upload, or archive local cloud or container credential files, or print cloud auth tokens.
 - Do not dump environment variables.
+- Do not read clipboard contents.
+- Do not read shell history.
+- Do not inspect browser profiles, cookies, history, or local mail data.
+- Do not execute remote scripts through `curl` or `wget` piped into a shell.
 
 ## Notes
 - Scanned at: example timestamp
 - Project: example Python uv project
-- Mismatch: Preferred tool appears to be uv, but uv is missing.
-- Missing tools are scan data, not fatal scan failures.
+- Mismatch: Project files prefer uv, but uv was not found on PATH; ask before running uv commands or substituting another package manager.
+- uv --version unavailable: env: uv: No such file or directory
