@@ -380,31 +380,41 @@ public struct ReportWriter {
         let shownCommands = Array(commands.prefix(limit))
         var lines = shownCommands.map { "- Ask before `\($0)`." }
 
-        if shouldSummarizeHiddenGitMutationGuards(commands: commands, shownCommands: shownCommands) {
+        let hiddenGitGuardsSummarized = shouldSummarizeHiddenGitMutationGuards(commands: commands, shownCommands: shownCommands)
+        if hiddenGitGuardsSummarized {
             lines.append("- Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`.")
         }
 
         if commands.count > limit {
             let hiddenCommands = Array(commands.dropFirst(limit))
             let hiddenCount = commands.count - limit
-            let reasonSuffix = hiddenAskFirstReasonSuffix(for: hiddenCommands)
+            let reasonSuffix = hiddenAskFirstReasonSuffix(
+                for: hiddenCommands,
+                gitGuardsSummarized: hiddenGitGuardsSummarized
+            )
             lines.append("- \(hiddenCount) additional Ask First commands or command families in `command_policy.md`\(reasonSuffix).")
         }
 
         return lines
     }
 
-    private func hiddenAskFirstReasonSuffix(for commands: [String]) -> String {
-        let reasonCodes = commands.reduce(into: [String]()) { codes, command in
+    private func hiddenAskFirstReasonSuffix(for commands: [String], gitGuardsSummarized: Bool) -> String {
+        let commandsForReasonSummary = gitGuardsSummarized
+            ? commands.filter { !PolicyReasonCatalog.isGitOrGitHubMutationGuard($0) }
+            : commands
+        let reasonCodes = commandsForReasonSummary.reduce(into: [String]()) { codes, command in
             let code = PolicyReasonCatalog.askFirstReason(for: command).code
             if !codes.contains(code) {
                 codes.append(code)
             }
         }
-        guard !reasonCodes.isEmpty else { return "" }
+        guard !reasonCodes.isEmpty else {
+            return gitGuardsSummarized ? " (Git/GitHub guards summarized above)" : ""
+        }
         let summarizedCodes = reasonCodes.prefix(3).map { "`\($0)`" }.joined(separator: ", ")
         let overflow = reasonCodes.count > 3 ? ", more" : ""
-        return " (reason codes: \(summarizedCodes)\(overflow))"
+        let label = gitGuardsSummarized ? "other reason codes" : "reason codes"
+        return " (\(label): \(summarizedCodes)\(overflow))"
     }
 
     private func shouldSummarizeHiddenGitMutationGuards(commands: [String], shownCommands: [String]) -> Bool {

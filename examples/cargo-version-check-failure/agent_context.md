@@ -12,7 +12,7 @@
 - Ask before `cargo update`.
 - Ask before `cargo remove`.
 - Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`.
-- 257 additional Ask First commands or command families in `command_policy.md` (reason codes: `dependency_mutation`, `dependency_resolution_mutation`, `version_manager_mutation`, more).
+- 257 additional Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_mutation`, `dependency_resolution_mutation`, `version_manager_mutation`, more).
 
 ## Do Not
 - Do not run `sudo`.

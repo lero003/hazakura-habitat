@@ -165,7 +165,7 @@ struct HabitatCoreTests {
         #expect(context.contains("- Prefer read-only inspection before mutation."))
         #expect(context.contains("- Ask before `running uv commands before uv is available`."))
         #expect(context.contains("- Ask before `uv sync`."))
-        #expect(context.contains("reason codes: `dependency_mutation`, `dependency_resolution_mutation`, `version_manager_mutation`, more"))
+        #expect(context.contains("other reason codes: `dependency_mutation`, `dependency_resolution_mutation`, `version_manager_mutation`, more"))
         #expect(context.contains("Project files prefer uv, but uv was not found on PATH; ask before running uv commands or substituting another package manager."))
         #expect(!context.contains("Do not auto-install uv."))
         #expect(!context.contains("Ask before using `pip install`, `pip sync`, or `python -m pip install` as a fallback."))
@@ -185,7 +185,7 @@ struct HabitatCoreTests {
         #expect(context.contains("- Ask before `cargo add`."))
         #expect(context.contains("- Ask before `cargo update`."))
         #expect(context.contains("- Ask before `cargo remove`."))
-        #expect(context.contains("reason codes: `dependency_mutation`, `dependency_resolution_mutation`, `version_manager_mutation`, more"))
+        #expect(context.contains("other reason codes: `dependency_mutation`, `dependency_resolution_mutation`, `version_manager_mutation`, more"))
         #expect(context.contains("cargo --version failed with exit code 1: cargo: rustup toolchain is not installed"))
         #expect(!context.contains("Use `cargo` because project files point to it."))
         #expect(!context.contains("Prefer `cargo test`."))
@@ -5608,7 +5608,7 @@ struct HabitatCoreTests {
         #expect(context.contains("Ask before `modifying version manager files`."))
         #expect(!context.contains("Ask before `brew install`."))
         #expect(context.contains("Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`."))
-        #expect(context.contains("4 additional Ask First commands or command families in `command_policy.md` (reason codes: `git_mutation`, `dependency_mutation`)."))
+        #expect(context.contains("4 additional Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_mutation`)."))
         let swiftPackageUpdateIndex = try #require(policy.range(of: "`swift package update`")?.lowerBound)
         let modifyingLockfilesIndex = try #require(policy.range(of: "`modifying lockfiles`")?.lowerBound)
         let gitAddIndex = try #require(policy.range(of: "`git add`")?.lowerBound)
@@ -5656,7 +5656,7 @@ struct HabitatCoreTests {
         #expect(context.contains("Ask before `swift package update`."))
         #expect(context.contains("Ask before `modifying version manager files`."))
         #expect(context.contains("Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`."))
-        #expect(context.contains("4 additional Ask First commands or command families in `command_policy.md` (reason codes: `git_mutation`)."))
+        #expect(context.contains("4 additional Ask First commands or command families in `command_policy.md` (Git/GitHub guards summarized above)."))
         #expect(!context.contains("Ask before `git add`."))
     }
 
@@ -6633,6 +6633,45 @@ struct HabitatCoreTests {
         #expect(context.split(whereSeparator: \.isNewline).count <= 50)
         #expect(report.contains("Warning 12"))
         #expect(report.contains("swift --version failed with exit code 6: failure 6"))
+    }
+
+    @Test
+    func agentContextOverflowReasonCodesAvoidRepeatingSummarizedGitGuards() throws {
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let result = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [.init(name: "swift", paths: ["/usr/bin/swift"])], versions: [.init(name: "swift", version: "Swift version 6.1", available: true)]),
+            policy: .init(
+                preferredCommands: ["swift test"],
+                askFirstCommands: [
+                    "swift package update",
+                    "swift package resolve",
+                    "modifying lockfiles",
+                    "modifying version manager files",
+                    "git clean",
+                    "git reset --hard",
+                    "npm install",
+                    "brew cleanup",
+                    "npx",
+                ],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        assertAgentContextContract(context)
+        #expect(context.contains("Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`."))
+        #expect(context.contains("5 additional Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_mutation`, `user_approval_required`, `ephemeral_package_execution`)."))
+        #expect(!context.contains("additional Ask First commands or command families in `command_policy.md` (reason codes: `git_mutation`"))
     }
 
     @Test
