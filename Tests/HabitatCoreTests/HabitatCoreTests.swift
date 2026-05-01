@@ -80,6 +80,59 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func habitatSkillHelperPrefersBuildBinaryOverDistBinary() throws {
+        let fileManager = FileManager.default
+        let projectURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let outputURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let markerURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+        try "not a valid manifest".write(
+            to: projectURL.appendingPathComponent("Package.swift"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try fileManager.createDirectory(
+            at: projectURL.appendingPathComponent("Sources/habitat-scan"),
+            withIntermediateDirectories: true
+        )
+        try "".write(
+            to: projectURL.appendingPathComponent("Sources/habitat-scan/main.swift"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        try writeExecutableScript(
+            projectURL.appendingPathComponent(".build/debug/habitat-scan"),
+            contents: """
+            #!/usr/bin/env bash
+            printf 'build\\n' > "$HABITAT_HELPER_MARKER"
+            """
+        )
+        try writeExecutableScript(
+            projectURL.appendingPathComponent("dist/habitat-scan"),
+            contents: """
+            #!/usr/bin/env bash
+            printf 'dist\\n' > "$HABITAT_HELPER_MARKER"
+            """
+        )
+
+        let scriptURL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
+            .appendingPathComponent("skills/hazakura-habitat/scripts/run_habitat_scan.sh")
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [scriptURL.path, projectURL.path, outputURL.path]
+        process.environment = ProcessInfo.processInfo.environment.merging([
+            "HABITAT_HELPER_MARKER": markerURL.path
+        ]) { _, new in new }
+
+        try process.run()
+        process.waitUntilExit()
+
+        #expect(process.terminationStatus == 0)
+        #expect(try String(contentsOf: markerURL, encoding: .utf8) == "build\n")
+    }
+
+    @Test
     func scanPrefersPnpmWhenLockfileExists() throws {
         let projectURL = try makeProject(files: [
             "pnpm-lock.yaml": "lockfile",
@@ -6727,6 +6780,12 @@ struct HabitatCoreTests {
             "## Forbidden",
             "## If Dependency Installation Seems Necessary"
         ])
+    }
+
+    private func writeExecutableScript(_ url: URL, contents: String) throws {
+        try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try contents.write(to: url, atomically: true, encoding: .utf8)
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: url.path)
     }
 
     private func makeProject(files: [String: String]) throws -> URL {

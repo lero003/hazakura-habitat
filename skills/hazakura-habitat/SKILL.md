@@ -51,10 +51,13 @@ habitat-scan scan --project . --output "${TMPDIR:-/tmp}/hazakura-habitat/$(basen
 
 Choose the least surprising setup path that fits the user's existing authorization:
 
-1. Use an existing `habitat-scan` binary from `PATH`, `dist/habitat-scan`, or `.build/debug/habitat-scan`.
+1. Use `HABITAT_SCAN=/absolute/path/to/habitat-scan` when the user already chose a specific verified binary.
 2. If working inside the Hazakura Habitat source repository, run `swift build` and use `./.build/debug/habitat-scan`.
-3. If network use and tool installation are already authorized, download a GitHub Release asset and verify checksums before running it.
-4. Do not use `curl | sh`, mutate shell startup files, or install globally unless the user explicitly authorized that class of mutation.
+3. Otherwise, use an existing `habitat-scan` binary from `PATH`, `.build/debug/habitat-scan`, or `dist/habitat-scan`.
+4. If network use and tool installation are already authorized, download a GitHub Release asset and verify checksums before running it.
+5. Do not use `curl | sh`, mutate shell startup files, or install globally unless the user explicitly authorized that class of mutation.
+
+The bundled helper treats a Hazakura Habitat source checkout specially: unless `HABITAT_SCAN` explicitly selects another binary, it uses or rebuilds that checkout's `./.build/debug/habitat-scan` instead of falling back to packaged or installed binaries, so self-scans reflect the current generator contract.
 
 If Habitat cannot be run, continue conservatively and mention that the scan was unavailable.
 

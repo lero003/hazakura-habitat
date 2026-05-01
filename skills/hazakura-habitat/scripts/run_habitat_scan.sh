@@ -14,27 +14,35 @@ find_binary() {
     return 0
   fi
 
+  if [[ -f "$PROJECT_ABS/Package.swift" && -f "$PROJECT_ABS/Sources/habitat-scan/main.swift" ]]; then
+    if [[ -x "$PROJECT_ABS/.build/debug/habitat-scan" ]]; then
+      printf '%s\n' "$PROJECT_ABS/.build/debug/habitat-scan"
+      return 0
+    fi
+
+    if swift build --package-path "$PROJECT_ABS" >/dev/null; then
+      printf '%s\n' "$PROJECT_ABS/.build/debug/habitat-scan"
+      return 0
+    fi
+
+    return 1
+  fi
+
   if command -v habitat-scan >/dev/null 2>&1; then
     command -v habitat-scan
     return 0
   fi
 
   for candidate in \
-    "$PROJECT_ABS/dist/habitat-scan" \
     "$PROJECT_ABS/.build/debug/habitat-scan" \
-    "$REPO_ROOT/dist/habitat-scan" \
-    "$REPO_ROOT/.build/debug/habitat-scan"; do
+    "$REPO_ROOT/.build/debug/habitat-scan" \
+    "$PROJECT_ABS/dist/habitat-scan" \
+    "$REPO_ROOT/dist/habitat-scan"; do
     if [[ -x "$candidate" ]]; then
       printf '%s\n' "$candidate"
       return 0
     fi
   done
-
-  if [[ -f "$PROJECT_ABS/Package.swift" && -f "$PROJECT_ABS/Sources/habitat-scan/main.swift" ]]; then
-    swift build --package-path "$PROJECT_ABS" >/dev/null
-    printf '%s\n' "$PROJECT_ABS/.build/debug/habitat-scan"
-    return 0
-  fi
 
   return 1
 }
