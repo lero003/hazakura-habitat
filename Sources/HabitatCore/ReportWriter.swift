@@ -461,6 +461,12 @@ public struct ReportWriter {
                 || command == "modifying version manager files"
         }
 
+        appendAskFirstCommands(
+            from: result.policy.askFirstCommands,
+            to: &prioritized,
+            where: PolicyReasonCatalog.isGitOrGitHubMutationGuard
+        )
+
         for command in result.policy.askFirstCommands where !prioritized.contains(command) {
             prioritized.append(command)
         }

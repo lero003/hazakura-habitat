@@ -5530,6 +5530,8 @@ struct HabitatCoreTests {
                     "swift package resolve",
                     "brew install",
                     "brew update",
+                    "git add",
+                    "git commit",
                     "modifying lockfiles",
                     "modifying version manager files"
                 ],
@@ -5548,12 +5550,15 @@ struct HabitatCoreTests {
         #expect(context.contains("Ask before `modifying lockfiles`."))
         #expect(context.contains("Ask before `modifying version manager files`."))
         #expect(!context.contains("Ask before `brew install`."))
-        #expect(context.contains("2 additional Ask First commands or command families in `command_policy.md` (reason codes: `dependency_mutation`)."))
+        #expect(context.contains("Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`."))
+        #expect(context.contains("4 additional Ask First commands or command families in `command_policy.md` (reason codes: `git_mutation`, `dependency_mutation`)."))
         let swiftPackageUpdateIndex = try #require(policy.range(of: "`swift package update`")?.lowerBound)
         let modifyingLockfilesIndex = try #require(policy.range(of: "`modifying lockfiles`")?.lowerBound)
+        let gitAddIndex = try #require(policy.range(of: "`git add`")?.lowerBound)
         let brewInstallIndex = try #require(policy.range(of: "`brew install`")?.lowerBound)
         #expect(swiftPackageUpdateIndex < brewInstallIndex)
         #expect(modifyingLockfilesIndex < brewInstallIndex)
+        #expect(gitAddIndex < brewInstallIndex)
     }
 
     @Test

@@ -62,7 +62,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - Irrelevant missing-tool diagnostics stay out of the short agent context.
 - The generated command policy states that it is advisory and does not block commands.
 - The generated command policy now has a compact `Policy Index` with section counts before the long command lists.
-- `Review First` now carries reason codes, and the `Reason Codes` legend gives compact explanations without expanding `agent_context.md`.
+- `Review First` now carries reason codes, keeps Git/GitHub mutation guards ahead of broad baseline package-manager guards, and the `Reason Codes` legend gives compact explanations without expanding `agent_context.md`.
 - Full `Ask First` and `Forbidden` entries now carry reason code annotations, so long policy lists remain explainable at the point of use.
 - The `agent_context.md` Ask First overflow line now names the leading hidden reason codes, so Codex can tell whether hidden approval rules are dependency, Git, or other safety guards before opening the full policy.
 - Ephemeral package execution commands now carry their own `ephemeral_package_execution` reason code, so `npx`/`dlx`/`uvx`/`pipx run` guards no longer collapse into generic approval metadata.
@@ -85,6 +85,7 @@ Improve:
 - Make `command_policy.md` easier to navigate when it is hundreds of lines long.
 - Separate project-relevant policy from broad baseline safety policy more clearly.
 - Continue reason-code groundwork so large policy sections are explainable and eventually groupable.
+- Keep Git/GitHub mutation guards visible before broad baseline package-manager guards when reviewing the full command policy.
 - Continue output shape metadata and tests that catch growth before it becomes normal.
 - Update representative examples whenever generated output wording or structure changes.
 
