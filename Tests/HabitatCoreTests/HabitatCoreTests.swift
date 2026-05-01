@@ -2482,10 +2482,18 @@ struct HabitatCoreTests {
         }
 
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
         #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.env` files."))
         #expect(context.contains("Do not source or load secret environment files."))
+        #expect(context.contains("Do not render Docker Compose config while secret environment files may be interpolated."))
         #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."))
+        #expect(policy.contains("`docker compose config`"))
+        #expect(policy.contains("`docker-compose config`"))
+        #expect(policy.contains("`docker compose config --environment`"))
+        #expect(policy.contains("`docker-compose config --environment`"))
+        #expect(policy.contains("`docker compose --env-file .env config`"))
+        #expect(policy.contains("`docker-compose --env-file .env.local config`"))
         #expect(!context.contains("Do not read `.env` values."))
         #expect(!context.contains("Do not read private keys."))
         #expect(!context.contains("Do not run `read"))
@@ -2522,6 +2530,10 @@ struct HabitatCoreTests {
         }
 
         for command in ["direnv allow", "direnv reload", "direnv export <shell>", "direnv exec . <command>"] {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        for command in ["render Docker Compose config when secret environment files exist", "docker compose config", "docker-compose config", "docker compose config --environment", "docker-compose config --environment", "docker compose --env-file .env config", "docker-compose --env-file .envrc.local config"] {
             #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
         }
 

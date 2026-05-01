@@ -226,6 +226,8 @@ public struct ReportWriter {
             return "Do not inspect browser profiles, cookies, history, or local mail data."
         case "load secret environment files":
             return "Do not source or load secret environment files."
+        case "render Docker Compose config when secret environment files exist":
+            return "Do not render Docker Compose config while secret environment files may be interpolated."
         case "read .env values":
             return "Do not read, compare, open, edit, copy, move, sync, upload, or archive `.env` files."
         case "read .envrc values":
@@ -549,6 +551,7 @@ public struct ReportWriter {
 
         if hasSecretDotEnvFile(result.project) || hasSecretEnvrcFile(result.project) {
             append("load secret environment files", to: &commands, from: result.policy.forbiddenCommands)
+            append("render Docker Compose config when secret environment files exist", to: &commands, from: result.policy.forbiddenCommands)
         }
 
         if hasNetrcFile(result.project) {

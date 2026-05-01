@@ -563,6 +563,7 @@ public struct HabitatScanner {
                 "read private keys"
             ] + secretFileAccessForbiddenCommands(project)
             + secretEnvironmentFileLoadForbiddenCommands(project)
+            + secretEnvironmentRenderForbiddenCommands(project)
             + recursiveSecretSearchForbiddenCommands(project)
             + secretProjectBulkExportForbiddenCommands(project)
         )
@@ -1560,6 +1561,24 @@ public struct HabitatScanner {
         }
 
         return commands
+    }
+
+    private func secretEnvironmentRenderForbiddenCommands(_ project: ProjectInfo) -> [String] {
+        let files = secretEnvironmentValueFiles(project)
+        guard !files.isEmpty else { return [] }
+
+        return [
+            "render Docker Compose config when secret environment files exist",
+            "docker compose config",
+            "docker-compose config",
+            "docker compose config --environment",
+            "docker-compose config --environment",
+        ] + files.flatMap { file in
+            [
+                "docker compose --env-file \(file) config",
+                "docker-compose --env-file \(file) config",
+            ]
+        }
     }
 
     private func recursiveSecretSearchForbiddenCommands(_ project: ProjectInfo) -> [String] {
