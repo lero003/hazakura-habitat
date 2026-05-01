@@ -7,16 +7,21 @@ public struct ReportWriter {
 
     public func write(scanResult: ScanResult, outputURL: URL) throws {
         try FileManager.default.createDirectory(at: outputURL, withIntermediateDirectories: true)
-        let agentContextText = agentContext(scanResult)
-        let commandPolicyText = commandPolicy(scanResult)
-        let environmentReportText = environmentReport(scanResult)
+        let result = scanResult.withPolicy(
+            scanResult.policy.withReviewFirstCommandReasons(
+                commandPolicyReviewFirstCommandReasons(scanResult)
+            )
+        )
+        let agentContextText = agentContext(result)
+        let commandPolicyText = commandPolicy(result)
+        let environmentReportText = environmentReport(result)
         let artifacts = [
             markdownArtifact(name: "agent_context.md", role: "agent_context", readOrder: 1, text: agentContextText),
             markdownArtifact(name: "command_policy.md", role: "command_policy", readOrder: 2, text: commandPolicyText),
             markdownArtifact(name: "environment_report.md", role: "environment_report", readOrder: 3, text: environmentReportText)
         ]
 
-        try writeJSON(scanResult: scanResult.withArtifacts(artifacts), outputURL: outputURL)
+        try writeJSON(scanResult: result.withArtifacts(artifacts), outputURL: outputURL)
         try writeText(agentContextText, to: outputURL.appendingPathComponent("agent_context.md"))
         try writeText(commandPolicyText, to: outputURL.appendingPathComponent("command_policy.md"))
         try writeText(environmentReportText, to: outputURL.appendingPathComponent("environment_report.md"))
@@ -250,11 +255,26 @@ public struct ReportWriter {
     }
 
     private func commandPolicyReviewFirst(_ result: ScanResult) -> [String] {
+        let reasons = result.policy.reviewFirstCommandReasons.isEmpty
+            ? commandPolicyReviewFirstCommandReasons(result)
+            : result.policy.reviewFirstCommandReasons
+
+        return reasons.map {
+            "`\($0.command)` (`\($0.reasonCode)`) - \($0.reason)"
+        }
+    }
+
+    private func commandPolicyReviewFirstCommandReasons(_ result: ScanResult) -> [PolicyCommandReason] {
         prioritizedAskFirstCommands(result)
             .prefix(6)
-            .map {
-                let reason = PolicyReasonCatalog.askFirstReason(for: $0)
-                return "`\($0)` (`\(reason.code)`) - \(reason.text)"
+            .map { command in
+                let reason = PolicyReasonCatalog.askFirstReason(for: command)
+                return PolicyCommandReason(
+                    command: command,
+                    classification: "ask_first",
+                    reasonCode: reason.code,
+                    reason: reason.text
+                )
             }
     }
 

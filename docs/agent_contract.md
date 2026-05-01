@@ -725,6 +725,14 @@ Top-level shape:
         "reasonCode": "privileged_command",
         "reason": "Privileged commands can mutate the host outside the project."
       }
+    ],
+    "reviewFirstCommandReasons": [
+      {
+        "command": "pnpm install",
+        "classification": "ask_first",
+        "reasonCode": "dependency_mutation",
+        "reason": "Dependency install, update, or removal can mutate project state."
+      }
     ]
   },
   "changes": [
@@ -749,6 +757,7 @@ Compatibility:
 - `policy.reasonCodes` should be emitted in the fixed catalog order, filtered to codes present in the generated policy, so metadata diffs do not depend on command list ordering.
 - `policy.commandCounts` records the number of preferred, Ask First, Forbidden, and reason-annotated commands so agents can estimate policy size and reason coverage before reading a long `command_policy.md`. Older `0.x` scans may omit it; consumers can derive counts from the command arrays.
 - `policy.commandReasons` records per-command `classification`, `reasonCode`, and `reason` metadata for generated Ask First and Forbidden commands. Keep it additive to the existing command arrays so agents can explain a command decision without parsing Markdown.
+- `policy.reviewFirstCommandReasons` records the same highest-priority Ask First commands rendered in `command_policy.md` `Review First`, including `classification`, `reasonCode`, and `reason`. Use it when a machine consumer needs the short approval checklist without parsing Markdown. Older `0.x` scans may omit it; consumers can fall back to `commandReasons` or `askFirstCommands`.
 - Generate Markdown from this JSON when possible.
 - `project.symlinkedFiles` records detected project signals or safety-relevant directories that are symbolic links. Symlinked metadata files should not be read for runtime or package-manager hints, symlinked workflow files should not select the package manager or concrete preferred commands, and `.ssh` symlink targets should not be traversed for private-key filenames.
 - `project.unsafeRuntimeHintFiles` records runtime hint files whose values were not emitted because they were oversized or not simple version-like strings, including direct runtime files, `.tool-versions`, `mise.toml`, and `.mise.toml`.

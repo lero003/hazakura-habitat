@@ -5352,6 +5352,14 @@ struct HabitatCoreTests {
         #expect(decoded.artifacts.allSatisfy { $0.format == "markdown" })
         #expect(decoded.artifacts.map(\.lineLimit) == [120, nil, nil])
         #expect(decoded.artifacts.map(\.withinLineLimit) == [true, nil, nil])
+        #expect(decoded.policy.reviewFirstCommandReasons == [
+            .init(
+                command: "pnpm install",
+                classification: "ask_first",
+                reasonCode: "dependency_mutation",
+                reason: "Dependency install, update, or removal can mutate project state."
+            )
+        ])
         let agentContextText = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         #expect(decoded.artifacts.first?.lineCount == lineCount(agentContextText))
         #expect((decoded.artifacts.first?.lineCount ?? 0) <= (decoded.artifacts.first?.lineLimit ?? 0))
@@ -6489,6 +6497,7 @@ struct HabitatCoreTests {
 
         #expect(decoded.reasonCodes.isEmpty)
         #expect(decoded.commandReasons.isEmpty)
+        #expect(decoded.reviewFirstCommandReasons.isEmpty)
     }
 
     @Test

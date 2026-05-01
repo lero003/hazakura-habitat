@@ -68,6 +68,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - Ephemeral package execution commands now carry their own `ephemeral_package_execution` reason code, so `npx`/`dlx`/`uvx`/`pipx run` guards no longer collapse into generic approval metadata.
 - `scan_result.json` now records generated Markdown artifact roles, agent reading role, read order, line counts, the `agent_context.md` line limit, and whether line-limited outputs are within budget, so agents can identify and read the short working context first without parsing every report.
 - `scan_result.json` now records `policy.commandCounts`, so agents can see policy size and reason coverage before deciding whether to inspect the full `command_policy.md`.
+- `scan_result.json` now records `policy.reviewFirstCommandReasons`, so agents and tools can read the highest-priority approval checklist with reasons without parsing `command_policy.md`.
 - The bundled helper must use the current source checkout for self-scans instead of silently falling back to `dist/`, otherwise a stale local release artifact can hide new output-contract sections.
 
 ## v0.2 Findings

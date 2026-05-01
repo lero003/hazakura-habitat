@@ -81,6 +81,24 @@ public struct ScanResult: Codable {
         )
     }
 
+    public func withPolicy(_ policy: PolicySummary) -> ScanResult {
+        ScanResult(
+            schemaVersion: schemaVersion,
+            generatorVersion: generatorVersion,
+            scannedAt: scannedAt,
+            projectPath: projectPath,
+            system: system,
+            commands: commands,
+            project: project,
+            tools: tools,
+            policy: policy,
+            warnings: warnings,
+            diagnostics: diagnostics,
+            changes: changes,
+            artifacts: artifacts
+        )
+    }
+
     private enum CodingKeys: String, CodingKey {
         case schemaVersion
         case generatorVersion
@@ -340,13 +358,15 @@ public struct PolicySummary: Codable {
     public let commandCounts: PolicyCommandCounts
     public let reasonCodes: [PolicyReasonCode]
     public let commandReasons: [PolicyCommandReason]
+    public let reviewFirstCommandReasons: [PolicyCommandReason]
 
     public init(
         preferredCommands: [String],
         askFirstCommands: [String],
         forbiddenCommands: [String],
         reasonCodes: [PolicyReasonCode] = [],
-        commandReasons: [PolicyCommandReason] = []
+        commandReasons: [PolicyCommandReason] = [],
+        reviewFirstCommandReasons: [PolicyCommandReason] = []
     ) {
         self.preferredCommands = preferredCommands
         self.askFirstCommands = askFirstCommands
@@ -359,6 +379,7 @@ public struct PolicySummary: Codable {
         )
         self.reasonCodes = reasonCodes
         self.commandReasons = commandReasons
+        self.reviewFirstCommandReasons = reviewFirstCommandReasons
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -368,6 +389,7 @@ public struct PolicySummary: Codable {
         case commandCounts
         case reasonCodes
         case commandReasons
+        case reviewFirstCommandReasons
     }
 
     public init(from decoder: Decoder) throws {
@@ -377,6 +399,7 @@ public struct PolicySummary: Codable {
         forbiddenCommands = try container.decode([String].self, forKey: .forbiddenCommands)
         reasonCodes = try container.decodeIfPresent([PolicyReasonCode].self, forKey: .reasonCodes) ?? []
         commandReasons = try container.decodeIfPresent([PolicyCommandReason].self, forKey: .commandReasons) ?? []
+        reviewFirstCommandReasons = try container.decodeIfPresent([PolicyCommandReason].self, forKey: .reviewFirstCommandReasons) ?? []
         commandCounts = PolicyCommandCounts(
             preferred: preferredCommands.count,
             askFirst: askFirstCommands.count,
@@ -393,5 +416,17 @@ public struct PolicySummary: Codable {
         try container.encode(commandCounts, forKey: .commandCounts)
         try container.encode(reasonCodes, forKey: .reasonCodes)
         try container.encode(commandReasons, forKey: .commandReasons)
+        try container.encode(reviewFirstCommandReasons, forKey: .reviewFirstCommandReasons)
+    }
+
+    public func withReviewFirstCommandReasons(_ reviewFirstCommandReasons: [PolicyCommandReason]) -> PolicySummary {
+        PolicySummary(
+            preferredCommands: preferredCommands,
+            askFirstCommands: askFirstCommands,
+            forbiddenCommands: forbiddenCommands,
+            reasonCodes: reasonCodes,
+            commandReasons: commandReasons,
+            reviewFirstCommandReasons: reviewFirstCommandReasons
+        )
     }
 }

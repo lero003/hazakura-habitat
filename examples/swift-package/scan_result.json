@@ -204,6 +204,44 @@
         "reasonCode": "remote_script_execution",
         "reason": "Remote scripts must not be executed without review."
       }
+    ],
+    "reviewFirstCommandReasons": [
+      {
+        "command": "swift package update",
+        "classification": "ask_first",
+        "reasonCode": "dependency_resolution_mutation",
+        "reason": "Dependency resolution or lockfile changes can change project state."
+      },
+      {
+        "command": "swift package resolve",
+        "classification": "ask_first",
+        "reasonCode": "dependency_resolution_mutation",
+        "reason": "Dependency resolution or lockfile changes can change project state."
+      },
+      {
+        "command": "modifying lockfiles",
+        "classification": "ask_first",
+        "reasonCode": "dependency_resolution_mutation",
+        "reason": "Dependency resolution or lockfile changes can change project state."
+      },
+      {
+        "command": "git add",
+        "classification": "ask_first",
+        "reasonCode": "git_mutation",
+        "reason": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+      },
+      {
+        "command": "git commit",
+        "classification": "ask_first",
+        "reasonCode": "git_mutation",
+        "reason": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+      },
+      {
+        "command": "git push",
+        "classification": "ask_first",
+        "reasonCode": "git_mutation",
+        "reason": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+      }
     ]
   },
   "warnings": [],
