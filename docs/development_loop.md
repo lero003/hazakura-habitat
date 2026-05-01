@@ -31,6 +31,37 @@ Keep the slice focused enough to review and revert. Avoid broad scanner expansio
 
 If a useful improvement is larger than one hour, split it at an artifact boundary: scan data first, generated guidance second, broader fixtures or ADRs third.
 
+## v0.2 Automation Handoff
+
+Use this handoff when starting automated work from the current public `v0.1.1` baseline:
+
+```text
+Start v0.2 work from the current public v0.1.1 baseline. Keep v0.1.1 immutable.
+
+Focus on Output Contract Hardening:
+- stable agent_context.md structure
+- line/shape budget tests for agent-facing Markdown
+- advisory command_policy.md clarity
+- policy reason text and reason_code groundwork
+- generated-output, README, examples, and tests consistency
+
+Avoid broad feature expansion:
+- no MCP server
+- no GUI
+- no automatic install/update/repair
+- no command enforcement
+- no new ecosystem breadth unless it directly improves agent command decisions
+
+When generated output changes, update tests and representative examples in the same slice.
+When versioned output behavior changes after a public release, do not move existing tags; use a transparent patch release.
+```
+
+The v0.2 acceptance question is:
+
+> Does this make the generated output shorter, more stable, more explainable, or more reliable for an AI agent's next command choice?
+
+If not, keep it out of v0.2.
+
 ## Definition of Done
 
 A change is done when:

@@ -81,6 +81,13 @@ Purpose:
 
 Make `agent_context.md`, `command_policy.md`, and `scan_result.json` feel like stable contracts rather than incidental reports.
 
+Starting point:
+
+- Begin from the public `v0.1.1` baseline.
+- Keep released tags immutable.
+- Treat generated-output changes as product behavior, not docs-only polish.
+- Update README, examples, and tests whenever generated artifacts change shape or meaning.
+
 Focus:
 
 - fixed `agent_context.md` structure
@@ -137,6 +144,15 @@ Completion criteria:
 - JSON includes schema and generator version metadata.
 - Output bloat is caught by tests.
 - Agent-facing output and audit/debug reporting are clearly separated.
+
+Do not spend v0.2 on:
+
+- MCP server
+- GUI
+- automatic install/update/repair
+- command enforcement
+- broad new ecosystem coverage
+- environment dashboard features
 
 ## v0.3: Agent Behavior Evaluation
 
