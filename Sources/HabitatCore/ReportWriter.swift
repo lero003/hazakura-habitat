@@ -40,11 +40,25 @@ public struct ReportWriter {
             name: name,
             role: role,
             format: "markdown",
+            agentUse: artifactAgentUse(role: role),
             lineCount: artifactLineCount,
             readOrder: readOrder,
             lineLimit: lineLimit,
             withinLineLimit: lineLimit.map { artifactLineCount <= $0 }
         )
+    }
+
+    private func artifactAgentUse(role: String) -> String {
+        switch role {
+        case "agent_context":
+            return "read_first"
+        case "command_policy":
+            return "consult_before_risky_commands"
+        case "environment_report":
+            return "debug_audit_only"
+        default:
+            return "reference"
+        }
     }
 
     private func lineCount(_ text: String) -> Int {

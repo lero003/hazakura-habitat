@@ -6,6 +6,7 @@
       "name": "agent_context.md",
       "role": "agent_context",
       "format": "markdown",
+      "agentUse": "read_first",
       "readOrder": 1,
       "lineCount": 29,
       "lineLimit": 120,
@@ -15,6 +16,7 @@
       "name": "command_policy.md",
       "role": "command_policy",
       "format": "markdown",
+      "agentUse": "consult_before_risky_commands",
       "readOrder": 2,
       "lineCount": 53
     },
@@ -22,6 +24,7 @@
       "name": "environment_report.md",
       "role": "environment_report",
       "format": "markdown",
+      "agentUse": "debug_audit_only",
       "readOrder": 3,
       "lineCount": 32
     }

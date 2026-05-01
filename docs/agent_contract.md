@@ -651,6 +651,7 @@ Top-level shape:
       "name": "agent_context.md",
       "role": "agent_context",
       "format": "markdown",
+      "agentUse": "read_first",
       "readOrder": 1,
       "lineCount": 33,
       "lineLimit": 120,
@@ -660,6 +661,7 @@ Top-level shape:
       "name": "command_policy.md",
       "role": "command_policy",
       "format": "markdown",
+      "agentUse": "consult_before_risky_commands",
       "readOrder": 2,
       "lineCount": 790
     },
@@ -667,6 +669,7 @@ Top-level shape:
       "name": "environment_report.md",
       "role": "environment_report",
       "format": "markdown",
+      "agentUse": "debug_audit_only",
       "readOrder": 3,
       "lineCount": 75
     }
@@ -741,7 +744,7 @@ Compatibility:
 - Add fields freely during `0.x`.
 - Do not rename or remove fields without documenting a schema change.
 - `generatorVersion` records the Habitat generator release that produced the scan. Previous-scan comparison should surface generator-version changes so agents do not mistake report-shape or policy-generator differences for local environment drift.
-- `artifacts` records generated Markdown artifact names, roles, formats, read order, physical line counts, any hard line limit for budgeted agent-facing artifacts, and `withinLineLimit` when a line limit applies. Agents can use it to read the short working context first and distinguish longer policy or audit outputs without parsing Markdown first. Older `0.x` scans may omit `readOrder`, `lineLimit`, or `withinLineLimit`; fall back to the listed artifact order and treat missing limits as unbudgeted.
+- `artifacts` records generated Markdown artifact names, roles, formats, `agentUse`, read order, physical line counts, any hard line limit for budgeted agent-facing artifacts, and `withinLineLimit` when a line limit applies. Agents can use it to read the short working context first and distinguish longer policy or audit outputs without parsing Markdown first. Current `agentUse` values are `read_first`, `consult_before_risky_commands`, and `debug_audit_only`. Older `0.x` scans may omit `agentUse`, `readOrder`, `lineLimit`, or `withinLineLimit`; fall back to the listed artifact order and treat missing limits as unbudgeted.
 - `policy.reasonCodes` records the stable snake_case legend for reason codes used by generated Ask First and Forbidden policy. Keep it additive to the existing command arrays so older consumers can continue reading `preferredCommands`, `askFirstCommands`, and `forbiddenCommands`.
 - `policy.reasonCodes` should be emitted in the fixed catalog order, filtered to codes present in the generated policy, so metadata diffs do not depend on command list ordering.
 - `policy.commandCounts` records the number of preferred, Ask First, Forbidden, and reason-annotated commands so agents can estimate policy size and reason coverage before reading a long `command_policy.md`. Older `0.x` scans may omit it; consumers can derive counts from the command arrays.

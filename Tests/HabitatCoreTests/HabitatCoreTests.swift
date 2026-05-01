@@ -171,6 +171,11 @@ struct HabitatCoreTests {
             let askFirstCommands = policy["askFirstCommands"] as? [String] ?? []
             let forbiddenCommands = policy["forbiddenCommands"] as? [String] ?? []
             let commandReasons = policy["commandReasons"] as? [[String: Any]] ?? []
+            let expectedAgentUse = [
+                "agent_context.md": "read_first",
+                "command_policy.md": "consult_before_risky_commands",
+                "environment_report.md": "debug_audit_only",
+            ]
 
             #expect(!artifacts.isEmpty, "Expected example artifact metadata in \(directory)")
             #expect(commandCounts["preferred"] as? Int == preferredCommands.count)
@@ -187,6 +192,10 @@ struct HabitatCoreTests {
 
                 let artifactURL = directoryURL.appendingPathComponent(name)
                 let artifactText = try String(contentsOf: artifactURL, encoding: .utf8)
+                #expect(
+                    artifact["agentUse"] as? String == expectedAgentUse[name],
+                    "Expected \(directory)/\(name) agentUse metadata to match its AI reading role"
+                )
                 #expect(
                     lineCount(artifactText) == expectedLineCount,
                     "Expected \(directory)/\(name) lineCount metadata to match the example file"
@@ -6443,6 +6452,27 @@ struct HabitatCoreTests {
         #expect(decoded.project.symlinkedFiles.isEmpty)
         #expect(decoded.project.unsafePackageMetadataFields.isEmpty)
         #expect(decoded.project.packageManager == "pnpm")
+    }
+
+    @Test
+    func generatedArtifactDecodesOlderJsonWithoutAgentUse() throws {
+        let data = """
+        {
+          "name": "agent_context.md",
+          "role": "agent_context",
+          "format": "markdown",
+          "readOrder": 1,
+          "lineCount": 34,
+          "lineLimit": 120,
+          "withinLineLimit": true
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(GeneratedArtifact.self, from: data)
+
+        #expect(decoded.agentUse == nil)
+        #expect(decoded.name == "agent_context.md")
+        #expect(decoded.withinLineLimit == true)
     }
 
     @Test

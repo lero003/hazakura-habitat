@@ -66,7 +66,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - Full `Ask First` and `Forbidden` entries now carry reason code annotations, so long policy lists remain explainable at the point of use.
 - The `agent_context.md` Ask First overflow line now names the leading hidden reason codes, so Codex can tell whether hidden approval rules are dependency, Git, or other safety guards before opening the full policy.
 - Ephemeral package execution commands now carry their own `ephemeral_package_execution` reason code, so `npx`/`dlx`/`uvx`/`pipx run` guards no longer collapse into generic approval metadata.
-- `scan_result.json` now records generated Markdown artifact roles, read order, line counts, the `agent_context.md` line limit, and whether line-limited outputs are within budget, so agents can identify and read the short working context first without parsing every report.
+- `scan_result.json` now records generated Markdown artifact roles, agent reading role, read order, line counts, the `agent_context.md` line limit, and whether line-limited outputs are within budget, so agents can identify and read the short working context first without parsing every report.
 - `scan_result.json` now records `policy.commandCounts`, so agents can see policy size and reason coverage before deciding whether to inspect the full `command_policy.md`.
 - The bundled helper must use the current source checkout for self-scans instead of silently falling back to `dist/`, otherwise a stale local release artifact can hide new output-contract sections.
 
