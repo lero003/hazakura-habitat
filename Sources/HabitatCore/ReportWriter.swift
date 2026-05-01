@@ -54,14 +54,7 @@ public struct ReportWriter {
         }
         let avoidLines = prioritizedForbiddenCommands(result).prefix(9).map(avoidLine)
         let askFirstCommands = prioritizedAskFirstCommands(result)
-        let askLines = askFirstCommands.isEmpty
-            ? ["- Ask before dependency installation or version changes."]
-            : limitedBulletLines(
-                askFirstCommands.map { "Ask before `\($0)`." },
-                limit: 4,
-                overflowLabel: "Ask First commands",
-                overflowDestination: "command_policy.md"
-            )
+        let askLines = agentContextAskFirstLines(askFirstCommands)
         let relevantDiagnostics = agentRelevantDiagnostics(result)
         let mismatchLines = result.warnings.isEmpty
             ? ["- None detected."]
@@ -208,6 +201,40 @@ public struct ReportWriter {
         let shown = items.prefix(limit).map { "- \($0)" }
         let hiddenCount = items.count - limit
         return shown + ["- \(hiddenCount) additional \(overflowLabel) in `\(overflowDestination)`."]
+    }
+
+    private func agentContextAskFirstLines(_ commands: [String]) -> [String] {
+        guard !commands.isEmpty else {
+            return ["- Ask before dependency installation or version changes."]
+        }
+
+        let limit = 4
+        let shownCommands = Array(commands.prefix(limit))
+        var lines = shownCommands.map { "- Ask before `\($0)`." }
+
+        if shouldSummarizeHiddenGitMutationGuards(commands: commands, shownCommands: shownCommands) {
+            lines.append("- Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`.")
+        }
+
+        if commands.count > limit {
+            lines.append("- \(commands.count - limit) additional Ask First commands in `command_policy.md`.")
+        }
+
+        return lines
+    }
+
+    private func shouldSummarizeHiddenGitMutationGuards(commands: [String], shownCommands: [String]) -> Bool {
+        let hiddenCommands = Set(commands.dropFirst(shownCommands.count))
+        guard hiddenCommands.contains(where: isGitOrGitHubMutationGuard) else {
+            return false
+        }
+
+        return !shownCommands.contains(where: isGitOrGitHubMutationGuard)
+    }
+
+    private func isGitOrGitHubMutationGuard(_ command: String) -> Bool {
+        command.hasPrefix("git ")
+            || command.hasPrefix("gh ")
     }
 
     private func avoidLine(for command: String) -> String {

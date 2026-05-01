@@ -33,6 +33,7 @@ The next public milestone should be `v0.1.0 Developer Preview`. The main work be
 - `agent_context.md` filters command diagnostics to project-relevant tools while detailed diagnostics remain in the machine and environment reports.
 - `agent_context.md` includes previous-scan changes in `Notes` only when a comparison was requested, keeping normal scans short.
 - `agent_context.md` caps Ask First, warning, previous-scan change, and project-relevant diagnostic bullets, with overflow pointing to `command_policy.md` for approval guidance and `environment_report.md` for detail, so warning-heavy scans stay short enough for an AI agent to follow without hiding that more command policy exists.
+- `agent_context.md` adds a concise Git/GitHub mutation reminder when exact `git`/`gh` Ask First entries are hidden by the short Ask First cap, so agents do not miss review points for index, history, branch, or remote changes.
 - `agent_context.md` and `command_policy.md` prioritize project-relevant Ask First items before broad cross-ecosystem package-manager guards, so short output and the complete policy both keep selected workflow mutations, missing/unverifiable tool guards, symlink guards, and lockfile/version-manager edits visible.
 - `agent_context.md` uses a clean read-only fallback when no package manager signal is detected.
 - If `--project` points to a path that is not an existing directory, `agent_context.md` and `command_policy.md` tell agents to verify the path before running project commands and only allow path existence checks.
