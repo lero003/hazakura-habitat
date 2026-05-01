@@ -2811,6 +2811,40 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanRecordsSymlinkedPackageAuthConfigDirectoryWithoutReadingTarget() throws {
+        let secretValue = "HH_SYMLINKED_BUNDLE_CONFIG_SECRET_VALUE"
+        let projectURL = try makeProject(files: [:])
+        let externalDirectoryURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: externalDirectoryURL, withIntermediateDirectories: true)
+        try "BUNDLE_GEMS__EXAMPLE__COM: \(secretValue)\n".write(
+            to: externalDirectoryURL.appendingPathComponent("config"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try FileManager.default.createSymbolicLink(
+            at: projectURL.appendingPathComponent(".bundle"),
+            withDestinationURL: externalDirectoryURL
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.symlinkedFiles.contains(".bundle"))
+        #expect(!result.project.detectedFiles.contains(".bundle/config"))
+        #expect(result.policy.askFirstCommands.contains("following project symlinks before reviewing targets"))
+        #expect(result.warnings.contains("Project symlinks detected (.bundle); do not follow linked metadata or secret-bearing directories before reviewing targets."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
+            let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("BUNDLE_GEMS__EXAMPLE__COM"))
+            #expect(!artifact.contains(".bundle/config"))
+        }
+    }
+
+    @Test
     func scanDetectsPnpmrcWithoutReadingTokenValues() throws {
         let secretValue = "hh_pnpm_token_secret_value"
         let projectURL = try makeProject(files: [

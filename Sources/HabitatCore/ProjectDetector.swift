@@ -237,11 +237,11 @@ public struct ProjectDetector {
             isSymbolicLink(projectURL.appendingPathComponent($0))
         }
 
-        let directorySymlinks = [".ssh"].filter {
-            isSymbolicLink(projectURL.appendingPathComponent($0))
+        let ancestorSymlinks = candidateFiles.compactMap {
+            firstSymbolicLinkAncestor(relativePath: $0, projectURL: projectURL)
         }
 
-        return orderedUnique(detectedSymlinks + directorySymlinks).sorted()
+        return orderedUnique(detectedSymlinks + ancestorSymlinks).sorted()
     }
 
     private func isPrivateKeyFilename(_ name: String) -> Bool {
@@ -558,18 +558,24 @@ public struct ProjectDetector {
     }
 
     private func hasSymbolicLinkAncestor(relativePath: String, projectURL: URL) -> Bool {
+        firstSymbolicLinkAncestor(relativePath: relativePath, projectURL: projectURL) != nil
+    }
+
+    private func firstSymbolicLinkAncestor(relativePath: String, projectURL: URL) -> String? {
         let components = relativePath.split(separator: "/").map(String.init)
-        guard components.count > 1 else { return false }
+        guard components.count > 1 else { return nil }
 
         var currentURL = projectURL
+        var relativeComponents: [String] = []
         for component in components.dropLast() {
+            relativeComponents.append(component)
             currentURL.appendPathComponent(component)
             if isSymbolicLink(currentURL) {
-                return true
+                return relativeComponents.joined(separator: "/")
             }
         }
 
-        return false
+        return nil
     }
 }
 

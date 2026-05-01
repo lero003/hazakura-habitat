@@ -239,7 +239,7 @@ Default policy should be:
 - record symlink presence only when it affects command choice or safety
 - never read secret-bearing symlink targets
 
-Current preview behavior records safety-relevant project symlinks in `project.symlinkedFiles`, avoids reading symlinked metadata for runtime/package hints, avoids traversing symlinked `.ssh` directories, and adds Ask First guidance before following project symlinks.
+Current preview behavior records safety-relevant project symlinks in `project.symlinkedFiles`, avoids reading symlinked metadata for runtime/package hints, avoids traversing symlinked `.ssh` and package-auth ancestor directories such as `.bundle`, and adds Ask First guidance before following project symlinks.
 
 ### Output Directory Safety
 
