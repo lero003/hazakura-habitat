@@ -1,6 +1,6 @@
 {
   "schemaVersion": "0.1",
-  "generatorVersion": "0.1.1",
+  "generatorVersion": "0.2.0-dev",
   "scannedAt": "example timestamp",
   "projectPath": "example SwiftPM package",
   "system": {
@@ -76,6 +76,56 @@
       {
         "code": "host_private_data",
         "text": "Command can reveal local private host data."
+      }
+    ],
+    "commandReasons": [
+      {
+        "command": "swift package update",
+        "classification": "ask_first",
+        "reasonCode": "dependency_resolution_mutation",
+        "reason": "Dependency resolution or lockfile changes can change project state."
+      },
+      {
+        "command": "swift package resolve",
+        "classification": "ask_first",
+        "reasonCode": "dependency_resolution_mutation",
+        "reason": "Dependency resolution or lockfile changes can change project state."
+      },
+      {
+        "command": "modifying lockfiles",
+        "classification": "ask_first",
+        "reasonCode": "dependency_resolution_mutation",
+        "reason": "Dependency resolution or lockfile changes can change project state."
+      },
+      {
+        "command": "sudo",
+        "classification": "forbidden",
+        "reasonCode": "privileged_command",
+        "reason": "Privileged commands can mutate the host outside the project."
+      },
+      {
+        "command": "env",
+        "classification": "forbidden",
+        "reasonCode": "host_private_data",
+        "reason": "Command can reveal local private host data."
+      },
+      {
+        "command": "printenv",
+        "classification": "forbidden",
+        "reasonCode": "host_private_data",
+        "reason": "Command can reveal local private host data."
+      },
+      {
+        "command": "pbpaste",
+        "classification": "forbidden",
+        "reasonCode": "host_private_data",
+        "reason": "Command can reveal local private host data."
+      },
+      {
+        "command": "history",
+        "classification": "forbidden",
+        "reasonCode": "host_private_data",
+        "reason": "Command can reveal local private host data."
       }
     ]
   },

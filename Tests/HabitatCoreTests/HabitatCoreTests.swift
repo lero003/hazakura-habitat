@@ -163,11 +163,30 @@ struct HabitatCoreTests {
 
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
         let reasonCodes = result.policy.reasonCodes.map { $0.code }
+        let commandReasons = result.policy.commandReasons
 
         #expect(reasonCodes.contains("missing_tool"))
         #expect(reasonCodes.contains("dependency_resolution_mutation"))
         #expect(reasonCodes.contains("privileged_command"))
         #expect(reasonCodes.count == Set(reasonCodes).count)
+        #expect(commandReasons.contains(PolicyCommandReason(
+            command: "running SwiftPM commands before swift is available",
+            classification: "ask_first",
+            reasonCode: "missing_tool",
+            reason: "Required project tool is missing on `PATH`."
+        )))
+        #expect(commandReasons.contains(PolicyCommandReason(
+            command: "swift package update",
+            classification: "ask_first",
+            reasonCode: "dependency_resolution_mutation",
+            reason: "Dependency resolution or lockfile changes can change project state."
+        )))
+        #expect(commandReasons.contains(PolicyCommandReason(
+            command: "sudo",
+            classification: "forbidden",
+            reasonCode: "privileged_command",
+            reason: "Privileged commands can mutate the host outside the project."
+        )))
     }
 
     @Test
@@ -5147,7 +5166,7 @@ struct HabitatCoreTests {
 
         let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
         #expect(scanResult.contains("\"schemaVersion\" : \"0.1\""))
-        #expect(scanResult.contains("\"generatorVersion\" : \"0.1.1\""))
+        #expect(scanResult.contains("\"generatorVersion\" : \"\(HabitatMetadata.generatorVersion)\""))
     }
 
     @Test
@@ -6226,6 +6245,7 @@ struct HabitatCoreTests {
         let decoded = try JSONDecoder().decode(PolicySummary.self, from: data)
 
         #expect(decoded.reasonCodes.isEmpty)
+        #expect(decoded.commandReasons.isEmpty)
     }
 
     @Test

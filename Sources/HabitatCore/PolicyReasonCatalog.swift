@@ -22,6 +22,22 @@ enum PolicyReasonCatalog {
         return reasons
     }
 
+    static func commandReasons(askFirstCommands: [String], forbiddenCommands: [String]) -> [PolicyCommandReason] {
+        askFirstCommands.map { command in
+            commandReason(
+                command: command,
+                classification: "ask_first",
+                reason: askFirstReason(for: command)
+            )
+        } + forbiddenCommands.map { command in
+            commandReason(
+                command: command,
+                classification: "forbidden",
+                reason: forbiddenReason(for: command)
+            )
+        }
+    }
+
     static func askFirstReason(for command: String) -> PolicyReasonCode {
         if command == "running project commands before project path is verified" {
             return .init(code: "project_path_unverified", text: "Verify `--project` before running project commands.")
@@ -150,6 +166,19 @@ enum PolicyReasonCatalog {
         }
 
         reasons.append(reason)
+    }
+
+    private static func commandReason(
+        command: String,
+        classification: String,
+        reason: PolicyReasonCode
+    ) -> PolicyCommandReason {
+        PolicyCommandReason(
+            command: command,
+            classification: classification,
+            reasonCode: reason.code,
+            reason: reason.text
+        )
     }
 
     private static func isDependencyMutationCommand(_ command: String) -> Bool {

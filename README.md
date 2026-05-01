@@ -6,7 +6,7 @@ Run it before an agent starts work. It generates short, advisory project context
 
 It does not execute, approve, block, or sandbox commands.
 
-Status: `v0.1.1 Developer Preview` - advisory only - no command enforcement - macOS-first.
+Status: `v0.2.0-dev` from the public `v0.1.1` baseline - advisory only - no command enforcement - macOS-first.
 
 The MVP is not a human dashboard. It is a pre-work contract for AI agents: a map before the agent walks, not a fence around the agent.
 
@@ -116,7 +116,7 @@ The secondary output is:
 
 The MVP does not generate separate `env_changes.md` or `project_dependency_summary.md`; their useful parts are folded into `agent_context.md` and `command_policy.md`.
 
-In `v0.x`, `scan_result.json` includes `schemaVersion`, `generatorVersion`, and machine-readable policy `reasonCodes`, but fields may still evolve between developer preview releases. Markdown outputs are optimized for AI-agent consumption, not stable machine parsing.
+In `v0.x`, `scan_result.json` includes `schemaVersion`, `generatorVersion`, machine-readable policy `reasonCodes`, and per-command `commandReasons`, but fields may still evolve between developer preview releases. Markdown outputs are optimized for AI-agent consumption, not stable machine parsing.
 
 ## Privacy and Prompt-Injection Stance
 

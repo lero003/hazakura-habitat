@@ -635,7 +635,7 @@ Top-level shape:
 ```json
 {
   "schemaVersion": "0.1",
-  "generatorVersion": "0.1.1",
+  "generatorVersion": "0.2.0-dev",
   "scannedAt": "2026-04-25T00:00:00Z",
   "projectPath": "/path/to/project",
   "system": {},
@@ -667,6 +667,20 @@ Top-level shape:
         "code": "privileged_command",
         "text": "Privileged commands can mutate the host outside the project."
       }
+    ],
+    "commandReasons": [
+      {
+        "command": "pnpm install",
+        "classification": "ask_first",
+        "reasonCode": "dependency_mutation",
+        "reason": "Dependency install, update, or removal can mutate project state."
+      },
+      {
+        "command": "sudo",
+        "classification": "forbidden",
+        "reasonCode": "privileged_command",
+        "reason": "Privileged commands can mutate the host outside the project."
+      }
     ]
   },
   "changes": [
@@ -687,6 +701,7 @@ Compatibility:
 - Do not rename or remove fields without documenting a schema change.
 - `generatorVersion` records the Habitat generator release that produced the scan. Previous-scan comparison should surface generator-version changes so agents do not mistake report-shape or policy-generator differences for local environment drift.
 - `policy.reasonCodes` records the stable snake_case legend for reason codes used by generated Ask First and Forbidden policy. Keep it additive to the existing command arrays so older consumers can continue reading `preferredCommands`, `askFirstCommands`, and `forbiddenCommands`.
+- `policy.commandReasons` records per-command `classification`, `reasonCode`, and `reason` metadata for generated Ask First and Forbidden commands. Keep it additive to the existing command arrays so agents can explain a command decision without parsing Markdown.
 - Generate Markdown from this JSON when possible.
 - `project.symlinkedFiles` records detected project signals or safety-relevant directories that are symbolic links. Symlinked metadata files should not be read for runtime or package-manager hints, symlinked workflow files should not select the package manager or concrete preferred commands, and `.ssh` symlink targets should not be traversed for private-key filenames.
 - `project.unsafeRuntimeHintFiles` records runtime hint files whose values were not emitted because they were oversized or not simple version-like strings, including direct runtime files, `.tool-versions`, `mise.toml`, and `.mise.toml`.
