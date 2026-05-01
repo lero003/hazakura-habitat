@@ -7,7 +7,8 @@
       "role": "agent_context",
       "format": "markdown",
       "readOrder": 1,
-      "lineCount": 29
+      "lineCount": 29,
+      "lineLimit": 120
     },
     {
       "name": "command_policy.md",

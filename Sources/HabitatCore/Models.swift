@@ -138,13 +138,15 @@ public struct GeneratedArtifact: Codable, Equatable {
     public let format: String
     public let readOrder: Int?
     public let lineCount: Int
+    public let lineLimit: Int?
 
-    public init(name: String, role: String, format: String, lineCount: Int, readOrder: Int? = nil) {
+    public init(name: String, role: String, format: String, lineCount: Int, readOrder: Int? = nil, lineLimit: Int? = nil) {
         self.name = name
         self.role = role
         self.format = format
         self.readOrder = readOrder
         self.lineCount = lineCount
+        self.lineLimit = lineLimit
     }
 }
 

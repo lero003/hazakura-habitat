@@ -1,6 +1,8 @@
 import Foundation
 
 public struct ReportWriter {
+    private let agentContextLineLimit = 120
+
     public init() {}
 
     public func write(scanResult: ScanResult, outputURL: URL) throws {
@@ -37,7 +39,8 @@ public struct ReportWriter {
             role: role,
             format: "markdown",
             lineCount: lineCount(text),
-            readOrder: readOrder
+            readOrder: readOrder,
+            lineLimit: role == "agent_context" ? agentContextLineLimit : nil
         )
     }
 

@@ -181,6 +181,13 @@ struct HabitatCoreTests {
                     lineCount(artifactText) == expectedLineCount,
                     "Expected \(directory)/\(name) lineCount metadata to match the example file"
                 )
+
+                if name == "agent_context.md" {
+                    #expect(artifact["lineLimit"] as? Int == 120)
+                    #expect(expectedLineCount <= 120)
+                } else {
+                    #expect(artifact["lineLimit"] == nil)
+                }
             }
         }
     }
@@ -5278,12 +5285,14 @@ struct HabitatCoreTests {
         ])
         #expect(decoded.artifacts.map(\.readOrder) == [1, 2, 3])
         #expect(decoded.artifacts.allSatisfy { $0.format == "markdown" })
+        #expect(decoded.artifacts.map(\.lineLimit) == [120, nil, nil])
         let agentContextText = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         #expect(decoded.artifacts.first?.lineCount == lineCount(agentContextText))
+        #expect((decoded.artifacts.first?.lineCount ?? 0) <= (decoded.artifacts.first?.lineLimit ?? 0))
     }
 
     @Test
-    func generatedArtifactDecodesOlderJsonWithoutReadOrder() throws {
+    func generatedArtifactDecodesOlderJsonWithoutReadOrderOrLineLimit() throws {
         let data = """
         {
           "name": "agent_context.md",
@@ -5298,6 +5307,7 @@ struct HabitatCoreTests {
         #expect(decoded.name == "agent_context.md")
         #expect(decoded.readOrder == nil)
         #expect(decoded.lineCount == 35)
+        #expect(decoded.lineLimit == nil)
     }
 
     @Test
