@@ -2437,7 +2437,7 @@ struct HabitatCoreTests {
         let sensitiveFiles = [".env", ".envrc.local", ".netrc", ".npmrc", "id_ed25519"]
 
         for file in sensitiveFiles {
-            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "rg <pattern> \(file)", "git grep <pattern> -- \(file)", "git grep <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "diff \(file) <other>", "cmp \(file) <other>", "git diff -- \(file)", "git diff --cached -- \(file)", "git diff --staged -- \(file)", "git diff HEAD -- \(file)", "git log -p -- \(file)", "git blame \(file)", "git blame -- \(file)", "git annotate \(file)", "git annotate -- \(file)", "git show -- \(file)", "git show HEAD -- \(file)", "git show :\(file)", "git show HEAD:\(file)", "bat \(file)", "nl -ba \(file)", "base64 \(file)", "xxd \(file)", "hexdump -C \(file)", "strings \(file)", "open \(file)", "code \(file)", "vim \(file)", "vi \(file)", "nano \(file)", "emacs \(file)", "cp \(file) <destination>", "cp -R \(file) <destination>", "cp -r \(file) <destination>", "mv \(file) <destination>", "rsync \(file) <destination>", "rsync -a \(file) <destination>", "scp \(file) <destination>", "curl -F file=@\(file) <url>", "curl --data-binary @\(file) <url>", "curl -T \(file) <url>", "wget --post-file=\(file) <url>", "tar -cf <archive> \(file)", "tar -czf <archive> \(file)", "tar -cjf <archive> \(file)", "tar -cJf <archive> \(file)", "zip <archive> \(file)", "zip -r <archive> \(file)"] {
+            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "grep -n <pattern> \(file)", "rg <pattern> \(file)", "rg -n <pattern> \(file)", "rg --line-number <pattern> \(file)", "git grep <pattern> -- \(file)", "git grep -n <pattern> -- \(file)", "git grep <pattern> \(file)", "git grep -n <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "diff \(file) <other>", "cmp \(file) <other>", "git diff -- \(file)", "git diff --cached -- \(file)", "git diff --staged -- \(file)", "git diff HEAD -- \(file)", "git log -p -- \(file)", "git blame \(file)", "git blame -- \(file)", "git annotate \(file)", "git annotate -- \(file)", "git show -- \(file)", "git show HEAD -- \(file)", "git show :\(file)", "git show HEAD:\(file)", "bat \(file)", "nl -ba \(file)", "base64 \(file)", "xxd \(file)", "hexdump -C \(file)", "strings \(file)", "open \(file)", "code \(file)", "vim \(file)", "vi \(file)", "nano \(file)", "emacs \(file)", "cp \(file) <destination>", "cp -R \(file) <destination>", "cp -r \(file) <destination>", "mv \(file) <destination>", "rsync \(file) <destination>", "rsync -a \(file) <destination>", "scp \(file) <destination>", "curl -F file=@\(file) <url>", "curl --data-binary @\(file) <url>", "curl -T \(file) <url>", "wget --post-file=\(file) <url>", "tar -cf <archive> \(file)", "tar -czf <archive> \(file)", "tar -cjf <archive> \(file)", "tar -cJf <archive> \(file)", "zip <archive> \(file)", "zip -r <archive> \(file)"] {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
             }
         }
@@ -2466,7 +2466,12 @@ struct HabitatCoreTests {
         for file in sensitiveFiles {
             #expect(policy.contains("`cat \(file)`"), "Expected command_policy.md to forbid cat \(file)")
             #expect(policy.contains("`grep <pattern> \(file)`"), "Expected command_policy.md to forbid grep <pattern> \(file)")
+            #expect(policy.contains("`grep -n <pattern> \(file)`"), "Expected command_policy.md to forbid grep -n <pattern> \(file)")
             #expect(policy.contains("`rg <pattern> \(file)`"), "Expected command_policy.md to forbid rg <pattern> \(file)")
+            #expect(policy.contains("`rg -n <pattern> \(file)`"), "Expected command_policy.md to forbid rg -n <pattern> \(file)")
+            #expect(policy.contains("`rg --line-number <pattern> \(file)`"), "Expected command_policy.md to forbid rg --line-number <pattern> \(file)")
+            #expect(policy.contains("`git grep -n <pattern> -- \(file)`"), "Expected command_policy.md to forbid git grep -n -- \(file)")
+            #expect(policy.contains("`git grep -n <pattern> \(file)`"), "Expected command_policy.md to forbid git grep -n \(file)")
             #expect(policy.contains("`sed -n <range> \(file)`"), "Expected command_policy.md to forbid sed -n <range> \(file)")
             #expect(policy.contains("`awk <program> \(file)`"), "Expected command_policy.md to forbid awk <program> \(file)")
             #expect(policy.contains("`diff \(file) <other>`"), "Expected command_policy.md to forbid diff \(file)")
@@ -2554,19 +2559,28 @@ struct HabitatCoreTests {
             "recursive project search without excluding secret-bearing files",
             "grep -R <pattern> .",
             "grep -r <pattern> .",
+            "grep -R -n <pattern> .",
+            "grep -r -n <pattern> .",
             "find . -type f -exec grep <pattern> {} +",
             "find . -type f -exec grep -n <pattern> {} +",
             "find . -type f -print0 | xargs -0 grep <pattern>",
             "find . -type f -print0 | xargs -0 grep -n <pattern>",
             "rg <pattern>",
+            "rg -n <pattern>",
             "rg <pattern> .",
+            "rg -n <pattern> .",
+            "rg --line-number <pattern> .",
             "rg --hidden <pattern> .",
+            "rg --hidden -n <pattern> .",
             "rg --no-ignore <pattern> .",
+            "rg --no-ignore -n <pattern> .",
             "rg -u <pattern> .",
             "rg -uu <pattern> .",
             "rg -uuu <pattern> .",
             "git grep <pattern>",
+            "git grep -n <pattern>",
             "git grep <pattern> -- .",
+            "git grep -n <pattern> -- .",
         ]
 
         for command in recursiveSearchCommands {
@@ -3123,7 +3137,9 @@ struct HabitatCoreTests {
             #expect(result.policy.forbiddenCommands.contains("diff \(file) <other>"), "Expected diff \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("cmp \(file) <other>"), "Expected cmp \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git grep <pattern> -- \(file)"), "Expected git grep -- \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git grep -n <pattern> -- \(file)"), "Expected git grep -n -- \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git grep <pattern> \(file)"), "Expected git grep \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git grep -n <pattern> \(file)"), "Expected git grep -n \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git diff -- \(file)"), "Expected git diff \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git diff --cached -- \(file)"), "Expected git diff --cached \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git diff --staged -- \(file)"), "Expected git diff --staged \(file) to be forbidden")
