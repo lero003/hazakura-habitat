@@ -5180,6 +5180,12 @@ struct HabitatCoreTests {
 
         This policy is advisory. Habitat does not block commands. `Forbidden` means this generated context tells the agent not to run the command.
 
+        ## Review First
+        - `running pnpm commands before pnpm is available` - Required project tool is missing on `PATH`.
+        - `dependency installs before matching active Node to project version hints` - Active runtime differs from project version hints.
+        - `pnpm install` - Dependency install, update, or removal can mutate project state.
+        - `modifying lockfiles` - Lockfile edits change dependency resolution.
+
         ## Allowed
         - `read-only project inspection`
 

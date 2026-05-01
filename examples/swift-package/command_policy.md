@@ -2,6 +2,14 @@
 
 This policy is advisory. Habitat does not block commands. `Forbidden` means this generated context tells the agent not to run the command.
 
+## Review First
+- `swift package update` - SwiftPM dependency resolution can change project state.
+- `swift package resolve` - SwiftPM dependency resolution can change project state.
+- `modifying lockfiles` - Lockfile edits change dependency resolution.
+- `git add` - Git/GitHub mutation can change workspace, history, branches, or remotes.
+- `git commit` - Git/GitHub mutation can change workspace, history, branches, or remotes.
+- `git push` - Git/GitHub mutation can change workspace, history, branches, or remotes.
+
 ## Allowed
 - `swift test`
 - `swift build`

@@ -101,6 +101,7 @@ public struct ReportWriter {
     private func commandPolicy(_ result: ScanResult) -> String {
         let preferredCommands = markdownPreferredCommands(result)
         let secretGuidance = secretBearingFileGuidance(result)
+        let reviewFirst = commandPolicyReviewFirst(result)
         var allowed: [String]
 
         if hasProjectPathVerificationGuard(result) {
@@ -116,7 +117,19 @@ public struct ReportWriter {
             # Command Policy
 
             This policy is advisory. Habitat does not block commands. `Forbidden` means this generated context tells the agent not to run the command.
-            """,
+            """
+        ]
+
+        if !reviewFirst.isEmpty {
+            sections.append(
+                """
+                ## Review First
+                \(bulletList(reviewFirst, fallback: "- Review `agent_context.md` before project commands."))
+                """
+            )
+        }
+
+        sections.append(contentsOf: [
             """
             ## Allowed
             \(bulletList(allowed.map { "`\($0)`" }, fallback: "- `read-only inspection`"))
@@ -129,7 +142,7 @@ public struct ReportWriter {
             ## Forbidden
             \(bulletList(result.policy.forbiddenCommands.map { "`\($0)`" }, fallback: "- `sudo`"))
             """
-        ]
+        ])
 
         if !secretGuidance.isEmpty {
             sections.append(secretGuidance)
@@ -145,6 +158,68 @@ public struct ReportWriter {
         )
 
         return sections.joined(separator: "\n\n")
+    }
+
+    private func commandPolicyReviewFirst(_ result: ScanResult) -> [String] {
+        prioritizedAskFirstCommands(result)
+            .prefix(6)
+            .map { "`\($0)` - \(askFirstReason(for: $0))" }
+    }
+
+    private func askFirstReason(for command: String) -> String {
+        if command == "running project commands before project path is verified" {
+            return "Verify `--project` before running project commands."
+        }
+
+        if command.hasPrefix("running "), command.contains("is available") {
+            return "Required project tool is missing on `PATH`."
+        }
+
+        if command.hasPrefix("running "), command.contains("version check succeeds") {
+            return "Required project tool is present but unverifiable."
+        }
+
+        if command == "Swift/Xcode build commands before xcode-select -p succeeds" {
+            return "Active developer directory is not verified."
+        }
+
+        if command.hasPrefix("dependency installs before matching active ") {
+            return "Active runtime differs from project version hints."
+        }
+
+        if command.hasPrefix("dependency installs before matching ") {
+            return "Package-manager version guidance is not yet verified."
+        }
+
+        if command.hasPrefix("dependency installs ") {
+            return "Project dependency signals need review before mutation."
+        }
+
+        if command == "following project symlinks before reviewing targets" {
+            return "Review symlink targets before trusting linked metadata."
+        }
+
+        if command == "modifying lockfiles" {
+            return "Lockfile edits change dependency resolution."
+        }
+
+        if command == "modifying version manager files" {
+            return "Runtime or tool-version edits change future command behavior."
+        }
+
+        if command == "swift package update" || command == "swift package resolve" {
+            return "SwiftPM dependency resolution can change project state."
+        }
+
+        if isGitOrGitHubMutationGuard(command) {
+            return "Git/GitHub mutation can change workspace, history, branches, or remotes."
+        }
+
+        if isDependencyMutationCommand(command) {
+            return "Dependency install, update, or removal can mutate project state."
+        }
+
+        return "Requires user approval before execution."
     }
 
     private func environmentReport(_ result: ScanResult) -> String {
@@ -254,6 +329,16 @@ public struct ReportWriter {
     private func isGitOrGitHubMutationGuard(_ command: String) -> Bool {
         command.hasPrefix("git ")
             || command.hasPrefix("gh ")
+    }
+
+    private func isDependencyMutationCommand(_ command: String) -> Bool {
+        let mutationWords = [
+            "install", "ci", "update", "uninstall", "remove", "rm", "add", "sync",
+            "compile", "publish", "unpublish", "push", "yank", "resolve", "bootstrap",
+            "checkout", "build", "get", "tidy", "lock"
+        ]
+        let commandWords = command.split(whereSeparator: \.isWhitespace).map(String.init)
+        return commandWords.contains { mutationWords.contains($0) }
     }
 
     private func avoidLine(for command: String) -> String {

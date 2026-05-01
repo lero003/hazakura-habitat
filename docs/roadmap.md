@@ -93,7 +93,7 @@ Current self-use finding:
 
 - The 2026-05-01 self-scan produced a 34-line `agent_context.md` and a 767-line `command_policy.md`.
 - The short context was useful: it preferred SwiftPM, `swift test`, and `swift build`, while keeping irrelevant missing-tool diagnostics out of the agent-facing summary.
-- The full command policy needs stronger navigation, grouping, or explanation before it feels like a stable output contract.
+- The full command policy now has an initial `Review First` block for the most relevant Ask First commands, but still needs broader grouping before it feels like a stable output contract.
 
 Focus:
 

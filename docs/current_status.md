@@ -135,6 +135,7 @@ The first public milestone, `v0.1.0 Developer Preview`, has been published. The 
 - Missing preferred tool warnings when project files point to a tool that is not on `PATH`, including SwiftPM-specific guidance when `swift` is unavailable.
 - `scan_result.json`, `agent_context.md`, and `command_policy.md` suppress concrete preferred commands when the required executable is missing or unverifiable, leaving executable verification wording plus the missing-tool or version-check Ask First guard visible instead.
 - `command_policy.md` now keeps Allowed scoped to concrete generated preferred commands plus read-only inspection, and no longer emits broad `test commands for the selected project` or `build commands for the selected project` allowances that could let an AI agent improvise beyond the verified command set.
+- `command_policy.md` starts with a short `Review First` block that repeats the highest-priority Ask First commands with concise reasons, so agents see selected workflow risks before scanning the full policy list.
 - JavaScript projects that are missing or cannot verify both `node` and the selected package manager now name both blockers in the first `agent_context.md` `Use` line, instead of sending agents to verify only the runtime first.
 - Selected package-manager install guards are prioritized so the short `agent_context.md` shows the relevant install command first.
 - Multiple JavaScript lockfile warnings that tell agents to ask before dependency installs when package-manager signals conflict.
