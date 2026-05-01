@@ -133,6 +133,58 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func representativeAgentContextExamplesKeepFixedContract() throws {
+        let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        let examplePaths = [
+            "examples/swift-package/agent_context.md",
+            "examples/node-pnpm-conflict/agent_context.md",
+            "examples/python-uv-missing-tool/agent_context.md",
+            "examples/secret-bearing-files/agent_context.md",
+        ]
+
+        for path in examplePaths {
+            let context = try String(contentsOf: rootURL.appendingPathComponent(path), encoding: .utf8)
+
+            assertAgentContextContract(context)
+            #expect(!context.contains("## Prefer"), "Representative examples should keep preferred commands inside Use: \(path)")
+            #expect(!context.contains("## Do Not"), "Representative examples should use Avoid for current output shape: \(path)")
+        }
+    }
+
+    @Test
+    func swiftPackageExampleArtifactMetadataMatchesFiles() throws {
+        let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        let exampleDirectories = [
+            "examples/swift-package",
+        ]
+
+        for directory in exampleDirectories {
+            let directoryURL = rootURL.appendingPathComponent(directory)
+            let scanResultURL = directoryURL.appendingPathComponent("scan_result.json")
+            let data = try Data(contentsOf: scanResultURL)
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            let artifacts = json?["artifacts"] as? [[String: Any]] ?? []
+
+            #expect(!artifacts.isEmpty, "Expected example artifact metadata in \(directory)")
+
+            for artifact in artifacts {
+                guard let name = artifact["name"] as? String,
+                      let expectedLineCount = artifact["lineCount"] as? Int else {
+                    Issue.record("Malformed artifact metadata in \(directory)")
+                    continue
+                }
+
+                let artifactURL = directoryURL.appendingPathComponent(name)
+                let artifactText = try String(contentsOf: artifactURL, encoding: .utf8)
+                #expect(
+                    lineCount(artifactText) == expectedLineCount,
+                    "Expected \(directory)/\(name) lineCount metadata to match the example file"
+                )
+            }
+        }
+    }
+
+    @Test
     func scanPrefersPnpmWhenLockfileExists() throws {
         let projectURL = try makeProject(files: [
             "pnpm-lock.yaml": "lockfile",

@@ -7,21 +7,21 @@
       "role": "agent_context",
       "format": "markdown",
       "readOrder": 1,
-      "lineCount": 30
+      "lineCount": 31
     },
     {
       "name": "command_policy.md",
       "role": "command_policy",
       "format": "markdown",
       "readOrder": 2,
-      "lineCount": 45
+      "lineCount": 46
     },
     {
       "name": "environment_report.md",
       "role": "environment_report",
       "format": "markdown",
       "readOrder": 3,
-      "lineCount": 31
+      "lineCount": 32
     }
   ],
   "scannedAt": "example timestamp",
