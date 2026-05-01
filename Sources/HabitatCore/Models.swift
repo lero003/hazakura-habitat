@@ -140,6 +140,7 @@ public struct CommandInfo: Codable {
 public struct ProjectInfo: Codable {
     public let detectedFiles: [String]
     public let symlinkedFiles: [String]
+    public let unsafeRuntimeHintFiles: [String]
     public let packageManager: String?
     public let packageManagerVersion: String?
     public let packageManagerVersionSource: String?
@@ -151,6 +152,7 @@ public struct ProjectInfo: Codable {
     public init(
         detectedFiles: [String],
         symlinkedFiles: [String] = [],
+        unsafeRuntimeHintFiles: [String] = [],
         packageManager: String?,
         packageManagerVersion: String?,
         packageManagerVersionSource: String? = nil,
@@ -161,6 +163,7 @@ public struct ProjectInfo: Codable {
     ) {
         self.detectedFiles = detectedFiles
         self.symlinkedFiles = symlinkedFiles
+        self.unsafeRuntimeHintFiles = unsafeRuntimeHintFiles
         self.packageManager = packageManager
         self.packageManagerVersion = packageManagerVersion
         self.packageManagerVersionSource = packageManagerVersionSource
@@ -173,6 +176,7 @@ public struct ProjectInfo: Codable {
     private enum CodingKeys: String, CodingKey {
         case detectedFiles
         case symlinkedFiles
+        case unsafeRuntimeHintFiles
         case packageManager
         case packageManagerVersion
         case packageManagerVersionSource
@@ -186,6 +190,7 @@ public struct ProjectInfo: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         detectedFiles = try container.decode([String].self, forKey: .detectedFiles)
         symlinkedFiles = try container.decodeIfPresent([String].self, forKey: .symlinkedFiles) ?? []
+        unsafeRuntimeHintFiles = try container.decodeIfPresent([String].self, forKey: .unsafeRuntimeHintFiles) ?? []
         packageManager = try container.decodeIfPresent(String.self, forKey: .packageManager)
         packageManagerVersion = try container.decodeIfPresent(String.self, forKey: .packageManagerVersion)
         packageManagerVersionSource = try container.decodeIfPresent(String.self, forKey: .packageManagerVersionSource)
@@ -199,6 +204,7 @@ public struct ProjectInfo: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(detectedFiles, forKey: .detectedFiles)
         try container.encode(symlinkedFiles, forKey: .symlinkedFiles)
+        try container.encode(unsafeRuntimeHintFiles, forKey: .unsafeRuntimeHintFiles)
         try container.encodeIfPresent(packageManager, forKey: .packageManager)
         try container.encodeIfPresent(packageManagerVersion, forKey: .packageManagerVersion)
         try container.encodeIfPresent(packageManagerVersionSource, forKey: .packageManagerVersionSource)

@@ -48,6 +48,7 @@ Guidelines:
 - When symlinked project signals change between scans, include a concise `Notes` delta that tells agents to review symlink targets before following linked metadata or using dependency signals.
 - Prioritize project-relevant secret access/exfiltration bans in `Avoid` when secret-bearing files are detected.
 - When project metadata or secret-bearing directories are symlinks, tell the agent to review symlink targets before following them or trusting linked metadata.
+- When runtime version hint files contain oversized or non-version-like values, do not emit those values; tell the agent to verify runtimes before dependency installs.
 - Do not select a package manager or emit concrete preferred commands from symlinked workflow files such as lockfiles, manifests, or Xcode project containers.
 - Do not list concrete preferred commands in `Use` when their required executable is missing; keep the missing-tool guard in `Ask First` instead.
 - Do not tell agents to use a selected project tool when its executable is missing; tell them to verify the executable before running that tool's commands.
@@ -661,6 +662,7 @@ Compatibility:
 - `generatorVersion` records the Habitat generator release that produced the scan. Previous-scan comparison should surface generator-version changes so agents do not mistake report-shape or policy-generator differences for local environment drift.
 - Generate Markdown from this JSON when possible.
 - `project.symlinkedFiles` records detected project signals or safety-relevant directories that are symbolic links. Symlinked metadata files should not be read for runtime or package-manager hints, symlinked workflow files should not select the package manager or concrete preferred commands, and `.ssh` symlink targets should not be traversed for private-key filenames.
+- `project.unsafeRuntimeHintFiles` records direct runtime hint files whose values were not emitted because they were oversized or not simple version-like strings.
 - `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions`, `mise.toml`, `.mise.toml`, `package.json` Volta pins, and `package.json` `engines.node`.
 - `packageManagerVersion` may come from `package.json` `packageManager`, package-manager Volta pins, `.tool-versions` entries, or `[tools]` entries in `mise.toml` / `.mise.toml` for `npm`, `pnpm`, `yarn`, or `bun`; `packageManagerVersionSource` records that safe metadata source when known.
 - `agent_context.md` should mention the known package-manager version source in `Use`, so agents know which safe metadata file backs the recommended `npm` / `pnpm` / `yarn` / `bun` version.

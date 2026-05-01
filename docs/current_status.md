@@ -83,6 +83,7 @@ The next public milestone should be `v0.1.0 Developer Preview`. The main work be
 - JavaScript projects include `node --version` failure details in `agent_context.md` when Node is resolved but unverifiable, so agents see why JavaScript commands are Ask First.
 - Non-zero, timed-out, or empty-output version commands are treated as unverifiable tool versions, recorded in diagnostics, and used to keep dependency-install and build/test guards active.
 - Runtime mismatch warnings and command-policy guards when `.nvmrc` or `.node-version` differs from the active Node major version, or `.python-version` differs from active Python major/minor.
+- Direct runtime hint files such as `.nvmrc`, `.node-version`, `.python-version`, and `.ruby-version` only emit short version-like values; oversized or suspicious values are recorded by filename in `project.unsafeRuntimeHintFiles`, omitted from generated artifacts, and cause dependency installs to require runtime verification first.
 - `.tool-versions`, `mise.toml`, and `.mise.toml` Node/Python/Ruby runtime hints are captured without reading secret files and feed dependency-install verification guards.
 - Ruby version hints from `.ruby-version`, `.tool-versions`, `mise.toml`, or `.mise.toml` add Bundler dependency-install guards when active Ruby differs or cannot be verified.
 - Project `.venv` detection that tells agents to prefer `.venv/bin/python` before system `python3`.

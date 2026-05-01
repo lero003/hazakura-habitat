@@ -1099,6 +1099,10 @@ public struct HabitatScanner {
             commands.insert("following project symlinks before reviewing targets", at: 0)
         }
 
+        if hasUnsafeRuntimeHintFiles(project) {
+            commands.insert("dependency installs before verifying unsafe runtime version hint files", at: 0)
+        }
+
         if hasBrokenProjectVirtualEnvironment(project) {
             commands.insert("running Python commands before project .venv/bin/python exists", at: 0)
         }
@@ -1236,6 +1240,10 @@ public struct HabitatScanner {
 
         if hasSymlinkedProjectSignals(project) {
             warnings.append("Project symlinks detected (\(project.symlinkedFiles.joined(separator: ", "))); do not follow linked metadata or secret-bearing directories before reviewing targets.")
+        }
+
+        if hasUnsafeRuntimeHintFiles(project) {
+            warnings.append("Runtime version hint files were not safely read (\(project.unsafeRuntimeHintFiles.joined(separator: ", "))); verify runtimes before dependency installs.")
         }
 
         if hasSSHPrivateKeyFile(project) {
@@ -1406,6 +1414,10 @@ public struct HabitatScanner {
 
     private func hasSymlinkedProjectSignals(_ project: ProjectInfo) -> Bool {
         !project.symlinkedFiles.isEmpty
+    }
+
+    private func hasUnsafeRuntimeHintFiles(_ project: ProjectInfo) -> Bool {
+        !project.unsafeRuntimeHintFiles.isEmpty
     }
 
     private func hasSecretDotEnvFile(_ project: ProjectInfo) -> Bool {

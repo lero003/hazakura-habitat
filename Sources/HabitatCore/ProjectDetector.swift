@@ -77,6 +77,7 @@ public struct ProjectDetector {
     public func detect(projectURL: URL) -> ProjectInfo {
         let detectedFiles = detectedProjectFiles(projectURL: projectURL)
         let symlinkedFiles = symlinkedProjectFiles(projectURL: projectURL, detectedFiles: detectedFiles)
+        let unsafeRuntimeHintFiles = unsafeRuntimeHintFiles(projectURL: projectURL, detectedFiles: detectedFiles, symlinkedFiles: symlinkedFiles)
         let packageJSON = packageJSONMetadata(projectURL.appendingPathComponent("package.json"))
         let toolVersions = toolVersionsMetadata(projectURL.appendingPathComponent(".tool-versions"))
         let miseToml = miseTomlMetadata(projectURL: projectURL)
@@ -93,6 +94,7 @@ public struct ProjectDetector {
         return ProjectInfo(
             detectedFiles: detectedFiles,
             symlinkedFiles: symlinkedFiles,
+            unsafeRuntimeHintFiles: unsafeRuntimeHintFiles,
             packageManager: packageManager,
             packageManagerVersion: packageManagerVersion.version,
             packageManagerVersionSource: packageManagerVersion.source,
@@ -242,6 +244,15 @@ public struct ProjectDetector {
         }
 
         return orderedUnique(detectedSymlinks + ancestorSymlinks).sorted()
+    }
+
+    private func unsafeRuntimeHintFiles(projectURL: URL, detectedFiles: [String], symlinkedFiles: [String]) -> [String] {
+        let symlinked = Set(symlinkedFiles)
+        return [".nvmrc", ".node-version", ".python-version", ".ruby-version"].filter { file in
+            detectedFiles.contains(file)
+                && !symlinked.contains(file)
+                && firstLineIfSafe(projectURL.appendingPathComponent(file)) == nil
+        }
     }
 
     private func isPrivateKeyFilename(_ name: String) -> Bool {
@@ -540,12 +551,27 @@ public struct ProjectDetector {
         guard !isSymbolicLink(url) else { return nil }
         let lastPath = url.lastPathComponent
         guard lastPath == ".nvmrc" || lastPath == ".node-version" || lastPath == ".python-version" || lastPath == ".ruby-version" else { return nil }
+        guard fileSize(at: url) <= 4 * 1024 else { return nil }
         guard let content = try? String(contentsOf: url, encoding: .utf8) else { return nil }
-        return content
+        guard let line = content
             .split(whereSeparator: \.isNewline)
             .first
             .map(String.init)?
             .trimmingCharacters(in: .whitespacesAndNewlines)
+        else {
+            return nil
+        }
+
+        guard isSafeRuntimeHintValue(line) else { return nil }
+        return line
+    }
+
+    private func isSafeRuntimeHintValue(_ value: String) -> Bool {
+        guard !value.isEmpty, value.count <= 80 else { return false }
+        return value.unicodeScalars.allSatisfy { scalar in
+            CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_+/<>~=^|*xX ")
+                .contains(scalar)
+        }
     }
 
     private func orderedUnique(_ values: [String]) -> [String] {
