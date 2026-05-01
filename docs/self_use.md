@@ -48,6 +48,7 @@ Observed output from scanning this repository:
 - `environment_report.md`: 75 lines in `scan_result.json` artifact metadata.
 - Ask First commands: 262.
 - Forbidden commands: 489.
+- `scan_result.json` `policy.commandCounts`: 2 preferred, 262 Ask First, 489 Forbidden, 751 with reasons.
 - Warnings: none.
 
 Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in machine-readable data, but they did not pollute `agent_context.md` because they were not relevant to the SwiftPM command decision.
@@ -61,6 +62,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - The generated command policy states that it is advisory and does not block commands.
 - `Review First` now carries reason codes, and the `Reason Codes` legend gives compact explanations without expanding `agent_context.md`.
 - `scan_result.json` now records generated Markdown artifact roles, read order, line counts, and the `agent_context.md` line limit, so agents can identify and read the short working context first without parsing every report.
+- `scan_result.json` now records `policy.commandCounts`, so agents can see policy size and reason coverage before deciding whether to inspect the full `command_policy.md`.
 - The bundled helper must use the current source checkout for self-scans instead of silently falling back to `dist/`, otherwise a stale local release artifact can hide new output-contract sections.
 
 ## v0.2 Findings

@@ -306,10 +306,25 @@ public struct PolicyCommandReason: Codable, Equatable {
     }
 }
 
+public struct PolicyCommandCounts: Codable, Equatable {
+    public let preferred: Int
+    public let askFirst: Int
+    public let forbidden: Int
+    public let withReasons: Int
+
+    public init(preferred: Int, askFirst: Int, forbidden: Int, withReasons: Int) {
+        self.preferred = preferred
+        self.askFirst = askFirst
+        self.forbidden = forbidden
+        self.withReasons = withReasons
+    }
+}
+
 public struct PolicySummary: Codable {
     public let preferredCommands: [String]
     public let askFirstCommands: [String]
     public let forbiddenCommands: [String]
+    public let commandCounts: PolicyCommandCounts
     public let reasonCodes: [PolicyReasonCode]
     public let commandReasons: [PolicyCommandReason]
 
@@ -323,6 +338,12 @@ public struct PolicySummary: Codable {
         self.preferredCommands = preferredCommands
         self.askFirstCommands = askFirstCommands
         self.forbiddenCommands = forbiddenCommands
+        self.commandCounts = PolicyCommandCounts(
+            preferred: preferredCommands.count,
+            askFirst: askFirstCommands.count,
+            forbidden: forbiddenCommands.count,
+            withReasons: commandReasons.count
+        )
         self.reasonCodes = reasonCodes
         self.commandReasons = commandReasons
     }
@@ -331,6 +352,7 @@ public struct PolicySummary: Codable {
         case preferredCommands
         case askFirstCommands
         case forbiddenCommands
+        case commandCounts
         case reasonCodes
         case commandReasons
     }
@@ -342,6 +364,12 @@ public struct PolicySummary: Codable {
         forbiddenCommands = try container.decode([String].self, forKey: .forbiddenCommands)
         reasonCodes = try container.decodeIfPresent([PolicyReasonCode].self, forKey: .reasonCodes) ?? []
         commandReasons = try container.decodeIfPresent([PolicyCommandReason].self, forKey: .commandReasons) ?? []
+        commandCounts = PolicyCommandCounts(
+            preferred: preferredCommands.count,
+            askFirst: askFirstCommands.count,
+            forbidden: forbiddenCommands.count,
+            withReasons: commandReasons.count
+        )
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -349,6 +377,7 @@ public struct PolicySummary: Codable {
         try container.encode(preferredCommands, forKey: .preferredCommands)
         try container.encode(askFirstCommands, forKey: .askFirstCommands)
         try container.encode(forbiddenCommands, forKey: .forbiddenCommands)
+        try container.encode(commandCounts, forKey: .commandCounts)
         try container.encode(reasonCodes, forKey: .reasonCodes)
         try container.encode(commandReasons, forKey: .commandReasons)
     }

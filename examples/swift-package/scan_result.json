@@ -72,6 +72,12 @@
     ]
   },
   "policy": {
+    "commandCounts": {
+      "preferred": 2,
+      "askFirst": 3,
+      "forbidden": 5,
+      "withReasons": 8
+    },
     "preferredCommands": [
       "swift test",
       "swift build"

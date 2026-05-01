@@ -165,8 +165,18 @@ struct HabitatCoreTests {
             let data = try Data(contentsOf: scanResultURL)
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
             let artifacts = json?["artifacts"] as? [[String: Any]] ?? []
+            let policy = json?["policy"] as? [String: Any] ?? [:]
+            let commandCounts = policy["commandCounts"] as? [String: Any] ?? [:]
+            let preferredCommands = policy["preferredCommands"] as? [String] ?? []
+            let askFirstCommands = policy["askFirstCommands"] as? [String] ?? []
+            let forbiddenCommands = policy["forbiddenCommands"] as? [String] ?? []
+            let commandReasons = policy["commandReasons"] as? [[String: Any]] ?? []
 
             #expect(!artifacts.isEmpty, "Expected example artifact metadata in \(directory)")
+            #expect(commandCounts["preferred"] as? Int == preferredCommands.count)
+            #expect(commandCounts["askFirst"] as? Int == askFirstCommands.count)
+            #expect(commandCounts["forbidden"] as? Int == forbiddenCommands.count)
+            #expect(commandCounts["withReasons"] as? Int == commandReasons.count)
 
             for artifact in artifacts {
                 guard let name = artifact["name"] as? String,
@@ -222,9 +232,14 @@ struct HabitatCoreTests {
         ])
 
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commandCounts = result.policy.commandCounts
         let reasonCodes = result.policy.reasonCodes.map { $0.code }
         let commandReasons = result.policy.commandReasons
 
+        #expect(commandCounts.preferred == result.policy.preferredCommands.count)
+        #expect(commandCounts.askFirst == result.policy.askFirstCommands.count)
+        #expect(commandCounts.forbidden == result.policy.forbiddenCommands.count)
+        #expect(commandCounts.withReasons == result.policy.commandReasons.count)
         #expect(reasonCodes.contains("missing_tool"))
         #expect(reasonCodes.contains("dependency_resolution_mutation"))
         #expect(reasonCodes.contains("privileged_command"))
@@ -247,6 +262,35 @@ struct HabitatCoreTests {
             reasonCode: "privileged_command",
             reason: "Privileged commands can mutate the host outside the project."
         )))
+    }
+
+    @Test
+    func policySummaryDecodesOlderJsonWithoutCommandCounts() throws {
+        let json = """
+        {
+          "preferredCommands": ["swift test"],
+          "askFirstCommands": ["swift package update"],
+          "forbiddenCommands": ["sudo"],
+          "reasonCodes": [],
+          "commandReasons": [
+            {
+              "command": "swift package update",
+              "classification": "ask_first",
+              "reasonCode": "dependency_resolution_mutation",
+              "reason": "Dependency resolution or lockfile changes can change project state."
+            }
+          ]
+        }
+        """
+
+        let policy = try JSONDecoder().decode(PolicySummary.self, from: Data(json.utf8))
+
+        #expect(policy.commandCounts == PolicyCommandCounts(
+            preferred: 1,
+            askFirst: 1,
+            forbidden: 1,
+            withReasons: 1
+        ))
     }
 
     @Test

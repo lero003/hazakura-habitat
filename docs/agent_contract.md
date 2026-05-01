@@ -687,6 +687,12 @@ Top-level shape:
     "preferredCommands": ["pnpm run test"],
     "askFirstCommands": ["pnpm install"],
     "forbiddenCommands": ["sudo"],
+    "commandCounts": {
+      "preferred": 1,
+      "askFirst": 1,
+      "forbidden": 1,
+      "withReasons": 2
+    },
     "reasonCodes": [
       {
         "code": "dependency_mutation",
@@ -732,6 +738,7 @@ Compatibility:
 - `artifacts` records generated Markdown artifact names, roles, formats, read order, physical line counts, and any hard line limit for budgeted agent-facing artifacts. Agents can use it to read the short working context first and distinguish longer policy or audit outputs without parsing Markdown first. Older `0.x` scans may omit `readOrder` or `lineLimit`; fall back to the listed artifact order and treat missing limits as unbudgeted.
 - `policy.reasonCodes` records the stable snake_case legend for reason codes used by generated Ask First and Forbidden policy. Keep it additive to the existing command arrays so older consumers can continue reading `preferredCommands`, `askFirstCommands`, and `forbiddenCommands`.
 - `policy.reasonCodes` should be emitted in the fixed catalog order, filtered to codes present in the generated policy, so metadata diffs do not depend on command list ordering.
+- `policy.commandCounts` records the number of preferred, Ask First, Forbidden, and reason-annotated commands so agents can estimate policy size and reason coverage before reading a long `command_policy.md`. Older `0.x` scans may omit it; consumers can derive counts from the command arrays.
 - `policy.commandReasons` records per-command `classification`, `reasonCode`, and `reason` metadata for generated Ask First and Forbidden commands. Keep it additive to the existing command arrays so agents can explain a command decision without parsing Markdown.
 - Generate Markdown from this JSON when possible.
 - `project.symlinkedFiles` records detected project signals or safety-relevant directories that are symbolic links. Symlinked metadata files should not be read for runtime or package-manager hints, symlinked workflow files should not select the package manager or concrete preferred commands, and `.ssh` symlink targets should not be traversed for private-key filenames.
