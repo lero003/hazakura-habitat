@@ -16,4 +16,5 @@ The purpose is to make the product value visible:
 - `swift-package/scan_result.json`: compact representative machine-readable scan shape.
 - `node-pnpm-conflict/agent_context.md`: representative output for conflicting JavaScript lockfiles.
 - `python-uv-missing-tool/agent_context.md`: representative output when `uv.lock` is present but `uv` is missing.
+- `cargo-version-check-failure/agent_context.md`: representative output when Cargo is present but `cargo --version` fails.
 - `secret-bearing-files/agent_context.md`: representative output when secret-bearing file signals are present.

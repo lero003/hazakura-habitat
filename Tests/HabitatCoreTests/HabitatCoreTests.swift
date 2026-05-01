@@ -139,6 +139,7 @@ struct HabitatCoreTests {
             "examples/swift-package/agent_context.md",
             "examples/node-pnpm-conflict/agent_context.md",
             "examples/python-uv-missing-tool/agent_context.md",
+            "examples/cargo-version-check-failure/agent_context.md",
             "examples/secret-bearing-files/agent_context.md",
         ]
 
@@ -168,6 +169,27 @@ struct HabitatCoreTests {
         #expect(context.contains("Project files prefer uv, but uv was not found on PATH; ask before running uv commands or substituting another package manager."))
         #expect(!context.contains("Do not auto-install uv."))
         #expect(!context.contains("Ask before using `pip install`, `pip sync`, or `python -m pip install` as a fallback."))
+    }
+
+    @Test
+    func cargoVersionCheckFailureExampleMatchesCurrentGuidanceShape() throws {
+        let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        let context = try String(
+            contentsOf: rootURL.appendingPathComponent("examples/cargo-version-check-failure/agent_context.md"),
+            encoding: .utf8
+        )
+
+        #expect(context.contains("- Verify `cargo` before running Cargo commands."))
+        #expect(context.contains("- Prefer read-only inspection before mutation."))
+        #expect(context.contains("- Ask before `running Cargo commands before cargo version check succeeds`."))
+        #expect(context.contains("- Ask before `cargo add`."))
+        #expect(context.contains("- Ask before `cargo update`."))
+        #expect(context.contains("- Ask before `cargo remove`."))
+        #expect(context.contains("reason codes: `dependency_mutation`, `dependency_resolution_mutation`, `version_manager_mutation`, more"))
+        #expect(context.contains("cargo --version failed with exit code 1: cargo: rustup toolchain is not installed"))
+        #expect(!context.contains("Use `cargo` because project files point to it."))
+        #expect(!context.contains("Prefer `cargo test`."))
+        #expect(!context.contains("Do not auto-install Rust."))
     }
 
     @Test
