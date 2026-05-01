@@ -194,9 +194,11 @@ struct HabitatCoreTests {
 
                 if name == "agent_context.md" {
                     #expect(artifact["lineLimit"] as? Int == 120)
+                    #expect(artifact["withinLineLimit"] as? Bool == true)
                     #expect(expectedLineCount <= 120)
                 } else {
                     #expect(artifact["lineLimit"] == nil)
+                    #expect(artifact["withinLineLimit"] == nil)
                 }
             }
         }
@@ -5330,9 +5332,11 @@ struct HabitatCoreTests {
         #expect(decoded.artifacts.map(\.readOrder) == [1, 2, 3])
         #expect(decoded.artifacts.allSatisfy { $0.format == "markdown" })
         #expect(decoded.artifacts.map(\.lineLimit) == [120, nil, nil])
+        #expect(decoded.artifacts.map(\.withinLineLimit) == [true, nil, nil])
         let agentContextText = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         #expect(decoded.artifacts.first?.lineCount == lineCount(agentContextText))
         #expect((decoded.artifacts.first?.lineCount ?? 0) <= (decoded.artifacts.first?.lineLimit ?? 0))
+        #expect(decoded.artifacts.first?.withinLineLimit == true)
     }
 
     @Test
@@ -5352,6 +5356,7 @@ struct HabitatCoreTests {
         #expect(decoded.readOrder == nil)
         #expect(decoded.lineCount == 35)
         #expect(decoded.lineLimit == nil)
+        #expect(decoded.withinLineLimit == nil)
     }
 
     @Test

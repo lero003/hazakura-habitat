@@ -8,7 +8,8 @@
       "format": "markdown",
       "readOrder": 1,
       "lineCount": 29,
-      "lineLimit": 120
+      "lineLimit": 120,
+      "withinLineLimit": true
     },
     {
       "name": "command_policy.md",

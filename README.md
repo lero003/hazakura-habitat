@@ -116,7 +116,7 @@ The secondary output is:
 
 The MVP does not generate separate `env_changes.md` or `project_dependency_summary.md`; their useful parts are folded into `agent_context.md` and `command_policy.md`.
 
-In `v0.x`, `scan_result.json` includes `schemaVersion`, `generatorVersion`, Markdown artifact metadata including read order and line counts, machine-readable policy `reasonCodes`, and per-command `commandReasons`, but fields may still evolve between developer preview releases. Markdown outputs are optimized for AI-agent consumption, not stable machine parsing.
+In `v0.x`, `scan_result.json` includes `schemaVersion`, `generatorVersion`, Markdown artifact metadata including read order, line counts, and budget status for line-limited outputs, machine-readable policy `reasonCodes`, and per-command `commandReasons`, but fields may still evolve between developer preview releases. Markdown outputs are optimized for AI-agent consumption, not stable machine parsing.
 
 ## Privacy and Prompt-Injection Stance
 

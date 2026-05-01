@@ -62,7 +62,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - The generated command policy states that it is advisory and does not block commands.
 - The generated command policy now has a compact `Policy Index` with section counts before the long command lists.
 - `Review First` now carries reason codes, and the `Reason Codes` legend gives compact explanations without expanding `agent_context.md`.
-- `scan_result.json` now records generated Markdown artifact roles, read order, line counts, and the `agent_context.md` line limit, so agents can identify and read the short working context first without parsing every report.
+- `scan_result.json` now records generated Markdown artifact roles, read order, line counts, the `agent_context.md` line limit, and whether line-limited outputs are within budget, so agents can identify and read the short working context first without parsing every report.
 - `scan_result.json` now records `policy.commandCounts`, so agents can see policy size and reason coverage before deciding whether to inspect the full `command_policy.md`.
 - The bundled helper must use the current source checkout for self-scans instead of silently falling back to `dist/`, otherwise a stale local release artifact can hide new output-contract sections.
 

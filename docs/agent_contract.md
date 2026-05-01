@@ -651,7 +651,8 @@ Top-level shape:
       "format": "markdown",
       "readOrder": 1,
       "lineCount": 33,
-      "lineLimit": 120
+      "lineLimit": 120,
+      "withinLineLimit": true
     },
     {
       "name": "command_policy.md",
@@ -738,7 +739,7 @@ Compatibility:
 - Add fields freely during `0.x`.
 - Do not rename or remove fields without documenting a schema change.
 - `generatorVersion` records the Habitat generator release that produced the scan. Previous-scan comparison should surface generator-version changes so agents do not mistake report-shape or policy-generator differences for local environment drift.
-- `artifacts` records generated Markdown artifact names, roles, formats, read order, physical line counts, and any hard line limit for budgeted agent-facing artifacts. Agents can use it to read the short working context first and distinguish longer policy or audit outputs without parsing Markdown first. Older `0.x` scans may omit `readOrder` or `lineLimit`; fall back to the listed artifact order and treat missing limits as unbudgeted.
+- `artifacts` records generated Markdown artifact names, roles, formats, read order, physical line counts, any hard line limit for budgeted agent-facing artifacts, and `withinLineLimit` when a line limit applies. Agents can use it to read the short working context first and distinguish longer policy or audit outputs without parsing Markdown first. Older `0.x` scans may omit `readOrder`, `lineLimit`, or `withinLineLimit`; fall back to the listed artifact order and treat missing limits as unbudgeted.
 - `policy.reasonCodes` records the stable snake_case legend for reason codes used by generated Ask First and Forbidden policy. Keep it additive to the existing command arrays so older consumers can continue reading `preferredCommands`, `askFirstCommands`, and `forbiddenCommands`.
 - `policy.reasonCodes` should be emitted in the fixed catalog order, filtered to codes present in the generated policy, so metadata diffs do not depend on command list ordering.
 - `policy.commandCounts` records the number of preferred, Ask First, Forbidden, and reason-annotated commands so agents can estimate policy size and reason coverage before reading a long `command_policy.md`. Older `0.x` scans may omit it; consumers can derive counts from the command arrays.

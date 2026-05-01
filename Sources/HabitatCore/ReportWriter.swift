@@ -34,13 +34,16 @@ public struct ReportWriter {
     }
 
     private func markdownArtifact(name: String, role: String, readOrder: Int, text: String) -> GeneratedArtifact {
-        GeneratedArtifact(
+        let artifactLineCount = lineCount(text)
+        let lineLimit = role == "agent_context" ? agentContextLineLimit : nil
+        return GeneratedArtifact(
             name: name,
             role: role,
             format: "markdown",
-            lineCount: lineCount(text),
+            lineCount: artifactLineCount,
             readOrder: readOrder,
-            lineLimit: role == "agent_context" ? agentContextLineLimit : nil
+            lineLimit: lineLimit,
+            withinLineLimit: lineLimit.map { artifactLineCount <= $0 }
         )
     }
 
