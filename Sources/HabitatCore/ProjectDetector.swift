@@ -95,6 +95,7 @@ public struct ProjectDetector {
             detectedFiles: detectedFiles,
             symlinkedFiles: symlinkedFiles,
             unsafeRuntimeHintFiles: unsafeRuntimeHintFiles,
+            unsafePackageMetadataFields: packageJSON.unsafeMetadataFields,
             packageManager: packageManager,
             packageManagerVersion: packageManagerVersion.version,
             packageManagerVersionSource: packageManagerVersion.source,
@@ -280,19 +281,31 @@ public struct ProjectDetector {
             return .empty
         }
 
-        let declaredPackageManager = (json["packageManager"] as? String)
-            .flatMap(declaredPackageManager(from:))
+        var unsafeMetadataFields: [String] = []
+        let declaredPackageManagerMetadata: DeclaredPackageManager?
+        if let rawPackageManager = json["packageManager"] as? String {
+            let metadata = declaredPackageManager(from: rawPackageManager)
+            if metadata.versionWasUnsafe {
+                unsafeMetadataFields.append("package.json packageManager")
+            }
+            declaredPackageManagerMetadata = metadata.declaredPackageManager
+        } else {
+            declaredPackageManagerMetadata = nil
+        }
         let scripts = (json["scripts"] as? [String: Any])?
             .compactMap { key, value in value is String ? key : nil }
             .sorted() ?? []
         let volta = voltaMetadata(from: json["volta"])
         let engines = enginesMetadata(from: json["engines"])
+        unsafeMetadataFields.append(contentsOf: volta.unsafeMetadataFields)
+        unsafeMetadataFields.append(contentsOf: engines.unsafeMetadataFields)
 
         return PackageJSONMetadata(
-            declaredPackageManager: declaredPackageManager,
+            declaredPackageManager: declaredPackageManagerMetadata,
             scripts: scripts,
             node: volta.node ?? engines.node,
-            packageManagerVersions: volta.packageManagerVersions
+            packageManagerVersions: volta.packageManagerVersions,
+            unsafeMetadataFields: orderedUnique(unsafeMetadataFields)
         )
     }
 
@@ -479,11 +492,14 @@ public struct ProjectDetector {
             .trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
-    private func declaredPackageManager(from rawPackageManager: String) -> DeclaredPackageManager? {
+    private func declaredPackageManager(from rawPackageManager: String) -> DeclaredPackageManagerMetadata {
         let value = rawPackageManager.trimmingCharacters(in: .whitespacesAndNewlines)
         for packageManager in ["pnpm", "yarn", "bun", "npm"] {
             if value == packageManager {
-                return DeclaredPackageManager(name: packageManager, version: nil)
+                return DeclaredPackageManagerMetadata(
+                    declaredPackageManager: DeclaredPackageManager(name: packageManager, version: nil),
+                    versionWasUnsafe: false
+                )
             }
 
             if value.hasPrefix("\(packageManager)@") {
@@ -491,12 +507,25 @@ public struct ProjectDetector {
                     String(value.dropFirst(packageManager.count + 1))
                 )
                     .trimmingCharacters(in: .whitespacesAndNewlines)
-                guard !version.isEmpty else { return nil }
-                return DeclaredPackageManager(name: packageManager, version: version)
+                guard !version.isEmpty else {
+                    return DeclaredPackageManagerMetadata(declaredPackageManager: nil, versionWasUnsafe: false)
+                }
+
+                guard isSafeVersionMetadataValue(version) else {
+                    return DeclaredPackageManagerMetadata(
+                        declaredPackageManager: DeclaredPackageManager(name: packageManager, version: nil),
+                        versionWasUnsafe: true
+                    )
+                }
+
+                return DeclaredPackageManagerMetadata(
+                    declaredPackageManager: DeclaredPackageManager(name: packageManager, version: version),
+                    versionWasUnsafe: false
+                )
             }
         }
 
-        return nil
+        return DeclaredPackageManagerMetadata(declaredPackageManager: nil, versionWasUnsafe: false)
     }
 
     private func normalizedPackageManagerVersion(_ rawVersion: String) -> String {
@@ -508,27 +537,47 @@ public struct ProjectDetector {
 
     private func voltaMetadata(from rawValue: Any?) -> VoltaMetadata {
         guard let object = rawValue as? [String: Any] else { return .empty }
-        let node = normalizedNonEmptyString(object["node"])
+        var unsafeMetadataFields: [String] = []
+        let node = safeVersionMetadataString(object["node"], fieldName: "package.json volta.node", unsafeMetadataFields: &unsafeMetadataFields)
         var packageManagerVersions: [String: String] = [:]
 
         for packageManager in ["npm", "pnpm", "yarn", "bun"] {
-            if let version = normalizedNonEmptyString(object[packageManager]) {
+            if let version = safeVersionMetadataString(
+                object[packageManager],
+                fieldName: "package.json volta.\(packageManager)",
+                unsafeMetadataFields: &unsafeMetadataFields
+            ) {
                 packageManagerVersions[packageManager] = normalizedPackageManagerVersion(version)
             }
         }
 
-        return VoltaMetadata(node: node, packageManagerVersions: packageManagerVersions)
+        return VoltaMetadata(
+            node: node,
+            packageManagerVersions: packageManagerVersions,
+            unsafeMetadataFields: unsafeMetadataFields
+        )
     }
 
     private func enginesMetadata(from rawValue: Any?) -> EnginesMetadata {
         guard let object = rawValue as? [String: Any] else { return .empty }
-        return EnginesMetadata(node: normalizedNonEmptyString(object["node"]))
+        var unsafeMetadataFields: [String] = []
+        let node = safeVersionMetadataString(
+            object["node"],
+            fieldName: "package.json engines.node",
+            unsafeMetadataFields: &unsafeMetadataFields
+        )
+        return EnginesMetadata(node: node, unsafeMetadataFields: unsafeMetadataFields)
     }
 
-    private func normalizedNonEmptyString(_ value: Any?) -> String? {
+    private func safeVersionMetadataString(_ value: Any?, fieldName: String, unsafeMetadataFields: inout [String]) -> String? {
         guard let string = value as? String else { return nil }
         let normalized = string.trimmingCharacters(in: .whitespacesAndNewlines)
-        return normalized.isEmpty ? nil : normalized
+        guard !normalized.isEmpty else { return nil }
+        guard isSafeVersionMetadataValue(normalized) else {
+            unsafeMetadataFields.append(fieldName)
+            return nil
+        }
+        return normalized
     }
 
     private func fileSize(at url: URL) -> UInt64 {
@@ -562,16 +611,36 @@ public struct ProjectDetector {
             return nil
         }
 
-        guard isSafeRuntimeHintValue(line) else { return nil }
+        guard isSafeDirectRuntimeHintValue(line) else { return nil }
         return line
     }
 
-    private func isSafeRuntimeHintValue(_ value: String) -> Bool {
+    private func isSafeDirectRuntimeHintValue(_ value: String) -> Bool {
+        guard !value.contains(where: \.isWhitespace) else { return false }
+        return isSafeVersionMetadataValue(value)
+    }
+
+    private func isSafeVersionMetadataValue(_ value: String) -> Bool {
         guard !value.isEmpty, value.count <= 80 else { return false }
-        return value.unicodeScalars.allSatisfy { scalar in
+        guard value.unicodeScalars.allSatisfy({ scalar in
             CharacterSet(charactersIn: "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789.-_+/<>~=^|*xX ")
                 .contains(scalar)
+        }) else {
+            return false
         }
+
+        let lowercased = value.lowercased()
+        if lowercased == "node" || lowercased == "stable" || lowercased == "system" || lowercased == "lts/*" {
+            return true
+        }
+
+        guard value.contains(where: \.isNumber) else { return false }
+
+        let allowedWords: Set<String> = [
+            "v", "x", "alpha", "beta", "rc", "pre", "dev", "next", "canary", "snapshot", "nightly", "lts"
+        ]
+        let words = lowercased.split { !$0.isLetter }.map(String.init)
+        return words.allSatisfy { allowedWords.contains($0) }
     }
 
     private func orderedUnique(_ values: [String]) -> [String] {
@@ -611,12 +680,18 @@ private struct DeclaredPackageManager {
 }
 
 private struct PackageJSONMetadata {
-    static let empty = PackageJSONMetadata(declaredPackageManager: nil, scripts: [], node: nil, packageManagerVersions: [:])
+    static let empty = PackageJSONMetadata(declaredPackageManager: nil, scripts: [], node: nil, packageManagerVersions: [:], unsafeMetadataFields: [])
 
     let declaredPackageManager: DeclaredPackageManager?
     let scripts: [String]
     let node: String?
     let packageManagerVersions: [String: String]
+    let unsafeMetadataFields: [String]
+}
+
+private struct DeclaredPackageManagerMetadata {
+    let declaredPackageManager: DeclaredPackageManager?
+    let versionWasUnsafe: Bool
 }
 
 private struct ToolVersionsMetadata {
@@ -647,14 +722,16 @@ private struct PackageManagerVersionInfo {
 }
 
 private struct VoltaMetadata {
-    static let empty = VoltaMetadata(node: nil, packageManagerVersions: [:])
+    static let empty = VoltaMetadata(node: nil, packageManagerVersions: [:], unsafeMetadataFields: [])
 
     let node: String?
     let packageManagerVersions: [String: String]
+    let unsafeMetadataFields: [String]
 }
 
 private struct EnginesMetadata {
-    static let empty = EnginesMetadata(node: nil)
+    static let empty = EnginesMetadata(node: nil, unsafeMetadataFields: [])
 
     let node: String?
+    let unsafeMetadataFields: [String]
 }

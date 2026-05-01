@@ -103,7 +103,7 @@ Tests may contain dummy secret-like strings to verify non-emission behavior. The
 
 Generated AI-facing Markdown should treat project-derived strings as untrusted data. Prefer normalized signals over raw project text, and do not include arbitrary project file contents in `agent_context.md`.
 
-Runtime version hint files such as `.nvmrc`, `.node-version`, `.python-version`, and `.ruby-version` are only emitted when their values are short, version-like strings. Oversized or suspicious values are reported by filename only and cause dependency installs to require verification first.
+Runtime version hint files such as `.nvmrc`, `.node-version`, `.python-version`, and `.ruby-version` are only emitted when their values are short, version-like strings. Oversized or suspicious values are reported by filename only and cause dependency installs to require verification first. Suspicious `package.json` version metadata such as `packageManager`, Volta pins, or `engines.node` is also reported by field name only, without emitting the value.
 
 ## Start Here
 
