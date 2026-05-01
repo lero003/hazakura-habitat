@@ -1,6 +1,6 @@
 # Known Limitations
 
-Hazakura Habitat is currently a `v0.1.0 Developer Preview`.
+Hazakura Habitat is currently a `v0.1.1 Developer Preview`.
 
 The current goal is not broad coverage. The goal is useful, conservative, project-derived command context for AI coding agents.
 

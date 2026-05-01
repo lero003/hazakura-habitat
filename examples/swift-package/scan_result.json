@@ -1,6 +1,6 @@
 {
   "schemaVersion": "0.1",
-  "generatorVersion": "0.1.0",
+  "generatorVersion": "0.1.1",
   "scannedAt": "example timestamp",
   "projectPath": "example SwiftPM package",
   "system": {

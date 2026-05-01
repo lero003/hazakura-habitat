@@ -6,7 +6,7 @@ Run it before an agent starts work. It generates short, advisory project context
 
 It does not execute, approve, block, or sandbox commands.
 
-Status: `v0.1.0 Developer Preview` - advisory only - no command enforcement - macOS-first.
+Status: `v0.1.1 Developer Preview` - advisory only - no command enforcement - macOS-first.
 
 The MVP is not a human dashboard. It is a pre-work contract for AI agents: a map before the agent walks, not a fence around the agent.
 

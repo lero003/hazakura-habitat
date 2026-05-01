@@ -5071,7 +5071,7 @@ struct HabitatCoreTests {
 
         let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
         #expect(scanResult.contains("\"schemaVersion\" : \"0.1\""))
-        #expect(scanResult.contains("\"generatorVersion\" : \"0.1.0\""))
+        #expect(scanResult.contains("\"generatorVersion\" : \"0.1.1\""))
     }
 
     @Test

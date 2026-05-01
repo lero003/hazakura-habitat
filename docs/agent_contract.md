@@ -629,7 +629,7 @@ Top-level shape:
 ```json
 {
   "schemaVersion": "0.1",
-  "generatorVersion": "0.1.0",
+  "generatorVersion": "0.1.1",
   "scannedAt": "2026-04-25T00:00:00Z",
   "projectPath": "/path/to/project",
   "system": {},

@@ -1,5 +1,17 @@
 # Changelog
 
+## v0.1.1 Developer Preview - 2026-05-01
+
+Post-release expectation-setting patch.
+
+### Changed
+
+- Clarified advisory-only language in generated `command_policy.md`.
+- Updated README first-time user flow, release install steps, requirements, and exit-code notes.
+- Added representative examples for SwiftPM, Node/pnpm lockfile conflict, Python uv missing-tool, and secret-bearing file scenarios.
+- Added `CONTRIBUTING.md` and GitHub issue templates.
+- Fixed public-preview time-axis wording in docs after the repository became public.
+
 ## v0.1.0 Developer Preview - 2026-05-01
 
 Initial public developer preview.
