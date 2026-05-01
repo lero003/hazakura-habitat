@@ -102,6 +102,7 @@ Allowed:
 
 `command_policy.md` should list concrete allowed commands such as `swift test` or `.venv/bin/python -m pytest`.
 It should not emit broad Allowed entries like `test commands for the selected project` or `build commands for the selected project`, because those can cause an AI agent to improvise outside the verified command set.
+When the Ask First list is long, project-specific guards should appear before broad cross-ecosystem package-manager guards, so agents see selected workflow mutations, missing/unverifiable tool guards, symlink guards, and lockfile/version-manager edits before generic install/update cautions.
 
 Ask First:
 

@@ -53,10 +53,11 @@ public struct ReportWriter {
                 .compactMap { $0 }
         }
         let avoidLines = prioritizedForbiddenCommands(result).prefix(9).map(avoidLine)
-        let askLines = result.policy.askFirstCommands.isEmpty
+        let askFirstCommands = prioritizedAskFirstCommands(result)
+        let askLines = askFirstCommands.isEmpty
             ? ["- Ask before dependency installation or version changes."]
             : limitedBulletLines(
-                result.policy.askFirstCommands.map { "Ask before `\($0)`." },
+                askFirstCommands.map { "Ask before `\($0)`." },
                 limit: 4,
                 overflowLabel: "Ask First commands",
                 overflowDestination: "command_policy.md"
@@ -122,7 +123,7 @@ public struct ReportWriter {
         \(bulletList(allowed.map { "`\($0)`" }, fallback: "- `read-only inspection`"))
 
         ## Ask First
-        \(bulletList(result.policy.askFirstCommands.map { "`\($0)`" }, fallback: "- `dependency installation`"))
+        \(bulletList(prioritizedAskFirstCommands(result).map { "`\($0)`" }, fallback: "- `dependency installation`"))
 
         ## Forbidden
         \(bulletList(result.policy.forbiddenCommands.map { "`\($0)`" }, fallback: "- `sudo`"))
@@ -250,6 +251,91 @@ public struct ReportWriter {
             relevantCommands.contains { commandName in
                 diagnostic == commandName || diagnostic.hasPrefix("\(commandName) ")
             }
+        }
+    }
+
+    private func prioritizedAskFirstCommands(_ result: ScanResult) -> [String] {
+        var prioritized: [String] = []
+
+        appendAskFirstCommands(
+            from: result.policy.askFirstCommands,
+            to: &prioritized
+        ) { command in
+            command == "running project commands before project path is verified"
+                || command.hasPrefix("running ")
+                || command == "Swift/Xcode build commands before xcode-select -p succeeds"
+                || command.hasPrefix("dependency installs ")
+                || command == "following project symlinks before reviewing targets"
+        }
+
+        appendAskFirstCommands(
+            from: result.policy.askFirstCommands,
+            to: &prioritized
+        ) { command in
+            selectedPackageManagerMutationCommands(result).contains(command)
+        }
+
+        appendAskFirstCommands(
+            from: result.policy.askFirstCommands,
+            to: &prioritized
+        ) { command in
+            command == "modifying lockfiles"
+                || command == "modifying version manager files"
+        }
+
+        for command in result.policy.askFirstCommands where !prioritized.contains(command) {
+            prioritized.append(command)
+        }
+
+        return prioritized
+    }
+
+    private func appendAskFirstCommands(
+        from source: [String],
+        to prioritized: inout [String],
+        where shouldInclude: (String) -> Bool
+    ) {
+        for command in source where shouldInclude(command) && !prioritized.contains(command) {
+            prioritized.append(command)
+        }
+    }
+
+    private func selectedPackageManagerMutationCommands(_ result: ScanResult) -> [String] {
+        switch result.project.packageManager {
+        case "npm":
+            return ["npm install", "npm ci", "npm update", "npm uninstall", "npm remove", "npm rm"]
+        case "pnpm":
+            return ["pnpm install", "pnpm add", "pnpm update", "pnpm remove", "pnpm rm", "pnpm uninstall"]
+        case "yarn":
+            return ["yarn install", "yarn add", "yarn up", "yarn remove"]
+        case "bun":
+            return ["bun install", "bun add", "bun update", "bun remove"]
+        case "uv":
+            return ["uv sync", "uv add", "uv remove", "uv pip install", "uv pip uninstall", "uv pip sync", "uv pip compile"]
+        case "python":
+            return ["pip install", "pip3 install", "python -m pip install", "python3 -m pip install", "pip uninstall", "pip3 uninstall", "python -m pip uninstall", "python3 -m pip uninstall"]
+        case "bundler":
+            return ["bundle install", "bundle add", "bundle update", "bundle lock", "bundle remove"]
+        case "homebrew":
+            return ["brew bundle", "brew bundle install", "brew bundle cleanup", "brew bundle dump", "brew update", "brew cleanup", "brew autoremove", "brew tap", "brew tap-new"]
+        case "swiftpm":
+            return ["swift package update", "swift package resolve"]
+        case "go":
+            return ["go get", "go mod tidy"]
+        case "cargo":
+            return ["cargo add", "cargo update", "cargo remove"]
+        case "cocoapods":
+            return ["pod install", "pod update", "pod repo update", "pod deintegrate"]
+        case "carthage":
+            return ["carthage bootstrap", "carthage update", "carthage checkout", "carthage build"]
+        case "xcodebuild":
+            return [
+                "xcodebuild build/test/archive before selecting a scheme",
+                "xcodebuild -resolvePackageDependencies",
+                "xcodebuild -allowProvisioningUpdates",
+            ]
+        default:
+            return []
         }
     }
 
