@@ -37,14 +37,15 @@ Do not commit `habitat-report/`. Convert useful findings into docs, fixtures, te
 
 ## Current Self-Scan Snapshot
 
-Snapshot date: 2026-05-01.
+Snapshot date: 2026-05-02.
 
 Observed output from scanning this repository:
 
 - Package manager: SwiftPM.
 - Preferred commands: `swift test`, `swift build`.
-- `agent_context.md`: 34 lines.
-- `command_policy.md`: 789 lines.
+- `agent_context.md`: 35 lines in `scan_result.json` artifact metadata.
+- `command_policy.md`: 790 lines in `scan_result.json` artifact metadata.
+- `environment_report.md`: 75 lines in `scan_result.json` artifact metadata.
 - Ask First commands: 262.
 - Forbidden commands: 489.
 - Warnings: none.
@@ -59,6 +60,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - Irrelevant missing-tool diagnostics stay out of the short agent context.
 - The generated command policy states that it is advisory and does not block commands.
 - `Review First` now carries reason codes, and the `Reason Codes` legend gives compact explanations without expanding `agent_context.md`.
+- `scan_result.json` now records generated Markdown artifact roles and line counts, so agents can identify the short working context without parsing every report first.
 - The bundled helper must use the current source checkout for self-scans instead of silently falling back to `dist/`, otherwise a stale local release artifact can hide new output-contract sections.
 
 ## v0.2 Findings
@@ -76,7 +78,7 @@ Improve:
 - Make `command_policy.md` easier to navigate when it is hundreds of lines long.
 - Separate project-relevant policy from broad baseline safety policy more clearly.
 - Continue reason-code groundwork so large policy sections are explainable and eventually groupable.
-- Add output shape tests that catch growth before it becomes normal.
+- Continue output shape metadata and tests that catch growth before it becomes normal.
 - Update representative examples whenever generated output wording or structure changes.
 
 ## Acceptance Question

@@ -5208,6 +5208,24 @@ struct HabitatCoreTests {
         let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
         #expect(scanResult.contains("\"schemaVersion\" : \"0.1\""))
         #expect(scanResult.contains("\"generatorVersion\" : \"\(HabitatMetadata.generatorVersion)\""))
+
+        let decoded = try JSONDecoder().decode(
+            ScanResult.self,
+            from: Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        )
+        #expect(decoded.artifacts.map(\.name) == [
+            "agent_context.md",
+            "command_policy.md",
+            "environment_report.md"
+        ])
+        #expect(decoded.artifacts.map(\.role) == [
+            "agent_context",
+            "command_policy",
+            "environment_report"
+        ])
+        #expect(decoded.artifacts.allSatisfy { $0.format == "markdown" })
+        let agentContextText = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        #expect(decoded.artifacts.first?.lineCount == lineCount(agentContextText))
     }
 
     @Test
@@ -6258,6 +6276,7 @@ struct HabitatCoreTests {
         var object = try #require(JSONSerialization.jsonObject(with: data) as? [String: Any])
         object.removeValue(forKey: "generatorVersion")
         object.removeValue(forKey: "changes")
+        object.removeValue(forKey: "artifacts")
         var project = try #require(object["project"] as? [String: Any])
         project.removeValue(forKey: "symlinkedFiles")
         project.removeValue(forKey: "unsafePackageMetadataFields")
@@ -6268,6 +6287,7 @@ struct HabitatCoreTests {
 
         #expect(decoded.generatorVersion == "unknown")
         #expect(decoded.changes.isEmpty)
+        #expect(decoded.artifacts.isEmpty)
         #expect(decoded.project.symlinkedFiles.isEmpty)
         #expect(decoded.project.unsafePackageMetadataFields.isEmpty)
         #expect(decoded.project.packageManager == "pnpm")
@@ -6871,6 +6891,11 @@ struct HabitatCoreTests {
             "## Forbidden",
             "## If Dependency Installation Seems Necessary"
         ])
+    }
+
+    private func lineCount(_ text: String) -> Int {
+        guard !text.isEmpty else { return 0 }
+        return text.split(separator: "\n", omittingEmptySubsequences: false).count
     }
 
     private func writeExecutableScript(_ url: URL, contents: String) throws {

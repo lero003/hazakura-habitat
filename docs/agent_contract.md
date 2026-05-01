@@ -636,6 +636,26 @@ Top-level shape:
 {
   "schemaVersion": "0.1",
   "generatorVersion": "0.2.0-dev",
+  "artifacts": [
+    {
+      "name": "agent_context.md",
+      "role": "agent_context",
+      "format": "markdown",
+      "lineCount": 35
+    },
+    {
+      "name": "command_policy.md",
+      "role": "command_policy",
+      "format": "markdown",
+      "lineCount": 790
+    },
+    {
+      "name": "environment_report.md",
+      "role": "environment_report",
+      "format": "markdown",
+      "lineCount": 75
+    }
+  ],
   "scannedAt": "2026-04-25T00:00:00Z",
   "projectPath": "/path/to/project",
   "system": {},
@@ -700,6 +720,7 @@ Compatibility:
 - Add fields freely during `0.x`.
 - Do not rename or remove fields without documenting a schema change.
 - `generatorVersion` records the Habitat generator release that produced the scan. Previous-scan comparison should surface generator-version changes so agents do not mistake report-shape or policy-generator differences for local environment drift.
+- `artifacts` records generated Markdown artifact names, roles, formats, and physical line counts. Agents can use it to distinguish the short working context from longer audit or policy outputs without parsing Markdown first.
 - `policy.reasonCodes` records the stable snake_case legend for reason codes used by generated Ask First and Forbidden policy. Keep it additive to the existing command arrays so older consumers can continue reading `preferredCommands`, `askFirstCommands`, and `forbiddenCommands`.
 - `policy.reasonCodes` should be emitted in the fixed catalog order, filtered to codes present in the generated policy, so metadata diffs do not depend on command list ordering.
 - `policy.commandReasons` records per-command `classification`, `reasonCode`, and `reason` metadata for generated Ask First and Forbidden commands. Keep it additive to the existing command arrays so agents can explain a command decision without parsing Markdown.

@@ -1,6 +1,26 @@
 {
   "schemaVersion": "0.1",
   "generatorVersion": "0.2.0-dev",
+  "artifacts": [
+    {
+      "name": "agent_context.md",
+      "role": "agent_context",
+      "format": "markdown",
+      "lineCount": 30
+    },
+    {
+      "name": "command_policy.md",
+      "role": "command_policy",
+      "format": "markdown",
+      "lineCount": 45
+    },
+    {
+      "name": "environment_report.md",
+      "role": "environment_report",
+      "format": "markdown",
+      "lineCount": 31
+    }
+  ],
   "scannedAt": "example timestamp",
   "projectPath": "example SwiftPM package",
   "system": {

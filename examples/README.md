@@ -12,6 +12,7 @@ The purpose is to make the product value visible:
 
 - `swift-package/agent_context.md`: representative output for a simple SwiftPM package.
 - `swift-package/command_policy.md`: representative advisory policy for a simple SwiftPM package.
+- `swift-package/environment_report.md`: representative audit/debug output for a simple SwiftPM package.
 - `swift-package/scan_result.json`: compact representative machine-readable scan shape.
 - `node-pnpm-conflict/agent_context.md`: representative output for conflicting JavaScript lockfiles.
 - `python-uv-missing-tool/agent_context.md`: representative output when `uv.lock` is present but `uv` is missing.

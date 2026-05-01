@@ -13,6 +13,7 @@ public struct ScanResult: Codable {
     public let warnings: [String]
     public let diagnostics: [String]
     public let changes: [ScanChange]
+    public let artifacts: [GeneratedArtifact]
 
     public init(
         schemaVersion: String = HabitatMetadata.schemaVersion,
@@ -26,7 +27,8 @@ public struct ScanResult: Codable {
         policy: PolicySummary,
         warnings: [String],
         diagnostics: [String],
-        changes: [ScanChange] = []
+        changes: [ScanChange] = [],
+        artifacts: [GeneratedArtifact] = []
     ) {
         self.schemaVersion = schemaVersion
         self.generatorVersion = generatorVersion
@@ -40,6 +42,7 @@ public struct ScanResult: Codable {
         self.warnings = warnings
         self.diagnostics = diagnostics
         self.changes = changes
+        self.artifacts = artifacts
     }
 
     public func withChanges(_ changes: [ScanChange]) -> ScanResult {
@@ -55,7 +58,26 @@ public struct ScanResult: Codable {
             policy: policy,
             warnings: warnings,
             diagnostics: diagnostics,
-            changes: changes
+            changes: changes,
+            artifacts: artifacts
+        )
+    }
+
+    public func withArtifacts(_ artifacts: [GeneratedArtifact]) -> ScanResult {
+        ScanResult(
+            schemaVersion: schemaVersion,
+            generatorVersion: generatorVersion,
+            scannedAt: scannedAt,
+            projectPath: projectPath,
+            system: system,
+            commands: commands,
+            project: project,
+            tools: tools,
+            policy: policy,
+            warnings: warnings,
+            diagnostics: diagnostics,
+            changes: changes,
+            artifacts: artifacts
         )
     }
 
@@ -72,6 +94,7 @@ public struct ScanResult: Codable {
         case warnings
         case diagnostics
         case changes
+        case artifacts
     }
 
     public init(from decoder: Decoder) throws {
@@ -88,6 +111,7 @@ public struct ScanResult: Codable {
         warnings = try container.decode([String].self, forKey: .warnings)
         diagnostics = try container.decode([String].self, forKey: .diagnostics)
         changes = try container.decodeIfPresent([ScanChange].self, forKey: .changes) ?? []
+        artifacts = try container.decodeIfPresent([GeneratedArtifact].self, forKey: .artifacts) ?? []
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -104,6 +128,21 @@ public struct ScanResult: Codable {
         try container.encode(warnings, forKey: .warnings)
         try container.encode(diagnostics, forKey: .diagnostics)
         try container.encode(changes, forKey: .changes)
+        try container.encode(artifacts, forKey: .artifacts)
+    }
+}
+
+public struct GeneratedArtifact: Codable, Equatable {
+    public let name: String
+    public let role: String
+    public let format: String
+    public let lineCount: Int
+
+    public init(name: String, role: String, format: String, lineCount: Int) {
+        self.name = name
+        self.role = role
+        self.format = format
+        self.lineCount = lineCount
     }
 }
 

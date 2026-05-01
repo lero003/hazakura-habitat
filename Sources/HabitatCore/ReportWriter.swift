@@ -5,10 +5,19 @@ public struct ReportWriter {
 
     public func write(scanResult: ScanResult, outputURL: URL) throws {
         try FileManager.default.createDirectory(at: outputURL, withIntermediateDirectories: true)
-        try writeJSON(scanResult: scanResult, outputURL: outputURL)
-        try writeText(agentContext(scanResult), to: outputURL.appendingPathComponent("agent_context.md"))
-        try writeText(commandPolicy(scanResult), to: outputURL.appendingPathComponent("command_policy.md"))
-        try writeText(environmentReport(scanResult), to: outputURL.appendingPathComponent("environment_report.md"))
+        let agentContextText = agentContext(scanResult)
+        let commandPolicyText = commandPolicy(scanResult)
+        let environmentReportText = environmentReport(scanResult)
+        let artifacts = [
+            markdownArtifact(name: "agent_context.md", role: "agent_context", text: agentContextText),
+            markdownArtifact(name: "command_policy.md", role: "command_policy", text: commandPolicyText),
+            markdownArtifact(name: "environment_report.md", role: "environment_report", text: environmentReportText)
+        ]
+
+        try writeJSON(scanResult: scanResult.withArtifacts(artifacts), outputURL: outputURL)
+        try writeText(agentContextText, to: outputURL.appendingPathComponent("agent_context.md"))
+        try writeText(commandPolicyText, to: outputURL.appendingPathComponent("command_policy.md"))
+        try writeText(environmentReportText, to: outputURL.appendingPathComponent("environment_report.md"))
     }
 
     private func writeJSON(scanResult: ScanResult, outputURL: URL) throws {
@@ -20,6 +29,20 @@ public struct ReportWriter {
 
     private func writeText(_ text: String, to url: URL) throws {
         try text.write(to: url, atomically: true, encoding: .utf8)
+    }
+
+    private func markdownArtifact(name: String, role: String, text: String) -> GeneratedArtifact {
+        GeneratedArtifact(
+            name: name,
+            role: role,
+            format: "markdown",
+            lineCount: lineCount(text)
+        )
+    }
+
+    private func lineCount(_ text: String) -> Int {
+        guard !text.isEmpty else { return 0 }
+        return text.split(separator: "\n", omittingEmptySubsequences: false).count
     }
 
     private func agentContext(_ result: ScanResult) -> String {
