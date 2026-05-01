@@ -5453,6 +5453,13 @@ struct HabitatCoreTests {
 
         This policy is advisory. Habitat does not block commands. `Forbidden` means this generated context tells the agent not to run the command.
 
+        ## Policy Index
+        - `Review First` - 4 highest-priority approval rules with reasons.
+        - `Reason Codes` - 6 reason families used by this policy.
+        - `Allowed` - 1 concrete safe starting point.
+        - `Ask First` - 4 commands or command families requiring approval.
+        - `Forbidden` - 2 commands or command families to avoid.
+
         ## Review First
         - `running pnpm commands before pnpm is available` (`missing_tool`) - Required project tool is missing on `PATH`.
         - `dependency installs before matching active Node to project version hints` (`runtime_version_mismatch`) - Active runtime differs from project version hints.
@@ -7008,6 +7015,7 @@ struct HabitatCoreTests {
 
         #expect(headings == [
             "# Command Policy",
+            "## Policy Index",
             "## Review First",
             "## Reason Codes",
             "## Allowed",

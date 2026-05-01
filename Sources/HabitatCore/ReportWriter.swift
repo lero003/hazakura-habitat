@@ -129,6 +129,7 @@ public struct ReportWriter {
     private func commandPolicy(_ result: ScanResult) -> String {
         let preferredCommands = markdownPreferredCommands(result)
         let secretGuidance = secretBearingFileGuidance(result)
+        let askFirstCommands = prioritizedAskFirstCommands(result)
         let reviewFirst = commandPolicyReviewFirst(result)
         let reasonLegend = commandPolicyReasonLegend(result)
         var allowed: [String]
@@ -148,6 +149,19 @@ public struct ReportWriter {
             This policy is advisory. Habitat does not block commands. `Forbidden` means this generated context tells the agent not to run the command.
             """
         ]
+
+        sections.append(
+            """
+            ## Policy Index
+            \(bulletList(commandPolicyIndex(
+                reviewFirstCount: reviewFirst.count,
+                reasonCodeCount: reasonLegend.count,
+                allowedCount: allowed.count,
+                askFirstCount: askFirstCommands.count,
+                forbiddenCount: result.policy.forbiddenCommands.count
+            ), fallback: "- Review `agent_context.md` first."))
+            """
+        )
 
         if !reviewFirst.isEmpty {
             sections.append(
@@ -174,7 +188,7 @@ public struct ReportWriter {
             """,
             """
             ## Ask First
-            \(bulletList(prioritizedAskFirstCommands(result).map { "`\($0)`" }, fallback: "- `dependency installation`"))
+            \(bulletList(askFirstCommands.map { "`\($0)`" }, fallback: "- `dependency installation`"))
             """,
             """
             ## Forbidden
@@ -196,6 +210,26 @@ public struct ReportWriter {
         )
 
         return sections.joined(separator: "\n\n")
+    }
+
+    private func commandPolicyIndex(
+        reviewFirstCount: Int,
+        reasonCodeCount: Int,
+        allowedCount: Int,
+        askFirstCount: Int,
+        forbiddenCount: Int
+    ) -> [String] {
+        [
+            "`Review First` - \(counted(reviewFirstCount, singular: "highest-priority approval rule", plural: "highest-priority approval rules")) with reasons.",
+            "`Reason Codes` - \(counted(reasonCodeCount, singular: "reason family", plural: "reason families")) used by this policy.",
+            "`Allowed` - \(counted(allowedCount, singular: "concrete safe starting point", plural: "concrete safe starting points")).",
+            "`Ask First` - \(counted(askFirstCount, singular: "command or command family", plural: "commands or command families")) requiring approval.",
+            "`Forbidden` - \(counted(forbiddenCount, singular: "command or command family", plural: "commands or command families")) to avoid."
+        ]
+    }
+
+    private func counted(_ count: Int, singular: String, plural: String) -> String {
+        "\(count) \(count == 1 ? singular : plural)"
     }
 
     private func commandPolicyReviewFirst(_ result: ScanResult) -> [String] {

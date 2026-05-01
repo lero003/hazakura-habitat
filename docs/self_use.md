@@ -44,7 +44,7 @@ Observed output from scanning this repository:
 - Package manager: SwiftPM.
 - Preferred commands: `swift test`, `swift build`.
 - `agent_context.md`: 33 lines in `scan_result.json` artifact metadata.
-- `command_policy.md`: 790 lines in `scan_result.json` artifact metadata.
+- `command_policy.md`: 797 lines in `scan_result.json` artifact metadata.
 - `environment_report.md`: 75 lines in `scan_result.json` artifact metadata.
 - Ask First commands: 262.
 - Forbidden commands: 489.
@@ -60,6 +60,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - Secret-bearing file, browser, mail, shell history, clipboard, and environment dump guidance is clear.
 - Irrelevant missing-tool diagnostics stay out of the short agent context.
 - The generated command policy states that it is advisory and does not block commands.
+- The generated command policy now has a compact `Policy Index` with section counts before the long command lists.
 - `Review First` now carries reason codes, and the `Reason Codes` legend gives compact explanations without expanding `agent_context.md`.
 - `scan_result.json` now records generated Markdown artifact roles, read order, line counts, and the `agent_context.md` line limit, so agents can identify and read the short working context first without parsing every report.
 - `scan_result.json` now records `policy.commandCounts`, so agents can see policy size and reason coverage before deciding whether to inspect the full `command_policy.md`.

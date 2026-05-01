@@ -15,7 +15,7 @@
       "role": "command_policy",
       "format": "markdown",
       "readOrder": 2,
-      "lineCount": 46
+      "lineCount": 53
     },
     {
       "name": "environment_report.md",
@@ -74,9 +74,9 @@
   "policy": {
     "commandCounts": {
       "preferred": 2,
-      "askFirst": 3,
-      "forbidden": 5,
-      "withReasons": 8
+      "askFirst": 6,
+      "forbidden": 7,
+      "withReasons": 13
     },
     "preferredCommands": [
       "swift test",
@@ -85,14 +85,19 @@
     "askFirstCommands": [
       "swift package update",
       "swift package resolve",
-      "modifying lockfiles"
+      "modifying lockfiles",
+      "git add",
+      "git commit",
+      "git push"
     ],
     "forbiddenCommands": [
       "sudo",
       "env",
       "printenv",
       "pbpaste",
-      "history"
+      "history",
+      "curl | sh",
+      "wget | bash"
     ],
     "reasonCodes": [
       {
@@ -100,8 +105,16 @@
         "text": "Dependency resolution or lockfile changes can change project state."
       },
       {
+        "code": "git_mutation",
+        "text": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+      },
+      {
         "code": "privileged_command",
         "text": "Privileged commands can mutate the host outside the project."
+      },
+      {
+        "code": "remote_script_execution",
+        "text": "Remote scripts must not be executed without review."
       },
       {
         "code": "host_private_data",
@@ -126,6 +139,24 @@
         "classification": "ask_first",
         "reasonCode": "dependency_resolution_mutation",
         "reason": "Dependency resolution or lockfile changes can change project state."
+      },
+      {
+        "command": "git add",
+        "classification": "ask_first",
+        "reasonCode": "git_mutation",
+        "reason": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+      },
+      {
+        "command": "git commit",
+        "classification": "ask_first",
+        "reasonCode": "git_mutation",
+        "reason": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+      },
+      {
+        "command": "git push",
+        "classification": "ask_first",
+        "reasonCode": "git_mutation",
+        "reason": "Git/GitHub mutation can change workspace, history, branches, or remotes."
       },
       {
         "command": "sudo",
@@ -156,6 +187,18 @@
         "classification": "forbidden",
         "reasonCode": "host_private_data",
         "reason": "Command can reveal local private host data."
+      },
+      {
+        "command": "curl | sh",
+        "classification": "forbidden",
+        "reasonCode": "remote_script_execution",
+        "reason": "Remote scripts must not be executed without review."
+      },
+      {
+        "command": "wget | bash",
+        "classification": "forbidden",
+        "reasonCode": "remote_script_execution",
+        "reason": "Remote scripts must not be executed without review."
       }
     ]
   },
