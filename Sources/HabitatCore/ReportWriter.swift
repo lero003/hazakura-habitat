@@ -100,6 +100,7 @@ public struct ReportWriter {
 
     private func commandPolicy(_ result: ScanResult) -> String {
         let preferredCommands = markdownPreferredCommands(result)
+        let secretGuidance = secretBearingFileGuidance(result)
         var allowed: [String]
 
         if hasProjectPathVerificationGuard(result) {
@@ -110,25 +111,40 @@ public struct ReportWriter {
             ]
         }
 
-        return """
-        # Command Policy
+        var sections = [
+            """
+            # Command Policy
 
-        This policy is advisory. Habitat does not block commands. `Forbidden` means this generated context tells the agent not to run the command.
+            This policy is advisory. Habitat does not block commands. `Forbidden` means this generated context tells the agent not to run the command.
+            """,
+            """
+            ## Allowed
+            \(bulletList(allowed.map { "`\($0)`" }, fallback: "- `read-only inspection`"))
+            """,
+            """
+            ## Ask First
+            \(bulletList(prioritizedAskFirstCommands(result).map { "`\($0)`" }, fallback: "- `dependency installation`"))
+            """,
+            """
+            ## Forbidden
+            \(bulletList(result.policy.forbiddenCommands.map { "`\($0)`" }, fallback: "- `sudo`"))
+            """
+        ]
 
-        ## Allowed
-        \(bulletList(allowed.map { "`\($0)`" }, fallback: "- `read-only inspection`"))
+        if !secretGuidance.isEmpty {
+            sections.append(secretGuidance)
+        }
 
-        ## Ask First
-        \(bulletList(prioritizedAskFirstCommands(result).map { "`\($0)`" }, fallback: "- `dependency installation`"))
+        sections.append(
+            """
+            ## If Dependency Installation Seems Necessary
+            - Re-check lockfiles and version hints first.
+            - Prefer the project-specific package manager from `agent_context.md`.
+            - Ask before any install, upgrade, uninstall, or global mutation.
+            """
+        )
 
-        ## Forbidden
-        \(bulletList(result.policy.forbiddenCommands.map { "`\($0)`" }, fallback: "- `sudo`"))
-
-        ## If Dependency Installation Seems Necessary
-        - Re-check lockfiles and version hints first.
-        - Prefer the project-specific package manager from `agent_context.md`.
-        - Ask before any install, upgrade, uninstall, or global mutation.
-        """
+        return sections.joined(separator: "\n\n")
     }
 
     private func environmentReport(_ result: ScanResult) -> String {
@@ -690,6 +706,40 @@ public struct ReportWriter {
             || hasSSHPrivateKeyFile(project)
     }
 
+    private func secretBearingFileGuidance(_ result: ScanResult) -> String {
+        let files = secretValueFiles(result.project)
+        guard !files.isEmpty else { return "" }
+
+        return """
+        ## If Secret-Bearing Files Are Detected
+        - Detected secret-bearing paths: \(summarize(files)).
+        - Before recursive search, copy, sync, or archive commands, review exclusions for these paths.
+        - Prefer targeted project inspection over broad `rg`, `grep -R`, `rsync`, `tar`, `zip`, or `git archive` commands.
+        """
+    }
+
+    private func secretValueFiles(_ project: ProjectInfo) -> [String] {
+        project.detectedFiles
+            .filter { file in
+                hasSecretDotEnvFilename(file)
+                    || hasSecretEnvrcFilename(file)
+                    || file == ".netrc"
+                    || isPackageManagerAuthConfigFile(file)
+                    || isProjectCloudOrContainerCredentialFile(file)
+                    || isSSHPrivateKeyFilename(file)
+            }
+            .sorted()
+    }
+
+    private func summarize(_ values: [String], limit: Int = 6) -> String {
+        guard values.count > limit else {
+            return values.joined(separator: ", ")
+        }
+
+        return values.prefix(limit).joined(separator: ", ")
+            + ", and \(values.count - limit) more"
+    }
+
     private func isSSHPrivateKeyFilename(_ file: String) -> Bool {
         let basename = URL(fileURLWithPath: file).lastPathComponent.lowercased()
         guard !basename.hasSuffix(".pub") else { return false }
@@ -699,6 +749,37 @@ public struct ReportWriter {
         }
 
         return [".pem", ".key", ".p8", ".p12", ".ppk"].contains { basename.hasSuffix($0) }
+    }
+
+    private func hasSecretDotEnvFilename(_ file: String) -> Bool {
+        file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
+    }
+
+    private func hasSecretEnvrcFilename(_ file: String) -> Bool {
+        file == ".envrc" || (file.hasPrefix(".envrc.") && file != ".envrc.example")
+    }
+
+    private func isPackageManagerAuthConfigFile(_ file: String) -> Bool {
+        file == ".npmrc"
+            || file == ".pnpmrc"
+            || file == ".yarnrc"
+            || file == ".yarnrc.yml"
+            || file == ".pypirc"
+            || file == "pip.conf"
+            || file == ".gem/credentials"
+            || file == ".bundle/config"
+            || file == ".cargo/credentials.toml"
+            || file == ".cargo/credentials"
+            || file == "auth.json"
+            || file == ".composer/auth.json"
+    }
+
+    private func isProjectCloudOrContainerCredentialFile(_ file: String) -> Bool {
+        file == ".aws/credentials"
+            || file == ".aws/config"
+            || file == ".config/gcloud/application_default_credentials.json"
+            || file == ".docker/config.json"
+            || file == ".kube/config"
     }
 
     private func agentRelevantCommandNames(_ result: ScanResult) -> Set<String> {

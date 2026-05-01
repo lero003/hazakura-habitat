@@ -2784,16 +2784,24 @@ struct HabitatCoreTests {
         for command in bulkExportCommands {
             #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
         }
+        #expect(policy.contains("## If Secret-Bearing Files Are Detected"))
+        #expect(policy.contains("- Detected secret-bearing paths: .env."))
+        #expect(policy.contains("- Before recursive search, copy, sync, or archive commands, review exclusions for these paths."))
+        #expect(policy.contains("- Prefer targeted project inspection over broad `rg`, `grep -R`, `rsync`, `tar`, `zip`, or `git archive` commands."))
         #expect(context.contains("Do not copy, sync, or archive the project without excluding detected secret-bearing files."))
 
         let exampleOnlyProjectURL = try makeProject(files: [
             ".env.example": "TOKEN=\n",
         ])
         let exampleOnlyResult = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: exampleOnlyProjectURL)
+        let exampleOnlyOutputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: exampleOnlyResult, outputURL: exampleOnlyOutputURL)
+        let exampleOnlyPolicy = try String(contentsOf: exampleOnlyOutputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         for command in bulkExportCommands {
             #expect(!exampleOnlyResult.policy.forbiddenCommands.contains(command), "Did not expect \(command) when only examples exist")
         }
+        #expect(!exampleOnlyPolicy.contains("## If Secret-Bearing Files Are Detected"))
     }
 
     @Test
