@@ -5223,9 +5223,28 @@ struct HabitatCoreTests {
             "command_policy",
             "environment_report"
         ])
+        #expect(decoded.artifacts.map(\.readOrder) == [1, 2, 3])
         #expect(decoded.artifacts.allSatisfy { $0.format == "markdown" })
         let agentContextText = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         #expect(decoded.artifacts.first?.lineCount == lineCount(agentContextText))
+    }
+
+    @Test
+    func generatedArtifactDecodesOlderJsonWithoutReadOrder() throws {
+        let data = """
+        {
+          "name": "agent_context.md",
+          "role": "agent_context",
+          "format": "markdown",
+          "lineCount": 35
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(GeneratedArtifact.self, from: data)
+
+        #expect(decoded.name == "agent_context.md")
+        #expect(decoded.readOrder == nil)
+        #expect(decoded.lineCount == 35)
     }
 
     @Test

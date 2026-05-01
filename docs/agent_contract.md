@@ -641,18 +641,21 @@ Top-level shape:
       "name": "agent_context.md",
       "role": "agent_context",
       "format": "markdown",
+      "readOrder": 1,
       "lineCount": 35
     },
     {
       "name": "command_policy.md",
       "role": "command_policy",
       "format": "markdown",
+      "readOrder": 2,
       "lineCount": 790
     },
     {
       "name": "environment_report.md",
       "role": "environment_report",
       "format": "markdown",
+      "readOrder": 3,
       "lineCount": 75
     }
   ],
@@ -720,7 +723,7 @@ Compatibility:
 - Add fields freely during `0.x`.
 - Do not rename or remove fields without documenting a schema change.
 - `generatorVersion` records the Habitat generator release that produced the scan. Previous-scan comparison should surface generator-version changes so agents do not mistake report-shape or policy-generator differences for local environment drift.
-- `artifacts` records generated Markdown artifact names, roles, formats, and physical line counts. Agents can use it to distinguish the short working context from longer audit or policy outputs without parsing Markdown first.
+- `artifacts` records generated Markdown artifact names, roles, formats, read order, and physical line counts. Agents can use it to read the short working context first and distinguish longer policy or audit outputs without parsing Markdown first. Older `0.x` scans may omit `readOrder`; fall back to the listed artifact order in that case.
 - `policy.reasonCodes` records the stable snake_case legend for reason codes used by generated Ask First and Forbidden policy. Keep it additive to the existing command arrays so older consumers can continue reading `preferredCommands`, `askFirstCommands`, and `forbiddenCommands`.
 - `policy.reasonCodes` should be emitted in the fixed catalog order, filtered to codes present in the generated policy, so metadata diffs do not depend on command list ordering.
 - `policy.commandReasons` records per-command `classification`, `reasonCode`, and `reason` metadata for generated Ask First and Forbidden commands. Keep it additive to the existing command arrays so agents can explain a command decision without parsing Markdown.

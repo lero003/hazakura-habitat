@@ -60,7 +60,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - Irrelevant missing-tool diagnostics stay out of the short agent context.
 - The generated command policy states that it is advisory and does not block commands.
 - `Review First` now carries reason codes, and the `Reason Codes` legend gives compact explanations without expanding `agent_context.md`.
-- `scan_result.json` now records generated Markdown artifact roles and line counts, so agents can identify the short working context without parsing every report first.
+- `scan_result.json` now records generated Markdown artifact roles, read order, and line counts, so agents can identify and read the short working context first without parsing every report.
 - The bundled helper must use the current source checkout for self-scans instead of silently falling back to `dist/`, otherwise a stale local release artifact can hide new output-contract sections.
 
 ## v0.2 Findings

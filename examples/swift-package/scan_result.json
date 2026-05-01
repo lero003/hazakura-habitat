@@ -6,18 +6,21 @@
       "name": "agent_context.md",
       "role": "agent_context",
       "format": "markdown",
+      "readOrder": 1,
       "lineCount": 30
     },
     {
       "name": "command_policy.md",
       "role": "command_policy",
       "format": "markdown",
+      "readOrder": 2,
       "lineCount": 45
     },
     {
       "name": "environment_report.md",
       "role": "environment_report",
       "format": "markdown",
+      "readOrder": 3,
       "lineCount": 31
     }
   ],

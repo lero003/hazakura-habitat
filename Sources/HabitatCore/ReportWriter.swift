@@ -9,9 +9,9 @@ public struct ReportWriter {
         let commandPolicyText = commandPolicy(scanResult)
         let environmentReportText = environmentReport(scanResult)
         let artifacts = [
-            markdownArtifact(name: "agent_context.md", role: "agent_context", text: agentContextText),
-            markdownArtifact(name: "command_policy.md", role: "command_policy", text: commandPolicyText),
-            markdownArtifact(name: "environment_report.md", role: "environment_report", text: environmentReportText)
+            markdownArtifact(name: "agent_context.md", role: "agent_context", readOrder: 1, text: agentContextText),
+            markdownArtifact(name: "command_policy.md", role: "command_policy", readOrder: 2, text: commandPolicyText),
+            markdownArtifact(name: "environment_report.md", role: "environment_report", readOrder: 3, text: environmentReportText)
         ]
 
         try writeJSON(scanResult: scanResult.withArtifacts(artifacts), outputURL: outputURL)
@@ -31,12 +31,13 @@ public struct ReportWriter {
         try text.write(to: url, atomically: true, encoding: .utf8)
     }
 
-    private func markdownArtifact(name: String, role: String, text: String) -> GeneratedArtifact {
+    private func markdownArtifact(name: String, role: String, readOrder: Int, text: String) -> GeneratedArtifact {
         GeneratedArtifact(
             name: name,
             role: role,
             format: "markdown",
-            lineCount: lineCount(text)
+            lineCount: lineCount(text),
+            readOrder: readOrder
         )
     }
 
