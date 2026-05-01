@@ -113,6 +113,8 @@ public struct ReportWriter {
         return """
         # Command Policy
 
+        This policy is advisory. Habitat does not block commands. `Forbidden` means this generated context tells the agent not to run the command.
+
         ## Allowed
         \(bulletList(allowed.map { "`\($0)`" }, fallback: "- `read-only inspection`"))
 

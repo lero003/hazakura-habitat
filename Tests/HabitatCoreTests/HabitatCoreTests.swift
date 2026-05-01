@@ -5170,6 +5170,8 @@ struct HabitatCoreTests {
         #expect(policy == """
         # Command Policy
 
+        This policy is advisory. Habitat does not block commands. `Forbidden` means this generated context tells the agent not to run the command.
+
         ## Allowed
         - `read-only project inspection`
 

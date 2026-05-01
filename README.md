@@ -1,12 +1,16 @@
 # Hazakura Habitat
 
-Hazakura Habitat is a macOS-first CLI that generates conservative, structured context for AI coding agents before they run project commands.
+Hazakura Habitat is a macOS-first SwiftPM CLI for developers using AI coding agents.
 
-It scans a Mac development environment, resolves tool paths, detects project dependency signals, and emits compact artifacts that help an AI coding agent choose safer commands before it touches a project.
+Run it before an agent starts work. It generates short, advisory project context that tells the agent which tools to prefer, which commands require approval, and which secret-bearing paths to avoid.
 
-The current release target is `v0.1.0 Developer Preview`: usable, tested, intentionally narrow, and still evolving.
+It does not execute, approve, block, or sandbox commands.
 
-The MVP is not a human dashboard. It is a pre-work contract for AI agents.
+Status: `v0.1.0 Developer Preview` - advisory only - no command enforcement - macOS-first.
+
+The MVP is not a human dashboard. It is a pre-work contract for AI agents: a map before the agent walks, not a fence around the agent.
+
+Hazakura Habitat does not make an AI coding agent safe by itself. It only generates advisory context that an agent or user may choose to follow.
 
 ## What This Is Not
 
@@ -32,6 +36,13 @@ It does not execute, approve, or block commands.
 Instead, it generates short, conservative, project-derived context before an AI coding agent starts working. The goal is to help agents choose better commands, avoid risky defaults, and ask before mutating dependencies or touching sensitive files.
 
 Habitat is designed to complement tools such as Codex CLI, Claude Code, OpenCode, Cline, Goose, and sandboxed development environments.
+
+## Typical Use
+
+1. Run Habitat before asking an AI coding agent to work on a project.
+2. Give the generated `agent_context.md` to the agent.
+3. Use `command_policy.md` when the agent needs fuller guidance on allowed, Ask First, and Forbidden commands.
+4. Treat all output as advisory context. Habitat does not configure, approve, deny, or block commands for any agent automatically.
 
 ## Core Bet
 
@@ -67,7 +78,7 @@ Hazakura Habitat is an AI-first developer tool.
 
 It is designed for AI coding agents, and it is also developed with AI coding agents. That is intentional: the project treats AI not as an add-on, but as a primary development participant.
 
-The goal is to make AI-led development safer, more legible, and more conservative before commands are executed.
+The goal is to make AI-led development more legible and more conservative before commands are executed.
 
 ## Open Source Intent
 
@@ -75,7 +86,7 @@ Hazakura Habitat is meant to share an idea as much as an implementation.
 
 If the project helps other tools, developers, or agents adopt better pre-execution context, that is success. Forks, reimplementations, and projects that take the underlying ideas further are welcome.
 
-The goal is not to own this category. The goal is to help the AI-first development ecosystem become safer, more legible, and more conservative before commands run.
+The goal is not to own this category. The goal is to help the AI-first development ecosystem become more legible and more conservative before commands run.
 
 Credit, citations, or special thanks are warmly appreciated when this project or its ideas help your work, but the license only requires preserving the copyright and license notice.
 
@@ -114,6 +125,7 @@ Runtime version hints from `.nvmrc`, `.node-version`, `.python-version`, `.ruby-
 - [Roadmap](docs/roadmap.md)
 - [Positioning](docs/positioning.md)
 - [Known Limitations](docs/known_limitations.md)
+- [Contributing](CONTRIBUTING.md)
 - [Agent Contract](docs/agent_contract.md)
 - [Development Loop](docs/development_loop.md)
 - [GitHub Workflow](docs/github_workflow.md)
@@ -122,9 +134,23 @@ Runtime version hints from `.nvmrc`, `.node-version`, `.python-version`, `.ruby-
 
 ## Current Status
 
-The repository contains an initial SwiftPM implementation of the AI-first CLI. See [Current Status](docs/current_status.md) for what is implemented and what should come next.
+The repository contains the initial public Developer Preview implementation of the AI-first CLI. See [Current Status](docs/current_status.md) for what is implemented and what should come next.
 
-The next release milestone is public readiness for `v0.1.0 Developer Preview`. See [Public Readiness](docs/public_readiness.md) for the publication checklist and scope boundaries.
+See [Public Readiness](docs/public_readiness.md) for the completed `v0.1.0` publication checklist and scope boundaries.
+
+## Requirements
+
+- macOS 13 or later.
+- Swift 6.1 toolchain or a compatible Xcode toolchain.
+
+## Install From Release
+
+Download `habitat-scan-macos.zip` from the latest GitHub Release, then run:
+
+```bash
+unzip habitat-scan-macos.zip
+./dist/habitat-scan scan --project . --output ./habitat-report
+```
 
 ## Run
 
@@ -148,9 +174,15 @@ Generated files:
 - `habitat-report/command_policy.md`
 - `habitat-report/environment_report.md`
 
+## Exit Codes
+
+- `0`: scan completed and artifacts were written.
+- non-zero: CLI argument error, output write failure, or fatal scan setup error.
+- Missing tools are usually represented as scan data, not fatal errors.
+
 ## Example Output
 
-See [examples/swift-package/agent_context.md](examples/swift-package/agent_context.md) for a representative `agent_context.md`.
+See [examples](examples/README.md) for representative output shapes.
 
 ## GitHub
 

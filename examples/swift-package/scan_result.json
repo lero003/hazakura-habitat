@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "0.1",
+  "generatorVersion": "0.1.0",
+  "scannedAt": "example timestamp",
+  "projectPath": "example SwiftPM package",
+  "system": {
+    "operatingSystemVersion": "macOS example",
+    "architecture": "arm64",
+    "shell": "/bin/zsh",
+    "path": [
+      "/usr/bin"
+    ]
+  },
+  "commands": [],
+  "project": {
+    "detectedFiles": [
+      "Package.swift",
+      "Package.resolved"
+    ],
+    "packageManager": "swiftpm",
+    "packageManagerVersion": null,
+    "packageScripts": [],
+    "runtimeHints": {
+      "node": null,
+      "python": null,
+      "ruby": null
+    },
+    "unsafeRuntimeHintFiles": [],
+    "unsafePackageMetadataFields": [],
+    "secretBearingFiles": [],
+    "symlinkedFiles": []
+  },
+  "tools": {
+    "resolvedPaths": [
+      {
+        "name": "swift",
+        "paths": [
+          "/usr/bin/swift"
+        ]
+      }
+    ],
+    "versions": [
+      {
+        "name": "swift",
+        "version": "Swift example version",
+        "available": true
+      }
+    ]
+  },
+  "policy": {
+    "preferredCommands": [
+      "swift test",
+      "swift build"
+    ],
+    "askFirstCommands": [
+      "swift package update",
+      "swift package resolve",
+      "modifying lockfiles"
+    ],
+    "forbiddenCommands": [
+      "sudo",
+      "env",
+      "printenv",
+      "pbpaste",
+      "history"
+    ]
+  },
+  "warnings": [],
+  "diagnostics": [],
+  "changes": []
+}

@@ -6,16 +6,14 @@ CLI MVP is usable. The project is now in Agent Safety Hardening.
 
 The goal is not broad Mac environment coverage. The goal is to keep AI-facing outputs short, conservative, stable, and useful enough that an AI coding agent avoids wrong or unsafe commands before touching a repository.
 
-The next public milestone should be `v0.1.0 Developer Preview`. The main work before public visibility is not feature expansion; it is public readiness:
+The first public milestone, `v0.1.0 Developer Preview`, has been published. The next work is public stabilization rather than feature expansion:
 
-- README expectations and non-goals
-- advisory policy language, not enforcement claims
-- privacy and dummy-secret notes
-- prompt-injection guidance for AI-facing Markdown
-- schema/generator version metadata
-- examples or representative output
-- tracked-file and git-history secret scans
-- license and known limitations
+- keep README expectations and non-goals current
+- keep advisory policy language clear, with no enforcement claims
+- keep privacy, dummy-secret, and prompt-injection guidance visible
+- expand representative examples
+- refine issue and contribution guidance
+- harden output contract and behavior evaluation
 
 ## Implemented
 

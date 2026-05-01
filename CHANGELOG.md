@@ -1,8 +1,8 @@
 # Changelog
 
-## v0.1.0 Developer Preview - Pending
+## v0.1.0 Developer Preview - 2026-05-01
 
-Initial public preview target.
+Initial public developer preview.
 
 ### Included
 

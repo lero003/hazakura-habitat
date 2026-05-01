@@ -1,8 +1,8 @@
 # Public Readiness
 
-This document captures the publication plan for `v0.1.0 Developer Preview`.
+This document captures the completed publication plan for `v0.1.0 Developer Preview`.
 
-The next step is not broad feature expansion. The next step is making the project safe to understand, safe to review, and hard to misinterpret when the repository becomes public.
+The repository is now public. This checklist remains as an audit trail for the first public preview and as a reminder that the next step is not broad feature expansion. The next step is keeping the project safe to understand, safe to review, and hard to misinterpret.
 
 ## Release Positioning
 
@@ -168,13 +168,14 @@ Already true or partially true:
 
 ## Nice Before Public, Not Blocking
 
-- [ ] Example fixtures for SwiftPM, Node/pnpm, and Python/uv.
+- [x] Example fixtures for SwiftPM, Node/pnpm, and Python/uv.
 - [ ] Command-policy reason text.
 - [ ] Output length budget tests.
-- [ ] Exit-code semantics documented.
+- [x] Exit-code semantics documented.
 - [x] `SECURITY.md`.
 - [x] `CHANGELOG.md` with `v0.1.0`.
 - [x] Release binary checksum.
+- [x] Issue templates and contribution guide.
 
 ## Public-After Roadmap
 
