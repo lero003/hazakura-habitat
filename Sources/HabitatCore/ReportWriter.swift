@@ -351,10 +351,26 @@ public struct ReportWriter {
         }
 
         if commands.count > limit {
-            lines.append("- \(commands.count - limit) additional Ask First commands in `command_policy.md`.")
+            let hiddenCommands = Array(commands.dropFirst(limit))
+            let hiddenCount = commands.count - limit
+            let reasonSuffix = hiddenAskFirstReasonSuffix(for: hiddenCommands)
+            lines.append("- \(hiddenCount) additional Ask First commands or command families in `command_policy.md`\(reasonSuffix).")
         }
 
         return lines
+    }
+
+    private func hiddenAskFirstReasonSuffix(for commands: [String]) -> String {
+        let reasonCodes = commands.reduce(into: [String]()) { codes, command in
+            let code = PolicyReasonCatalog.askFirstReason(for: command).code
+            if !codes.contains(code) {
+                codes.append(code)
+            }
+        }
+        guard !reasonCodes.isEmpty else { return "" }
+        let summarizedCodes = reasonCodes.prefix(3).map { "`\($0)`" }.joined(separator: ", ")
+        let overflow = reasonCodes.count > 3 ? ", more" : ""
+        return " (reason codes: \(summarizedCodes)\(overflow))"
     }
 
     private func shouldSummarizeHiddenGitMutationGuards(commands: [String], shownCommands: [String]) -> Bool {

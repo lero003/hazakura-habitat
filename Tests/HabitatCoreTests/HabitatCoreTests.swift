@@ -5538,7 +5538,7 @@ struct HabitatCoreTests {
         #expect(context.contains("Ask before `modifying lockfiles`."))
         #expect(context.contains("Ask before `modifying version manager files`."))
         #expect(!context.contains("Ask before `brew install`."))
-        #expect(context.contains("2 additional Ask First commands in `command_policy.md`."))
+        #expect(context.contains("2 additional Ask First commands or command families in `command_policy.md` (reason codes: `dependency_mutation`)."))
         let swiftPackageUpdateIndex = try #require(policy.range(of: "`swift package update`")?.lowerBound)
         let modifyingLockfilesIndex = try #require(policy.range(of: "`modifying lockfiles`")?.lowerBound)
         let brewInstallIndex = try #require(policy.range(of: "`brew install`")?.lowerBound)
@@ -5584,7 +5584,7 @@ struct HabitatCoreTests {
         #expect(context.contains("Ask before `swift package update`."))
         #expect(context.contains("Ask before `modifying version manager files`."))
         #expect(context.contains("Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`."))
-        #expect(context.contains("4 additional Ask First commands in `command_policy.md`."))
+        #expect(context.contains("4 additional Ask First commands or command families in `command_policy.md` (reason codes: `git_mutation`)."))
         #expect(!context.contains("Ask before `git add`."))
     }
 
@@ -6525,7 +6525,7 @@ struct HabitatCoreTests {
         assertAgentContextContract(context)
         #expect(context.contains("Ask before `ask-first-4`."))
         #expect(!context.contains("Ask before `ask-first-5`."))
-        #expect(context.contains("2 additional Ask First commands in `command_policy.md`."))
+        #expect(context.contains("2 additional Ask First commands or command families in `command_policy.md` (reason codes: `user_approval_required`)."))
         #expect(policy.contains("`ask-first-6`"))
         #expect(context.contains("Warning 10"))
         #expect(!context.contains("Warning 11"))
