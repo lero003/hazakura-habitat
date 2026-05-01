@@ -141,6 +141,7 @@ The first public milestone, `v0.1.0 Developer Preview`, has been published. The 
 - `command_policy.md` starts with a short `Review First` block that repeats the highest-priority Ask First commands with concise reasons, so agents see selected workflow risks before scanning the full policy list.
 - `command_policy.md` includes a `Reason Codes` section and annotates `Review First` entries with stable snake_case reason codes, giving agents a compact explanation for missing-tool, dependency mutation, Git mutation, host privacy, secret/credential, and global-environment guards without expanding `agent_context.md`.
 - `scan_result.json` includes `policy.commandReasons`, which attaches `classification`, `reasonCode`, and short reason text to generated Ask First and Forbidden commands while preserving the existing command arrays for compatibility.
+- `scan_result.json` and `command_policy.md` emit reason-code legends in a fixed catalog order filtered to used codes, so metadata and Markdown diffs do not churn when command list order changes.
 - JavaScript projects that are missing or cannot verify both `node` and the selected package manager now name both blockers in the first `agent_context.md` `Use` line, instead of sending agents to verify only the runtime first.
 - Selected package-manager install guards are prioritized so the short `agent_context.md` shows the relevant install command first.
 - Multiple JavaScript lockfile warnings that tell agents to ask before dependency installs when package-manager signals conflict.

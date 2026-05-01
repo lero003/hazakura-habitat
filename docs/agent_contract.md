@@ -701,6 +701,7 @@ Compatibility:
 - Do not rename or remove fields without documenting a schema change.
 - `generatorVersion` records the Habitat generator release that produced the scan. Previous-scan comparison should surface generator-version changes so agents do not mistake report-shape or policy-generator differences for local environment drift.
 - `policy.reasonCodes` records the stable snake_case legend for reason codes used by generated Ask First and Forbidden policy. Keep it additive to the existing command arrays so older consumers can continue reading `preferredCommands`, `askFirstCommands`, and `forbiddenCommands`.
+- `policy.reasonCodes` should be emitted in the fixed catalog order, filtered to codes present in the generated policy, so metadata diffs do not depend on command list ordering.
 - `policy.commandReasons` records per-command `classification`, `reasonCode`, and `reason` metadata for generated Ask First and Forbidden commands. Keep it additive to the existing command arrays so agents can explain a command decision without parsing Markdown.
 - Generate Markdown from this JSON when possible.
 - `project.symlinkedFiles` records detected project signals or safety-relevant directories that are symbolic links. Symlinked metadata files should not be read for runtime or package-manager hints, symlinked workflow files should not select the package manager or concrete preferred commands, and `.ssh` symlink targets should not be traversed for private-key filenames.

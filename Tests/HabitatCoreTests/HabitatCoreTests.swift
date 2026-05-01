@@ -190,6 +190,47 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func policyReasonLegendUsesStableCatalogOrder() throws {
+        let firstOrder = PolicyReasonCatalog.legend(
+            askFirstCommands: [
+                "pnpm install",
+                "swift package update",
+                "running pnpm commands before pnpm is available",
+            ],
+            forbiddenCommands: [
+                "brew upgrade",
+                "env",
+                "sudo",
+            ]
+        ).map(\.code)
+
+        let reversedOrder = PolicyReasonCatalog.legend(
+            askFirstCommands: [
+                "running pnpm commands before pnpm is available",
+                "swift package update",
+                "pnpm install",
+            ],
+            forbiddenCommands: [
+                "sudo",
+                "env",
+                "brew upgrade",
+            ]
+        ).map(\.code)
+
+        let expectedOrder = [
+            "missing_tool",
+            "dependency_resolution_mutation",
+            "dependency_mutation",
+            "privileged_command",
+            "host_private_data",
+            "global_environment_mutation",
+        ]
+
+        #expect(firstOrder == expectedOrder)
+        #expect(reversedOrder == expectedOrder)
+    }
+
+    @Test
     func scanWarnsWhenActiveNodeDiffersFromNvmrc() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
@@ -5278,8 +5319,8 @@ struct HabitatCoreTests {
         ## Reason Codes
         - `missing_tool` - Required project tool is missing on `PATH`.
         - `runtime_version_mismatch` - Active runtime differs from project version hints.
-        - `dependency_mutation` - Dependency install, update, or removal can mutate project state.
         - `dependency_resolution_mutation` - Dependency resolution or lockfile changes can change project state.
+        - `dependency_mutation` - Dependency install, update, or removal can mutate project state.
         - `privileged_command` - Privileged commands can mutate the host outside the project.
         - `global_environment_mutation` - Command can mutate global tools or host environment state.
 

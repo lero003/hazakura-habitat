@@ -14,8 +14,8 @@ This policy is advisory. Habitat does not block commands. `Forbidden` means this
 - `dependency_resolution_mutation` - Dependency resolution or lockfile changes can change project state.
 - `git_mutation` - Git/GitHub mutation can change workspace, history, branches, or remotes.
 - `privileged_command` - Privileged commands can mutate the host outside the project.
-- `host_private_data` - Command can reveal local private host data.
 - `remote_script_execution` - Remote scripts must not be executed without review.
+- `host_private_data` - Command can reveal local private host data.
 
 ## Allowed
 - `swift test`

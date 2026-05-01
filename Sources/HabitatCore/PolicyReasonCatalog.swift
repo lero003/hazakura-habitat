@@ -1,6 +1,6 @@
 import Foundation
 
-public struct PolicyReasonCode: Codable, Equatable {
+public struct PolicyReasonCode: Codable, Equatable, Sendable {
     public let code: String
     public let text: String
 
@@ -11,15 +11,35 @@ public struct PolicyReasonCode: Codable, Equatable {
 }
 
 enum PolicyReasonCatalog {
+    private static let orderedReasonCodes: [PolicyReasonCode] = [
+        .init(code: "project_path_unverified", text: "Verify `--project` before running project commands."),
+        .init(code: "missing_tool", text: "Required project tool is missing on `PATH`."),
+        .init(code: "tool_verification_failed", text: "Required project tool is present but unverifiable."),
+        .init(code: "developer_directory_unverified", text: "Active developer directory is not verified."),
+        .init(code: "runtime_version_mismatch", text: "Active runtime differs from project version hints."),
+        .init(code: "package_manager_version_mismatch", text: "Package-manager version guidance is not yet verified."),
+        .init(code: "dependency_signal_conflict", text: "Project dependency signals need review before mutation."),
+        .init(code: "symlink_target_review", text: "Review symlink targets before trusting linked metadata."),
+        .init(code: "dependency_resolution_mutation", text: "Dependency resolution or lockfile changes can change project state."),
+        .init(code: "version_manager_mutation", text: "Runtime or tool-version edits change future command behavior."),
+        .init(code: "git_mutation", text: "Git/GitHub mutation can change workspace, history, branches, or remotes."),
+        .init(code: "dependency_mutation", text: "Dependency install, update, or removal can mutate project state."),
+        .init(code: "user_approval_required", text: "Requires user approval before execution."),
+        .init(code: "privileged_command", text: "Privileged commands can mutate the host outside the project."),
+        .init(code: "outside_project_deletion", text: "Deletion outside the selected project is out of scope."),
+        .init(code: "remote_script_execution", text: "Remote scripts must not be executed without review."),
+        .init(code: "host_private_data", text: "Command can reveal local private host data."),
+        .init(code: "secret_or_credential_access", text: "Command can read, expose, copy, or load secrets or credentials."),
+        .init(code: "global_environment_mutation", text: "Command can mutate global tools or host environment state."),
+        .init(code: "unsafe_or_sensitive_command", text: "Generated policy marks this command as unsafe or sensitive."),
+    ]
+
     static func legend(askFirstCommands: [String], forbiddenCommands: [String]) -> [PolicyReasonCode] {
-        var reasons: [PolicyReasonCode] = []
-        for command in askFirstCommands {
-            append(askFirstReason(for: command), to: &reasons)
-        }
-        for command in forbiddenCommands {
-            append(forbiddenReason(for: command), to: &reasons)
-        }
-        return reasons
+        let usedCodes = Set(
+            askFirstCommands.map { askFirstReason(for: $0).code }
+                + forbiddenCommands.map { forbiddenReason(for: $0).code }
+        )
+        return orderedReasonCodes.filter { usedCodes.contains($0.code) }
     }
 
     static func commandReasons(askFirstCommands: [String], forbiddenCommands: [String]) -> [PolicyCommandReason] {
@@ -158,14 +178,6 @@ enum PolicyReasonCatalog {
     static func isGitOrGitHubMutationGuard(_ command: String) -> Bool {
         command.hasPrefix("git ")
             || command.hasPrefix("gh ")
-    }
-
-    private static func append(_ reason: PolicyReasonCode, to reasons: inout [PolicyReasonCode]) {
-        guard !reasons.contains(where: { $0.code == reason.code }) else {
-            return
-        }
-
-        reasons.append(reason)
     }
 
     private static func commandReason(
