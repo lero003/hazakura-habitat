@@ -58,7 +58,7 @@ When versioned output behavior changes after a public release, do not move exist
 
 ## Self-Use Before Substantial Work
 
-Before larger Habitat changes, run Habitat on this repository and read the generated agent context:
+Before larger Habitat changes, use the bundled `hazakura-habitat` skill or run Habitat on this repository and read the generated agent context:
 
 ```bash
 swift build
@@ -68,6 +68,8 @@ swift build
 Use `habitat-report/agent_context.md` as the working context for Codex. Consult `habitat-report/command_policy.md` before dependency, Git/GitHub, secret-adjacent, archive, copy, sync, or environment-sensitive commands.
 
 Do not commit `habitat-report/`. Turn useful findings into docs, fixtures, tests, examples, or roadmap items. See [Self-Use Loop](self_use.md) for the current snapshot and v0.2 findings.
+
+The intended AI-first direction is that agents trigger this scan themselves before high-impact work. Humans should not need to remember the preflight every time.
 
 The v0.2 acceptance question is:
 

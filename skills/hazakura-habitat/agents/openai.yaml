@@ -1,0 +1,4 @@
+interface:
+  display_name: "Hazakura Habitat"
+  short_description: "Run advisory scans before AI coding work"
+  default_prompt: "Use $hazakura-habitat before substantial project work to scan the repo and follow the generated agent context."

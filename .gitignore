@@ -2,5 +2,7 @@
 .build/
 dist/
 habitat-report/
-skills/
+skills/*
+!skills/hazakura-habitat/
+!skills/hazakura-habitat/**
 *.xcresult

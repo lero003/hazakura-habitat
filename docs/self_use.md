@@ -6,11 +6,25 @@ This is not a marketing demo. It is a product feedback loop: if the generated co
 
 ## Workflow
 
+For recurring agent work, prefer the bundled skill at `skills/hazakura-habitat`. It lets Codex decide when to scan before substantial work instead of waiting for a human to remember the step.
+
+Install from GitHub with:
+
+```bash
+npx skills add lero003/hazakura-habitat@hazakura-habitat -g
+```
+
 Run a local build first, then scan the repository:
 
 ```bash
 swift build
 ./.build/debug/habitat-scan scan --project . --output ./habitat-report
+```
+
+When the skill is available, the equivalent helper is:
+
+```bash
+skills/hazakura-habitat/scripts/run_habitat_scan.sh .
 ```
 
 Read the generated files before continuing:

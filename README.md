@@ -44,6 +44,18 @@ Habitat is designed to complement tools such as Codex CLI, Claude Code, OpenCode
 3. Use `command_policy.md` when the agent needs fuller guidance on allowed, Ask First, and Forbidden commands.
 4. Treat all output as advisory context. Habitat does not configure, approve, deny, or block commands for any agent automatically.
 
+## Agent Skill
+
+For AI-first workflows, the preferred entrypoint is the bundled agent skill:
+
+```bash
+npx skills add lero003/hazakura-habitat@hazakura-habitat -g
+```
+
+The skill teaches an AI coding agent to run Habitat before substantial project work, dependency or lockfile changes, Git/GitHub mutations, and secret-adjacent operations. It also gives the agent a conservative setup path when `habitat-scan` is not installed yet.
+
+The skill lives at [skills/hazakura-habitat](skills/hazakura-habitat).
+
 ## Core Bet
 
 AI agents do not need a beautiful inventory of everything installed on a machine. They need a short, current, structured answer to:
@@ -129,6 +141,7 @@ Runtime version hints from `.nvmrc`, `.node-version`, `.python-version`, `.ruby-
 - [Agent Contract](docs/agent_contract.md)
 - [Development Loop](docs/development_loop.md)
 - [Self-Use Loop](docs/self_use.md)
+- [Agent Skill](skills/hazakura-habitat/SKILL.md)
 - [GitHub Workflow](docs/github_workflow.md)
 - [ADR 0001](docs/adr/0001-ai-first-core-cli.md)
 - [ADR 0002](docs/adr/0002-agent-safe-secret-handling.md)

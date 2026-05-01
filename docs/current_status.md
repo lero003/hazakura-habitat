@@ -26,6 +26,7 @@ The first public milestone, `v0.1.0 Developer Preview`, has been published. The 
   - `agent_context.md`
   - `command_policy.md`
   - `environment_report.md`
+- Bundled distributable agent skill at `skills/hazakura-habitat` so AI agents can run Habitat as a preflight step before substantial work, dependency changes, Git/GitHub mutations, and secret-adjacent operations.
 - `scan_result.json` includes `schemaVersion` and `generatorVersion`, and previous-scan comparison surfaces generator-version changes so agents do not mistake policy-generator differences for environment drift.
 - Optional previous-scan comparison with `--previous-scan`, accepting either a previous report directory or direct `scan_result.json` path, and producing concise AI-actionable `changes` for package-manager, lockfile, runtime version guidance, secret-bearing file signal, symlinked project signal, missing-tool, project-relevant tool verification failure/recovery, preferred-command, command-policy risk classification, and resolved command-policy entry deltas. Missing-tool comparison distinguishes tools that became available from tools that merely stopped being relevant to the current project, and avoids reporting a missing tool as recovered when its current version check fails.
 - `agent_context.md` filters command diagnostics to project-relevant tools while detailed diagnostics remain in the machine and environment reports.
