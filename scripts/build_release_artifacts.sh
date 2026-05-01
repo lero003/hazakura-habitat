@@ -26,4 +26,10 @@ if [[ -z "$(find "$DIST_DIR" -mindepth 1 -maxdepth 1 -print -quit)" ]]; then
   exit 1
 fi
 
+(
+  cd "$DIST_DIR"
+  rm -f SHA256SUMS
+  shasum -a 256 * > SHA256SUMS
+)
+
 echo "Artifacts written to $DIST_DIR"

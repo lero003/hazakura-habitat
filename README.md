@@ -162,6 +162,8 @@ Manual artifact build:
 ./scripts/build_release_artifacts.sh
 ```
 
+This writes local artifacts under `dist/`, including `SHA256SUMS` for release verification.
+
 ## License
 
 Hazakura Habitat is released under the [MIT License](LICENSE).

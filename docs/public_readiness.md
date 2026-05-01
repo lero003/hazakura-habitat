@@ -174,7 +174,7 @@ Already true or partially true:
 - [ ] Exit-code semantics documented.
 - [x] `SECURITY.md`.
 - [x] `CHANGELOG.md` with `v0.1.0`.
-- [ ] Release binary checksum.
+- [x] Release binary checksum.
 
 ## Public-After Roadmap
 

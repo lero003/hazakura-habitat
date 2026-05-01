@@ -19,6 +19,7 @@ Initial public preview target.
 - Conservative command policy for preferred commands, Ask First commands, and Forbidden commands.
 - Previous-scan comparison for command-changing deltas.
 - Secret-value non-emission tests and safety hardening around secret-bearing files, auth config, shell history, clipboard, browser/mail data, cloud/container credentials, and destructive commands.
+- Release artifact build with `SHA256SUMS`.
 - MIT License.
 
 ### Preview Limitations
