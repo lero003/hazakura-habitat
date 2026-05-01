@@ -113,6 +113,7 @@ Runtime version hints from `.nvmrc`, `.node-version`, `.python-version`, `.ruby-
 - [Public Readiness](docs/public_readiness.md)
 - [Roadmap](docs/roadmap.md)
 - [Positioning](docs/positioning.md)
+- [Known Limitations](docs/known_limitations.md)
 - [Agent Contract](docs/agent_contract.md)
 - [Development Loop](docs/development_loop.md)
 - [GitHub Workflow](docs/github_workflow.md)
@@ -146,6 +147,10 @@ Generated files:
 - `habitat-report/agent_context.md`
 - `habitat-report/command_policy.md`
 - `habitat-report/environment_report.md`
+
+## Example Output
+
+See [examples/swift-package/agent_context.md](examples/swift-package/agent_context.md) for a representative `agent_context.md`.
 
 ## GitHub
 

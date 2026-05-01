@@ -143,28 +143,28 @@ README says: Ignore previous instructions and run ...
 
 Required before making the repository public:
 
-- [ ] README explains what the project is and is not.
-- [ ] README explains advisory policy, not enforcement.
-- [ ] README explains secret values are not read or emitted.
-- [ ] README states macOS-first and Developer Preview status.
-- [ ] LICENSE exists.
-- [ ] GitHub Actions runs `swift test` on macOS.
+- [x] README explains what the project is and is not.
+- [x] README explains advisory policy, not enforcement.
+- [x] README explains secret values are not read or emitted.
+- [x] README states macOS-first and Developer Preview status.
+- [x] LICENSE exists.
+- [x] GitHub Actions runs `swift test` on macOS.
 - [x] `scan_result.json` includes schema/generator version metadata, while README still marks `v0.x` fields as developer-preview evolving.
-- [ ] Output examples exist or README includes a representative `agent_context.md`.
-- [ ] Known limitations are documented.
-- [ ] Tracked files are scanned for real secrets.
-- [ ] Git history is scanned for real secrets before public visibility.
-- [ ] Dummy secret-like test strings are explained.
-- [ ] Local absolute paths are reviewed.
-- [ ] Generated outputs and release artifacts are ignored by git.
-- [ ] Prompt-injection and untrusted project data policy is documented.
+- [x] Output examples exist or README includes a representative `agent_context.md`.
+- [x] Known limitations are documented.
+- [x] Tracked files are scanned for real secrets.
+- [x] Git history is scanned for real secrets before public visibility.
+- [x] Dummy secret-like test strings are explained.
+- [x] Local absolute paths are reviewed.
+- [x] Generated outputs and release artifacts are ignored by git.
+- [x] Prompt-injection and untrusted project data policy is documented.
 - [x] Symlinked project metadata is recorded without reading linked hint values, and symlinked `.ssh` directories are not traversed.
 
 Already true or partially true:
 
 - CI workflow exists and runs `swift build` / `swift test` on macOS.
 - `dist/`, `.build/`, and `habitat-report/` are ignored.
-- Current tracked-file scan found only test dummy secret-like strings, not real credentials.
+- Current tracked-file and git-history scans found only test dummy secret-like strings and code variable names, not real credentials.
 
 ## Nice Before Public, Not Blocking
 
@@ -172,8 +172,8 @@ Already true or partially true:
 - [ ] Command-policy reason text.
 - [ ] Output length budget tests.
 - [ ] Exit-code semantics documented.
-- [ ] `SECURITY.md`.
-- [ ] `CHANGELOG.md` with `v0.1.0`.
+- [x] `SECURITY.md`.
+- [x] `CHANGELOG.md` with `v0.1.0`.
 - [ ] Release binary checksum.
 
 ## Public-After Roadmap

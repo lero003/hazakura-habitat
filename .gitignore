@@ -2,4 +2,5 @@
 .build/
 dist/
 habitat-report/
+skills/
 *.xcresult
