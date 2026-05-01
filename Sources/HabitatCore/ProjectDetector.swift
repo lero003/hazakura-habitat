@@ -82,10 +82,20 @@ public struct ProjectDetector {
     public func detect(projectURL: URL) -> ProjectInfo {
         let detectedFiles = detectedProjectFiles(projectURL: projectURL)
         let symlinkedFiles = symlinkedProjectFiles(projectURL: projectURL, detectedFiles: detectedFiles)
-        let unsafeRuntimeHintFiles = unsafeRuntimeHintFiles(projectURL: projectURL, detectedFiles: detectedFiles, symlinkedFiles: symlinkedFiles)
+        let directUnsafeRuntimeHintFiles = unsafeRuntimeHintFiles(projectURL: projectURL, detectedFiles: detectedFiles, symlinkedFiles: symlinkedFiles)
         let packageJSON = packageJSONMetadata(projectURL.appendingPathComponent("package.json"))
         let toolVersions = toolVersionsMetadata(projectURL.appendingPathComponent(".tool-versions"))
         let miseToml = miseTomlMetadata(projectURL: projectURL)
+        let unsafeRuntimeHintFiles = orderedUnique(
+            directUnsafeRuntimeHintFiles
+                + toolVersions.unsafeRuntimeHintFiles
+                + miseToml.metadata.unsafeRuntimeHintFiles
+        )
+        let unsafePackageMetadataFields = orderedUnique(
+            packageJSON.unsafeMetadataFields
+                + toolVersions.unsafePackageMetadataFields
+                + miseToml.metadata.unsafePackageMetadataFields
+        )
         let packageManagerFiles = packageManagerSelectionFiles(detectedFiles: detectedFiles, symlinkedFiles: symlinkedFiles)
         let packageManager = detectPackageManager(files: packageManagerFiles, declaredPackageManager: packageJSON.declaredPackageManager)
         let packageManagerVersion = packageManagerVersion(
@@ -100,7 +110,7 @@ public struct ProjectDetector {
             detectedFiles: detectedFiles,
             symlinkedFiles: symlinkedFiles,
             unsafeRuntimeHintFiles: unsafeRuntimeHintFiles,
-            unsafePackageMetadataFields: packageJSON.unsafeMetadataFields,
+            unsafePackageMetadataFields: unsafePackageMetadataFields,
             packageManager: packageManager,
             packageManagerVersion: packageManagerVersion.version,
             packageManagerVersionSource: packageManagerVersion.source,
@@ -358,6 +368,9 @@ public struct ProjectDetector {
         var python: String?
         var ruby: String?
         var packageManagerVersions: [String: String] = [:]
+        var unsafeRuntimeHintFiles: [String] = []
+        var unsafePackageMetadataFields: [String] = []
+        let source = url.lastPathComponent
 
         for rawLine in content.split(whereSeparator: \.isNewline) {
             let line = rawLine
@@ -369,20 +382,24 @@ public struct ProjectDetector {
 
             switch parts[0] {
             case "node", "nodejs":
-                if node == nil {
-                    node = parts[1]
+                if node == nil,
+                   let version = safeVersionManagerRuntimeHint(parts[1], source: source, unsafeRuntimeHintFiles: &unsafeRuntimeHintFiles) {
+                    node = version
                 }
             case "python":
-                if python == nil {
-                    python = parts[1]
+                if python == nil,
+                   let version = safeVersionManagerRuntimeHint(parts[1], source: source, unsafeRuntimeHintFiles: &unsafeRuntimeHintFiles) {
+                    python = version
                 }
             case "ruby":
-                if ruby == nil {
-                    ruby = parts[1]
+                if ruby == nil,
+                   let version = safeVersionManagerRuntimeHint(parts[1], source: source, unsafeRuntimeHintFiles: &unsafeRuntimeHintFiles) {
+                    ruby = version
                 }
             case "npm", "pnpm", "yarn", "bun":
-                if packageManagerVersions[parts[0]] == nil {
-                    packageManagerVersions[parts[0]] = normalizedPackageManagerVersion(parts[1])
+                if packageManagerVersions[parts[0]] == nil,
+                   let version = safeVersionManagerPackageManagerHint(parts[1], fieldName: "\(source) \(parts[0])", unsafePackageMetadataFields: &unsafePackageMetadataFields) {
+                    packageManagerVersions[parts[0]] = version
                 }
             default:
                 continue
@@ -393,7 +410,9 @@ public struct ProjectDetector {
             node: node,
             python: python,
             ruby: ruby,
-            packageManagerVersions: packageManagerVersions
+            packageManagerVersions: packageManagerVersions,
+            unsafeRuntimeHintFiles: orderedUnique(unsafeRuntimeHintFiles),
+            unsafePackageMetadataFields: orderedUnique(unsafePackageMetadataFields)
         )
     }
 
@@ -407,6 +426,9 @@ public struct ProjectDetector {
         var python: String?
         var ruby: String?
         var packageManagerVersions: [String: String] = [:]
+        var unsafeRuntimeHintFiles: [String] = []
+        var unsafePackageMetadataFields: [String] = []
+        let source = url.lastPathComponent
         var inToolsSection = false
 
         for rawLine in content.split(whereSeparator: \.isNewline) {
@@ -429,20 +451,24 @@ public struct ProjectDetector {
 
             switch tool {
             case "node", "nodejs":
-                if node == nil {
-                    node = version
+                if node == nil,
+                   let safeVersion = safeVersionManagerRuntimeHint(version, source: source, unsafeRuntimeHintFiles: &unsafeRuntimeHintFiles) {
+                    node = safeVersion
                 }
             case "python":
-                if python == nil {
-                    python = version
+                if python == nil,
+                   let safeVersion = safeVersionManagerRuntimeHint(version, source: source, unsafeRuntimeHintFiles: &unsafeRuntimeHintFiles) {
+                    python = safeVersion
                 }
             case "ruby":
-                if ruby == nil {
-                    ruby = version
+                if ruby == nil,
+                   let safeVersion = safeVersionManagerRuntimeHint(version, source: source, unsafeRuntimeHintFiles: &unsafeRuntimeHintFiles) {
+                    ruby = safeVersion
                 }
             case "npm", "pnpm", "yarn", "bun":
-                if packageManagerVersions[tool] == nil {
-                    packageManagerVersions[tool] = normalizedPackageManagerVersion(version)
+                if packageManagerVersions[tool] == nil,
+                   let safeVersion = safeVersionManagerPackageManagerHint(version, fieldName: "\(source) \(tool)", unsafePackageMetadataFields: &unsafePackageMetadataFields) {
+                    packageManagerVersions[tool] = safeVersion
                 }
             default:
                 continue
@@ -453,7 +479,9 @@ public struct ProjectDetector {
             node: node,
             python: python,
             ruby: ruby,
-            packageManagerVersions: packageManagerVersions
+            packageManagerVersions: packageManagerVersions,
+            unsafeRuntimeHintFiles: orderedUnique(unsafeRuntimeHintFiles),
+            unsafePackageMetadataFields: orderedUnique(unsafePackageMetadataFields)
         )
     }
 
@@ -585,6 +613,27 @@ public struct ProjectDetector {
         return normalized
     }
 
+    private func safeVersionManagerRuntimeHint(_ value: String, source: String, unsafeRuntimeHintFiles: inout [String]) -> String? {
+        let normalized = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalized.isEmpty else { return nil }
+        guard isSafeVersionMetadataValue(normalized) else {
+            unsafeRuntimeHintFiles.append(source)
+            return nil
+        }
+        return normalized
+    }
+
+    private func safeVersionManagerPackageManagerHint(_ value: String, fieldName: String, unsafePackageMetadataFields: inout [String]) -> String? {
+        let normalized = normalizedPackageManagerVersion(value)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalized.isEmpty else { return nil }
+        guard isSafeVersionMetadataValue(normalized) else {
+            unsafePackageMetadataFields.append(fieldName)
+            return nil
+        }
+        return normalized
+    }
+
     private func fileSize(at url: URL) -> UInt64 {
         let attributes = try? FileManager.default.attributesOfItem(atPath: url.path)
         return (attributes?[.size] as? NSNumber)?.uint64Value ?? UInt64.max
@@ -700,15 +749,29 @@ private struct DeclaredPackageManagerMetadata {
 }
 
 private struct ToolVersionsMetadata {
-    static let empty = ToolVersionsMetadata(node: nil, python: nil, ruby: nil, packageManagerVersions: [:])
+    static let empty = ToolVersionsMetadata(
+        node: nil,
+        python: nil,
+        ruby: nil,
+        packageManagerVersions: [:],
+        unsafeRuntimeHintFiles: [],
+        unsafePackageMetadataFields: []
+    )
 
     let node: String?
     let python: String?
     let ruby: String?
     let packageManagerVersions: [String: String]
+    let unsafeRuntimeHintFiles: [String]
+    let unsafePackageMetadataFields: [String]
 
     var isEmpty: Bool {
-        node == nil && python == nil && ruby == nil && packageManagerVersions.isEmpty
+        node == nil
+            && python == nil
+            && ruby == nil
+            && packageManagerVersions.isEmpty
+            && unsafeRuntimeHintFiles.isEmpty
+            && unsafePackageMetadataFields.isEmpty
     }
 }
 
