@@ -86,6 +86,10 @@ Required sections:
 ```markdown
 # Command Policy
 
+## Review First
+
+## Reason Codes
+
 ## Allowed
 
 ## Ask First
@@ -107,6 +111,8 @@ Allowed:
 It should not emit broad Allowed entries like `test commands for the selected project` or `build commands for the selected project`, because those can cause an AI agent to improvise outside the verified command set.
 When the Ask First list is long, project-specific guards should appear before broad cross-ecosystem package-manager guards, so agents see selected workflow mutations, missing/unverifiable tool guards, symlink guards, and lockfile/version-manager edits before generic install/update cautions.
 When the short `agent_context.md` Ask First list hides Git/GitHub mutation guards, include a concise reminder that index, history, branch, workspace, or remote mutations require `command_policy.md` review.
+When `Review First` repeats the highest-priority Ask First commands, each entry should include a stable snake_case reason code plus short reason text.
+`Reason Codes` should list only codes that appear in the generated policy and explain why those command families are conservative.
 
 Ask First:
 

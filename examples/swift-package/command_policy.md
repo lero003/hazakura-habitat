@@ -3,12 +3,19 @@
 This policy is advisory. Habitat does not block commands. `Forbidden` means this generated context tells the agent not to run the command.
 
 ## Review First
-- `swift package update` - SwiftPM dependency resolution can change project state.
-- `swift package resolve` - SwiftPM dependency resolution can change project state.
-- `modifying lockfiles` - Lockfile edits change dependency resolution.
-- `git add` - Git/GitHub mutation can change workspace, history, branches, or remotes.
-- `git commit` - Git/GitHub mutation can change workspace, history, branches, or remotes.
-- `git push` - Git/GitHub mutation can change workspace, history, branches, or remotes.
+- `swift package update` (`dependency_resolution_mutation`) - Dependency resolution or lockfile changes can change project state.
+- `swift package resolve` (`dependency_resolution_mutation`) - Dependency resolution or lockfile changes can change project state.
+- `modifying lockfiles` (`dependency_resolution_mutation`) - Dependency resolution or lockfile changes can change project state.
+- `git add` (`git_mutation`) - Git/GitHub mutation can change workspace, history, branches, or remotes.
+- `git commit` (`git_mutation`) - Git/GitHub mutation can change workspace, history, branches, or remotes.
+- `git push` (`git_mutation`) - Git/GitHub mutation can change workspace, history, branches, or remotes.
+
+## Reason Codes
+- `dependency_resolution_mutation` - Dependency resolution or lockfile changes can change project state.
+- `git_mutation` - Git/GitHub mutation can change workspace, history, branches, or remotes.
+- `privileged_command` - Privileged commands can mutate the host outside the project.
+- `host_private_data` - Command can reveal local private host data.
+- `remote_script_execution` - Remote scripts must not be executed without review.
 
 ## Allowed
 - `swift test`

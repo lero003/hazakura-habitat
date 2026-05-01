@@ -44,7 +44,7 @@ Observed output from scanning this repository:
 - Package manager: SwiftPM.
 - Preferred commands: `swift test`, `swift build`.
 - `agent_context.md`: 34 lines.
-- `command_policy.md`: 767 lines.
+- `command_policy.md`: 789 lines.
 - Ask First commands: 262.
 - Forbidden commands: 489.
 - Warnings: none.
@@ -58,6 +58,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - Secret-bearing file, browser, mail, shell history, clipboard, and environment dump guidance is clear.
 - Irrelevant missing-tool diagnostics stay out of the short agent context.
 - The generated command policy states that it is advisory and does not block commands.
+- `Review First` now carries reason codes, and the `Reason Codes` legend gives compact explanations without expanding `agent_context.md`.
 
 ## v0.2 Findings
 
@@ -73,7 +74,7 @@ Improve:
 
 - Make `command_policy.md` easier to navigate when it is hundreds of lines long.
 - Separate project-relevant policy from broad baseline safety policy more clearly.
-- Add reason text and reason-code groundwork so large policy sections are explainable.
+- Continue reason-code groundwork so large policy sections are explainable and eventually groupable.
 - Add output shape tests that catch growth before it becomes normal.
 - Update representative examples whenever generated output wording or structure changes.
 

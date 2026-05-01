@@ -5176,16 +5176,25 @@ struct HabitatCoreTests {
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
+        assertCommandPolicyContract(policy)
         #expect(policy == """
         # Command Policy
 
         This policy is advisory. Habitat does not block commands. `Forbidden` means this generated context tells the agent not to run the command.
 
         ## Review First
-        - `running pnpm commands before pnpm is available` - Required project tool is missing on `PATH`.
-        - `dependency installs before matching active Node to project version hints` - Active runtime differs from project version hints.
-        - `pnpm install` - Dependency install, update, or removal can mutate project state.
-        - `modifying lockfiles` - Lockfile edits change dependency resolution.
+        - `running pnpm commands before pnpm is available` (`missing_tool`) - Required project tool is missing on `PATH`.
+        - `dependency installs before matching active Node to project version hints` (`runtime_version_mismatch`) - Active runtime differs from project version hints.
+        - `pnpm install` (`dependency_mutation`) - Dependency install, update, or removal can mutate project state.
+        - `modifying lockfiles` (`dependency_resolution_mutation`) - Dependency resolution or lockfile changes can change project state.
+
+        ## Reason Codes
+        - `missing_tool` - Required project tool is missing on `PATH`.
+        - `runtime_version_mismatch` - Active runtime differs from project version hints.
+        - `dependency_mutation` - Dependency install, update, or removal can mutate project state.
+        - `dependency_resolution_mutation` - Dependency resolution or lockfile changes can change project state.
+        - `privileged_command` - Privileged commands can mutate the host outside the project.
+        - `global_environment_mutation` - Command can mutate global tools or host environment state.
 
         ## Allowed
         - `read-only project inspection`
@@ -6701,6 +6710,23 @@ struct HabitatCoreTests {
             "## Notes"
         ])
         #expect(context.split(whereSeparator: \.isNewline).count <= 120)
+    }
+
+    private func assertCommandPolicyContract(_ policy: String) {
+        let headings = policy
+            .split(whereSeparator: \.isNewline)
+            .map(String.init)
+            .filter { $0.hasPrefix("#") }
+
+        #expect(headings == [
+            "# Command Policy",
+            "## Review First",
+            "## Reason Codes",
+            "## Allowed",
+            "## Ask First",
+            "## Forbidden",
+            "## If Dependency Installation Seems Necessary"
+        ])
     }
 
     private func makeProject(files: [String: String]) throws -> URL {
