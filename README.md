@@ -97,7 +97,7 @@ In `v0.x`, `scan_result.json` includes `schemaVersion` and `generatorVersion`, b
 
 ## Privacy and Prompt-Injection Stance
 
-Hazakura Habitat detects the presence of secret-bearing files, not their values. It should not read, collect, or emit `.env` values, package-registry tokens, SSH private keys, shell history, clipboard contents, browser data, or mail data.
+Hazakura Habitat detects the presence of secret-bearing files, not their values. It should not read, collect, or emit `.env` values, package-registry tokens, SSH private keys, local cloud/container credential values, shell history, clipboard contents, browser data, or mail data.
 
 Tests may contain dummy secret-like strings to verify non-emission behavior. They are not real credentials.
 

@@ -1242,6 +1242,10 @@ public struct HabitatScanner {
             warnings.append("Package manager auth config files detected (\(packageManagerAuthConfigFiles(project).joined(separator: ", "))); do not read credential values.")
         }
 
+        if hasProjectCloudOrContainerCredentialFiles(project) {
+            warnings.append("Project cloud/container credential files detected (\(projectCloudOrContainerCredentialFiles(project).joined(separator: ", "))); do not read credential values or print auth tokens.")
+        }
+
         if hasSymlinkedProjectSignals(project) {
             warnings.append("Project symlinks detected (\(project.symlinkedFiles.joined(separator: ", "))); do not follow linked metadata or secret-bearing directories before reviewing targets.")
         }
@@ -1606,6 +1610,7 @@ public struct HabitatScanner {
                     || isSecretEnvrcFile(file)
                     || file == ".netrc"
                     || isPackageManagerAuthConfigFile(file)
+                    || isProjectCloudOrContainerCredentialFile(file)
                     || isSSHPrivateKeyFilename(file)
             }
             .sorted()
@@ -1648,6 +1653,24 @@ public struct HabitatScanner {
             || file == ".cargo/credentials"
             || file == "auth.json"
             || file == ".composer/auth.json"
+    }
+
+    private func hasProjectCloudOrContainerCredentialFiles(_ project: ProjectInfo) -> Bool {
+        !projectCloudOrContainerCredentialFiles(project).isEmpty
+    }
+
+    private func projectCloudOrContainerCredentialFiles(_ project: ProjectInfo) -> [String] {
+        project.detectedFiles
+            .filter(isProjectCloudOrContainerCredentialFile)
+            .sorted()
+    }
+
+    private func isProjectCloudOrContainerCredentialFile(_ file: String) -> Bool {
+        file == ".aws/credentials"
+            || file == ".aws/config"
+            || file == ".config/gcloud/application_default_credentials.json"
+            || file == ".docker/config.json"
+            || file == ".kube/config"
     }
 
     private func hasNetrcFile(_ project: ProjectInfo) -> Bool {

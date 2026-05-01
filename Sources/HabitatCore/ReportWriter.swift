@@ -559,6 +559,10 @@ public struct ReportWriter {
             append("read package manager auth config values", to: &commands, from: result.policy.forbiddenCommands)
         }
 
+        if hasProjectCloudOrContainerCredentialFiles(result.project) {
+            append("read local cloud and container credential files", to: &commands, from: result.policy.forbiddenCommands)
+        }
+
         append("dump environment variables", to: &commands, from: result.policy.forbiddenCommands)
         append("read clipboard contents", to: &commands, from: result.policy.forbiddenCommands)
         append("read shell history", to: &commands, from: result.policy.forbiddenCommands)
@@ -604,6 +608,16 @@ public struct ReportWriter {
                 || file == ".cargo/credentials"
                 || file == "auth.json"
                 || file == ".composer/auth.json"
+        }
+    }
+
+    private func hasProjectCloudOrContainerCredentialFiles(_ project: ProjectInfo) -> Bool {
+        project.detectedFiles.contains { file in
+            file == ".aws/credentials"
+                || file == ".aws/config"
+                || file == ".config/gcloud/application_default_credentials.json"
+                || file == ".docker/config.json"
+                || file == ".kube/config"
         }
     }
 

@@ -1566,6 +1566,52 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanDetectsProjectCloudAndContainerCredentialFilesWithoutReadingValues() throws {
+        let secretValue = "hh_project_cloud_credential_secret"
+        let projectURL = try makeProject(files: [
+            ".aws/credentials": "[default]\naws_secret_access_key=\(secretValue)\n",
+            ".aws/config": "[profile demo]\nsso_session=\(secretValue)\n",
+            ".config/gcloud/application_default_credentials.json": "{\"refresh_token\":\"\(secretValue)\"}\n",
+            ".docker/config.json": "{\"auths\":{\"example.com\":{\"auth\":\"\(secretValue)\"}}}\n",
+            ".kube/config": "users:\n- token: \(secretValue)\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".aws/credentials"))
+        #expect(result.project.detectedFiles.contains(".aws/config"))
+        #expect(result.project.detectedFiles.contains(".config/gcloud/application_default_credentials.json"))
+        #expect(result.project.detectedFiles.contains(".docker/config.json"))
+        #expect(result.project.detectedFiles.contains(".kube/config"))
+        #expect(result.warnings.contains("Project cloud/container credential files detected (.aws/config, .aws/credentials, .config/gcloud/application_default_credentials.json, .docker/config.json, .kube/config); do not read credential values or print auth tokens."))
+        #expect(result.policy.forbiddenCommands.contains("cat .aws/credentials"))
+        #expect(result.policy.forbiddenCommands.contains("open .docker/config.json"))
+        #expect(result.policy.forbiddenCommands.contains("curl -F file=@.kube/config <url>"))
+        #expect(result.policy.forbiddenCommands.contains("project copy, sync, or archive without excluding secret-bearing files"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\".aws/credentials\""))
+        #expect(context.contains("Do not read, open, copy, upload, or archive local cloud or container credential files, or print cloud auth tokens."))
+        #expect(policy.contains("`cat .aws/credentials`"))
+        #expect(policy.contains("`open .docker/config.json`"))
+        #expect(policy.contains("`curl -F file=@.kube/config <url>`"))
+        #expect(report.contains("Project cloud/container credential files detected"))
+
+        for artifact in [scanResult, context, policy, report] {
+            #expect(!artifact.contains(secretValue))
+            #expect(!artifact.contains("sso_session"))
+            #expect(!artifact.contains("refresh_token"))
+        }
+    }
+
+    @Test
     func scanForbidsEnvironmentVariableDumpCommands() throws {
         let projectURL = try makeProject(files: [
             "README.md": "# Demo\n",
@@ -5122,6 +5168,7 @@ struct HabitatCoreTests {
             "package.json": "{}",
             ".env.local": "LOCAL_TOKEN=\(secretValue)\n",
             ".pnpmrc": "//registry.npmjs.org/:_authToken=\(secretValue)\n",
+            ".kube/config": "users:\n- client-key-data: \(secretValue)\n",
             "deploy.pem": "\(privateKeyMarker)\n\(secretValue)\n",
             "id_ed25519": "\(privateKeyMarker)\n\(secretValue)\n",
         ])
@@ -5132,7 +5179,7 @@ struct HabitatCoreTests {
         let changes = ScanComparator().compare(previous: previous, current: current)
         let secretChange = changes.first(where: { $0.category == "secret_files" })
 
-        #expect(secretChange?.summary == "Secret-bearing file signals changed: added .env.local, .pnpmrc, deploy.pem, and 1 more.")
+        #expect(secretChange?.summary == "Secret-bearing file signals changed: added .env.local, .kube/config, .pnpmrc, and 2 more.")
         #expect(secretChange?.impact == "Do not read, compare, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance.")
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -5142,13 +5189,14 @@ struct HabitatCoreTests {
         let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
 
         #expect(scanResult.contains("\"category\" : \"secret_files\""))
-        #expect(context.contains("Secret-bearing file signals changed: added .env.local, .pnpmrc, deploy.pem, and 1 more. Do not read, compare, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance."))
+        #expect(context.contains("Secret-bearing file signals changed: added .env.local, .kube/config, .pnpmrc, and 2 more. Do not read, compare, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance."))
         #expect(report.contains("[secret_files] Secret-bearing file signals changed"))
 
         for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
             let artifact = try String(contentsOf: outputURL.appendingPathComponent(name), encoding: .utf8)
             #expect(!artifact.contains(secretValue))
             #expect(!artifact.contains("LOCAL_TOKEN"))
+            #expect(!artifact.contains("client-key-data"))
             #expect(!artifact.contains("_authToken"))
             #expect(!artifact.contains(privateKeyMarker))
         }

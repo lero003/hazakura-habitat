@@ -361,6 +361,11 @@ public struct ScanComparator {
                 || file == ".cargo/credentials"
                 || file == "auth.json"
                 || file == ".composer/auth.json"
+                || file == ".aws/credentials"
+                || file == ".aws/config"
+                || file == ".config/gcloud/application_default_credentials.json"
+                || file == ".docker/config.json"
+                || file == ".kube/config"
                 || isSSHPrivateKeyFilename(file)
         }
     }
