@@ -156,6 +156,21 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanResultIncludesPolicyReasonCodes() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let reasonCodes = result.policy.reasonCodes.map { $0.code }
+
+        #expect(reasonCodes.contains("missing_tool"))
+        #expect(reasonCodes.contains("dependency_resolution_mutation"))
+        #expect(reasonCodes.contains("privileged_command"))
+        #expect(reasonCodes.count == Set(reasonCodes).count)
+    }
+
+    @Test
     func scanWarnsWhenActiveNodeDiffersFromNvmrc() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
@@ -6196,6 +6211,21 @@ struct HabitatCoreTests {
         #expect(decoded.project.symlinkedFiles.isEmpty)
         #expect(decoded.project.unsafePackageMetadataFields.isEmpty)
         #expect(decoded.project.packageManager == "pnpm")
+    }
+
+    @Test
+    func olderPolicySummaryWithoutReasonCodesDecodesAsEmpty() throws {
+        let data = """
+        {
+          "preferredCommands": [],
+          "askFirstCommands": ["npm install"],
+          "forbiddenCommands": ["sudo"]
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(PolicySummary.self, from: data)
+
+        #expect(decoded.reasonCodes.isEmpty)
     }
 
     @Test

@@ -583,7 +583,11 @@ public struct HabitatScanner {
                 askFirstCommands: askFirstCommands
             ),
             askFirstCommands: askFirstCommands,
-            forbiddenCommands: forbiddenCommands
+            forbiddenCommands: forbiddenCommands,
+            reasonCodes: PolicyReasonCatalog.legend(
+                askFirstCommands: askFirstCommands,
+                forbiddenCommands: forbiddenCommands
+            )
         )
         let diagnostics = commands.compactMap(commandDiagnostic)
 

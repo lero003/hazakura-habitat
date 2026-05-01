@@ -253,4 +253,40 @@ public struct PolicySummary: Codable {
     public let preferredCommands: [String]
     public let askFirstCommands: [String]
     public let forbiddenCommands: [String]
+    public let reasonCodes: [PolicyReasonCode]
+
+    public init(
+        preferredCommands: [String],
+        askFirstCommands: [String],
+        forbiddenCommands: [String],
+        reasonCodes: [PolicyReasonCode] = []
+    ) {
+        self.preferredCommands = preferredCommands
+        self.askFirstCommands = askFirstCommands
+        self.forbiddenCommands = forbiddenCommands
+        self.reasonCodes = reasonCodes
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case preferredCommands
+        case askFirstCommands
+        case forbiddenCommands
+        case reasonCodes
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        preferredCommands = try container.decode([String].self, forKey: .preferredCommands)
+        askFirstCommands = try container.decode([String].self, forKey: .askFirstCommands)
+        forbiddenCommands = try container.decode([String].self, forKey: .forbiddenCommands)
+        reasonCodes = try container.decodeIfPresent([PolicyReasonCode].self, forKey: .reasonCodes) ?? []
+    }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(preferredCommands, forKey: .preferredCommands)
+        try container.encode(askFirstCommands, forKey: .askFirstCommands)
+        try container.encode(forbiddenCommands, forKey: .forbiddenCommands)
+        try container.encode(reasonCodes, forKey: .reasonCodes)
+    }
 }

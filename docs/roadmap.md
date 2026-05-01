@@ -101,7 +101,7 @@ Focus:
 - fixed `agent_context.md` structure
 - line or character budget for `agent_context.md`
 - fixed classification order for `command_policy.md`
-- `schema_version` and generator metadata in `scan_result.json`
+- `schema_version`, generator metadata, and policy reason-code metadata in `scan_result.json`
 - policy reason text
 - initial `reason_code` model
 - Markdown snapshot tests that include output size checks

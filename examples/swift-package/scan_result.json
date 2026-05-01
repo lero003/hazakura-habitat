@@ -63,6 +63,20 @@
       "printenv",
       "pbpaste",
       "history"
+    ],
+    "reasonCodes": [
+      {
+        "code": "dependency_resolution_mutation",
+        "text": "Dependency resolution or lockfile changes can change project state."
+      },
+      {
+        "code": "privileged_command",
+        "text": "Privileged commands can mutate the host outside the project."
+      },
+      {
+        "code": "host_private_data",
+        "text": "Command can reveal local private host data."
+      }
     ]
   },
   "warnings": [],

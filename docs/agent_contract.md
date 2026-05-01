@@ -654,7 +654,21 @@ Top-level shape:
     "runtimeHints": {}
   },
   "tools": {},
-  "policy": {},
+  "policy": {
+    "preferredCommands": ["pnpm run test"],
+    "askFirstCommands": ["pnpm install"],
+    "forbiddenCommands": ["sudo"],
+    "reasonCodes": [
+      {
+        "code": "dependency_mutation",
+        "text": "Dependency install, update, or removal can mutate project state."
+      },
+      {
+        "code": "privileged_command",
+        "text": "Privileged commands can mutate the host outside the project."
+      }
+    ]
+  },
   "changes": [
     {
       "category": "package_manager",
@@ -672,6 +686,7 @@ Compatibility:
 - Add fields freely during `0.x`.
 - Do not rename or remove fields without documenting a schema change.
 - `generatorVersion` records the Habitat generator release that produced the scan. Previous-scan comparison should surface generator-version changes so agents do not mistake report-shape or policy-generator differences for local environment drift.
+- `policy.reasonCodes` records the stable snake_case legend for reason codes used by generated Ask First and Forbidden policy. Keep it additive to the existing command arrays so older consumers can continue reading `preferredCommands`, `askFirstCommands`, and `forbiddenCommands`.
 - Generate Markdown from this JSON when possible.
 - `project.symlinkedFiles` records detected project signals or safety-relevant directories that are symbolic links. Symlinked metadata files should not be read for runtime or package-manager hints, symlinked workflow files should not select the package manager or concrete preferred commands, and `.ssh` symlink targets should not be traversed for private-key filenames.
 - `project.unsafeRuntimeHintFiles` records runtime hint files whose values were not emitted because they were oversized or not simple version-like strings, including direct runtime files, `.tool-versions`, `mise.toml`, and `.mise.toml`.
