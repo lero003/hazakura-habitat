@@ -256,15 +256,15 @@ public struct ReportWriter {
         case "render Docker Compose config when secret environment files exist":
             return "Do not render Docker Compose config while secret environment files may be interpolated."
         case "read .env values":
-            return "Do not read, compare, open, edit, copy, move, sync, upload, or archive `.env` files."
+            return "Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.env` files."
         case "read .envrc values":
-            return "Do not read, compare, open, edit, copy, move, sync, upload, or archive `.envrc` files."
+            return "Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.envrc` files."
         case "read .netrc values":
-            return "Do not read, compare, open, edit, copy, move, sync, upload, or archive `.netrc` files."
+            return "Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.netrc` files."
         case "read package manager auth config values":
-            return "Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."
+            return "Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."
         case "read private keys":
-            return "Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."
+            return "Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys."
         case "read local cloud and container credential files":
             return "Do not read, open, copy, upload, or archive local cloud or container credential files, or print cloud auth tokens."
         default:

@@ -126,7 +126,7 @@ public struct ScanComparator {
         return ScanChange(
             category: "secret_files",
             summary: "Secret-bearing file signals changed: \(parts.joined(separator: "; ")).",
-            impact: "Do not read, compare, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance."
+            impact: "Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance."
         )
     }
 

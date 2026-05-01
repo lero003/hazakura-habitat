@@ -1451,7 +1451,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
 
         for command in commands {
             #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
@@ -1851,7 +1851,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(!context.contains("Do not run `read private keys`."))
 
         for file in privateKeyFiles {
@@ -2483,11 +2483,11 @@ struct HabitatCoreTests {
 
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.env` files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.env` files."))
         #expect(context.contains("Do not source or load secret environment files."))
         #expect(context.contains("Do not render Docker Compose config while secret environment files may be interpolated."))
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(policy.contains("`docker compose config`"))
         #expect(policy.contains("`docker-compose config`"))
         #expect(policy.contains("`docker compose config --environment`"))
@@ -2514,7 +2514,7 @@ struct HabitatCoreTests {
         let sensitiveFiles = [".env", ".envrc.local", ".netrc", ".npmrc", "id_ed25519"]
 
         for file in sensitiveFiles {
-            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "grep -n <pattern> \(file)", "rg <pattern> \(file)", "rg -n <pattern> \(file)", "rg --line-number <pattern> \(file)", "git grep <pattern> -- \(file)", "git grep -n <pattern> -- \(file)", "git grep <pattern> \(file)", "git grep -n <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "diff \(file) <other>", "cmp \(file) <other>", "git diff -- \(file)", "git diff --cached -- \(file)", "git diff --staged -- \(file)", "git diff HEAD -- \(file)", "git log -p -- \(file)", "git blame \(file)", "git blame -- \(file)", "git annotate \(file)", "git annotate -- \(file)", "git show -- \(file)", "git show HEAD -- \(file)", "git show :\(file)", "git show HEAD:\(file)", "bat \(file)", "nl -ba \(file)", "base64 \(file)", "xxd \(file)", "hexdump -C \(file)", "strings \(file)", "open \(file)", "code \(file)", "vim \(file)", "vi \(file)", "nano \(file)", "emacs \(file)", "cp \(file) <destination>", "cp -R \(file) <destination>", "cp -r \(file) <destination>", "mv \(file) <destination>", "rsync \(file) <destination>", "rsync -a \(file) <destination>", "scp \(file) <destination>", "curl -F file=@\(file) <url>", "curl --data-binary @\(file) <url>", "curl -T \(file) <url>", "wget --post-file=\(file) <url>", "tar -cf <archive> \(file)", "tar -czf <archive> \(file)", "tar -cjf <archive> \(file)", "tar -cJf <archive> \(file)", "zip <archive> \(file)", "zip -r <archive> \(file)"] {
+            for command in ["cat \(file)", "less \(file)", "head \(file)", "tail \(file)", "grep <pattern> \(file)", "grep -n <pattern> \(file)", "rg <pattern> \(file)", "rg -n <pattern> \(file)", "rg --line-number <pattern> \(file)", "git grep <pattern> -- \(file)", "git grep -n <pattern> -- \(file)", "git grep <pattern> \(file)", "git grep -n <pattern> \(file)", "sed -n <range> \(file)", "awk <program> \(file)", "diff \(file) <other>", "cmp \(file) <other>", "git diff -- \(file)", "git diff --cached -- \(file)", "git diff --staged -- \(file)", "git diff HEAD -- \(file)", "git diff <rev> -- \(file)", "git diff <rev>..<rev> -- \(file)", "git log -p -- \(file)", "git blame \(file)", "git blame -- \(file)", "git annotate \(file)", "git annotate -- \(file)", "git show -- \(file)", "git show HEAD -- \(file)", "git show <rev> -- \(file)", "git show :\(file)", "git show HEAD:\(file)", "git show <rev>:\(file)", "git cat-file -p :\(file)", "git cat-file -p HEAD:\(file)", "git cat-file -p <rev>:\(file)", "git checkout -- \(file)", "git checkout HEAD -- \(file)", "git checkout <rev> -- \(file)", "git restore -- \(file)", "git restore --staged -- \(file)", "git restore --worktree -- \(file)", "git restore --source HEAD -- \(file)", "git restore --source <rev> -- \(file)", "bat \(file)", "nl -ba \(file)", "base64 \(file)", "xxd \(file)", "hexdump -C \(file)", "strings \(file)", "open \(file)", "code \(file)", "vim \(file)", "vi \(file)", "nano \(file)", "emacs \(file)", "cp \(file) <destination>", "cp -R \(file) <destination>", "cp -r \(file) <destination>", "mv \(file) <destination>", "rsync \(file) <destination>", "rsync -a \(file) <destination>", "scp \(file) <destination>", "curl -F file=@\(file) <url>", "curl --data-binary @\(file) <url>", "curl -T \(file) <url>", "wget --post-file=\(file) <url>", "tar -cf <archive> \(file)", "tar -czf <archive> \(file)", "tar -cjf <archive> \(file)", "tar -cJf <archive> \(file)", "zip <archive> \(file)", "zip -r <archive> \(file)"] {
                 #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
             }
         }
@@ -2561,6 +2561,8 @@ struct HabitatCoreTests {
             #expect(policy.contains("`git diff --cached -- \(file)`"), "Expected command_policy.md to forbid git diff --cached \(file)")
             #expect(policy.contains("`git diff --staged -- \(file)`"), "Expected command_policy.md to forbid git diff --staged \(file)")
             #expect(policy.contains("`git diff HEAD -- \(file)`"), "Expected command_policy.md to forbid git diff HEAD \(file)")
+            #expect(policy.contains("`git diff <rev> -- \(file)`"), "Expected command_policy.md to forbid git diff <rev> \(file)")
+            #expect(policy.contains("`git diff <rev>..<rev> -- \(file)`"), "Expected command_policy.md to forbid git diff rev range \(file)")
             #expect(policy.contains("`git log -p -- \(file)`"), "Expected command_policy.md to forbid git log -p \(file)")
             #expect(policy.contains("`git blame \(file)`"), "Expected command_policy.md to forbid git blame \(file)")
             #expect(policy.contains("`git blame -- \(file)`"), "Expected command_policy.md to forbid git blame -- \(file)")
@@ -2568,8 +2570,21 @@ struct HabitatCoreTests {
             #expect(policy.contains("`git annotate -- \(file)`"), "Expected command_policy.md to forbid git annotate -- \(file)")
             #expect(policy.contains("`git show -- \(file)`"), "Expected command_policy.md to forbid git show -- \(file)")
             #expect(policy.contains("`git show HEAD -- \(file)`"), "Expected command_policy.md to forbid git show HEAD -- \(file)")
+            #expect(policy.contains("`git show <rev> -- \(file)`"), "Expected command_policy.md to forbid git show <rev> -- \(file)")
             #expect(policy.contains("`git show :\(file)`"), "Expected command_policy.md to forbid git show :\(file)")
             #expect(policy.contains("`git show HEAD:\(file)`"), "Expected command_policy.md to forbid git show HEAD:\(file)")
+            #expect(policy.contains("`git show <rev>:\(file)`"), "Expected command_policy.md to forbid git show <rev>:\(file)")
+            #expect(policy.contains("`git cat-file -p :\(file)`"), "Expected command_policy.md to forbid git cat-file index \(file)")
+            #expect(policy.contains("`git cat-file -p HEAD:\(file)`"), "Expected command_policy.md to forbid git cat-file HEAD \(file)")
+            #expect(policy.contains("`git cat-file -p <rev>:\(file)`"), "Expected command_policy.md to forbid git cat-file revision \(file)")
+            #expect(policy.contains("`git checkout -- \(file)`"), "Expected command_policy.md to forbid git checkout -- \(file)")
+            #expect(policy.contains("`git checkout HEAD -- \(file)`"), "Expected command_policy.md to forbid git checkout HEAD -- \(file)")
+            #expect(policy.contains("`git checkout <rev> -- \(file)`"), "Expected command_policy.md to forbid git checkout <rev> -- \(file)")
+            #expect(policy.contains("`git restore -- \(file)`"), "Expected command_policy.md to forbid git restore -- \(file)")
+            #expect(policy.contains("`git restore --staged -- \(file)`"), "Expected command_policy.md to forbid git restore --staged -- \(file)")
+            #expect(policy.contains("`git restore --worktree -- \(file)`"), "Expected command_policy.md to forbid git restore --worktree -- \(file)")
+            #expect(policy.contains("`git restore --source HEAD -- \(file)`"), "Expected command_policy.md to forbid git restore --source HEAD -- \(file)")
+            #expect(policy.contains("`git restore --source <rev> -- \(file)`"), "Expected command_policy.md to forbid git restore --source <rev> -- \(file)")
             #expect(policy.contains("`bat \(file)`"), "Expected command_policy.md to forbid bat \(file)")
             #expect(policy.contains("`nl -ba \(file)`"), "Expected command_policy.md to forbid nl -ba \(file)")
             #expect(policy.contains("`base64 \(file)`"), "Expected command_policy.md to forbid base64 \(file)")
@@ -2619,6 +2634,18 @@ struct HabitatCoreTests {
         #expect(!policy.contains("`git show -- .env.example`"))
         #expect(!policy.contains("`git show HEAD -- .env.example`"))
         #expect(!policy.contains("`git show :.env.example`"))
+        #expect(!policy.contains("`git show <rev>:.env.example`"))
+        #expect(!policy.contains("`git cat-file -p :.env.example`"))
+        #expect(!policy.contains("`git cat-file -p HEAD:.env.example`"))
+        #expect(!policy.contains("`git cat-file -p <rev>:.env.example`"))
+        #expect(!policy.contains("`git checkout -- .env.example`"))
+        #expect(!policy.contains("`git checkout HEAD -- .env.example`"))
+        #expect(!policy.contains("`git checkout <rev> -- .env.example`"))
+        #expect(!policy.contains("`git restore -- .env.example`"))
+        #expect(!policy.contains("`git restore --staged -- .env.example`"))
+        #expect(!policy.contains("`git restore --worktree -- .env.example`"))
+        #expect(!policy.contains("`git restore --source HEAD -- .env.example`"))
+        #expect(!policy.contains("`git restore --source <rev> -- .env.example`"))
         #expect(!policy.contains("`base64 .env.example`"))
         #expect(!policy.contains("`strings .env.example`"))
         #expect(!policy.contains("`cp .env.example <destination>`"))
@@ -3125,7 +3152,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains(".pnpmrc"))
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
     }
 
@@ -3169,7 +3196,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".pypirc"))
         #expect(scanResult.contains("pip.conf"))
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(context.contains("Package manager auth config files detected (.pypirc, pip.conf); do not read credential values."))
         #expect(policy.contains("`read package manager auth config values`"))
@@ -3212,7 +3239,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".gem/credentials"))
         #expect(scanResult.contains(".bundle/config"))
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(policy.contains("`read package manager auth config values`"))
     }
@@ -3252,7 +3279,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".cargo/credentials.toml"))
         #expect(scanResult.contains(".cargo/credentials"))
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(policy.contains("`read package manager auth config values`"))
     }
@@ -3296,7 +3323,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains("auth.json"))
         #expect(scanResult.contains(".composer/auth.json"))
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files."))
         #expect(policy.contains("`read package manager auth config values`"))
     }
@@ -3329,7 +3356,7 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(scanResult.contains(".netrc"))
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.netrc` files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.netrc` files."))
         #expect(context.contains("Netrc credentials file exists; do not read .netrc values."))
         #expect(policy.contains("`read .netrc values`"))
     }
@@ -3361,7 +3388,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains("id_ed25519"))
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(context.contains("Private key file exists; do not read private key values."))
     }
 
@@ -3393,7 +3420,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains(".ssh/id_ed25519"))
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(context.contains("Private key file exists; do not read private key values."))
     }
 
@@ -3442,6 +3469,17 @@ struct HabitatCoreTests {
             #expect(result.policy.forbiddenCommands.contains("git show HEAD -- \(file)"), "Expected git show HEAD -- \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git show :\(file)"), "Expected git show :\(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("git show HEAD:\(file)"), "Expected git show HEAD:\(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git cat-file -p :\(file)"), "Expected git cat-file index \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git cat-file -p HEAD:\(file)"), "Expected git cat-file HEAD \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git cat-file -p <rev>:\(file)"), "Expected git cat-file revision \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git checkout -- \(file)"), "Expected git checkout -- \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git checkout HEAD -- \(file)"), "Expected git checkout HEAD -- \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git checkout <rev> -- \(file)"), "Expected git checkout <rev> -- \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git restore -- \(file)"), "Expected git restore -- \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git restore --staged -- \(file)"), "Expected git restore --staged -- \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git restore --worktree -- \(file)"), "Expected git restore --worktree -- \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git restore --source HEAD -- \(file)"), "Expected git restore --source HEAD -- \(file) to be forbidden")
+            #expect(result.policy.forbiddenCommands.contains("git restore --source <rev> -- \(file)"), "Expected git restore --source <rev> -- \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("cp \(file) <destination>"), "Expected cp \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("scp \(file) <destination>"), "Expected scp \(file) to be forbidden")
             #expect(result.policy.forbiddenCommands.contains("curl -F file=@\(file) <url>"), "Expected curl form upload \(file) to be forbidden")
@@ -3468,7 +3506,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, archive, or load private keys."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(policy.contains("`cat deploy.pem`"))
         #expect(policy.contains("`base64 deploy.pem`"))
         #expect(policy.contains("`xxd deploy.pem`"))
@@ -3482,6 +3520,15 @@ struct HabitatCoreTests {
         #expect(policy.contains("`git show -- deploy.pem`"))
         #expect(policy.contains("`git show HEAD -- deploy.pem`"))
         #expect(policy.contains("`git show HEAD:deploy.pem`"))
+        #expect(policy.contains("`git cat-file -p HEAD:deploy.pem`"))
+        #expect(policy.contains("`git checkout -- deploy.pem`"))
+        #expect(policy.contains("`git checkout HEAD -- deploy.pem`"))
+        #expect(policy.contains("`git checkout <rev> -- deploy.pem`"))
+        #expect(policy.contains("`git restore -- deploy.pem`"))
+        #expect(policy.contains("`git restore --staged -- deploy.pem`"))
+        #expect(policy.contains("`git restore --worktree -- deploy.pem`"))
+        #expect(policy.contains("`git restore --source HEAD -- deploy.pem`"))
+        #expect(policy.contains("`git restore --source <rev> -- deploy.pem`"))
         #expect(policy.contains("`cp deploy.pem <destination>`"))
         #expect(policy.contains("`scp deploy.pem <destination>`"))
         #expect(policy.contains("`curl -F file=@deploy.pem <url>`"))
@@ -3536,7 +3583,7 @@ struct HabitatCoreTests {
 
         #expect(scanResult.contains(".env.staging"))
         #expect(report.contains(".env.staging"))
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.env` files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.env` files."))
     }
 
     @Test
@@ -3567,8 +3614,8 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.envrc` files."))
-        #expect(!context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.env` files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.envrc` files."))
+        #expect(!context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.env` files."))
         #expect(policy.contains("`read .envrc values`"))
         #expect(policy.contains("`direnv allow`"))
         #expect(policy.contains("`direnv reload`"))
@@ -3600,7 +3647,7 @@ struct HabitatCoreTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Do not read, compare, open, edit, copy, move, sync, upload, or archive `.envrc` files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.envrc` files."))
         #expect(policy.contains("`read .envrc values`"))
         #expect(!policy.contains("`direnv allow`"))
     }
@@ -5325,7 +5372,7 @@ struct HabitatCoreTests {
         let secretChange = changes.first(where: { $0.category == "secret_files" })
 
         #expect(secretChange?.summary == "Secret-bearing file signals changed: added .env.local, .kube/config, .pnpmrc, and 2 more.")
-        #expect(secretChange?.impact == "Do not read, compare, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance.")
+        #expect(secretChange?.impact == "Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance.")
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
@@ -5334,7 +5381,7 @@ struct HabitatCoreTests {
         let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
 
         #expect(scanResult.contains("\"category\" : \"secret_files\""))
-        #expect(context.contains("Secret-bearing file signals changed: added .env.local, .kube/config, .pnpmrc, and 2 more. Do not read, compare, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance."))
+        #expect(context.contains("Secret-bearing file signals changed: added .env.local, .kube/config, .pnpmrc, and 2 more. Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance."))
         #expect(report.contains("[secret_files] Secret-bearing file signals changed"))
 
         for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
