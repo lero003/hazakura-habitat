@@ -566,7 +566,10 @@ public struct ReportWriter {
 
         append("sudo", to: &commands, from: result.policy.forbiddenCommands)
         append("destructive file deletion outside the selected project", to: &commands, from: result.policy.forbiddenCommands)
-        append("read private keys", to: &commands, from: result.policy.forbiddenCommands)
+
+        if hasSSHPrivateKeyFile(result.project) {
+            append("read private keys", to: &commands, from: result.policy.forbiddenCommands)
+        }
 
         if hasSecretDotEnvFile(result.project) || result.project.detectedFiles.contains(".env.example") {
             append("read .env values", to: &commands, from: result.policy.forbiddenCommands)
@@ -593,11 +596,18 @@ public struct ReportWriter {
             append("read local cloud and container credential files", to: &commands, from: result.policy.forbiddenCommands)
         }
 
+        if !hasSSHPrivateKeyFile(result.project) {
+            append("read private keys", to: &commands, from: result.policy.forbiddenCommands)
+        }
+
+        if !hasProjectCloudOrContainerCredentialFiles(result.project) {
+            append("read local cloud and container credential files", to: &commands, from: result.policy.forbiddenCommands)
+        }
+
         append("dump environment variables", to: &commands, from: result.policy.forbiddenCommands)
         append("read clipboard contents", to: &commands, from: result.policy.forbiddenCommands)
         append("read shell history", to: &commands, from: result.policy.forbiddenCommands)
         append("read browser or mail data", to: &commands, from: result.policy.forbiddenCommands)
-        append("read local cloud and container credential files", to: &commands, from: result.policy.forbiddenCommands)
         append("remote script execution through curl or wget", to: &commands, from: result.policy.forbiddenCommands)
 
         for command in result.policy.forbiddenCommands where !commands.contains(command) {
@@ -662,7 +672,14 @@ public struct ReportWriter {
     }
 
     private func isSSHPrivateKeyFilename(_ file: String) -> Bool {
-        ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(URL(fileURLWithPath: file).lastPathComponent)
+        let basename = URL(fileURLWithPath: file).lastPathComponent.lowercased()
+        guard !basename.hasSuffix(".pub") else { return false }
+
+        if ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(basename) {
+            return true
+        }
+
+        return [".pem", ".key", ".p8", ".p12", ".ppk"].contains { basename.hasSuffix($0) }
     }
 
     private func agentRelevantCommandNames(_ result: ScanResult) -> Set<String> {

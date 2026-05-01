@@ -1635,6 +1635,33 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func agentContextPrioritizesDetectedSecretFileAvoidance() throws {
+        let secretValue = "hh_dense_secret_context_value"
+        let projectURL = try makeProject(files: [
+            ".env": "APP_TOKEN=\(secretValue)\n",
+            ".envrc": "export APP_TOKEN=\(secretValue)\n",
+            ".netrc": "machine api.example.com password \(secretValue)\n",
+            ".npmrc": "//registry.npmjs.org/:_authToken=\(secretValue)\n",
+            ".aws/credentials": "[default]\naws_secret_access_key=\(secretValue)\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.env` files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.envrc` files."))
+        #expect(context.contains("Do not source or load secret environment files."))
+        #expect(context.contains("Do not render Docker Compose config while secret environment files may be interpolated."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.netrc` files."))
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
+        #expect(context.contains("Do not read, open, copy, upload, or archive local cloud or container credential files, or print cloud auth tokens."))
+        #expect(!context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys."))
+        #expect(!context.contains(secretValue))
+    }
+
+    @Test
     func scanForbidsEnvironmentVariableDumpCommands() throws {
         let projectURL = try makeProject(files: [
             "README.md": "# Demo\n",
