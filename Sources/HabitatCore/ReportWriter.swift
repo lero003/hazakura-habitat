@@ -49,9 +49,11 @@ public struct ReportWriter {
     private func agentContext(_ result: ScanResult) -> String {
         let preferredCommands = markdownPreferredCommands(result)
         let useLines: [String]
+        let preferLines: [String]
 
         if hasProjectPathVerificationGuard(result) {
             useLines = ["Verify the project path before running project commands."]
+            preferLines = ["Prefer path existence checks before project commands."]
         } else {
             let packageManagerUse = result.project.packageManager.map { packageManager in
                 if let verificationLine = selectedToolVerificationUseLine(result, packageManager: packageManager) {
@@ -73,8 +75,8 @@ public struct ReportWriter {
                 return "Use \(packageManagerUsePhrase(packageManager, result: result)) because project files point to it."
             }
 
-            useLines = ([packageManagerUse] + preferredCommands.prefix(2).map { "Prefer `\($0)`." })
-                .compactMap { $0 }
+            useLines = [packageManagerUse].compactMap { $0 }
+            preferLines = preferredCommands.prefix(2).map { "Prefer `\($0)`." }
         }
         let avoidLimit = hasDetectedSecretValueFile(result.project) ? 11 : 9
         let avoidLines = prioritizedForbiddenCommands(result).prefix(avoidLimit).map(avoidLine)
@@ -82,8 +84,8 @@ public struct ReportWriter {
         let askLines = agentContextAskFirstLines(askFirstCommands)
         let relevantDiagnostics = agentRelevantDiagnostics(result)
         let mismatchLines = result.warnings.isEmpty
-            ? ["- None detected."]
-            : limitedBulletLines(result.warnings, limit: 10, overflowLabel: "warnings")
+            ? ["- Mismatches: none detected."]
+            : limitedBulletLines(result.warnings.map { "Mismatch: \($0)" }, limit: 10, overflowLabel: "warnings")
         let changeLines = limitedBulletLines(
             result.changes.map { "\($0.summary) \($0.impact)" },
             limit: 6,
@@ -101,23 +103,22 @@ public struct ReportWriter {
         return """
         # Agent Context
 
-        ## Freshness
-        - Scanned at: \(result.scannedAt)
-        - Project: \(result.projectPath)
-
         ## Use
         \(bulletList(useLines, fallback: "- Use read-only inspection first."))
 
-        ## Avoid
-        \(bulletList(avoidLines, fallback: "- Do not mutate global environment state."))
+        ## Prefer
+        \(bulletList(preferLines, fallback: "- Prefer read-only inspection before mutation."))
 
         ## Ask First
         \(askLines.joined(separator: "\n"))
 
-        ## Mismatches
-        \(mismatchLines.joined(separator: "\n"))
+        ## Do Not
+        \(bulletList(avoidLines, fallback: "- Do not mutate global environment state."))
 
         ## Notes
+        - Scanned at: \(result.scannedAt)
+        - Project: \(result.projectPath)
+        \(mismatchLines.joined(separator: "\n"))
         \(noteLines.joined(separator: "\n"))
         """
     }

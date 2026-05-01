@@ -17,23 +17,21 @@ Required sections:
 ```markdown
 # Agent Context
 
-## Freshness
-- Scanned at:
-- Project:
-
 ## Use
 - ...
 
-## Avoid
+## Prefer
 - ...
 
 ## Ask First
 - ...
 
-## Mismatches
+## Do Not
 - ...
 
 ## Notes
+- Scanned at:
+- Project:
 - ...
 ```
 
@@ -46,7 +44,7 @@ Guidelines:
 - When a previous scan is supplied, include only AI-actionable deltas in `Notes`.
 - When `Ask First` is capped for brevity, include an overflow line that points agents to `command_policy.md` for the complete approval list.
 - When symlinked project signals change between scans, include a concise `Notes` delta that tells agents to review symlink targets before following linked metadata or using dependency signals.
-- Prioritize project-relevant secret access/exfiltration bans in `Avoid` when secret-bearing files are detected.
+- Prioritize project-relevant secret access/exfiltration bans in `Do Not` when secret-bearing files are detected.
 - When project metadata or secret-bearing directories are symlinks, tell the agent to review symlink targets before following them or trusting linked metadata.
 - When runtime version hint files contain oversized or non-version-like values, do not emit those values; tell the agent to verify runtimes before dependency installs.
 - When `package.json` version metadata contains oversized or non-version-like values, do not emit those values; record field names only and tell the agent to verify runtimes and package managers before dependency installs.
@@ -60,7 +58,7 @@ Guidelines:
 - A detected project-local executable path such as `.venv/bin/python` may remain in `Use` / `Allowed` when the selected package-manager executable is missing, but only when the path is executable and the concrete project-local command can run without the missing tool.
 - For Python projects, an executable `.venv/bin/python` should prevent a broad missing-`python3` Ask First guard from hiding the project-local test command.
 - Do not dump full package inventories here.
-- Include scan freshness because environment data becomes stale quickly.
+- Include scan freshness in `Notes` because environment data becomes stale quickly.
 
 Example:
 
@@ -69,12 +67,19 @@ Example:
 - Use `pnpm` because `pnpm-lock.yaml` exists.
 - Use Node from `/opt/homebrew/bin/node`.
 
-## Avoid
-- Do not run `npm install` unless the user approves switching package managers.
-- Do not run `brew upgrade`.
+## Prefer
+- Prefer `pnpm test`.
 
 ## Ask First
 - Active Node is `v22`, but `.nvmrc` requests `v20`.
+
+## Do Not
+- Do not run `npm install` unless the user approves switching package managers.
+- Do not run `brew upgrade`.
+
+## Notes
+- Scanned at: 2026-04-25T00:00:00Z
+- Project: /path/to/project
 ```
 
 ## Primary Artifact: command_policy.md
@@ -642,7 +647,7 @@ Top-level shape:
       "role": "agent_context",
       "format": "markdown",
       "readOrder": 1,
-      "lineCount": 35
+      "lineCount": 33
     },
     {
       "name": "command_policy.md",

@@ -43,7 +43,7 @@ Observed output from scanning this repository:
 
 - Package manager: SwiftPM.
 - Preferred commands: `swift test`, `swift build`.
-- `agent_context.md`: 35 lines in `scan_result.json` artifact metadata.
+- `agent_context.md`: 33 lines in `scan_result.json` artifact metadata.
 - `command_policy.md`: 790 lines in `scan_result.json` artifact metadata.
 - `environment_report.md`: 75 lines in `scan_result.json` artifact metadata.
 - Ask First commands: 262.

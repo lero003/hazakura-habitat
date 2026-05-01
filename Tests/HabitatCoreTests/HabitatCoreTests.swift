@@ -146,8 +146,9 @@ struct HabitatCoreTests {
             let context = try String(contentsOf: rootURL.appendingPathComponent(path), encoding: .utf8)
 
             assertAgentContextContract(context)
-            #expect(!context.contains("## Prefer"), "Representative examples should keep preferred commands inside Use: \(path)")
-            #expect(!context.contains("## Do Not"), "Representative examples should use Avoid for current output shape: \(path)")
+            #expect(!context.contains("## Freshness"), "Representative examples should keep freshness in Notes: \(path)")
+            #expect(!context.contains("## Avoid"), "Representative examples should use Do Not for current output shape: \(path)")
+            #expect(!context.contains("## Mismatches"), "Representative examples should keep mismatch details in Notes: \(path)")
         }
     }
 
@@ -5359,16 +5360,11 @@ struct HabitatCoreTests {
         #expect(context == """
         # Agent Context
 
-        ## Freshness
-        - Scanned at: 2026-04-25T00:00:00Z
-        - Project: /tmp/project
-
         ## Use
         - Verify `pnpm` before running pnpm commands.
 
-        ## Avoid
-        - Do not run `sudo`.
-        - Do not run `brew upgrade`.
+        ## Prefer
+        - Prefer read-only inspection before mutation.
 
         ## Ask First
         - Ask before `running pnpm commands before pnpm is available`.
@@ -5376,11 +5372,15 @@ struct HabitatCoreTests {
         - Ask before `pnpm install`.
         - Ask before `modifying lockfiles`.
 
-        ## Mismatches
-        - Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node).
-        - Project files prefer pnpm, but pnpm was not found on PATH; ask before running pnpm commands or substituting another package manager.
+        ## Do Not
+        - Do not run `sudo`.
+        - Do not run `brew upgrade`.
 
         ## Notes
+        - Scanned at: 2026-04-25T00:00:00Z
+        - Project: /tmp/project
+        - Mismatch: Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node).
+        - Mismatch: Project files prefer pnpm, but pnpm was not found on PATH; ask before running pnpm commands or substituting another package manager.
         - node --version unavailable: missing
         """)
     }
@@ -5648,7 +5648,7 @@ struct HabitatCoreTests {
         let secretChange = changes.first(where: { $0.category == "secret_files" })
 
         #expect(secretChange?.summary == "Secret-bearing file signals changed: added .env.local, .kube/config, .pnpmrc, and 2 more.")
-        #expect(secretChange?.impact == "Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance.")
+        #expect(secretChange?.impact == "Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Do Not and Forbidden guidance.")
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
@@ -5657,7 +5657,7 @@ struct HabitatCoreTests {
         let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
 
         #expect(scanResult.contains("\"category\" : \"secret_files\""))
-        #expect(context.contains("Secret-bearing file signals changed: added .env.local, .kube/config, .pnpmrc, and 2 more. Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Avoid and Forbidden guidance."))
+        #expect(context.contains("Secret-bearing file signals changed: added .env.local, .kube/config, .pnpmrc, and 2 more. Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Do Not and Forbidden guidance."))
         #expect(report.contains("[secret_files] Secret-bearing file signals changed"))
 
         for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {
@@ -6937,11 +6937,10 @@ struct HabitatCoreTests {
 
         #expect(headings == [
             "# Agent Context",
-            "## Freshness",
             "## Use",
-            "## Avoid",
+            "## Prefer",
             "## Ask First",
-            "## Mismatches",
+            "## Do Not",
             "## Notes"
         ])
         #expect(context.split(whereSeparator: \.isNewline).count <= 120)
