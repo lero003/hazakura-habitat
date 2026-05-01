@@ -18,7 +18,7 @@
 
 ## Ask First
 - Ask before dependency installs.
-- Ask before Git index, branch, history, worktree, or remote mutations.
+- Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`.
 
 ## Mismatches
 - None detected.

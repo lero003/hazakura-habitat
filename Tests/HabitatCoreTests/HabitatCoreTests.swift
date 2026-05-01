@@ -5138,6 +5138,7 @@ struct HabitatCoreTests {
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
+        assertAgentContextContract(context)
         #expect(context == """
         # Agent Context
 
@@ -6211,6 +6212,7 @@ struct HabitatCoreTests {
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
         let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
 
+        assertAgentContextContract(context)
         #expect(context.contains("Ask before `ask-first-4`."))
         #expect(!context.contains("Ask before `ask-first-5`."))
         #expect(context.contains("2 additional Ask First commands in `command_policy.md`."))
@@ -6681,6 +6683,24 @@ struct HabitatCoreTests {
         #expect(!context.contains("Prefer `swift test`."))
         #expect(!policy.contains("`swift test`"))
         #expect(policy.contains("`swift package resolve`"))
+    }
+
+    private func assertAgentContextContract(_ context: String) {
+        let headings = context
+            .split(whereSeparator: \.isNewline)
+            .map(String.init)
+            .filter { $0.hasPrefix("#") }
+
+        #expect(headings == [
+            "# Agent Context",
+            "## Freshness",
+            "## Use",
+            "## Avoid",
+            "## Ask First",
+            "## Mismatches",
+            "## Notes"
+        ])
+        #expect(context.split(whereSeparator: \.isNewline).count <= 120)
     }
 
     private func makeProject(files: [String: String]) throws -> URL {

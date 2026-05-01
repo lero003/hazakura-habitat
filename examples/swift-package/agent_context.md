@@ -20,8 +20,8 @@
 ## Ask First
 - Ask before `swift package update`.
 - Ask before `swift package resolve`.
-- Ask before modifying lockfiles.
-- Ask before Git index, branch, history, worktree, or remote mutations; review `command_policy.md` for exact guidance.
+- Ask before `modifying lockfiles`.
+- Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`.
 
 ## Mismatches
 - None detected.

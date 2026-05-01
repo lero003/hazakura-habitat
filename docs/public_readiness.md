@@ -170,7 +170,7 @@ Already true or partially true:
 
 - [x] Example fixtures for SwiftPM, Node/pnpm, and Python/uv.
 - [ ] Command-policy reason text.
-- [ ] Output length budget tests.
+- [x] `agent_context.md` output length budget tests.
 - [x] Exit-code semantics documented.
 - [x] `SECURITY.md`.
 - [x] `CHANGELOG.md` with `v0.1.0`.
