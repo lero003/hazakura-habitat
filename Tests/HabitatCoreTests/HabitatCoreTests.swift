@@ -411,6 +411,69 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func behaviorEvaluationFixturesKeepEvidenceContractAndSanitization() throws {
+        let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        let fixturesURL = rootURL.appendingPathComponent("examples/behavior-evaluation")
+        let fixtureURLs = try FileManager.default.contentsOfDirectory(
+            at: fixturesURL,
+            includingPropertiesForKeys: nil
+        )
+            .filter { $0.pathExtension == "json" }
+            .sorted { $0.lastPathComponent < $1.lastPathComponent }
+
+        #expect(!fixtureURLs.isEmpty)
+
+        let requiredSanitizationFlags = [
+            "rawPromptTranscriptStored",
+            "secretValuesStored",
+            "shellHistoryStored",
+            "clipboardStored",
+            "privateLocalPathStored",
+        ]
+        let observedContextKeys = [
+            "withHabitatContext",
+            "agentContextOnly",
+            "withCommandPolicy",
+        ]
+
+        for fixtureURL in fixtureURLs {
+            let data = try Data(contentsOf: fixtureURL)
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            let verdict = json?["verdict"] as? [String: Any]
+            let sanitization = json?["sanitization"] as? [String: Bool]
+            let fixtureText = try String(contentsOf: fixtureURL, encoding: .utf8)
+            let observedContexts = observedContextKeys.compactMap { key in
+                json?[key] as? [String: Any]
+            }
+
+            #expect(json?["evidenceSchemaVersion"] as? Int == 1)
+            #expect((json?["caseId"] as? String)?.isEmpty == false)
+            #expect((json?["date"] as? String)?.isEmpty == false)
+            #expect((json?["habitatVersion"] as? String)?.isEmpty == false)
+            #expect((json?["agentTool"] as? String)?.isEmpty == false)
+            #expect(json?["primaryMetric"] as? String == "risk-aware behavior")
+            #expect(json?["expectedBehavior"] is [String: Any])
+            #expect(json?["contextMode"] != nil || json?["contextComparison"] != nil)
+            #expect(!observedContexts.isEmpty)
+            #expect(observedContexts.contains { ($0["firstProposedAction"] as? String)?.isEmpty == false })
+            #expect(observedContexts.contains { $0["commandsActuallyRun"] is [String] })
+            #expect(verdict?["result"] as? String == json?["result"] as? String)
+            #expect((verdict?["reason"] as? String)?.isEmpty == false)
+            #expect((verdict?["followUpImprovement"] as? String)?.isEmpty == false)
+            #expect((json?["artifactImprovementIfFailed"] as? String)?.isEmpty == false)
+
+            for key in requiredSanitizationFlags {
+                #expect(sanitization?[key] == false)
+            }
+
+            #expect(!fixtureText.contains("/Users/"))
+            #expect(!fixtureText.contains("BEGIN "))
+            #expect(!fixtureText.contains("PRIVATE KEY"))
+            #expect(!fixtureText.contains("sk-habitat"))
+        }
+    }
+
+    @Test
     func swiftPackageExampleArtifactMetadataMatchesFiles() throws {
         let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
         let exampleDirectories = [

@@ -70,6 +70,7 @@ Do not store secrets, local credential paths, raw shell history, clipboard conte
 Use this shape for Markdown notes or JSON fixtures:
 
 ```text
+evidence schema version:
 case id:
 date:
 habitat version:
@@ -98,6 +99,13 @@ verdict:
 - Reason:
 - Follow-up improvement:
 ```
+
+JSON fixtures should use `evidenceSchemaVersion: 1` until the behavior evidence
+contract changes. Every fixture should include the primary metric, context mode or
+context comparison, expected behavior, observed behavior, verdict, follow-up
+improvement, and explicit sanitization flags. Tests should reject raw local paths,
+private-key markers, dummy API-key markers, and stored prompt/secret/history or
+clipboard data.
 
 ## Planned Cases
 
