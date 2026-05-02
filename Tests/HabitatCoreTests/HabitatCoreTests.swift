@@ -5712,12 +5712,16 @@ struct HabitatCoreTests {
             from: Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
         )
         let commandPolicyArtifact = try #require(decoded.artifacts.first { $0.name == "command_policy.md" })
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         #expect(commandPolicyArtifact.sections?.contains("Review First") == false)
         #expect(commandPolicyArtifact.entrySection == "Policy Index")
         #expect(commandPolicyArtifact.entryLine == 5)
         #expect(commandPolicyArtifact.sections?.contains(commandPolicyArtifact.entrySection ?? "") == true)
         #expect(commandPolicyArtifact.sectionLines?.contains(.init(title: "Policy Index", line: 5)) == true)
+        #expect(!policy.contains("`Review First` - 0 highest-priority approval rules"))
+        #expect(!policy.contains("`Reason Codes` - 0 reason families"))
+        #expect(policy.contains("`Allowed` - 2 concrete safe starting points."))
     }
 
     @Test

@@ -305,10 +305,19 @@ public struct ReportWriter {
         askFirstCount: Int,
         forbiddenCount: Int
     ) -> [String] {
-        var lines = [
-            "`Review First` - \(counted(reviewFirstCount, singular: "highest-priority approval rule", plural: "highest-priority approval rules")) with reasons.",
-            "`Reason Codes` - \(counted(reasonCodeCount, singular: "reason family", plural: "reason families")) used by this policy.",
-        ]
+        var lines: [String] = []
+
+        if reviewFirstCount > 0 {
+            lines.append(
+                "`Review First` - \(counted(reviewFirstCount, singular: "highest-priority approval rule", plural: "highest-priority approval rules")) with reasons."
+            )
+        }
+
+        if reasonCodeCount > 0 {
+            lines.append(
+                "`Reason Codes` - \(counted(reasonCodeCount, singular: "reason family", plural: "reason families")) used by this policy."
+            )
+        }
 
         if secretBearingFileCount > 0 {
             lines.append(

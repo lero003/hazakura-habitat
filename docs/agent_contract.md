@@ -96,10 +96,6 @@ Required sections:
 
 ## Policy Index
 
-## Review First
-
-## Reason Codes
-
 ## Allowed
 
 ## Ask First
@@ -107,6 +103,14 @@ Required sections:
 ## Forbidden
 
 ## If Dependency Installation Seems Necessary
+```
+
+When Ask First or Forbidden commands have generated reason metadata, insert these optional sections after `Policy Index` and before the long command lists:
+
+```markdown
+## Review First
+
+## Reason Codes
 ```
 
 When secret-bearing files are detected, insert this optional section after `Reason Codes` and before the long command lists:
@@ -130,7 +134,7 @@ When the Ask First list is long, project-specific guards should appear before br
 When the short `agent_context.md` Ask First list hides Git/GitHub mutation guards, include a concise reminder that index, history, branch, workspace, or remote mutations require `command_policy.md` review.
 The additional Ask First overflow suffix should list hidden reason families in stable catalog order.
 When the Git/GitHub reminder is present, the suffix should avoid repeating `git_mutation` while keeping the remaining hidden reason families in stable catalog order.
-`Policy Index` should stay near the top of `command_policy.md` and give agents compact counts for the major sections before they scan a long policy.
+`Policy Index` should stay near the top of `command_policy.md` and give agents compact counts for the generated major sections before they scan a long policy. It should not list conditional sections such as `Review First`, `Reason Codes`, or `If Secret-Bearing Files Are Detected` when those sections are absent.
 When secret-bearing files are detected, `Policy Index` should include `If Secret-Bearing Files Are Detected`, and that section should appear before `Allowed`, `Ask First`, and `Forbidden` so agents see broad search/export exclusion guidance before long command lists.
 That section should include a concrete `rg <pattern> --glob '!...'` starting shape based on the detected secret-bearing paths and remind agents to apply equivalent exclusions to broad `grep -R` or `git grep`, so agents change search command form instead of banning search outright. If the generated `rg` shape is capped for brevity, it must say that remaining detected paths still need exclusions before broad search.
 When `Review First` repeats the highest-priority Ask First commands, each entry should include a stable snake_case reason code plus short reason text.
