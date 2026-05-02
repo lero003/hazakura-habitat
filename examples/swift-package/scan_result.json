@@ -4,6 +4,7 @@
   "artifacts": [
     {
       "name": "agent_context.md",
+      "relativePath": "agent_context.md",
       "role": "agent_context",
       "format": "markdown",
       "agentUse": "read_first",
@@ -52,6 +53,7 @@
     },
     {
       "name": "command_policy.md",
+      "relativePath": "command_policy.md",
       "role": "command_policy",
       "format": "markdown",
       "agentUse": "consult_before_risky_commands",
@@ -108,6 +110,7 @@
     },
     {
       "name": "environment_report.md",
+      "relativePath": "environment_report.md",
       "role": "environment_report",
       "format": "markdown",
       "agentUse": "debug_audit_only",

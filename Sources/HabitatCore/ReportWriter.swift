@@ -47,6 +47,7 @@ public struct ReportWriter {
         let entrySection = artifactEntrySection(role: role, sections: sections)
         return GeneratedArtifact(
             name: name,
+            relativePath: name,
             role: role,
             format: "markdown",
             agentUse: artifactAgentUse(role: role),

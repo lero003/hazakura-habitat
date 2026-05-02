@@ -290,6 +290,10 @@ struct HabitatCoreTests {
                 let artifactURL = directoryURL.appendingPathComponent(name)
                 let artifactText = try String(contentsOf: artifactURL, encoding: .utf8)
                 #expect(
+                    artifact["relativePath"] as? String == name,
+                    "Expected \(directory)/\(name) relativePath metadata to point to the report-local artifact file"
+                )
+                #expect(
                     artifact["agentUse"] as? String == expectedAgentUse[name],
                     "Expected \(directory)/\(name) agentUse metadata to match its AI reading role"
                 )
@@ -5621,6 +5625,11 @@ struct HabitatCoreTests {
             "command_policy.md",
             "environment_report.md"
         ])
+        #expect(decoded.artifacts.map(\.relativePath) == [
+            "agent_context.md",
+            "command_policy.md",
+            "environment_report.md"
+        ])
         #expect(decoded.artifacts.map(\.role) == [
             "agent_context",
             "command_policy",
@@ -5725,6 +5734,7 @@ struct HabitatCoreTests {
         let decoded = try JSONDecoder().decode(GeneratedArtifact.self, from: data)
 
         #expect(decoded.name == "agent_context.md")
+        #expect(decoded.relativePath == nil)
         #expect(decoded.agentUse == nil)
         #expect(decoded.readTrigger == nil)
         #expect(decoded.readOrder == nil)

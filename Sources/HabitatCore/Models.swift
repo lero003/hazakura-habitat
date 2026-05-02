@@ -152,6 +152,7 @@ public struct ScanResult: Codable {
 
 public struct GeneratedArtifact: Codable, Equatable {
     public let name: String
+    public let relativePath: String?
     public let role: String
     public let format: String
     public let agentUse: String?
@@ -168,6 +169,7 @@ public struct GeneratedArtifact: Codable, Equatable {
 
     public init(
         name: String,
+        relativePath: String? = nil,
         role: String,
         format: String,
         agentUse: String? = nil,
@@ -183,6 +185,7 @@ public struct GeneratedArtifact: Codable, Equatable {
         withinLineLimit: Bool? = nil
     ) {
         self.name = name
+        self.relativePath = relativePath
         self.role = role
         self.format = format
         self.agentUse = agentUse
