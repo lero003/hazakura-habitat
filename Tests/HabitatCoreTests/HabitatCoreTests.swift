@@ -196,8 +196,9 @@ struct HabitatCoreTests {
         ])
         #expect(policy.contains("`If Secret-Bearing Files Are Detected` - 3 detected paths requiring exclusions before broad search or export."))
         #expect(policy.contains("`recursive project search without excluding secret-bearing files` (`secret_or_credential_access`) - Command can read, expose, copy, or load secrets or credentials."))
-        #expect(policy.contains("For necessary broad `rg`, start with: `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc' --glob '!id_ed25519'`."))
-        #expect(policy.contains("Prefer targeted project inspection over broad `rg`, `grep -R`, `rsync`, `tar`, `zip`, or `git archive` commands."))
+        #expect(policy.contains("For necessary broad search, start with exclusion-aware `rg`: `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc' --glob '!id_ed25519'`."))
+        #expect(policy.contains("Apply equivalent exclusions before broad `grep -R`, `git grep`, copy, sync, or archive commands."))
+        #expect(policy.contains("Prefer targeted project inspection over broad `rg`, `grep -R`, `git grep`, `rsync`, `tar`, `zip`, or `git archive` commands."))
     }
 
     @Test
@@ -1995,7 +1996,7 @@ struct HabitatCoreTests {
         #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.netrc` files."))
         #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Do not read, open, copy, upload, or archive local cloud or container credential files, or print cloud auth tokens."))
-        #expect(context.contains("Ask before broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.aws/credentials' --glob '!.env' --glob '!.env.*' --glob '!.envrc' --glob '!.envrc.*' --glob '!.netrc'`."))
+        #expect(context.contains("Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.aws/credentials' --glob '!.env' --glob '!.env.*' --glob '!.envrc' --glob '!.envrc.*' --glob '!.netrc'`."))
         #expect(context.contains("Do not copy, sync, or archive the project without excluding detected secret-bearing files."))
         #expect(!context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(!context.contains(secretValue))
@@ -3074,8 +3075,9 @@ struct HabitatCoreTests {
         #expect(policy.contains("- `If Secret-Bearing Files Are Detected` - 1 detected path requiring exclusions before broad search or export."))
         #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Allowed"))
         #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Forbidden"))
-        #expect(policy.contains("- For necessary broad `rg`, start with: `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
-        #expect(context.contains("Ask before broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
+        #expect(policy.contains("- For necessary broad search, start with exclusion-aware `rg`: `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
+        #expect(policy.contains("- Apply equivalent exclusions before broad `grep -R`, `git grep`, copy, sync, or archive commands."))
+        #expect(context.contains("Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
 
         let exampleOnlyProjectURL = try makeProject(files: [
             ".env.example": "TOKEN=\n",
@@ -3090,7 +3092,7 @@ struct HabitatCoreTests {
         try ReportWriter().write(scanResult: exampleOnlyResult, outputURL: exampleOnlyOutputURL)
         let exampleOnlyPolicy = try String(contentsOf: exampleOnlyOutputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
         #expect(!exampleOnlyPolicy.contains("## If Secret-Bearing Files Are Detected"))
-        #expect(!exampleOnlyPolicy.contains("For necessary broad `rg`"))
+        #expect(!exampleOnlyPolicy.contains("For necessary broad search"))
     }
 
     @Test
@@ -3136,8 +3138,9 @@ struct HabitatCoreTests {
         #expect(policy.contains("## If Secret-Bearing Files Are Detected"))
         #expect(policy.contains("- Detected secret-bearing paths: .env."))
         #expect(policy.contains("- Before recursive search, copy, sync, or archive commands, review exclusions for these paths."))
-        #expect(policy.contains("- For necessary broad `rg`, start with: `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
-        #expect(policy.contains("- Prefer targeted project inspection over broad `rg`, `grep -R`, `rsync`, `tar`, `zip`, or `git archive` commands."))
+        #expect(policy.contains("- For necessary broad search, start with exclusion-aware `rg`: `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
+        #expect(policy.contains("- Apply equivalent exclusions before broad `grep -R`, `git grep`, copy, sync, or archive commands."))
+        #expect(policy.contains("- Prefer targeted project inspection over broad `rg`, `grep -R`, `git grep`, `rsync`, `tar`, `zip`, or `git archive` commands."))
         #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Ask First"))
         #expect(context.contains("Do not copy, sync, or archive the project without excluding detected secret-bearing files."))
 

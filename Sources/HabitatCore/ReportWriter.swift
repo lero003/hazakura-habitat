@@ -416,7 +416,7 @@ public struct ReportWriter {
 
     private func agentContextAskFirstLine(for command: String, result: ScanResult) -> String {
         if command == "recursive project search without excluding secret-bearing files" {
-            return "- Ask before broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `\(broadSearchShape(for: result.project))`."
+            return "- Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `\(broadSearchShape(for: result.project))`."
         }
 
         return "- Ask before `\(command)`."
@@ -468,7 +468,7 @@ public struct ReportWriter {
             return "Do not render Docker Compose config while secret environment files may be interpolated."
         case "recursive project search without excluding secret-bearing files":
             let rgShape = broadSearchShape(for: result.project)
-            return "Do not run broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `\(rgShape)`."
+            return "Do not run broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `\(rgShape)`."
         case "project copy, sync, or archive without excluding secret-bearing files":
             return "Do not copy, sync, or archive the project without excluding detected secret-bearing files."
         case "read .env values":
@@ -918,8 +918,9 @@ public struct ReportWriter {
         ## If Secret-Bearing Files Are Detected
         - Detected secret-bearing paths: \(summarize(files)).
         - Before recursive search, copy, sync, or archive commands, review exclusions for these paths.
-        - For necessary broad `rg`, start with: `rg <pattern> \(searchExclusionGlobs(for: files).joined(separator: " "))`.
-        - Prefer targeted project inspection over broad `rg`, `grep -R`, `rsync`, `tar`, `zip`, or `git archive` commands.
+        - For necessary broad search, start with exclusion-aware `rg`: `rg <pattern> \(searchExclusionGlobs(for: files).joined(separator: " "))`.
+        - Apply equivalent exclusions before broad `grep -R`, `git grep`, copy, sync, or archive commands.
+        - Prefer targeted project inspection over broad `rg`, `grep -R`, `git grep`, `rsync`, `tar`, `zip`, or `git archive` commands.
         """
     }
 

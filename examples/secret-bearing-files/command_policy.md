@@ -24,8 +24,9 @@ This policy is advisory. Habitat does not block commands. `Forbidden` means this
 ## If Secret-Bearing Files Are Detected
 - Detected secret-bearing paths: .env, .npmrc, id_ed25519.
 - Before recursive search, copy, sync, or archive commands, review exclusions for these paths.
-- For necessary broad `rg`, start with: `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc' --glob '!id_ed25519'`.
-- Prefer targeted project inspection over broad `rg`, `grep -R`, `rsync`, `tar`, `zip`, or `git archive` commands.
+- For necessary broad search, start with exclusion-aware `rg`: `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc' --glob '!id_ed25519'`.
+- Apply equivalent exclusions before broad `grep -R`, `git grep`, copy, sync, or archive commands.
+- Prefer targeted project inspection over broad `rg`, `grep -R`, `git grep`, `rsync`, `tar`, `zip`, or `git archive` commands.
 
 ## Allowed
 - `read-only project inspection`

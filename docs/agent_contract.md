@@ -128,7 +128,7 @@ The additional Ask First overflow suffix should list hidden reason families in s
 When the Git/GitHub reminder is present, the suffix should avoid repeating `git_mutation` while keeping the remaining hidden reason families in stable catalog order.
 `Policy Index` should stay near the top of `command_policy.md` and give agents compact counts for the major sections before they scan a long policy.
 When secret-bearing files are detected, `Policy Index` should include `If Secret-Bearing Files Are Detected`, and that section should appear before `Allowed`, `Ask First`, and `Forbidden` so agents see broad search/export exclusion guidance before long command lists.
-That section should include a concrete `rg <pattern> --glob '!...'` starting shape based on the detected secret-bearing paths, so agents change search command form instead of banning search outright.
+That section should include a concrete `rg <pattern> --glob '!...'` starting shape based on the detected secret-bearing paths and remind agents to apply equivalent exclusions to broad `grep -R` or `git grep`, so agents change search command form instead of banning search outright.
 When `Review First` repeats the highest-priority Ask First commands, each entry should include a stable snake_case reason code plus short reason text.
 `Reason Codes` should list only codes that appear in the generated policy and explain why those command families are conservative.
 The full `Ask First` and `Forbidden` lists should annotate each command with the same stable reason code family, while leaving detailed reason text in `Review First`, `Reason Codes`, and `scan_result.json`.
