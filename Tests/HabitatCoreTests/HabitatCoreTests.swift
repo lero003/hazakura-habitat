@@ -165,7 +165,7 @@ struct HabitatCoreTests {
         #expect(context.contains("- Prefer read-only inspection before mutation."))
         #expect(context.contains("- Ask before `running uv commands before uv is available`."))
         #expect(context.contains("- Ask before `uv sync`."))
-        #expect(context.contains("other reason codes: `dependency_mutation`, `dependency_resolution_mutation`, `version_manager_mutation`, more"))
+        #expect(context.contains("other reason codes: `dependency_resolution_mutation`, `version_manager_mutation`, `dependency_mutation`, more"))
         #expect(context.contains("Project files prefer uv, but uv was not found on PATH; ask before running uv commands or substituting another package manager."))
         #expect(!context.contains("Do not auto-install uv."))
         #expect(!context.contains("Ask before using `pip install`, `pip sync`, or `python -m pip install` as a fallback."))
@@ -185,7 +185,7 @@ struct HabitatCoreTests {
         #expect(context.contains("- Ask before `cargo add`."))
         #expect(context.contains("- Ask before `cargo update`."))
         #expect(context.contains("- Ask before `cargo remove`."))
-        #expect(context.contains("other reason codes: `dependency_mutation`, `dependency_resolution_mutation`, `version_manager_mutation`, more"))
+        #expect(context.contains("other reason codes: `dependency_resolution_mutation`, `version_manager_mutation`, `dependency_mutation`, more"))
         #expect(context.contains("cargo --version failed with exit code 1: cargo: rustup toolchain is not installed"))
         #expect(!context.contains("Use `cargo` because project files point to it."))
         #expect(!context.contains("Prefer `cargo test`."))
@@ -6670,7 +6670,7 @@ struct HabitatCoreTests {
 
         assertAgentContextContract(context)
         #expect(context.contains("Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`."))
-        #expect(context.contains("5 additional Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_mutation`, `user_approval_required`, `ephemeral_package_execution`)."))
+        #expect(context.contains("5 additional Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_mutation`, `ephemeral_package_execution`, `user_approval_required`)."))
         #expect(!context.contains("additional Ask First commands or command families in `command_policy.md` (reason codes: `git_mutation`"))
     }
 

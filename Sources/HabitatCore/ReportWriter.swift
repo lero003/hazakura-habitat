@@ -402,12 +402,10 @@ public struct ReportWriter {
         let commandsForReasonSummary = gitGuardsSummarized
             ? commands.filter { !PolicyReasonCatalog.isGitOrGitHubMutationGuard($0) }
             : commands
-        let reasonCodes = commandsForReasonSummary.reduce(into: [String]()) { codes, command in
-            let code = PolicyReasonCatalog.askFirstReason(for: command).code
-            if !codes.contains(code) {
-                codes.append(code)
-            }
-        }
+        let reasonCodes = PolicyReasonCatalog.legend(
+            askFirstCommands: commandsForReasonSummary,
+            forbiddenCommands: []
+        ).map(\.code)
         guard !reasonCodes.isEmpty else {
             return gitGuardsSummarized ? " (Git/GitHub guards summarized above)" : ""
         }
