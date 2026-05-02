@@ -3096,6 +3096,40 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanLeavesRecursiveSearchReadOnlyWhenNoSecretBearingProjectFilesExist() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            "Sources/App/main.swift": "print(\"hello\")\n",
+        ])
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let recursiveSearchCommands = [
+            "recursive project search without excluding secret-bearing files",
+            "rg <pattern>",
+            "rg -n <pattern>",
+            "rg <pattern> .",
+            "rg --hidden <pattern> .",
+            "grep -R <pattern> .",
+            "git grep <pattern>",
+            "git grep <pattern> -- .",
+        ]
+
+        for command in recursiveSearchCommands {
+            #expect(!result.policy.askFirstCommands.contains(command), "Did not expect \(command) to require approval without secret-bearing files")
+            #expect(!result.policy.forbiddenCommands.contains(command), "Did not expect \(command) to be forbidden without secret-bearing files")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(!policy.contains("## If Secret-Bearing Files Are Detected"))
+        #expect(!policy.contains("For necessary broad search"))
+        #expect(!context.contains("Ask before broad `rg`/`grep -R`/`git grep`"))
+        #expect(!context.contains("Do not run broad `rg`/`grep -R`/`git grep`"))
+    }
+
+    @Test
     func scanForbidsProjectBulkExportWhenSecretBearingProjectFilesExist() throws {
         let projectURL = try makeProject(files: [
             ".env": "TOKEN=secret\n",
