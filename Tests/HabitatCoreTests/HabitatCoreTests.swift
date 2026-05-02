@@ -1994,7 +1994,7 @@ struct HabitatCoreTests {
         #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.netrc` files."))
         #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Do not read, open, copy, upload, or archive local cloud or container credential files, or print cloud auth tokens."))
-        #expect(context.contains("Do not run recursive project search unless detected secret-bearing files are excluded."))
+        #expect(context.contains("Do not run broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.aws/credentials' --glob '!.env' --glob '!.env.*' --glob '!.envrc' --glob '!.envrc.*' --glob '!.netrc'`."))
         #expect(context.contains("Do not copy, sync, or archive the project without excluding detected secret-bearing files."))
         #expect(!context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(!context.contains(secretValue))
@@ -3073,7 +3073,7 @@ struct HabitatCoreTests {
         #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Allowed"))
         #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Forbidden"))
         #expect(policy.contains("- For necessary broad `rg`, start with: `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
-        #expect(context.contains("Do not run recursive project search unless detected secret-bearing files are excluded."))
+        #expect(context.contains("Do not run broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
 
         let exampleOnlyProjectURL = try makeProject(files: [
             ".env.example": "TOKEN=\n",

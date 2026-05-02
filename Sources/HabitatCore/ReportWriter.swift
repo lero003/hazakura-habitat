@@ -104,7 +104,9 @@ public struct ReportWriter {
             preferLines = preferredCommands.prefix(2).map { "Prefer `\($0)`." }
         }
         let avoidLimit = hasDetectedSecretValueFile(result.project) ? 11 : 9
-        let avoidLines = prioritizedForbiddenCommands(result).prefix(avoidLimit).map(avoidLine)
+        let avoidLines = prioritizedForbiddenCommands(result)
+            .prefix(avoidLimit)
+            .map { avoidLine(for: $0, result: result) }
         let askFirstCommands = prioritizedAskFirstCommands(result)
         let askLines = agentContextAskFirstLines(askFirstCommands)
         let relevantDiagnostics = agentRelevantDiagnostics(result)
@@ -438,7 +440,7 @@ public struct ReportWriter {
         return !shownCommands.contains(where: PolicyReasonCatalog.isGitOrGitHubMutationGuard)
     }
 
-    private func avoidLine(for command: String) -> String {
+    private func avoidLine(for command: String, result: ScanResult) -> String {
         switch command {
         case "destructive file deletion outside the selected project":
             return "Do not delete files outside the selected project."
@@ -457,7 +459,8 @@ public struct ReportWriter {
         case "render Docker Compose config when secret environment files exist":
             return "Do not render Docker Compose config while secret environment files may be interpolated."
         case "recursive project search without excluding secret-bearing files":
-            return "Do not run recursive project search unless detected secret-bearing files are excluded."
+            let rgShape = broadSearchShape(for: result.project)
+            return "Do not run broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `\(rgShape)`."
         case "project copy, sync, or archive without excluding secret-bearing files":
             return "Do not copy, sync, or archive the project without excluding detected secret-bearing files."
         case "read .env values":
@@ -475,6 +478,12 @@ public struct ReportWriter {
         default:
             return "Do not run `\(command)`."
         }
+    }
+
+    private func broadSearchShape(for project: ProjectInfo) -> String {
+        let globs = searchExclusionGlobs(for: secretValueFiles(project))
+        guard !globs.isEmpty else { return "rg <pattern>" }
+        return "rg <pattern> \(globs.joined(separator: " "))"
     }
 
     private func agentRelevantDiagnostics(_ result: ScanResult) -> [String] {

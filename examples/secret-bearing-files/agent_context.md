@@ -14,7 +14,7 @@
 - Do not read `.env`.
 - Do not read `.npmrc`.
 - Do not read private-key-like files.
-- Do not run recursive searches that can print secret values.
+- Do not run broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc' --glob '!id_ed25519'`.
 - Do not archive or upload the whole project without reviewing exclusions.
 - Do not dump environment variables, shell history, clipboard contents, browser data, or mail data.
 
