@@ -69,6 +69,8 @@ swift build
 ./.build/debug/habitat-scan scan --project . --output ./habitat-report
 ```
 
+If SwiftPM fails in a restricted automation sandbox before project code runs because of host cache or SwiftPM sandbox-wrapper errors, keep the same preferred SwiftPM verification path and retry with a writable process-local module cache plus `--disable-sandbox`. Do not substitute dependency resolution, package installs, global cache cleanup, or release/GitHub mutations for verification.
+
 Use `habitat-report/agent_context.md` as the working context for Codex. Consult `habitat-report/command_policy.md` before dependency, Git/GitHub, secret-adjacent, archive, copy, sync, or environment-sensitive commands.
 
 Do not commit `habitat-report/`. Turn useful findings into docs, fixtures, tests, examples, or roadmap items. See [Self-Use Loop](self_use.md) for the current snapshot and v0.2 findings.

@@ -21,6 +21,15 @@ swift build
 ./.build/debug/habitat-scan scan --project . --output ./habitat-report
 ```
 
+In restricted automation sandboxes, plain SwiftPM commands can fail before project code runs because compiler caches or SwiftPM's own sandbox wrapper are not writable or available. If that happens, keep the same SwiftPM verification decision and retry with a writable process-local cache plus SwiftPM's non-sandboxed flag, for example:
+
+```bash
+CLANG_MODULE_CACHE_PATH=<writable-cache-dir> swift build --disable-sandbox
+CLANG_MODULE_CACHE_PATH=<writable-cache-dir> swift test --disable-sandbox
+```
+
+Do not turn this into dependency resolution, package installation, global cache cleanup, or release/GitHub mutation.
+
 When the skill is available, the equivalent helper is:
 
 ```bash
@@ -75,6 +84,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - `scan_result.json` now records `policy.commandCounts`, so agents can see policy size, short approval-checklist size, and reason coverage before deciding whether to inspect the full `command_policy.md`.
 - `scan_result.json` now records `policy.reviewFirstCommandReasons`, so agents and tools can read the highest-priority approval checklist with reasons without parsing `command_policy.md`.
 - The bundled helper must use the current source checkout for self-scans instead of silently falling back to `dist/`, otherwise a stale local release artifact can hide new output-contract sections.
+- In restricted automation sandboxes, the useful command decision is still SwiftPM verification; a writable process-local compiler cache and `--disable-sandbox` can unblock `swift build` or `swift test` without changing dependency resolution or global caches.
 
 ## v0.2 Findings
 
