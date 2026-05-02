@@ -758,6 +758,7 @@ Top-level shape:
     "commandCounts": {
       "preferred": 1,
       "askFirst": 1,
+      "reviewFirst": 1,
       "forbidden": 1,
       "withReasons": 2
     },
@@ -820,7 +821,7 @@ Compatibility:
 - `agent_context.md` repeats the practical reading order in `Notes` so agents that only read Markdown still know to stop after the short context unless a risky command or diagnostic need points them onward.
 - `policy.reasonCodes` records the stable snake_case legend for reason codes used by generated Ask First and Forbidden policy. Keep it additive to the existing command arrays so older consumers can continue reading `preferredCommands`, `askFirstCommands`, and `forbiddenCommands`.
 - `policy.reasonCodes` should be emitted in the fixed catalog order, filtered to codes present in the generated policy, so metadata diffs do not depend on command list ordering.
-- `policy.commandCounts` records the number of preferred, Ask First, Forbidden, and reason-annotated commands so agents can estimate policy size and reason coverage before reading a long `command_policy.md`. Older `0.x` scans may omit it; consumers can derive counts from the command arrays.
+- `policy.commandCounts` records the number of preferred, Ask First, Review First, Forbidden, and reason-annotated commands so agents can estimate policy size, short approval-checklist size, and reason coverage before reading a long `command_policy.md`. Older `0.x` scans may omit it; consumers can derive counts from the command arrays and `reviewFirstCommandReasons`.
 - `policy.commandReasons` records per-command `classification`, `reasonCode`, and `reason` metadata for generated Ask First and Forbidden commands. Keep it additive to the existing command arrays so agents can explain a command decision without parsing Markdown.
 - Package registry auth, CLI auth-session, credential-helper, cloud/container auth, and package-manager config forbids should use `secret_or_credential_access` rather than generic unsafe-command metadata, so agents can explain that the refusal is about credential/session exposure or mutation.
 - `policy.reviewFirstCommandReasons` records the same highest-priority Ask First commands rendered in `command_policy.md` `Review First`, including `classification`, `reasonCode`, and `reason`. Use it when a machine consumer needs the short approval checklist without parsing Markdown. Older `0.x` scans may omit it; consumers can fall back to `commandReasons` or `askFirstCommands`.

@@ -223,6 +223,7 @@
     "commandCounts": {
       "preferred": 2,
       "askFirst": 6,
+      "reviewFirst": 6,
       "forbidden": 7,
       "withReasons": 13
     },

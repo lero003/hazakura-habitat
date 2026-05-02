@@ -275,6 +275,7 @@ struct HabitatCoreTests {
             #expect(!artifacts.isEmpty, "Expected example artifact metadata in \(directory)")
             #expect(commandCounts["preferred"] as? Int == preferredCommands.count)
             #expect(commandCounts["askFirst"] as? Int == askFirstCommands.count)
+            #expect(commandCounts["reviewFirst"] as? Int == (policy["reviewFirstCommandReasons"] as? [[String: Any]] ?? []).count)
             #expect(commandCounts["forbidden"] as? Int == forbiddenCommands.count)
             #expect(commandCounts["withReasons"] as? Int == commandReasons.count)
 
@@ -378,6 +379,7 @@ struct HabitatCoreTests {
 
         #expect(commandCounts.preferred == result.policy.preferredCommands.count)
         #expect(commandCounts.askFirst == result.policy.askFirstCommands.count)
+        #expect(commandCounts.reviewFirst == result.policy.reviewFirstCommandReasons.count)
         #expect(commandCounts.forbidden == result.policy.forbiddenCommands.count)
         #expect(commandCounts.withReasons == result.policy.commandReasons.count)
         #expect(reasonCodes.contains("missing_tool"))
@@ -435,6 +437,7 @@ struct HabitatCoreTests {
         #expect(policy.commandCounts == PolicyCommandCounts(
             preferred: 1,
             askFirst: 1,
+            reviewFirst: 0,
             forbidden: 1,
             withReasons: 1
         ))
@@ -5659,6 +5662,7 @@ struct HabitatCoreTests {
                 reason: "Dependency install, update, or removal can mutate project state."
             )
         ])
+        #expect(decoded.policy.commandCounts.reviewFirst == decoded.policy.reviewFirstCommandReasons.count)
         let agentContextText = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         #expect(decoded.artifacts.first?.lineCount == lineCount(agentContextText))
         #expect(decoded.artifacts.first?.characterCount == agentContextText.count)
@@ -6851,6 +6855,7 @@ struct HabitatCoreTests {
         #expect(decoded.reasonCodes.isEmpty)
         #expect(decoded.commandReasons.isEmpty)
         #expect(decoded.reviewFirstCommandReasons.isEmpty)
+        #expect(decoded.commandCounts.reviewFirst == 0)
     }
 
     @Test

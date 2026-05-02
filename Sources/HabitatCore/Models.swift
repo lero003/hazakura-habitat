@@ -368,12 +368,14 @@ public struct PolicyCommandReason: Codable, Equatable {
 public struct PolicyCommandCounts: Codable, Equatable {
     public let preferred: Int
     public let askFirst: Int
+    public let reviewFirst: Int
     public let forbidden: Int
     public let withReasons: Int
 
-    public init(preferred: Int, askFirst: Int, forbidden: Int, withReasons: Int) {
+    public init(preferred: Int, askFirst: Int, reviewFirst: Int, forbidden: Int, withReasons: Int) {
         self.preferred = preferred
         self.askFirst = askFirst
+        self.reviewFirst = reviewFirst
         self.forbidden = forbidden
         self.withReasons = withReasons
     }
@@ -402,6 +404,7 @@ public struct PolicySummary: Codable {
         self.commandCounts = PolicyCommandCounts(
             preferred: preferredCommands.count,
             askFirst: askFirstCommands.count,
+            reviewFirst: reviewFirstCommandReasons.count,
             forbidden: forbiddenCommands.count,
             withReasons: commandReasons.count
         )
@@ -431,6 +434,7 @@ public struct PolicySummary: Codable {
         commandCounts = PolicyCommandCounts(
             preferred: preferredCommands.count,
             askFirst: askFirstCommands.count,
+            reviewFirst: reviewFirstCommandReasons.count,
             forbidden: forbiddenCommands.count,
             withReasons: commandReasons.count
         )

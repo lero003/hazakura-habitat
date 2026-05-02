@@ -48,7 +48,7 @@ Observed output from scanning this repository:
 - `environment_report.md`: 75 lines in `scan_result.json` artifact metadata.
 - Ask First commands: 262.
 - Forbidden commands: 489.
-- `scan_result.json` `policy.commandCounts`: 2 preferred, 262 Ask First, 489 Forbidden, 751 with reasons.
+- `scan_result.json` `policy.commandCounts`: 2 preferred, 262 Ask First, 6 Review First, 489 Forbidden, 751 with reasons.
 - `scan_result.json` `policy.reasonCodes`: 13 reason families, including `ephemeral_package_execution`.
 - Warnings: none.
 
@@ -72,7 +72,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - Ephemeral package execution commands now carry their own `ephemeral_package_execution` reason code, so `npx`/`dlx`/`uvx`/`pipx run` guards no longer collapse into generic approval metadata.
 - `scan_result.json` now records generated Markdown artifact roles, agent reading role, read trigger, read order, entry section, entry line, section heading line index, line counts, character counts, the `agent_context.md` line limit, and whether line-limited outputs are within budget, so agents can identify the short working context first and jump to `Review First`, `Ask First`, `Forbidden`, or diagnostics when continuing into longer reports without parsing every report.
 - `agent_context.md` now states that it is the short working context and keeps full approval detail in `command_policy.md`, so agents can stop after the first artifact unless a risky command needs policy review.
-- `scan_result.json` now records `policy.commandCounts`, so agents can see policy size and reason coverage before deciding whether to inspect the full `command_policy.md`.
+- `scan_result.json` now records `policy.commandCounts`, so agents can see policy size, short approval-checklist size, and reason coverage before deciding whether to inspect the full `command_policy.md`.
 - `scan_result.json` now records `policy.reviewFirstCommandReasons`, so agents and tools can read the highest-priority approval checklist with reasons without parsing `command_policy.md`.
 - The bundled helper must use the current source checkout for self-scans instead of silently falling back to `dist/`, otherwise a stale local release artifact can hide new output-contract sections.
 
