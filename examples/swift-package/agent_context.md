@@ -24,5 +24,6 @@
 ## Notes
 - Scanned at: example timestamp
 - Project: example SwiftPM package
+- Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
 - Mismatches: none detected.
 - Scan completed without relevant command diagnostics.

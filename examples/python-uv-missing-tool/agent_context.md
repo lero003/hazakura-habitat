@@ -28,5 +28,6 @@
 ## Notes
 - Scanned at: example timestamp
 - Project: example Python uv project
+- Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
 - Mismatch: Project files prefer uv, but uv was not found on PATH; ask before running uv commands or substituting another package manager.
 - uv --version unavailable: env: uv: No such file or directory

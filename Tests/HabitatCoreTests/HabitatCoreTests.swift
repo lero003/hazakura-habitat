@@ -150,6 +150,10 @@ struct HabitatCoreTests {
             #expect(!context.contains("## Freshness"), "Representative examples should keep freshness in Notes: \(path)")
             #expect(!context.contains("## Avoid"), "Representative examples should use Do Not for current output shape: \(path)")
             #expect(!context.contains("## Mismatches"), "Representative examples should keep mismatch details in Notes: \(path)")
+            #expect(
+                context.contains("- Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics."),
+                "Representative examples should tell agents where to stop or continue reading: \(path)"
+            )
         }
     }
 
@@ -5676,6 +5680,7 @@ struct HabitatCoreTests {
         ## Notes
         - Scanned at: 2026-04-25T00:00:00Z
         - Project: /tmp/project
+        - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
         - Mismatch: Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node).
         - Mismatch: Project files prefer pnpm, but pnpm was not found on PATH; ask before running pnpm commands or substituting another package manager.
         - node --version unavailable: missing
