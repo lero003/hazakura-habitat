@@ -88,7 +88,7 @@ Improve:
 - Separate project-relevant policy from broad baseline safety policy more clearly.
 - Continue reason-code groundwork so large policy sections are explainable and eventually groupable.
 - Keep Git/GitHub mutation guards visible before broad baseline package-manager guards when reviewing the full command policy.
-- Evaluate search-command behavior separately for projects with and without detected secret-bearing files: unrestricted `rg` is reasonable in ordinary repos, but secret-bearing repos should steer agents toward exclusions, policy review, or Ask First before recursive search.
+- Evaluate search-command shape separately for projects with and without detected secret-bearing files: unrestricted `rg` is reasonable in ordinary repos, but secret-bearing repos should steer agents toward exclusion globs such as `--glob '!.env'`, policy review, or Ask First before recursive search. Do not overcorrect by banning useful search outright.
 - Continue output shape metadata and tests that catch growth before it becomes normal.
 - Treat `agentUse`, `readOrder`, line counts, and command counts as preview reading hints during `v0.x`, not a fully stable schema promise.
 - Capture future self-use evidence as sanitized traces, not raw prompts or local-path-heavy logs.

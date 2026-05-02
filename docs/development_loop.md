@@ -80,7 +80,7 @@ The v0.2 acceptance question is:
 
 > Does this make the generated output easier for an AI agent to read in the right order, stop at the right point, explain approval needs, or choose the next command?
 
-For search commands, check both sides of the boundary: `rg <pattern>` should remain a reasonable read-only next command when no secret-bearing files are detected, but should turn into exclusion-aware search, policy review, or Ask First when secret-bearing files are detected.
+For search commands, evaluate the command shape, not only whether search was used. `rg <pattern>` should remain a reasonable read-only next command when no secret-bearing files are detected. When secret-bearing files are detected, the next command should become safer, such as `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc'`, or the agent should inspect `command_policy.md` before recursive search. The goal is to make exploration safer, not to ban search outright.
 
 If not, keep it out of v0.2.
 
