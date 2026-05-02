@@ -42,7 +42,9 @@ public struct ReportWriter {
     private func markdownArtifact(name: String, role: String, readOrder: Int, text: String) -> GeneratedArtifact {
         let artifactLineCount = lineCount(text)
         let lineLimit = role == "agent_context" ? agentContextLineLimit : nil
-        let sections = markdownSections(text)
+        let sectionEntries = markdownSectionEntries(text)
+        let sections = sectionEntries.map(\.title)
+        let entrySection = artifactEntrySection(role: role, sections: sections)
         return GeneratedArtifact(
             name: name,
             role: role,
@@ -52,7 +54,8 @@ public struct ReportWriter {
             lineCount: artifactLineCount,
             characterCount: text.count,
             readOrder: readOrder,
-            entrySection: artifactEntrySection(role: role, sections: sections),
+            entrySection: entrySection,
+            entryLine: sectionEntries.first { $0.title == entrySection }?.line,
             sections: sections,
             lineLimit: lineLimit,
             withinLineLimit: lineLimit.map { artifactLineCount <= $0 }
@@ -110,12 +113,16 @@ public struct ReportWriter {
         return text.split(separator: "\n", omittingEmptySubsequences: false).count
     }
 
-    private func markdownSections(_ text: String) -> [String] {
-        text.split(separator: "\n")
-            .compactMap { line -> String? in
+    private func markdownSectionEntries(_ text: String) -> [(title: String, line: Int)] {
+        text.split(separator: "\n", omittingEmptySubsequences: false)
+            .enumerated()
+            .compactMap { index, line -> (title: String, line: Int)? in
                 let trimmed = line.trimmingCharacters(in: .whitespaces)
                 guard trimmed.hasPrefix("#") else { return nil }
-                return trimmed.trimmingCharacters(in: CharacterSet(charactersIn: "# "))
+                return (
+                    title: trimmed.trimmingCharacters(in: CharacterSet(charactersIn: "# ")),
+                    line: index + 1
+                )
             }
     }
 

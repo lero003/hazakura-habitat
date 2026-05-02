@@ -158,6 +158,7 @@ public struct GeneratedArtifact: Codable, Equatable {
     public let readTrigger: String?
     public let readOrder: Int?
     public let entrySection: String?
+    public let entryLine: Int?
     public let sections: [String]?
     public let lineCount: Int
     public let characterCount: Int?
@@ -174,6 +175,7 @@ public struct GeneratedArtifact: Codable, Equatable {
         characterCount: Int? = nil,
         readOrder: Int? = nil,
         entrySection: String? = nil,
+        entryLine: Int? = nil,
         sections: [String]? = nil,
         lineLimit: Int? = nil,
         withinLineLimit: Bool? = nil
@@ -185,6 +187,7 @@ public struct GeneratedArtifact: Codable, Equatable {
         self.readTrigger = readTrigger
         self.readOrder = readOrder
         self.entrySection = entrySection
+        self.entryLine = entryLine
         self.sections = sections
         self.lineCount = lineCount
         self.characterCount = characterCount

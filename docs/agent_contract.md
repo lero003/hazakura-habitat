@@ -669,6 +669,7 @@ Top-level shape:
       "readTrigger": "before_any_project_command",
       "readOrder": 1,
       "entrySection": "Use",
+      "entryLine": 3,
       "sections": ["Agent Context", "Use", "Prefer", "Ask First", "Do Not", "Notes"],
       "lineCount": 33,
       "characterCount": 900,
@@ -683,6 +684,7 @@ Top-level shape:
       "readTrigger": "before_risky_mutating_secret_or_environment_sensitive_commands",
       "readOrder": 2,
       "entrySection": "Review First",
+      "entryLine": 9,
       "sections": ["Command Policy", "Policy Index", "Review First", "Reason Codes", "Allowed", "Ask First", "Forbidden", "If Dependency Installation Seems Necessary"],
       "lineCount": 790,
       "characterCount": 30000
@@ -695,6 +697,7 @@ Top-level shape:
       "readTrigger": "only_for_diagnostics_or_audit",
       "readOrder": 3,
       "entrySection": "Diagnostics",
+      "entryLine": 29,
       "sections": ["Environment Report", "System", "Project Signals", "Symlinked Project Signals", "Resolved Tools", "Tool Versions", "Changes Since Previous Scan", "Warnings", "Diagnostics", "Privacy Note"],
       "lineCount": 75,
       "characterCount": 4000
@@ -775,7 +778,7 @@ Top-level shape:
 
 Preview contract:
 
-- During `v0.x`, `artifacts.agentUse`, `artifacts.readTrigger`, `artifacts.readOrder`, `artifacts.entrySection`, `artifacts.sections`, `artifacts.lineCount`, `artifacts.characterCount`, `artifacts.lineLimit`, `artifacts.withinLineLimit`, and `policy.commandCounts` are preview reading hints. Agents may use them to choose what to read first, where to start inside a longer artifact, when to continue into policy or diagnostics, and decide whether the full policy is needed, but they should not treat exact values or field presence as a stable `1.0` schema promise yet.
+- During `v0.x`, `artifacts.agentUse`, `artifacts.readTrigger`, `artifacts.readOrder`, `artifacts.entrySection`, `artifacts.entryLine`, `artifacts.sections`, `artifacts.lineCount`, `artifacts.characterCount`, `artifacts.lineLimit`, `artifacts.withinLineLimit`, and `policy.commandCounts` are preview reading hints. Agents may use them to choose what to read first, where to start inside a longer artifact, when to continue into policy or diagnostics, and decide whether the full policy is needed, but they should not treat exact values or field presence as a stable `1.0` schema promise yet.
 - Keep these hints additive and backward compatible. Older `0.x` scans may omit them; consumers should fall back to artifact order, Markdown headings, or command array counts.
 
 Compatibility:
@@ -783,7 +786,7 @@ Compatibility:
 - Add fields freely during `0.x`.
 - Do not rename or remove fields without documenting a schema change.
 - `generatorVersion` records the Habitat generator release that produced the scan. Previous-scan comparison should surface generator-version changes so agents do not mistake report-shape or policy-generator differences for local environment drift.
-- `artifacts` records generated Markdown artifact names, roles, formats, `agentUse`, `readTrigger`, read order, entry section, generated Markdown section headings, physical line counts, character counts, any hard line limit for budgeted agent-facing artifacts, and `withinLineLimit` when a line limit applies. Agents can use it to read the short working context first, jump to the first useful section in longer policy or audit outputs, and distinguish report size without parsing Markdown first. Current `agentUse` values are `read_first`, `consult_before_risky_commands`, and `debug_audit_only`. Current `readTrigger` values are `before_any_project_command`, `before_risky_mutating_secret_or_environment_sensitive_commands`, and `only_for_diagnostics_or_audit`. Current primary `entrySection` values are `Use`, `Review First`, and `Diagnostics`; if a conditional section such as `Review First` is omitted, `entrySection` must fall back to an existing Markdown heading rather than naming a section that was not generated.
+- `artifacts` records generated Markdown artifact names, roles, formats, `agentUse`, `readTrigger`, read order, entry section, entry line, generated Markdown section headings, physical line counts, character counts, any hard line limit for budgeted agent-facing artifacts, and `withinLineLimit` when a line limit applies. Agents can use it to read the short working context first, jump to the first useful section in longer policy or audit outputs, and distinguish report size without parsing Markdown first. Current `agentUse` values are `read_first`, `consult_before_risky_commands`, and `debug_audit_only`. Current `readTrigger` values are `before_any_project_command`, `before_risky_mutating_secret_or_environment_sensitive_commands`, and `only_for_diagnostics_or_audit`. Current primary `entrySection` values are `Use`, `Review First`, and `Diagnostics`; `entryLine` is a 1-based line number for that heading; if a conditional section such as `Review First` is omitted, `entrySection` must fall back to an existing Markdown heading rather than naming a section that was not generated.
 - `agent_context.md` repeats the practical reading order in `Notes` so agents that only read Markdown still know to stop after the short context unless a risky command or diagnostic need points them onward.
 - `policy.reasonCodes` records the stable snake_case legend for reason codes used by generated Ask First and Forbidden policy. Keep it additive to the existing command arrays so older consumers can continue reading `preferredCommands`, `askFirstCommands`, and `forbiddenCommands`.
 - `policy.reasonCodes` should be emitted in the fixed catalog order, filtered to codes present in the generated policy, so metadata diffs do not depend on command list ordering.

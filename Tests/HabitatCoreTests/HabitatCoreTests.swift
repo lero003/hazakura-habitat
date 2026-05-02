@@ -305,6 +305,10 @@ struct HabitatCoreTests {
                     "Expected \(directory)/\(name) entrySection metadata to point at an existing Markdown heading"
                 )
                 #expect(
+                    artifact["entryLine"] as? Int == headingLine(artifact["entrySection"] as? String ?? "", in: artifactText),
+                    "Expected \(directory)/\(name) entryLine metadata to point at the entry heading"
+                )
+                #expect(
                     artifact["sections"] as? [String] == expectedSections[name],
                     "Expected \(directory)/\(name) sections metadata to match generated Markdown headings"
                 )
@@ -5621,6 +5625,7 @@ struct HabitatCoreTests {
             "only_for_diagnostics_or_audit"
         ])
         #expect(decoded.artifacts.map(\.readOrder) == [1, 2, 3])
+        #expect(decoded.artifacts.map(\.entryLine) == [3, 12, 26])
         #expect(decoded.artifacts.allSatisfy { $0.format == "markdown" })
         #expect(decoded.artifacts.map(\.sections) == [
             ["Agent Context", "Use", "Prefer", "Ask First", "Do Not", "Notes"],
@@ -5680,6 +5685,7 @@ struct HabitatCoreTests {
 
         #expect(commandPolicyArtifact.sections?.contains("Review First") == false)
         #expect(commandPolicyArtifact.entrySection == "Policy Index")
+        #expect(commandPolicyArtifact.entryLine == 5)
         #expect(commandPolicyArtifact.sections?.contains(commandPolicyArtifact.entrySection ?? "") == true)
     }
 
@@ -5700,6 +5706,7 @@ struct HabitatCoreTests {
         #expect(decoded.agentUse == nil)
         #expect(decoded.readTrigger == nil)
         #expect(decoded.readOrder == nil)
+        #expect(decoded.entryLine == nil)
         #expect(decoded.sections == nil)
         #expect(decoded.lineCount == 35)
         #expect(decoded.characterCount == nil)
@@ -7452,6 +7459,16 @@ struct HabitatCoreTests {
     private func lineCount(_ text: String) -> Int {
         guard !text.isEmpty else { return 0 }
         return text.split(separator: "\n", omittingEmptySubsequences: false).count
+    }
+
+    private func headingLine(_ heading: String, in text: String) -> Int? {
+        text.split(separator: "\n", omittingEmptySubsequences: false)
+            .enumerated()
+            .first { _, line in
+                line.trimmingCharacters(in: .whitespaces) == "## \(heading)"
+                    || line.trimmingCharacters(in: .whitespaces) == "# \(heading)"
+            }
+            .map { index, _ in index + 1 }
     }
 
     private func section(_ text: String, _ heading: String, appearsBefore laterHeading: String) -> Bool {

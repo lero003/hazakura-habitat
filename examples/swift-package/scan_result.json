@@ -10,6 +10,7 @@
       "readTrigger": "before_any_project_command",
       "readOrder": 1,
       "entrySection": "Use",
+      "entryLine": 3,
       "sections": [
         "Agent Context",
         "Use",
@@ -31,6 +32,7 @@
       "readTrigger": "before_risky_mutating_secret_or_environment_sensitive_commands",
       "readOrder": 2,
       "entrySection": "Review First",
+      "entryLine": 12,
       "sections": [
         "Command Policy",
         "Policy Index",
@@ -52,6 +54,7 @@
       "readTrigger": "only_for_diagnostics_or_audit",
       "readOrder": 3,
       "entrySection": "Diagnostics",
+      "entryLine": 27,
       "sections": [
         "Environment Report",
         "System",
