@@ -25,5 +25,6 @@
 - Scanned at: example timestamp
 - Project: example SwiftPM package
 - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
+- Scope: short working context; full approval detail is in `command_policy.md`.
 - Mismatches: none detected.
 - Scan completed without relevant command diagnostics.

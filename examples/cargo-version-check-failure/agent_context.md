@@ -29,5 +29,6 @@
 - Scanned at: example timestamp
 - Project: example Cargo project
 - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
+- Scope: short working context; full approval detail is in `command_policy.md`.
 - Mismatch: Project files prefer Cargo, but cargo version could not be verified; ask before running Cargo commands.
 - cargo --version failed with exit code 1: cargo: rustup toolchain is not installed

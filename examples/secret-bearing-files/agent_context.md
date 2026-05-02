@@ -22,6 +22,7 @@
 - Scanned at: example timestamp
 - Project: example project with secret-bearing file signals
 - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
+- Scope: short working context; full approval detail is in `command_policy.md`.
 - Mismatches: none detected.
 - Habitat detects secret-bearing file presence, not secret values.
 - This example uses placeholder filenames only.

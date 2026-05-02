@@ -185,6 +185,7 @@ public struct ReportWriter {
         - Scanned at: \(result.scannedAt)
         - Project: \(result.projectPath)
         - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
+        - Scope: short working context; full approval detail is in `command_policy.md`.
         \(mismatchLines.joined(separator: "\n"))
         \(noteLines.joined(separator: "\n"))
         """

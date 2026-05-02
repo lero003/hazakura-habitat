@@ -33,6 +33,7 @@ Required base sections:
 - Scanned at:
 - Project:
 - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
+- Scope: short working context; full approval detail is in `command_policy.md`.
 - ...
 ```
 
@@ -41,6 +42,7 @@ Guidelines:
 - Prefer imperative guidance over narrative explanation.
 - Keep it short enough to paste into an AI prompt.
 - Mention only details that can affect project work.
+- State that it is the short working context so agents do not treat it as the full approval policy.
 - If the selected project path is not an existing directory, tell the agent to verify the path before running project commands.
 - When a previous scan is supplied, include only AI-actionable deltas in `Notes`.
 - When `Ask First` is capped for brevity, include an overflow line that points agents to `command_policy.md` for the complete approval list.
