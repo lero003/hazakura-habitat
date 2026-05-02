@@ -1005,6 +1005,7 @@ public struct ReportWriter {
         - Detected secret-bearing paths: \(summarize(files)).
         - Before recursive search, copy, sync, or archive commands, review exclusions for these paths.
         - For necessary broad search, start with exclusion-aware `rg`: `rg <pattern> \(searchExclusionGlobs(for: files).joined(separator: " "))`\(searchExclusionOverflowSuffix(for: files)).
+        - For necessary Git-tracked search, use pathspec exclusions: `git grep <pattern> -- . \(gitGrepExclusionPathspecs(for: files).joined(separator: " "))`\(searchExclusionOverflowSuffix(for: files)).
         - Apply equivalent exclusions before broad `grep -R`, `git grep`, copy, sync, or archive commands.
         - Prefer targeted project inspection over broad `rg`, `grep -R`, `git grep`, `rsync`, `tar`, `zip`, or `git archive` commands.
         """
@@ -1037,6 +1038,12 @@ public struct ReportWriter {
         }
 
         return globs
+    }
+
+    private func gitGrepExclusionPathspecs(for files: [String]) -> [String] {
+        searchExclusionGlobCandidates(for: files)
+            .prefix(searchExclusionGlobLimit)
+            .map { "':(exclude)\($0)'" }
     }
 
     private func secretValueFiles(_ project: ProjectInfo) -> [String] {
