@@ -2038,7 +2038,7 @@ struct HabitatCoreTests {
         #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.netrc` files."))
         #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Do not read, open, copy, upload, or archive local cloud or container credential files, or print cloud auth tokens."))
-        #expect(context.contains("Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.aws/credentials' --glob '!.env' --glob '!.env.*' --glob '!.envrc' --glob '!.envrc.*' --glob '!.netrc'`."))
+        #expect(context.contains("Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.aws/credentials' --glob '!.env' --glob '!.env.*' --glob '!.envrc' --glob '!.envrc.*' --glob '!.netrc'`; add exclusions for remaining detected paths before broad search."))
         #expect(context.contains("Do not copy, sync, or archive the project without excluding detected secret-bearing files."))
         #expect(!context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(!context.contains(secretValue))
@@ -3135,6 +3135,33 @@ struct HabitatCoreTests {
         let exampleOnlyPolicy = try String(contentsOf: exampleOnlyOutputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
         #expect(!exampleOnlyPolicy.contains("## If Secret-Bearing Files Are Detected"))
         #expect(!exampleOnlyPolicy.contains("For necessary broad search"))
+    }
+
+    @Test
+    func searchGuidanceMentionsRemainingExclusionsWhenSecretBearingPathsExceedGlobBudget() throws {
+        let projectURL = try makeProject(files: [
+            ".aws/credentials": "aws_access_key_id = secret\n",
+            ".docker/config.json": "{\"auths\":{}}\n",
+            ".env": "TOKEN=secret\n",
+            ".env.local": "TOKEN=secret\n",
+            ".envrc": "export TOKEN=secret\n",
+            ".kube/config": "token: secret\n",
+            ".netrc": "machine example.test login token\n",
+            ".npmrc": "//registry.example.test/:_authToken=secret\n",
+            "id_ed25519": "not a real key\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `rg <pattern>"))
+        #expect(context.contains("; add exclusions for remaining detected paths before broad search."))
+        #expect(policy.contains("- Detected secret-bearing paths: .aws/credentials, .docker/config.json, .env, .env.local, .envrc, .kube/config, and 3 more."))
+        #expect(policy.contains("- For necessary broad search, start with exclusion-aware `rg`: `rg <pattern>"))
+        #expect(policy.contains("; add exclusions for remaining detected paths before broad search."))
     }
 
     @Test

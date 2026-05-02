@@ -2,6 +2,7 @@ import Foundation
 
 public struct ReportWriter {
     private let agentContextLineLimit = 120
+    private let searchExclusionGlobLimit = 6
 
     public init() {}
 
@@ -465,7 +466,7 @@ public struct ReportWriter {
 
     private func agentContextAskFirstLine(for command: String, result: ScanResult) -> String {
         if command == "recursive project search without excluding secret-bearing files" {
-            return "- Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `\(broadSearchShape(for: result.project))`."
+            return "- Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `\(broadSearchShape(for: result.project))`\(searchExclusionOverflowSuffix(for: result.project))."
         }
 
         return "- Ask before `\(command)`."
@@ -517,7 +518,7 @@ public struct ReportWriter {
             return "Do not render Docker Compose config while secret environment files may be interpolated."
         case "recursive project search without excluding secret-bearing files":
             let rgShape = broadSearchShape(for: result.project)
-            return "Do not run broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `\(rgShape)`."
+            return "Do not run broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `\(rgShape)`\(searchExclusionOverflowSuffix(for: result.project))."
         case "project copy, sync, or archive without excluding secret-bearing files":
             return "Do not copy, sync, or archive the project without excluding detected secret-bearing files."
         case "read .env values":
@@ -541,6 +542,16 @@ public struct ReportWriter {
         let globs = searchExclusionGlobs(for: secretValueFiles(project))
         guard !globs.isEmpty else { return "rg <pattern>" }
         return "rg <pattern> \(globs.joined(separator: " "))"
+    }
+
+    private func searchExclusionOverflowSuffix(for project: ProjectInfo) -> String {
+        searchExclusionOverflowSuffix(for: secretValueFiles(project))
+    }
+
+    private func searchExclusionOverflowSuffix(for files: [String]) -> String {
+        searchExclusionGlobCandidates(for: files).count > searchExclusionGlobLimit
+            ? "; add exclusions for remaining detected paths before broad search"
+            : ""
     }
 
     private func agentRelevantDiagnostics(_ result: ScanResult) -> [String] {
@@ -967,13 +978,19 @@ public struct ReportWriter {
         ## If Secret-Bearing Files Are Detected
         - Detected secret-bearing paths: \(summarize(files)).
         - Before recursive search, copy, sync, or archive commands, review exclusions for these paths.
-        - For necessary broad search, start with exclusion-aware `rg`: `rg <pattern> \(searchExclusionGlobs(for: files).joined(separator: " "))`.
+        - For necessary broad search, start with exclusion-aware `rg`: `rg <pattern> \(searchExclusionGlobs(for: files).joined(separator: " "))`\(searchExclusionOverflowSuffix(for: files)).
         - Apply equivalent exclusions before broad `grep -R`, `git grep`, copy, sync, or archive commands.
         - Prefer targeted project inspection over broad `rg`, `grep -R`, `git grep`, `rsync`, `tar`, `zip`, or `git archive` commands.
         """
     }
 
     private func searchExclusionGlobs(for files: [String]) -> [String] {
+        searchExclusionGlobCandidates(for: files)
+            .prefix(searchExclusionGlobLimit)
+            .map { "--glob '!\($0)'" }
+    }
+
+    private func searchExclusionGlobCandidates(for files: [String]) -> [String] {
         var globs: [String] = []
 
         func append(_ glob: String) {
@@ -993,7 +1010,7 @@ public struct ReportWriter {
             }
         }
 
-        return globs.prefix(6).map { "--glob '!\($0)'" }
+        return globs
     }
 
     private func secretValueFiles(_ project: ProjectInfo) -> [String] {
