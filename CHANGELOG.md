@@ -6,6 +6,7 @@
 
 - Added initial `docs/evaluation.md` guidance for the `v0.3` Agent Behavior Evaluation phase.
 - Added a human-observed evaluation format with evidence policy, risk-aware verdict scale, planned cases, and observed cases.
+- Added a clean synthetic SwiftPM behavior fixture comparing no Habitat context with Habitat context plus policy review.
 
 ### Changed
 
