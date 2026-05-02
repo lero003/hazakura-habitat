@@ -80,6 +80,8 @@ The v0.2 acceptance question is:
 
 > Does this make the generated output easier for an AI agent to read in the right order, stop at the right point, explain approval needs, or choose the next command?
 
+For search commands, check both sides of the boundary: `rg <pattern>` should remain a reasonable read-only next command when no secret-bearing files are detected, but should turn into exclusion-aware search, policy review, or Ask First when secret-bearing files are detected.
+
 If not, keep it out of v0.2.
 
 ## Phase Gate
