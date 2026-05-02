@@ -301,6 +301,10 @@ struct HabitatCoreTests {
                     "Expected \(directory)/\(name) entrySection metadata to point at the first useful section"
                 )
                 #expect(
+                    (artifact["sections"] as? [String])?.contains(artifact["entrySection"] as? String ?? "") == true,
+                    "Expected \(directory)/\(name) entrySection metadata to point at an existing Markdown heading"
+                )
+                #expect(
                     artifact["sections"] as? [String] == expectedSections[name],
                     "Expected \(directory)/\(name) sections metadata to match generated Markdown headings"
                 )
@@ -5638,6 +5642,45 @@ struct HabitatCoreTests {
         #expect(decoded.artifacts.first?.characterCount == agentContextText.count)
         #expect((decoded.artifacts.first?.lineCount ?? 0) <= (decoded.artifacts.first?.lineLimit ?? 0))
         #expect(decoded.artifacts.first?.withinLineLimit == true)
+    }
+
+    @Test
+    func artifactEntrySectionFallsBackWhenReviewFirstIsOmitted() throws {
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let result = ScanResult(
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(
+                operatingSystemVersion: "macOS",
+                architecture: "arm64",
+                shell: "/bin/zsh",
+                path: []
+            ),
+            commands: [],
+            project: .init(
+                detectedFiles: [],
+                packageManager: nil,
+                packageManagerVersion: nil,
+                packageScripts: [],
+                runtimeHints: .init(node: nil, python: nil)
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["read-only inspection"], askFirstCommands: [], forbiddenCommands: []),
+            warnings: [],
+            diagnostics: []
+        )
+
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let decoded = try JSONDecoder().decode(
+            ScanResult.self,
+            from: Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        )
+        let commandPolicyArtifact = try #require(decoded.artifacts.first { $0.name == "command_policy.md" })
+
+        #expect(commandPolicyArtifact.sections?.contains("Review First") == false)
+        #expect(commandPolicyArtifact.entrySection == "Policy Index")
+        #expect(commandPolicyArtifact.sections?.contains(commandPolicyArtifact.entrySection ?? "") == true)
     }
 
     @Test

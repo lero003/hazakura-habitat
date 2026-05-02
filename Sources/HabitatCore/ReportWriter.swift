@@ -42,6 +42,7 @@ public struct ReportWriter {
     private func markdownArtifact(name: String, role: String, readOrder: Int, text: String) -> GeneratedArtifact {
         let artifactLineCount = lineCount(text)
         let lineLimit = role == "agent_context" ? agentContextLineLimit : nil
+        let sections = markdownSections(text)
         return GeneratedArtifact(
             name: name,
             role: role,
@@ -51,8 +52,8 @@ public struct ReportWriter {
             lineCount: artifactLineCount,
             characterCount: text.count,
             readOrder: readOrder,
-            entrySection: artifactEntrySection(role: role),
-            sections: markdownSections(text),
+            entrySection: artifactEntrySection(role: role, sections: sections),
+            sections: sections,
             lineLimit: lineLimit,
             withinLineLimit: lineLimit.map { artifactLineCount <= $0 }
         )
@@ -84,17 +85,24 @@ public struct ReportWriter {
         }
     }
 
-    private func artifactEntrySection(role: String) -> String {
+    private func artifactEntrySection(role: String, sections: [String]) -> String {
+        let preferred: String
         switch role {
         case "agent_context":
-            return "Use"
+            preferred = "Use"
         case "command_policy":
-            return "Review First"
+            preferred = "Review First"
         case "environment_report":
-            return "Diagnostics"
+            preferred = "Diagnostics"
         default:
-            return "Overview"
+            preferred = "Overview"
         }
+
+        if sections.contains(preferred) {
+            return preferred
+        }
+
+        return sections.dropFirst().first ?? sections.first ?? preferred
     }
 
     private func lineCount(_ text: String) -> Int {
