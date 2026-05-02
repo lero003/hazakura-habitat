@@ -182,4 +182,5 @@ The `v0.2.0 Developer Preview` milestone focuses on the Agent Reading Contract: 
 - Define the first `v0.3` behavior-evaluation tasks in `docs/evaluation.md`.
 - Capture sanitized self-use traces that show whether Habitat changes Codex's next command.
 - Turn evaluation failures into focused output-contract, fixture, test, or documentation improvements.
+- Re-rank later roadmap work from behavior evidence, preferring high-confidence scenarios over broad coverage.
 - Keep feature expansion deferred unless it directly improves a measured agent command decision.

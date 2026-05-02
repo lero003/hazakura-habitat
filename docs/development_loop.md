@@ -59,6 +59,7 @@ Avoid broad feature expansion:
 - no command enforcement
 - no large multi-LLM benchmark yet
 - no new ecosystem breadth unless it directly improves a measured command decision
+- later roadmap order may change after behavior evidence; deepen high-confidence scenarios before expanding broadly
 
 When generated output changes, update tests and representative examples in the same slice.
 When versioned output behavior changes after a public release, do not move existing tags; use a transparent patch release.
@@ -101,6 +102,8 @@ Release and phase-transition work requires an explicit user handoff:
 - start broad `v0.4` policy-engine work
 
 Before that handoff, automation should keep changes inside the `v0.3` Agent Behavior Evaluation scope.
+
+`v0.3` may change what should happen next. Do not assume `v0.4`, `v0.5`, or `v0.6` must happen in the current roadmap order if observed behavior points elsewhere.
 
 ## Definition of Done
 

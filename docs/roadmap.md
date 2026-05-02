@@ -26,6 +26,10 @@ If not, put it in the parking lot.
 
 ## Version Themes
 
+This table is a planning scaffold, not a fixed train schedule. After `v0.3`, re-rank later items based on observed behavior evidence. It is acceptable to skip, defer, or reorder phases that do not clearly improve agent command choice.
+
+If behavior evaluation shows Habitat is most useful in a smaller set of high-confidence scenarios, prefer deepening those scenarios over expanding ecosystem coverage or adding new phases.
+
 | Priority | Release | Theme | What It Strengthens |
 | -: | --- | --- | --- |
 | 1 | `v0.1.x` | Public stabilization | Trust, clarity, and issue handling |
@@ -219,8 +223,17 @@ Completion criteria:
 - Sanitized self-use traces show how Habitat changed or constrained real development commands.
 - `agent_context.md` quality can regress in tests.
 - README can explain the intended agent behavior changes.
+- Later roadmap priorities can be re-ranked from evidence instead of assumed sequence.
 
 Do not build a large multi-LLM benchmark yet.
+
+Use the findings to decide what comes next:
+
+- If policy classifications or reason codes are unstable, prioritize policy engine hardening.
+- If a specific supported ecosystem shows strong behavior change, prioritize depth in that ecosystem.
+- If agents struggle to consume generated artifacts, prioritize read-only workflow integration such as stdout or agent entrypoints.
+- If previous-scan deltas clearly change the next command, consider previous scan intelligence then.
+- If a theme makes `agent_context.md` generic, noisy, or too broad, defer it to the parking lot.
 
 ## v0.4: Policy Engine Hardening
 
@@ -327,6 +340,8 @@ Do not add broad Docker, Terraform, Kubernetes, full Homebrew, or global package
 Purpose:
 
 Turn previous-scan comparison into a concise command-decision signal.
+
+This phase is optional until behavior evidence shows previous-scan deltas would change agent command choice. Do not implement it just because it is interesting.
 
 Focus:
 

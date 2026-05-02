@@ -12,6 +12,7 @@
 - Updated development automation guidance to focus on behavior-evaluation slices after the `v0.2.0` release.
 - Added checksum verification to the README release-install flow.
 - Expanded the Habitat self-use behavior fixture with verdict and risk-aware behavior metadata.
+- Clarified that post-`v0.3` roadmap items may be re-ranked from behavior evidence, with high-confidence scenarios preferred over broad coverage.
 
 ## v0.2.0 Developer Preview - 2026-05-02
 

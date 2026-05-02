@@ -73,7 +73,7 @@ AI agents do not need a beautiful inventory of everything installed on a machine
 4. Secret presence over secret contents.
 5. Short agent context over exhaustive reports.
 
-Hazakura Habitat is developed around output quality, not feature breadth.
+Hazakura Habitat is developed around output quality, not feature breadth. The roadmap can be re-ranked after `v0.3` behavior evaluation; high-confidence scenarios matter more than broad coverage.
 
 The roadmap prioritizes:
 

@@ -44,6 +44,8 @@ If not, defer it.
 
 The public roadmap should strengthen the reliability of this decision context before it expands the product surface. Prefer output quality, behavior evaluation, and policy maintainability over new integrations or broad ecosystem coverage.
 
+Behavior evidence should be allowed to re-rank the roadmap. If Habitat proves most useful in a smaller set of high-confidence scenarios, deepen those scenarios instead of turning the product into a generic tool for every project type.
+
 ## Positioning
 
 Hazakura Habitat should sit before AI coding agents, not replace them.

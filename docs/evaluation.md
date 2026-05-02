@@ -179,6 +179,7 @@ Follow-up:
 - Secret-bearing search behavior has at least one observed case.
 - At least one case compares context modes or records how Habitat context changed the next command.
 - Evaluation notes identify whether failures require scanner logic, generated guidance, docs, examples, or tests.
+- Evaluation evidence can re-rank later roadmap work toward policy hardening, ecosystem depth, read-only integration, previous-scan intelligence, or deferral.
 - README or release notes can explain any observed behavior changes without claiming enforcement.
 
 Good release language:
