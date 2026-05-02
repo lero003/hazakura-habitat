@@ -27,7 +27,7 @@ This policy is advisory. Habitat does not block commands. `Forbidden` means this
 ## Allowed
 - `swift test`
 - `swift build`
-- `read-only project inspection`
+- `read-only project inspection, including rg <pattern>`
 
 ## Ask First
 - `swift package update` (`dependency_resolution_mutation`)

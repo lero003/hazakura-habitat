@@ -29,7 +29,7 @@ This policy is advisory. Habitat does not block commands. `Forbidden` means this
 - Prefer targeted project inspection over broad `rg`, `grep -R`, `git grep`, `rsync`, `tar`, `zip`, or `git archive` commands.
 
 ## Allowed
-- `read-only project inspection`
+- `targeted read-only project inspection that avoids detected secret-bearing paths`
 
 ## Ask First
 - `recursive project search without excluding secret-bearing files` (`secret_or_credential_access`)

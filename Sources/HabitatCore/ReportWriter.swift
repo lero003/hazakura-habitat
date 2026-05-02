@@ -175,7 +175,7 @@ public struct ReportWriter {
             allowed = ["path existence checks"]
         } else {
             allowed = preferredCommands + [
-                "read-only project inspection"
+                allowedReadOnlyInspectionLine(secretBearingFiles: secretBearingFiles)
             ]
         }
 
@@ -276,6 +276,14 @@ public struct ReportWriter {
         ])
 
         return lines
+    }
+
+    private func allowedReadOnlyInspectionLine(secretBearingFiles: [String]) -> String {
+        if secretBearingFiles.isEmpty {
+            return "read-only project inspection, including rg <pattern>"
+        }
+
+        return "targeted read-only project inspection that avoids detected secret-bearing paths"
     }
 
     private func counted(_ count: Int, singular: String, plural: String) -> String {

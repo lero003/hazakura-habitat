@@ -203,6 +203,8 @@ struct HabitatCoreTests {
         #expect(policy.contains("For necessary broad search, start with exclusion-aware `rg`: `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc' --glob '!id_ed25519'`."))
         #expect(policy.contains("Apply equivalent exclusions before broad `grep -R`, `git grep`, copy, sync, or archive commands."))
         #expect(policy.contains("Prefer targeted project inspection over broad `rg`, `grep -R`, `git grep`, `rsync`, `tar`, `zip`, or `git archive` commands."))
+        #expect(policy.contains("`targeted read-only project inspection that avoids detected secret-bearing paths`"))
+        #expect(!policy.contains("`read-only project inspection, including rg <pattern>`"))
     }
 
     @Test
@@ -4116,7 +4118,7 @@ struct HabitatCoreTests {
 
         #expect(context.contains("- Use read-only inspection first."))
         #expect(!context.contains("Prefer `Use read-only inspection first`."))
-        #expect(policy.contains("`read-only project inspection`"))
+        #expect(policy.contains("`read-only project inspection, including rg <pattern>`"))
     }
 
     @Test
@@ -4672,7 +4674,7 @@ struct HabitatCoreTests {
         #expect(context.contains("Use Bundler (`bundle`) because project files point to it."))
         #expect(!context.contains("Prefer `bundle exec`."))
         #expect(!policy.contains("`bundle exec`"))
-        #expect(policy.contains("`read-only project inspection`"))
+        #expect(policy.contains("`read-only project inspection, including rg <pattern>`"))
     }
 
     @Test
@@ -5723,7 +5725,7 @@ struct HabitatCoreTests {
         - `global_environment_mutation` - Command can mutate global tools or host environment state.
 
         ## Allowed
-        - `read-only project inspection`
+        - `read-only project inspection, including rg <pattern>`
 
         ## Ask First
         - `running pnpm commands before pnpm is available` (`missing_tool`)
@@ -6873,7 +6875,7 @@ struct HabitatCoreTests {
         #expect(!context.contains("Use read-only inspection first."))
         #expect(policy.contains("`path existence checks`"))
         #expect(policy.contains("`running project commands before project path is verified`"))
-        #expect(!policy.contains("`read-only project inspection`"))
+        #expect(!policy.contains("`read-only project inspection, including rg <pattern>`"))
     }
 
     @Test
