@@ -163,6 +163,12 @@ Completion criteria:
 - Output bloat is caught by tests.
 - Agent-facing output and audit/debug reporting are clearly separated.
 
+Release gate:
+
+- Do not tag or publish `v0.2.0` automatically.
+- Do not move automation to `v0.3` automatically.
+- Run an explicit release-trust check before publishing, including local tests, CI, release notes, generated artifact review, and remote artifact verification if binaries are published.
+
 Do not spend v0.2 on:
 
 - MCP server

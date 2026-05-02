@@ -58,6 +58,7 @@ Avoid broad feature expansion:
 
 When generated output changes, update tests and representative examples in the same slice.
 When versioned output behavior changes after a public release, do not move existing tags; use a transparent patch release.
+Do not cut `v0.2.0`, create release tags, or move automation to `v0.3` without an explicit release handoff from the user.
 ```
 
 ## Self-Use Before Substantial Work
@@ -80,6 +81,20 @@ The v0.2 acceptance question is:
 > Does this make the generated output easier for an AI agent to read in the right order, stop at the right point, explain approval needs, or choose the next command?
 
 If not, keep it out of v0.2.
+
+## Phase Gate
+
+Automation may keep improving `v0.2.0-dev`, but it must not decide that `v0.2` is complete by itself.
+
+Release and phase-transition work requires an explicit user handoff:
+
+- cut or tag `v0.2.0`
+- write GitHub Release notes
+- upload or verify release artifacts
+- switch automation from `v0.2` to `v0.3`
+- start broad `v0.3` behavior-evaluation work
+
+Before that handoff, automation should keep changes inside the `v0.2` Agent Reading Contract scope.
 
 ## Definition of Done
 
