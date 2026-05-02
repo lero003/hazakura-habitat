@@ -21,6 +21,7 @@ The purpose is to make the product value visible:
 - `secret-bearing-files/command_policy.md`: representative policy shape with secret-bearing search/export guidance near the top.
 - `behavior-evaluation/habitat-self-use-swiftpm.json`: sanitized observed behavior fixture for SwiftPM self-use.
 - `behavior-evaluation/swiftpm-self-use-002.json`: sanitized observed behavior fixture for policy review before SwiftPM self-use Git mutation.
+- `behavior-evaluation/swiftpm-self-use-003.json`: sanitized observed behavior fixture for clean SwiftPM dependency-resolution restraint.
 - `behavior-evaluation/secret-bearing-search-001.json`: sanitized observed behavior fixture for secret-aware search command shaping.
 - `behavior-evaluation/secret-bearing-search-002.json`: sanitized observed behavior fixture for policy review before complex secret-aware search.
 - `behavior-evaluation/secret-bearing-search-003.json`: sanitized observed behavior fixture for concrete Git-tracked search exclusions.
