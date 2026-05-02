@@ -23,3 +23,5 @@ The purpose is to make the product value visible:
 - `behavior-evaluation/swiftpm-self-use-002.json`: sanitized observed behavior fixture for policy review before SwiftPM self-use Git mutation.
 - `behavior-evaluation/secret-bearing-search-001.json`: sanitized observed behavior fixture for secret-aware search command shaping.
 - `behavior-evaluation/secret-bearing-search-002.json`: sanitized observed behavior fixture for policy review before complex secret-aware search.
+- `behavior-evaluation/secret-bearing-search-003.json`: sanitized observed behavior fixture for concrete Git-tracked search exclusions.
+- `behavior-evaluation/secret-bearing-search-004.json`: sanitized observed behavior fixture for using the `git grep` pathspec exclusion example.
