@@ -86,7 +86,7 @@ If not, keep it out of v0.2.
 
 ## Phase Gate
 
-Automation may keep improving `v0.2.0-dev`, but it must not decide that `v0.2` is complete by itself.
+Automation may keep improving release candidates, but it must not decide that a release milestone is complete by itself.
 
 Release and phase-transition work requires an explicit user handoff:
 

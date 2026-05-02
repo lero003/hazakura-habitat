@@ -6,7 +6,7 @@ Run it before an agent starts work. It generates short, advisory project context
 
 It does not execute, approve, block, or sandbox commands.
 
-Status: `v0.2.0-dev` from the public `v0.1.1` baseline - advisory only - no command enforcement - macOS-first.
+Status: `v0.2.0 Developer Preview` - advisory only - no command enforcement - macOS-first.
 
 The MVP is not a human dashboard. It is a pre-work contract for AI agents: a map before the agent walks, not a fence around the agent.
 
@@ -116,7 +116,7 @@ The secondary output is:
 
 The MVP does not generate separate `env_changes.md` or `project_dependency_summary.md`; their useful parts are folded into `agent_context.md` and `command_policy.md`.
 
-In `v0.x`, `scan_result.json` includes `schemaVersion`, `generatorVersion`, Markdown artifact metadata including report-relative path, agent reading role, read trigger, read order, entry section, entry line, section heading line index, line and character counts, and budget status for line-limited outputs, machine-readable policy `reasonCodes`, command counts including Review First size, top-priority `reviewFirstCommandReasons`, and per-command `commandReasons`, but fields may still evolve between developer preview releases. Markdown outputs are optimized for AI-agent consumption, not stable machine parsing.
+In `v0.x`, `scan_result.json` is preview metadata for audit, debug, and tooling use. Its top-level purpose is stable, but individual fields may change before `v1.0`. Agent-facing guidance should start with `agent_context.md`; use `scan_result.json` for generated artifact metadata including report-relative path, agent reading role, read trigger, read order, entry section, entry line, section heading line index, line and character counts, budget status for line-limited outputs, machine-readable policy `reasonCodes`, command counts including Review First size, top-priority `reviewFirstCommandReasons`, and per-command `commandReasons`.
 
 ## Privacy and Prompt-Injection Stance
 
@@ -148,7 +148,7 @@ Runtime version hints from `.nvmrc`, `.node-version`, `.python-version`, `.ruby-
 
 ## Current Status
 
-The repository contains the initial public Developer Preview implementation of the AI-first CLI. See [Current Status](docs/current_status.md) for what is implemented and what should come next.
+The repository contains the `v0.2.0 Developer Preview` implementation of the AI-first CLI. See [Current Status](docs/current_status.md) for what is implemented and what should come next.
 
 See [Public Readiness](docs/public_readiness.md) for the completed `v0.1.0` publication checklist and scope boundaries.
 

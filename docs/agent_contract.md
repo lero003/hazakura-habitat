@@ -656,14 +656,14 @@ Forbidden in MVP-generated policy:
 
 ## Machine Artifact: scan_result.json
 
-`scan_result.json` is the stable source of truth.
+`scan_result.json` is preview metadata for audit, debug, and tooling use during `v0.x`.
 
 Top-level shape:
 
 ```json
 {
   "schemaVersion": "0.1",
-  "generatorVersion": "0.2.0-dev",
+  "generatorVersion": "0.2.0",
   "artifacts": [
     {
       "name": "agent_context.md",

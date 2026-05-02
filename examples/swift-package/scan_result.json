@@ -1,6 +1,6 @@
 {
   "schemaVersion": "0.1",
-  "generatorVersion": "0.2.0-dev",
+  "generatorVersion": "0.2.0",
   "artifacts": [
     {
       "name": "agent_context.md",
