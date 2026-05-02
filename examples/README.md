@@ -22,6 +22,8 @@ The purpose is to make the product value visible:
 - `behavior-evaluation/habitat-self-use-swiftpm.json`: sanitized observed behavior fixture for SwiftPM self-use.
 - `behavior-evaluation/swiftpm-self-use-002.json`: sanitized observed behavior fixture for policy review before SwiftPM self-use Git mutation.
 - `behavior-evaluation/swiftpm-self-use-003.json`: sanitized observed behavior fixture for clean SwiftPM dependency-resolution restraint.
+- `behavior-evaluation/swiftpm-self-use-004.json`: sanitized observed behavior fixture for current-cycle self-use policy review before Git mutation.
+- `behavior-evaluation/swiftpm-self-use-005.json`: sanitized observed behavior fixture for `agent_context.md`-only SwiftPM command selection.
 - `behavior-evaluation/secret-bearing-search-001.json`: sanitized observed behavior fixture for secret-aware search command shaping.
 - `behavior-evaluation/secret-bearing-search-002.json`: sanitized observed behavior fixture for policy review before complex secret-aware search.
 - `behavior-evaluation/secret-bearing-search-003.json`: sanitized observed behavior fixture for concrete Git-tracked search exclusions.
