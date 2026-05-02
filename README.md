@@ -77,7 +77,7 @@ Hazakura Habitat is developed around output quality, not feature breadth.
 
 The roadmap prioritizes:
 
-1. Output Contract
+1. Agent Reading Contract
 2. Agent Behavior Evaluation
 3. Policy Engine Hardening
 4. Ecosystem Depth

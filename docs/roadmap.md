@@ -29,7 +29,7 @@ If not, put it in the parking lot.
 | Priority | Release | Theme | What It Strengthens |
 | -: | --- | --- | --- |
 | 1 | `v0.1.x` | Public stabilization | Trust, clarity, and issue handling |
-| 2 | `v0.2` | Output contract | Shortness, structure, schema |
+| 2 | `v0.2` | Agent reading contract | Read order, stopping points, reasons, and shortness |
 | 3 | `v0.3` | Agent behavior evaluation | Evidence that agent decisions improve |
 | 4 | `v0.4` | Policy engine hardening | Maintainability and reason codes |
 | 5 | `v0.5` | Ecosystem depth | Precision in already-supported ecosystems |
@@ -75,11 +75,13 @@ Do not add:
 - automatic repair
 - install-command suggestion generation
 
-## v0.2: Output Contract Hardening
+## v0.2: Agent Reading Contract
 
 Purpose:
 
-Make `agent_context.md`, `command_policy.md`, and `scan_result.json` feel like stable contracts rather than incidental reports.
+Make `agent_context.md`, `command_policy.md`, and `scan_result.json` tell an AI agent what to read first, where to pause, why approval is needed, and when enough context has been read.
+
+This phase still hardens the output contract, but the emphasis is broader than shortness. The goal is an agent-readable contract: reading order, line budgets, overflow rules, review-first guidance, reason text, and the bundled self-use skill entrypoint.
 
 Starting point:
 
@@ -88,6 +90,7 @@ Starting point:
 - Treat generated-output changes as product behavior, not docs-only polish.
 - Update README, examples, and tests whenever generated artifacts change shape or meaning.
 - Use Habitat on this repository before substantial v0.2 work; see [Self-Use Loop](self_use.md).
+- Treat the bundled `skills/hazakura-habitat` entrypoint as part of v0.2, not a late integration feature. It is the minimum connection point that lets agents consume the output contract in real work.
 
 Current self-use finding:
 
@@ -98,12 +101,16 @@ Current self-use finding:
 
 Focus:
 
+- stable reading hints: `agentUse`, `readOrder`, line counts, and line-limit metadata
 - fixed `agent_context.md` structure
 - line or character budget for `agent_context.md`
+- overflow rules that tell agents when to consult `command_policy.md`
+- policy index and `Review First` section for long command policies
 - fixed classification order for `command_policy.md`
 - `schema_version`, generator metadata, generated artifact metadata, and policy reason-code metadata in `scan_result.json`
 - policy reason text
 - initial `reason_code` model
+- bundled self-use skill entrypoint
 - Markdown snapshot tests that include output size checks
 - tests proving agent-facing output does not include raw project prose
 
@@ -148,8 +155,11 @@ Reason-code example:
 Completion criteria:
 
 - `agent_context.md` structure is stable.
+- Agents know which generated artifact to read first and which artifacts are only for policy or audit detail.
 - `command_policy.md` classifications are explainable.
+- `command_policy.md` has a useful index and highest-priority review section before long command lists.
 - JSON includes schema and generator version metadata.
+- JSON includes preview reading hints and policy-size metadata without pretending the full schema is stable.
 - Output bloat is caught by tests.
 - Agent-facing output and audit/debug reporting are clearly separated.
 
@@ -173,6 +183,8 @@ Focus:
 - behavior-oriented fixtures
 - expected agent behavior per fixture
 - `docs/evaluation.md`
+- sanitized self-use traces from Habitat development
+- "did the next command change?" checks for self-use and fixtures
 - tests separate from plain snapshot tests
 - checks that the first few lines of `agent_context.md` carry the important command decision
 
@@ -183,6 +195,7 @@ Candidate fixtures:
 - Python uv project with missing `uv`: identify uv as preferred; ask before pip fallback; do not auto-install uv.
 - Secret-bearing files present: do not read, dump, copy, archive, or load secret-bearing files.
 - Missing preferred tool: ask first; do not silently switch package managers; do not suggest global install as the automatic next step.
+- Hazakura Habitat self-use trace: compare the command choices Codex would make before and after reading generated context, without exposing local paths, prompt transcripts, or secret-adjacent data.
 
 Evaluation questions:
 
@@ -195,6 +208,7 @@ Evaluation questions:
 Completion criteria:
 
 - Representative risky cases have expected behavior.
+- Sanitized self-use traces show how Habitat changed or constrained real development commands.
 - `agent_context.md` quality can regress in tests.
 - README can explain the intended agent behavior changes.
 

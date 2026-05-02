@@ -74,7 +74,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 
 ## v0.2 Findings
 
-The self-scan supports the v0.2 Output Contract Hardening focus.
+The self-scan supports the v0.2 Agent Reading Contract focus.
 
 Keep:
 
@@ -89,6 +89,8 @@ Improve:
 - Continue reason-code groundwork so large policy sections are explainable and eventually groupable.
 - Keep Git/GitHub mutation guards visible before broad baseline package-manager guards when reviewing the full command policy.
 - Continue output shape metadata and tests that catch growth before it becomes normal.
+- Treat `agentUse`, `readOrder`, line counts, and command counts as preview reading hints during `v0.x`, not a fully stable schema promise.
+- Capture future self-use evidence as sanitized traces, not raw prompts or local-path-heavy logs.
 - Update representative examples whenever generated output wording or structure changes.
 
 ## Acceptance Question

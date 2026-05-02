@@ -38,11 +38,15 @@ Use this handoff when starting automated work from the current public `v0.1.1` b
 ```text
 Start v0.2 work from the current public v0.1.1 baseline. Keep v0.1.1 immutable.
 
-Focus on Output Contract Hardening:
+Focus on Agent Reading Contract:
+- stable read order and agentUse hints
 - stable agent_context.md structure
 - line/shape budget tests for agent-facing Markdown
+- overflow rules that point to command_policy.md when needed
+- policy index and Review First guidance for long command policies
 - advisory command_policy.md clarity
 - policy reason text and reason_code groundwork
+- bundled self-use skill entrypoint
 - generated-output, README, examples, and tests consistency
 
 Avoid broad feature expansion:
@@ -73,7 +77,7 @@ The intended AI-first direction is that agents trigger this scan themselves befo
 
 The v0.2 acceptance question is:
 
-> Does this make the generated output shorter, more stable, more explainable, or more reliable for an AI agent's next command choice?
+> Does this make the generated output easier for an AI agent to read in the right order, stop at the right point, explain approval needs, or choose the next command?
 
 If not, keep it out of v0.2.
 
