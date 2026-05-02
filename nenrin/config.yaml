@@ -1,0 +1,31 @@
+project_name: hazakura-habitat
+nenrin_version: 0.1
+
+tracked_files:
+  - AGENTS.md
+  - CLAUDE.md
+  - README.md
+  - docs/**/*.md
+  - skills/**/SKILL.md
+  - handoff/**/*.md
+  - roadmap*.md
+  - release*.md
+  - qa*.md
+
+review_defaults:
+  tasks: 3
+  days: 7
+
+impact_values:
+  - unknown
+  - effective
+  - partially_effective
+  - ineffective
+  - harmful
+
+status_values:
+  - draft
+  - observing
+  - ready_for_review
+  - reviewed
+  - archived

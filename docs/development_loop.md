@@ -77,6 +77,14 @@ Do not commit `habitat-report/`. Turn useful findings into docs, fixtures, tests
 
 The intended AI-first direction is that agents trigger this scan themselves before high-impact work. Humans should not need to remember the preflight every time.
 
+## Nenrin Observation Ledger
+
+Use `nenrin/` to track whether changes to Habitat's agent-facing working environment actually improved later agent behavior.
+
+Before substantial self-use, automation, release-prep, or docs workflow changes, read `nenrin/index.md` after the Habitat scan context. If the task changes docs, skills, handoff guidance, roadmap, release rules, QA criteria, or automation prompts, create or update a Nenrin change record. If the task exercises an active change, create a Nenrin observation record after the work.
+
+Keep this loop lightweight. Nenrin is for the retrospective question: did this improvement help enough to keep, remove, merge, narrow, or move it?
+
 The post-v0.3 acceptance question is:
 
 > Did this self-use slice reveal a concrete command-decision improvement, over-constraint, or misunderstanding that should return to policy, evidence, tests, or docs?

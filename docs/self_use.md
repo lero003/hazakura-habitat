@@ -44,6 +44,8 @@ Read the generated files before continuing:
 
 Do not commit `habitat-report/`. Convert useful findings into docs, fixtures, tests, examples, or roadmap items.
 
+Use `nenrin/` as the companion observation ledger for changes to the self-use environment itself. When self-use changes Habitat docs, bundled skills, roadmap, release guidance, QA criteria, or automation prompts, create or update a Nenrin change record. After a later related task, add an observation describing whether the change affected the agent's next command or cleanup decision.
+
 ## Current Self-Scan Snapshot
 
 Snapshot date: 2026-05-02.

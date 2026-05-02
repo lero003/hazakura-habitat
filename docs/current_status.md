@@ -28,6 +28,7 @@ The `v0.3.0 Developer Preview` milestone shipped the first Agent Behavior Evalua
   - `environment_report.md`
 - Bundled distributable agent skill at `skills/hazakura-habitat` so AI agents can run Habitat as a preflight step before substantial work, dependency changes, Git/GitHub mutations, and secret-adjacent operations.
 - The bundled skill helper uses or rebuilds the current Hazakura Habitat source checkout during self-scans instead of silently falling back to packaged or installed binaries, so generated context reflects the current output contract instead of a stale local `dist/` artifact.
+- Project-local `nenrin/` improvement observation ledger for tracking whether changes to Habitat's agent-facing docs, skills, roadmap, release guidance, QA criteria, and automation prompts actually improve later agent behavior.
 - `scan_result.json` includes `schemaVersion`, `generatorVersion`, generated Markdown `artifacts` metadata, and `policy.reasonCodes`, and previous-scan comparison surfaces generator-version changes so agents do not mistake policy-generator differences for environment drift.
 - `artifacts` records generated Markdown artifact names, report-relative paths, roles, formats, agent reading role, read trigger, read order, entry section, entry line, section headings, section heading line numbers, line counts, character counts, the `agent_context.md` hard line limit, and whether line-limited outputs are within budget so agents can open the right report-local file, read the short working context first, and jump to useful sections when continuing into longer policy/audit outputs without parsing Markdown first.
 - `artifacts.entrySection` is derived from generated Markdown headings, with a fallback to an existing section when conditional sections such as `Review First` are omitted, so machine consumers are not pointed at a non-existent heading.
@@ -181,6 +182,7 @@ The `v0.3.0 Developer Preview` milestone shipped the first Agent Behavior Evalua
 ## Next Useful Improvements
 
 - Keep the next cycle small: use Habitat during real Codex work, observe what changed the next command, then return the finding to policy, evidence fixtures, tests, or docs.
+- Use Nenrin during self-use and automation work to record why agent-facing guidance changed, what behavior was expected, and whether the change should be kept, removed, merged, narrowed, or moved.
 - Use `v0.3` evidence to harden policy structure, reason-code maintainability, and generated guidance before adding broad ecosystem coverage.
 - Capture new sanitized traces only when they show a new command-decision boundary, a regression, over-constraint, or a failure that can become an artifact improvement.
 - Turn evaluation failures into focused output-contract, fixture, test, or documentation improvements.
