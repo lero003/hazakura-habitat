@@ -124,7 +124,7 @@ Default classifications:
 Allowed:
 
 - read-only project inspection, including `rg <pattern>`, when no secret-bearing files are detected
-- targeted read-only project inspection that avoids detected secret-bearing paths, when secret-bearing files are detected
+- targeted read-only source/test inspection that avoids detected secret-bearing paths, when secret-bearing files are detected
 - concrete generated preferred commands, only when the selected executable is available, its version check succeeds, or a project-local executable path is preferred
 - package manager commands that do not install, update, delete, or mutate global state
 

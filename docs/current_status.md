@@ -143,7 +143,7 @@ The `v0.2.0 Developer Preview` milestone focuses on the Agent Reading Contract: 
 - `agent_context.md` prioritizes project-relevant secret access/exfiltration bans in Do Not when `.env` examples/variants, `.envrc` examples/variants, `.netrc`, private-key-like filenames, package-manager auth config files such as `.pnpmrc`, `.pypirc`, `.bundle/config`, `.cargo/credentials.toml`, or `.composer/auth.json`, or project-local cloud/container credential files such as `.aws/credentials`, `.docker/config.json`, or `.kube/config` are detected.
 - `agent_context.md` keeps detected project secret-bearing files ahead of generic credential cautions in the short Do Not list, so dense secret-signal projects still surface concrete cloud/container, package-auth, env, envrc, and netrc avoidance guidance.
 - `agent_context.md` phrases secret access/exfiltration bans as direct file-safety guidance rather than command-like "Do not run ..." entries, so agents avoid reading, comparing, dumping, opening, editing, copying, moving, syncing, uploading, archiving, or loading secret-bearing files.
-- `agent_context.md` gives a concrete broad-search starting shape with secret-exclusion globs when secret-bearing files are detected, and says to add exclusions for remaining detected paths when the short `rg` shape is capped, so agents reshape `rg`/`grep -R`/`git grep` instead of overcorrecting into no search or missing dense secret signals.
+- `agent_context.md` gives a concrete broad-search starting shape with secret-exclusion globs when secret-bearing files are detected, and says to add exclusions for remaining detected paths when the short `rg` shape is capped, while clarifying that named non-secret source/test files can still be inspected directly, so agents reshape `rg`/`grep -R`/`git grep` without overcorrecting into no useful source inspection.
 - Missing preferred tool warnings when project files point to a tool that is not on `PATH`, including SwiftPM-specific guidance when `swift` is unavailable.
 - `scan_result.json`, `agent_context.md`, and `command_policy.md` suppress concrete preferred commands when the required executable is missing or unverifiable, leaving executable verification wording plus the missing-tool or version-check Ask First guard visible instead.
 - `command_policy.md` now keeps Allowed scoped to concrete generated preferred commands plus read-only inspection, and no longer emits broad `test commands for the selected project` or `build commands for the selected project` allowances that could let an AI agent improvise beyond the verified command set.
@@ -179,8 +179,8 @@ The `v0.2.0 Developer Preview` milestone focuses on the Agent Reading Contract: 
 
 ## Next Useful Improvements
 
-- Define the first `v0.3` behavior-evaluation tasks in `docs/evaluation.md`.
-- Capture sanitized self-use traces that show whether Habitat changes Codex's next command.
+- Keep `v0.3` behavior evaluation focused on SwiftPM self-use and secret-bearing search regressions.
+- Capture sanitized traces only when they show a new command-decision boundary or turn a failure into an artifact improvement.
 - Turn evaluation failures into focused output-contract, fixture, test, or documentation improvements.
 - Re-rank later roadmap work from behavior evidence, preferring high-confidence scenarios over broad coverage.
 - Keep feature expansion deferred unless it directly improves a measured agent command decision.

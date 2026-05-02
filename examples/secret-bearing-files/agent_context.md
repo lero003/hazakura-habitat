@@ -7,7 +7,7 @@
 - Prefer commands that do not read, print, copy, archive, or upload secret-bearing paths.
 
 ## Ask First
-- Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc' --glob '!id_ed25519'`.
+- Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; targeted reads of known non-secret source/test files can proceed; start broad search with `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc' --glob '!id_ed25519'`.
 - Ask before dependency installs.
 - Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`.
 

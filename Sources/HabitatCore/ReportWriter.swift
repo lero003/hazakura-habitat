@@ -339,7 +339,7 @@ public struct ReportWriter {
             return "read-only project inspection, including rg <pattern>"
         }
 
-        return "targeted read-only project inspection that avoids detected secret-bearing paths"
+        return "targeted read-only source/test inspection that avoids detected secret-bearing paths"
     }
 
     private func counted(_ count: Int, singular: String, plural: String) -> String {
@@ -492,7 +492,7 @@ public struct ReportWriter {
 
     private func agentContextAskFirstLine(for command: String, result: ScanResult) -> String {
         if command == "recursive project search without excluding secret-bearing files" {
-            return "- Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `\(broadSearchShape(for: result.project))`\(searchExclusionOverflowSuffix(for: result.project))."
+            return "- Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; targeted reads of known non-secret source/test files can proceed; start broad search with `\(broadSearchShape(for: result.project))`\(searchExclusionOverflowSuffix(for: result.project))."
         }
 
         return "- Ask before `\(command)`."
@@ -1004,10 +1004,11 @@ public struct ReportWriter {
         ## If Secret-Bearing Files Are Detected
         - Detected secret-bearing paths: \(summarize(files)).
         - Before recursive search, copy, sync, or archive commands, review exclusions for these paths.
+        - Named source or test files that are not detected secret-bearing paths can be inspected directly.
         - For necessary broad search, start with exclusion-aware `rg`: `rg <pattern> \(searchExclusionGlobs(for: files).joined(separator: " "))`\(searchExclusionOverflowSuffix(for: files)).
         - For necessary Git-tracked search, use pathspec exclusions: `git grep <pattern> -- . \(gitGrepExclusionPathspecs(for: files).joined(separator: " "))`\(searchExclusionOverflowSuffix(for: files)).
         - Apply equivalent exclusions before broad `grep -R`, `git grep`, copy, sync, or archive commands.
-        - Prefer targeted project inspection over broad `rg`, `grep -R`, `git grep`, `rsync`, `tar`, `zip`, or `git archive` commands.
+        - Prefer targeted source/test inspection over broad `rg`, `grep -R`, `git grep`, `rsync`, `tar`, `zip`, or `git archive` commands.
         """
     }
 
