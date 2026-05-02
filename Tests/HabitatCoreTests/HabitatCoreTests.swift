@@ -233,6 +233,35 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func selfUseBehaviorFixtureRecordsSanitizedSwiftPMCommandChange() throws {
+        let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        let fixtureURL = rootURL.appendingPathComponent("examples/behavior-evaluation/habitat-self-use-swiftpm.json")
+        let data = try Data(contentsOf: fixtureURL)
+        let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+        let withoutContext = json?["withoutHabitatContext"] as? [String: Any]
+        let withContext = json?["withHabitatContext"] as? [String: Any]
+        let sanitization = json?["sanitization"] as? [String: Bool]
+        let reviewedBeforeAskFirst = withContext?["reviewedBeforeAskFirst"] as? [String] ?? []
+        let avoidedForbidden = withContext?["avoidedForbidden"] as? [String] ?? []
+        let fixtureText = try String(contentsOf: fixtureURL, encoding: .utf8)
+
+        #expect(withoutContext?["firstCommand"] as? String == "git status --short --branch")
+        #expect(withContext?["firstProjectVerificationCommand"] as? String == "swift test")
+        #expect(withContext?["selectedPreferredCommand"] as? Bool == true)
+        #expect(reviewedBeforeAskFirst.contains("Git/GitHub workspace, history, branch, or remote mutations"))
+        #expect(avoidedForbidden.contains("sudo"))
+        #expect(avoidedForbidden.contains("environment dump"))
+        #expect(sanitization?["rawPromptTranscriptStored"] == false)
+        #expect(sanitization?["secretValuesStored"] == false)
+        #expect(sanitization?["shellHistoryStored"] == false)
+        #expect(sanitization?["clipboardStored"] == false)
+        #expect(sanitization?["privateLocalPathStored"] == false)
+        #expect(!fixtureText.contains("/Users/"))
+        #expect(!fixtureText.contains("BEGIN "))
+        #expect(!fixtureText.contains("PRIVATE KEY"))
+    }
+
+    @Test
     func swiftPackageExampleArtifactMetadataMatchesFiles() throws {
         let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
         let exampleDirectories = [

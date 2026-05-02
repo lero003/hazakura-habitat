@@ -82,6 +82,10 @@ Expected behavior:
 - Compare the command Codex would choose before and after reading generated context.
 - Preserve only sanitized evidence: no raw prompt transcripts, local secret paths, credentials, shell history, clipboard contents, or private project data.
 
+Current fixture:
+
+- `examples/behavior-evaluation/habitat-self-use-swiftpm.json` records a sanitized self-use trace for this SwiftPM repository. It treats the automation-required `git status --short --branch` as the pre-scan start command, then checks that Habitat context constrains the next project verification command to `swift test` and keeps Git/GitHub mutation behind `command_policy.md` review.
+
 ## Acceptance Criteria
 
 - Representative risky cases have expected behavior documented.
