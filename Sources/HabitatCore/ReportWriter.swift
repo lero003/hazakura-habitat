@@ -57,6 +57,7 @@ public struct ReportWriter {
             entrySection: entrySection,
             entryLine: sectionEntries.first { $0.title == entrySection }?.line,
             sections: sections,
+            sectionLines: sectionEntries.map { MarkdownSectionLine(title: $0.title, line: $0.line) },
             lineLimit: lineLimit,
             withinLineLimit: lineLimit.map { artifactLineCount <= $0 }
         )

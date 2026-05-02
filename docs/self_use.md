@@ -43,7 +43,7 @@ Observed output from scanning this repository:
 
 - Package manager: SwiftPM.
 - Preferred commands: `swift test`, `swift build`.
-- `agent_context.md`: 34 lines in `scan_result.json` artifact metadata.
+- `agent_context.md`: 35 lines in `scan_result.json` artifact metadata.
 - `command_policy.md`: 798 lines in `scan_result.json` artifact metadata.
 - `environment_report.md`: 75 lines in `scan_result.json` artifact metadata.
 - Ask First commands: 262.
@@ -70,7 +70,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - `command_policy.md` now distinguishes no-secret read-only search from secret-bearing projects: ordinary `rg <pattern>` remains allowed in normal repositories, while secret-bearing repositories steer agents toward targeted inspection and exclusion-aware search.
 - The `agent_context.md` Ask First overflow line now names hidden reason codes in stable catalog order, and when Git/GitHub mutation guards are already summarized it names the other hidden reason families first, so Codex can see remaining dependency, tool, or approval risks before opening the full policy.
 - Ephemeral package execution commands now carry their own `ephemeral_package_execution` reason code, so `npx`/`dlx`/`uvx`/`pipx run` guards no longer collapse into generic approval metadata.
-- `scan_result.json` now records generated Markdown artifact roles, agent reading role, read trigger, read order, entry section, entry line, line counts, character counts, the `agent_context.md` line limit, and whether line-limited outputs are within budget, so agents can identify the short working context first and jump to `Review First` or diagnostics when continuing into longer reports without parsing every report.
+- `scan_result.json` now records generated Markdown artifact roles, agent reading role, read trigger, read order, entry section, entry line, section heading line index, line counts, character counts, the `agent_context.md` line limit, and whether line-limited outputs are within budget, so agents can identify the short working context first and jump to `Review First`, `Ask First`, `Forbidden`, or diagnostics when continuing into longer reports without parsing every report.
 - `agent_context.md` now states that it is the short working context and keeps full approval detail in `command_policy.md`, so agents can stop after the first artifact unless a risky command needs policy review.
 - `scan_result.json` now records `policy.commandCounts`, so agents can see policy size and reason coverage before deciding whether to inspect the full `command_policy.md`.
 - `scan_result.json` now records `policy.reviewFirstCommandReasons`, so agents and tools can read the highest-priority approval checklist with reasons without parsing `command_policy.md`.
@@ -94,7 +94,7 @@ Improve:
 - Keep Git/GitHub mutation guards visible before broad baseline package-manager guards when reviewing the full command policy.
 - Evaluate search-command shape separately for projects with and without detected secret-bearing files: unrestricted `rg` is reasonable in ordinary repos, but secret-bearing repos should steer agents toward exclusion globs such as `--glob '!.env'`, policy review, or Ask First before recursive search. Do not overcorrect by banning useful search outright.
 - Continue output shape metadata and tests that catch growth before it becomes normal.
-- Treat `agentUse`, `readTrigger`, `readOrder`, `entrySection`, line counts, character counts, and command counts as preview reading hints during `v0.x`, not a fully stable schema promise.
+- Treat `agentUse`, `readTrigger`, `readOrder`, `entrySection`, section line metadata, line counts, character counts, and command counts as preview reading hints during `v0.x`, not a fully stable schema promise.
 - Capture future self-use evidence as sanitized traces, not raw prompts or local-path-heavy logs.
 - Update representative examples whenever generated output wording or structure changes.
 

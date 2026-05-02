@@ -160,6 +160,7 @@ public struct GeneratedArtifact: Codable, Equatable {
     public let entrySection: String?
     public let entryLine: Int?
     public let sections: [String]?
+    public let sectionLines: [MarkdownSectionLine]?
     public let lineCount: Int
     public let characterCount: Int?
     public let lineLimit: Int?
@@ -177,6 +178,7 @@ public struct GeneratedArtifact: Codable, Equatable {
         entrySection: String? = nil,
         entryLine: Int? = nil,
         sections: [String]? = nil,
+        sectionLines: [MarkdownSectionLine]? = nil,
         lineLimit: Int? = nil,
         withinLineLimit: Bool? = nil
     ) {
@@ -189,10 +191,21 @@ public struct GeneratedArtifact: Codable, Equatable {
         self.entrySection = entrySection
         self.entryLine = entryLine
         self.sections = sections
+        self.sectionLines = sectionLines
         self.lineCount = lineCount
         self.characterCount = characterCount
         self.lineLimit = lineLimit
         self.withinLineLimit = withinLineLimit
+    }
+}
+
+public struct MarkdownSectionLine: Codable, Equatable {
+    public let title: String
+    public let line: Int
+
+    public init(title: String, line: Int) {
+        self.title = title
+        self.line = line
     }
 }
 

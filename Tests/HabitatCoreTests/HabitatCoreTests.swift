@@ -312,6 +312,15 @@ struct HabitatCoreTests {
                     artifact["sections"] as? [String] == expectedSections[name],
                     "Expected \(directory)/\(name) sections metadata to match generated Markdown headings"
                 )
+                let sectionLines = artifact["sectionLines"] as? [[String: Any]]
+                #expect(
+                    sectionLines?.compactMap { $0["title"] as? String } == expectedSections[name],
+                    "Expected \(directory)/\(name) sectionLines metadata to preserve Markdown heading order"
+                )
+                #expect(
+                    sectionLines?.compactMap { $0["line"] as? Int } == expectedSections[name]?.compactMap { headingLine($0, in: artifactText) },
+                    "Expected \(directory)/\(name) sectionLines metadata to point at each Markdown heading"
+                )
                 #expect(
                     lineCount(artifactText) == expectedLineCount,
                     "Expected \(directory)/\(name) lineCount metadata to match the example file"
@@ -5632,6 +5641,14 @@ struct HabitatCoreTests {
             ["Command Policy", "Policy Index", "Review First", "Reason Codes", "Allowed", "Ask First", "Forbidden", "If Dependency Installation Seems Necessary"],
             ["Environment Report", "System", "Project Signals", "Symlinked Project Signals", "Resolved Tools", "Tool Versions", "Changes Since Previous Scan", "Warnings", "Diagnostics", "Privacy Note"]
         ])
+        #expect(decoded.artifacts.map { $0.sectionLines?.map(\.title) } == [
+            ["Agent Context", "Use", "Prefer", "Ask First", "Do Not", "Notes"],
+            ["Command Policy", "Policy Index", "Review First", "Reason Codes", "Allowed", "Ask First", "Forbidden", "If Dependency Installation Seems Necessary"],
+            ["Environment Report", "System", "Project Signals", "Symlinked Project Signals", "Resolved Tools", "Tool Versions", "Changes Since Previous Scan", "Warnings", "Diagnostics", "Privacy Note"]
+        ])
+        #expect(decoded.artifacts[1].sectionLines?.first { $0.title == "Review First" }?.line == decoded.artifacts[1].entryLine)
+        #expect(decoded.artifacts[1].sectionLines?.first { $0.title == "Ask First" }?.line != nil)
+        #expect(decoded.artifacts[1].sectionLines?.first { $0.title == "Forbidden" }?.line != nil)
         #expect(decoded.artifacts.map(\.lineLimit) == [120, nil, nil])
         #expect(decoded.artifacts.map(\.withinLineLimit) == [true, nil, nil])
         #expect(decoded.policy.reviewFirstCommandReasons == [
@@ -5687,6 +5704,7 @@ struct HabitatCoreTests {
         #expect(commandPolicyArtifact.entrySection == "Policy Index")
         #expect(commandPolicyArtifact.entryLine == 5)
         #expect(commandPolicyArtifact.sections?.contains(commandPolicyArtifact.entrySection ?? "") == true)
+        #expect(commandPolicyArtifact.sectionLines?.contains(.init(title: "Policy Index", line: 5)) == true)
     }
 
     @Test
@@ -5708,6 +5726,7 @@ struct HabitatCoreTests {
         #expect(decoded.readOrder == nil)
         #expect(decoded.entryLine == nil)
         #expect(decoded.sections == nil)
+        #expect(decoded.sectionLines == nil)
         #expect(decoded.lineCount == 35)
         #expect(decoded.characterCount == nil)
         #expect(decoded.lineLimit == nil)
@@ -6812,6 +6831,7 @@ struct HabitatCoreTests {
         #expect(decoded.readTrigger == nil)
         #expect(decoded.entrySection == nil)
         #expect(decoded.name == "agent_context.md")
+        #expect(decoded.sectionLines == nil)
         #expect(decoded.characterCount == nil)
         #expect(decoded.withinLineLimit == true)
     }

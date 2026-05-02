@@ -19,6 +19,32 @@
         "Do Not",
         "Notes"
       ],
+      "sectionLines": [
+        {
+          "title": "Agent Context",
+          "line": 1
+        },
+        {
+          "title": "Use",
+          "line": 3
+        },
+        {
+          "title": "Prefer",
+          "line": 6
+        },
+        {
+          "title": "Ask First",
+          "line": 10
+        },
+        {
+          "title": "Do Not",
+          "line": 16
+        },
+        {
+          "title": "Notes",
+          "line": 24
+        }
+      ],
       "lineCount": 31,
       "characterCount": 986,
       "lineLimit": 120,
@@ -43,6 +69,40 @@
         "Forbidden",
         "If Dependency Installation Seems Necessary"
       ],
+      "sectionLines": [
+        {
+          "title": "Command Policy",
+          "line": 1
+        },
+        {
+          "title": "Policy Index",
+          "line": 5
+        },
+        {
+          "title": "Review First",
+          "line": 12
+        },
+        {
+          "title": "Reason Codes",
+          "line": 20
+        },
+        {
+          "title": "Allowed",
+          "line": 27
+        },
+        {
+          "title": "Ask First",
+          "line": 32
+        },
+        {
+          "title": "Forbidden",
+          "line": 40
+        },
+        {
+          "title": "If Dependency Installation Seems Necessary",
+          "line": 49
+        }
+      ],
       "lineCount": 53,
       "characterCount": 2523
     },
@@ -66,6 +126,48 @@
         "Warnings",
         "Diagnostics",
         "Privacy Note"
+      ],
+      "sectionLines": [
+        {
+          "title": "Environment Report",
+          "line": 1
+        },
+        {
+          "title": "System",
+          "line": 3
+        },
+        {
+          "title": "Project Signals",
+          "line": 8
+        },
+        {
+          "title": "Symlinked Project Signals",
+          "line": 12
+        },
+        {
+          "title": "Resolved Tools",
+          "line": 15
+        },
+        {
+          "title": "Tool Versions",
+          "line": 18
+        },
+        {
+          "title": "Changes Since Previous Scan",
+          "line": 21
+        },
+        {
+          "title": "Warnings",
+          "line": 24
+        },
+        {
+          "title": "Diagnostics",
+          "line": 27
+        },
+        {
+          "title": "Privacy Note",
+          "line": 30
+        }
       ],
       "lineCount": 32,
       "characterCount": 455
