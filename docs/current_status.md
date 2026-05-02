@@ -2,11 +2,11 @@
 
 ## Current Phase
 
-CLI MVP is usable. The project is now in Agent Safety Hardening.
+CLI MVP is usable. The project is now in evidence-led Agent Safety Hardening after the `v0.3.0 Developer Preview` behavior-evaluation release.
 
 The goal is not broad Mac environment coverage. The goal is to keep AI-facing outputs short, conservative, stable, and useful enough that an AI coding agent avoids wrong or unsafe commands before touching a repository.
 
-The `v0.2.0 Developer Preview` milestone focuses on the Agent Reading Contract: short working context, reviewable command policy, and preview metadata that tells agents and tools how to read generated artifacts. The next work is behavior evaluation and continued hardening rather than broad feature expansion:
+The `v0.3.0 Developer Preview` milestone focuses on Agent Behavior Evaluation: behavior-level evidence that Habitat changes or constrains an AI coding agent's next command. The next work is continued policy hardening and selective high-confidence scenario depth rather than broad feature expansion:
 
 - keep README expectations and non-goals current
 - keep advisory policy language clear, with no enforcement claims
@@ -179,8 +179,8 @@ The `v0.2.0 Developer Preview` milestone focuses on the Agent Reading Contract: 
 
 ## Next Useful Improvements
 
-- Keep `v0.3` behavior evaluation focused on SwiftPM self-use and secret-bearing search regressions.
-- Capture sanitized traces only when they show a new command-decision boundary or turn a failure into an artifact improvement.
+- Use `v0.3` evidence to harden policy structure, reason-code maintainability, and generated guidance before adding broad ecosystem coverage.
+- Capture new sanitized traces only when they show a new command-decision boundary, a regression, or a failure that can become an artifact improvement.
 - Turn evaluation failures into focused output-contract, fixture, test, or documentation improvements.
-- Re-rank later roadmap work from behavior evidence, preferring high-confidence scenarios over broad coverage.
+- Prefer high-confidence SwiftPM and secret-bearing search depth over broad coverage unless another ecosystem shows a clear measured command-decision gain.
 - Keep feature expansion deferred unless it directly improves a measured agent command decision.

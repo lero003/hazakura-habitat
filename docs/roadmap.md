@@ -26,7 +26,7 @@ If not, put it in the parking lot.
 
 ## Version Themes
 
-This table is a planning scaffold, not a fixed train schedule. After `v0.3`, re-rank later items based on observed behavior evidence. It is acceptable to skip, defer, or reorder phases that do not clearly improve agent command choice.
+This table is a planning scaffold, not a fixed train schedule. After `v0.3.0`, later items should be re-ranked from observed behavior evidence. It is acceptable to skip, defer, or reorder phases that do not clearly improve agent command choice.
 
 If behavior evaluation shows Habitat is most useful in a smaller set of high-confidence scenarios, prefer deepening those scenarios over expanding ecosystem coverage or adding new phases.
 
@@ -36,9 +36,9 @@ If behavior evaluation shows Habitat is most useful in a smaller set of high-con
 | 2 | `v0.2` | Agent reading contract | Read order, stopping points, reasons, and shortness |
 | 3 | `v0.3` | Agent behavior evaluation | Evidence that agent decisions improve |
 | 4 | `v0.4` | Policy engine hardening | Maintainability and reason codes |
-| 5 | `v0.5` | Ecosystem depth | Precision in already-supported ecosystems |
-| 6 | `v0.6` | Previous scan intelligence | Command-changing drift only |
-| 7 | `v0.7` | Read-only integrations | Easier agent workflow consumption |
+| 5 | `v0.5` | High-confidence behavior depth | Deeper SwiftPM and secret-bearing search scenarios |
+| 6 | `v0.6` | Read-only integrations | Easier agent workflow consumption |
+| 7 | `v0.7` | Previous scan intelligence | Command-changing drift only |
 | 8 | `v0.8` | Distribution and trust | Releases, checksums, install clarity |
 | 9 | `v0.9` | Pre-1.0 hardening | Stability boundaries |
 | 10 | `v1.0` | Stable advisory generator | Narrow, reliable, documented behavior |
@@ -224,6 +224,11 @@ Completion criteria:
 - `agent_context.md` quality can regress in tests.
 - README can explain the intended agent behavior changes.
 - Later roadmap priorities can be re-ranked from evidence instead of assumed sequence.
+
+Release status:
+
+- `v0.3.0 Developer Preview` is ready to publish once release artifacts are built from generator version `0.3.0`.
+- The evidence is intentionally scenario-based, not a broad benchmark. It supports deeper policy hardening and high-confidence scenario work before broad ecosystem expansion.
 
 Do not build a large multi-LLM benchmark yet.
 

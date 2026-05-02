@@ -6,7 +6,7 @@ Run it before an agent starts work. It generates short, advisory project context
 
 It does not execute, approve, block, or sandbox commands.
 
-Status: `v0.2.0 Developer Preview` - advisory only - no command enforcement - macOS-first.
+Status: `v0.3.0 Developer Preview` - advisory only - no command enforcement - macOS-first.
 
 The MVP is not a human dashboard. It is a pre-work contract for AI agents: a map before the agent walks, not a fence around the agent.
 
@@ -73,13 +73,13 @@ AI agents do not need a beautiful inventory of everything installed on a machine
 4. Secret presence over secret contents.
 5. Short agent context over exhaustive reports.
 
-Hazakura Habitat is developed around output quality, not feature breadth. The roadmap can be re-ranked after `v0.3` behavior evaluation; high-confidence scenarios matter more than broad coverage.
+Hazakura Habitat is developed around output quality, not feature breadth. After the `v0.3` behavior evaluation cycle, high-confidence scenarios matter more than broad coverage.
 
 The roadmap prioritizes:
 
-1. Agent Reading Contract
-2. Agent Behavior Evaluation
-3. Policy Engine Hardening
+1. Policy Engine Hardening
+2. High-confidence behavior depth
+3. Read-only workflow integration
 4. Ecosystem Depth
 
 The goal is not to inspect everything on the machine. The goal is to generate concise, conservative context that changes an AI coding agent's next command choice.
@@ -149,7 +149,7 @@ Runtime version hints from `.nvmrc`, `.node-version`, `.python-version`, `.ruby-
 
 ## Current Status
 
-The repository contains the `v0.2.0 Developer Preview` implementation of the AI-first CLI. See [Current Status](docs/current_status.md) for what is implemented and what should come next.
+The repository contains the `v0.3.0 Developer Preview` implementation of the AI-first CLI. See [Current Status](docs/current_status.md) for what is implemented and what should come next.
 
 See [Public Readiness](docs/public_readiness.md) for the completed `v0.1.0` publication checklist and scope boundaries.
 

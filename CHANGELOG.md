@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+No changes yet.
+
+## v0.3.0 Developer Preview - 2026-05-03
+
+Agent Behavior Evaluation release.
+
 ### Added
 
 - Added initial `docs/evaluation.md` guidance for the `v0.3` Agent Behavior Evaluation phase.
@@ -14,6 +20,7 @@
 - Added checksum verification to the README release-install flow.
 - Expanded the Habitat self-use behavior fixture with verdict and risk-aware behavior metadata.
 - Clarified that post-`v0.3` roadmap items may be re-ranked from behavior evidence, with high-confidence scenarios preferred over broad coverage.
+- Updated generated artifact metadata to report generator version `0.3.0`.
 
 ## v0.2.0 Developer Preview - 2026-05-02
 
