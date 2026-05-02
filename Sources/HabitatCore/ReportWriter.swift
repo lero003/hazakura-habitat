@@ -50,6 +50,7 @@ public struct ReportWriter {
             lineCount: artifactLineCount,
             characterCount: text.count,
             readOrder: readOrder,
+            entrySection: artifactEntrySection(role: role),
             sections: markdownSections(text),
             lineLimit: lineLimit,
             withinLineLimit: lineLimit.map { artifactLineCount <= $0 }
@@ -79,6 +80,19 @@ public struct ReportWriter {
             return "only_for_diagnostics_or_audit"
         default:
             return "as_needed"
+        }
+    }
+
+    private func artifactEntrySection(role: String) -> String {
+        switch role {
+        case "agent_context":
+            return "Use"
+        case "command_policy":
+            return "Review First"
+        case "environment_report":
+            return "Diagnostics"
+        default:
+            return "Overview"
         }
     }
 

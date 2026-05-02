@@ -101,7 +101,7 @@ Current self-use finding:
 
 Focus:
 
-- stable reading hints: `agentUse`, `readTrigger`, `readOrder`, line counts, character counts, and line-limit metadata
+- stable reading hints: `agentUse`, `readTrigger`, `readOrder`, `entrySection`, line counts, character counts, and line-limit metadata
 - fixed `agent_context.md` structure
 - line or character budget for `agent_context.md`
 - overflow rules that tell agents when to consult `command_policy.md`
