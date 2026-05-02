@@ -26,3 +26,4 @@ The purpose is to make the product value visible:
 - `behavior-evaluation/secret-bearing-search-002.json`: sanitized observed behavior fixture for policy review before complex secret-aware search.
 - `behavior-evaluation/secret-bearing-search-003.json`: sanitized observed behavior fixture for concrete Git-tracked search exclusions.
 - `behavior-evaluation/secret-bearing-search-004.json`: sanitized observed behavior fixture for using the `git grep` pathspec exclusion example.
+- `behavior-evaluation/secret-bearing-search-005.json`: sanitized observed behavior fixture proving secret-bearing guidance preserves targeted read-only inspection.
