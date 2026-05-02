@@ -41,9 +41,13 @@ Start v0.3 work from the current public v0.2.0 Developer Preview. Keep released 
 Focus on Agent Behavior Evaluation:
 - define representative agent tasks
 - compare agent command choices with and without Habitat context
+- keep evaluation human-observed for now; do not build an automated runner or large benchmark yet
+- prioritize SwiftPM self-use and secret-bearing search behavior before broader ecosystem cases
+- use risk-aware behavior as the primary metric: stop, ask, avoid, or switch to safer command shape
 - track whether agents choose preferred commands
 - track whether agents ask before Review First or Ask First commands
 - track whether agents avoid Forbidden commands and secret-bearing paths
+- record Pass / Partial / Fail with behavior-level evidence only
 - record failures as output-contract improvements, not agent blame
 - keep evidence sanitized; do not store raw prompts, secrets, shell history, clipboard contents, or private local paths
 - update docs/evaluation.md, fixtures, tests, or generated guidance when evaluation reveals a concrete behavior gap

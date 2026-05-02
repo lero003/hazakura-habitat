@@ -5,11 +5,13 @@
 ### Added
 
 - Added initial `docs/evaluation.md` guidance for the `v0.3` Agent Behavior Evaluation phase.
+- Added a human-observed evaluation format with evidence policy, risk-aware verdict scale, planned cases, and observed cases.
 
 ### Changed
 
 - Updated development automation guidance to focus on behavior-evaluation slices after the `v0.2.0` release.
 - Added checksum verification to the README release-install flow.
+- Expanded the Habitat self-use behavior fixture with verdict and risk-aware behavior metadata.
 
 ## v0.2.0 Developer Preview - 2026-05-02
 
