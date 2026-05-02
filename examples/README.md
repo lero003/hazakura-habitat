@@ -19,3 +19,5 @@ The purpose is to make the product value visible:
 - `cargo-version-check-failure/agent_context.md`: representative output when Cargo is present but `cargo --version` fails.
 - `secret-bearing-files/agent_context.md`: representative output when secret-bearing file signals are present.
 - `secret-bearing-files/command_policy.md`: representative policy shape with secret-bearing search/export guidance near the top.
+- `behavior-evaluation/habitat-self-use-swiftpm.json`: sanitized observed behavior fixture for SwiftPM self-use.
+- `behavior-evaluation/secret-bearing-search-001.json`: sanitized observed behavior fixture for secret-aware search command shaping.
