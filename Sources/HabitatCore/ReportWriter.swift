@@ -901,8 +901,32 @@ public struct ReportWriter {
         ## If Secret-Bearing Files Are Detected
         - Detected secret-bearing paths: \(summarize(files)).
         - Before recursive search, copy, sync, or archive commands, review exclusions for these paths.
+        - For necessary broad `rg`, start with: `rg <pattern> \(searchExclusionGlobs(for: files).joined(separator: " "))`.
         - Prefer targeted project inspection over broad `rg`, `grep -R`, `rsync`, `tar`, `zip`, or `git archive` commands.
         """
+    }
+
+    private func searchExclusionGlobs(for files: [String]) -> [String] {
+        var globs: [String] = []
+
+        func append(_ glob: String) {
+            guard !globs.contains(glob) else { return }
+            globs.append(glob)
+        }
+
+        for file in files {
+            if file == ".env" {
+                append(".env")
+                append(".env.*")
+            } else if file == ".envrc" {
+                append(".envrc")
+                append(".envrc.*")
+            } else {
+                append(file)
+            }
+        }
+
+        return globs.prefix(6).map { "--glob '!\($0)'" }
     }
 
     private func secretValueFiles(_ project: ProjectInfo) -> [String] {

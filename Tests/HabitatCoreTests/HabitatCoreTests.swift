@@ -195,6 +195,7 @@ struct HabitatCoreTests {
             "## If Dependency Installation Seems Necessary"
         ])
         #expect(policy.contains("`If Secret-Bearing Files Are Detected` - 3 detected paths requiring exclusions before broad search or export."))
+        #expect(policy.contains("For necessary broad `rg`, start with: `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc' --glob '!id_ed25519'`."))
         #expect(policy.contains("Prefer targeted project inspection over broad `rg`, `grep -R`, `rsync`, `tar`, `zip`, or `git archive` commands."))
     }
 
@@ -3071,6 +3072,7 @@ struct HabitatCoreTests {
         #expect(policy.contains("- `If Secret-Bearing Files Are Detected` - 1 detected path requiring exclusions before broad search or export."))
         #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Allowed"))
         #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Forbidden"))
+        #expect(policy.contains("- For necessary broad `rg`, start with: `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
         #expect(context.contains("Do not run recursive project search unless detected secret-bearing files are excluded."))
 
         let exampleOnlyProjectURL = try makeProject(files: [
@@ -3081,6 +3083,11 @@ struct HabitatCoreTests {
         for command in recursiveSearchCommands {
             #expect(!exampleOnlyResult.policy.forbiddenCommands.contains(command), "Did not expect \(command) when only examples exist")
         }
+        let exampleOnlyOutputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: exampleOnlyResult, outputURL: exampleOnlyOutputURL)
+        let exampleOnlyPolicy = try String(contentsOf: exampleOnlyOutputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        #expect(!exampleOnlyPolicy.contains("## If Secret-Bearing Files Are Detected"))
+        #expect(!exampleOnlyPolicy.contains("For necessary broad `rg`"))
     }
 
     @Test
@@ -3126,6 +3133,7 @@ struct HabitatCoreTests {
         #expect(policy.contains("## If Secret-Bearing Files Are Detected"))
         #expect(policy.contains("- Detected secret-bearing paths: .env."))
         #expect(policy.contains("- Before recursive search, copy, sync, or archive commands, review exclusions for these paths."))
+        #expect(policy.contains("- For necessary broad `rg`, start with: `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
         #expect(policy.contains("- Prefer targeted project inspection over broad `rg`, `grep -R`, `rsync`, `tar`, `zip`, or `git archive` commands."))
         #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Ask First"))
         #expect(context.contains("Do not copy, sync, or archive the project without excluding detected secret-bearing files."))
