@@ -172,6 +172,33 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func secretBearingCommandPolicyExampleKeepsSearchGuidanceNearTop() throws {
+        let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        let policy = try String(
+            contentsOf: rootURL.appendingPathComponent("examples/secret-bearing-files/command_policy.md"),
+            encoding: .utf8
+        )
+        let headings = policy
+            .split(whereSeparator: \.isNewline)
+            .map(String.init)
+            .filter { $0.hasPrefix("#") }
+
+        #expect(headings == [
+            "# Command Policy",
+            "## Policy Index",
+            "## Review First",
+            "## Reason Codes",
+            "## If Secret-Bearing Files Are Detected",
+            "## Allowed",
+            "## Ask First",
+            "## Forbidden",
+            "## If Dependency Installation Seems Necessary"
+        ])
+        #expect(policy.contains("`If Secret-Bearing Files Are Detected` - 3 detected paths requiring exclusions before broad search or export."))
+        #expect(policy.contains("Prefer targeted project inspection over broad `rg`, `grep -R`, `rsync`, `tar`, `zip`, or `git archive` commands."))
+    }
+
+    @Test
     func cargoVersionCheckFailureExampleMatchesCurrentGuidanceShape() throws {
         let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
         let context = try String(
@@ -3041,6 +3068,9 @@ struct HabitatCoreTests {
         for command in recursiveSearchCommands {
             #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
         }
+        #expect(policy.contains("- `If Secret-Bearing Files Are Detected` - 1 detected path requiring exclusions before broad search or export."))
+        #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Allowed"))
+        #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Forbidden"))
         #expect(context.contains("Do not run recursive project search unless detected secret-bearing files are excluded."))
 
         let exampleOnlyProjectURL = try makeProject(files: [
@@ -3097,6 +3127,7 @@ struct HabitatCoreTests {
         #expect(policy.contains("- Detected secret-bearing paths: .env."))
         #expect(policy.contains("- Before recursive search, copy, sync, or archive commands, review exclusions for these paths."))
         #expect(policy.contains("- Prefer targeted project inspection over broad `rg`, `grep -R`, `rsync`, `tar`, `zip`, or `git archive` commands."))
+        #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Ask First"))
         #expect(context.contains("Do not copy, sync, or archive the project without excluding detected secret-bearing files."))
 
         let exampleOnlyProjectURL = try makeProject(files: [
@@ -7182,6 +7213,15 @@ struct HabitatCoreTests {
     private func lineCount(_ text: String) -> Int {
         guard !text.isEmpty else { return 0 }
         return text.split(separator: "\n", omittingEmptySubsequences: false).count
+    }
+
+    private func section(_ text: String, _ heading: String, appearsBefore laterHeading: String) -> Bool {
+        guard let headingRange = text.range(of: heading),
+              let laterHeadingRange = text.range(of: laterHeading) else {
+            return false
+        }
+
+        return headingRange.lowerBound < laterHeadingRange.lowerBound
     }
 
     private func writeExecutableScript(_ url: URL, contents: String) throws {

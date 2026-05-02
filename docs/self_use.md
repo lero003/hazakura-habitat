@@ -63,6 +63,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - The generated command policy states that it is advisory and does not block commands.
 - The generated command policy now has a compact `Policy Index` with section counts before the long command lists.
 - `Review First` now carries reason codes, keeps Git/GitHub mutation guards ahead of broad baseline package-manager guards, and the `Reason Codes` legend gives compact explanations without expanding `agent_context.md`.
+- Secret-bearing file guidance is indexed and rendered before the long `Allowed`/`Ask First`/`Forbidden` command lists, so broad `rg` or `grep -R` searches are reviewed for exclusions before an agent scans hundreds of policy lines.
 - Full `Ask First` and `Forbidden` entries now carry reason code annotations, so long policy lists remain explainable at the point of use.
 - Auth/session and package-manager config forbids now use the `secret_or_credential_access` reason family, so credential-related refusals do not collapse into generic unsafe-command metadata.
 - The `agent_context.md` Ask First overflow line now names hidden reason codes in stable catalog order, and when Git/GitHub mutation guards are already summarized it names the other hidden reason families first, so Codex can see remaining dependency, tool, or approval risks before opening the full policy.

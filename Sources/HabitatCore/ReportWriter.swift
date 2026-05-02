@@ -150,7 +150,8 @@ public struct ReportWriter {
 
     private func commandPolicy(_ result: ScanResult) -> String {
         let preferredCommands = markdownPreferredCommands(result)
-        let secretGuidance = secretBearingFileGuidance(result)
+        let secretBearingFiles = secretValueFiles(result.project)
+        let secretGuidance = secretBearingFileGuidance(files: secretBearingFiles)
         let askFirstCommands = prioritizedAskFirstCommands(result)
         let reviewFirst = commandPolicyReviewFirst(result)
         let reasonLegend = commandPolicyReasonLegend(result)
@@ -178,6 +179,7 @@ public struct ReportWriter {
             \(bulletList(commandPolicyIndex(
                 reviewFirstCount: reviewFirst.count,
                 reasonCodeCount: reasonLegend.count,
+                secretBearingFileCount: secretBearingFiles.count,
                 allowedCount: allowed.count,
                 askFirstCount: askFirstCommands.count,
                 forbiddenCount: result.policy.forbiddenCommands.count
@@ -203,6 +205,10 @@ public struct ReportWriter {
             )
         }
 
+        if !secretGuidance.isEmpty {
+            sections.append(secretGuidance)
+        }
+
         sections.append(contentsOf: [
             """
             ## Allowed
@@ -217,10 +223,6 @@ public struct ReportWriter {
             \(bulletList(result.policy.forbiddenCommands.map(forbiddenPolicyLine), fallback: "- `sudo`"))
             """
         ])
-
-        if !secretGuidance.isEmpty {
-            sections.append(secretGuidance)
-        }
 
         sections.append(
             """
@@ -237,17 +239,29 @@ public struct ReportWriter {
     private func commandPolicyIndex(
         reviewFirstCount: Int,
         reasonCodeCount: Int,
+        secretBearingFileCount: Int,
         allowedCount: Int,
         askFirstCount: Int,
         forbiddenCount: Int
     ) -> [String] {
-        [
+        var lines = [
             "`Review First` - \(counted(reviewFirstCount, singular: "highest-priority approval rule", plural: "highest-priority approval rules")) with reasons.",
             "`Reason Codes` - \(counted(reasonCodeCount, singular: "reason family", plural: "reason families")) used by this policy.",
+        ]
+
+        if secretBearingFileCount > 0 {
+            lines.append(
+                "`If Secret-Bearing Files Are Detected` - \(counted(secretBearingFileCount, singular: "detected path", plural: "detected paths")) requiring exclusions before broad search or export."
+            )
+        }
+
+        lines.append(contentsOf: [
             "`Allowed` - \(counted(allowedCount, singular: "concrete safe starting point", plural: "concrete safe starting points")).",
             "`Ask First` - \(counted(askFirstCount, singular: "command or command family", plural: "commands or command families")) requiring approval.",
             "`Forbidden` - \(counted(forbiddenCount, singular: "command or command family", plural: "commands or command families")) to avoid."
-        ]
+        ])
+
+        return lines
     }
 
     private func counted(_ count: Int, singular: String, plural: String) -> String {
@@ -880,8 +894,7 @@ public struct ReportWriter {
             || hasSSHPrivateKeyFile(project)
     }
 
-    private func secretBearingFileGuidance(_ result: ScanResult) -> String {
-        let files = secretValueFiles(result.project)
+    private func secretBearingFileGuidance(files: [String]) -> String {
         guard !files.isEmpty else { return "" }
 
         return """
