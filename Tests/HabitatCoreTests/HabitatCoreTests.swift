@@ -246,6 +246,11 @@ struct HabitatCoreTests {
                 "command_policy.md": "consult_before_risky_commands",
                 "environment_report.md": "debug_audit_only",
             ]
+            let expectedSections = [
+                "agent_context.md": ["Agent Context", "Use", "Prefer", "Ask First", "Do Not", "Notes"],
+                "command_policy.md": ["Command Policy", "Policy Index", "Review First", "Reason Codes", "Allowed", "Ask First", "Forbidden", "If Dependency Installation Seems Necessary"],
+                "environment_report.md": ["Environment Report", "System", "Project Signals", "Symlinked Project Signals", "Resolved Tools", "Tool Versions", "Changes Since Previous Scan", "Warnings", "Diagnostics", "Privacy Note"],
+            ]
 
             #expect(!artifacts.isEmpty, "Expected example artifact metadata in \(directory)")
             #expect(commandCounts["preferred"] as? Int == preferredCommands.count)
@@ -265,6 +270,10 @@ struct HabitatCoreTests {
                 #expect(
                     artifact["agentUse"] as? String == expectedAgentUse[name],
                     "Expected \(directory)/\(name) agentUse metadata to match its AI reading role"
+                )
+                #expect(
+                    artifact["sections"] as? [String] == expectedSections[name],
+                    "Expected \(directory)/\(name) sections metadata to match generated Markdown headings"
                 )
                 #expect(
                     lineCount(artifactText) == expectedLineCount,
@@ -5539,6 +5548,11 @@ struct HabitatCoreTests {
         ])
         #expect(decoded.artifacts.map(\.readOrder) == [1, 2, 3])
         #expect(decoded.artifacts.allSatisfy { $0.format == "markdown" })
+        #expect(decoded.artifacts.map(\.sections) == [
+            ["Agent Context", "Use", "Prefer", "Ask First", "Do Not", "Notes"],
+            ["Command Policy", "Policy Index", "Review First", "Reason Codes", "Allowed", "Ask First", "Forbidden", "If Dependency Installation Seems Necessary"],
+            ["Environment Report", "System", "Project Signals", "Symlinked Project Signals", "Resolved Tools", "Tool Versions", "Changes Since Previous Scan", "Warnings", "Diagnostics", "Privacy Note"]
+        ])
         #expect(decoded.artifacts.map(\.lineLimit) == [120, nil, nil])
         #expect(decoded.artifacts.map(\.withinLineLimit) == [true, nil, nil])
         #expect(decoded.policy.reviewFirstCommandReasons == [
@@ -5570,6 +5584,7 @@ struct HabitatCoreTests {
 
         #expect(decoded.name == "agent_context.md")
         #expect(decoded.readOrder == nil)
+        #expect(decoded.sections == nil)
         #expect(decoded.lineCount == 35)
         #expect(decoded.lineLimit == nil)
         #expect(decoded.withinLineLimit == nil)

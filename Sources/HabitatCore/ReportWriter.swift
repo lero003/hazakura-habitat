@@ -48,6 +48,7 @@ public struct ReportWriter {
             agentUse: artifactAgentUse(role: role),
             lineCount: artifactLineCount,
             readOrder: readOrder,
+            sections: markdownSections(text),
             lineLimit: lineLimit,
             withinLineLimit: lineLimit.map { artifactLineCount <= $0 }
         )
@@ -69,6 +70,15 @@ public struct ReportWriter {
     private func lineCount(_ text: String) -> Int {
         guard !text.isEmpty else { return 0 }
         return text.split(separator: "\n", omittingEmptySubsequences: false).count
+    }
+
+    private func markdownSections(_ text: String) -> [String] {
+        text.split(separator: "\n")
+            .compactMap { line -> String? in
+                let trimmed = line.trimmingCharacters(in: .whitespaces)
+                guard trimmed.hasPrefix("#") else { return nil }
+                return trimmed.trimmingCharacters(in: CharacterSet(charactersIn: "# "))
+            }
     }
 
     private func agentContext(_ result: ScanResult) -> String {

@@ -8,6 +8,14 @@
       "format": "markdown",
       "agentUse": "read_first",
       "readOrder": 1,
+      "sections": [
+        "Agent Context",
+        "Use",
+        "Prefer",
+        "Ask First",
+        "Do Not",
+        "Notes"
+      ],
       "lineCount": 29,
       "lineLimit": 120,
       "withinLineLimit": true
@@ -18,6 +26,16 @@
       "format": "markdown",
       "agentUse": "consult_before_risky_commands",
       "readOrder": 2,
+      "sections": [
+        "Command Policy",
+        "Policy Index",
+        "Review First",
+        "Reason Codes",
+        "Allowed",
+        "Ask First",
+        "Forbidden",
+        "If Dependency Installation Seems Necessary"
+      ],
       "lineCount": 53
     },
     {
@@ -26,6 +44,18 @@
       "format": "markdown",
       "agentUse": "debug_audit_only",
       "readOrder": 3,
+      "sections": [
+        "Environment Report",
+        "System",
+        "Project Signals",
+        "Symlinked Project Signals",
+        "Resolved Tools",
+        "Tool Versions",
+        "Changes Since Previous Scan",
+        "Warnings",
+        "Diagnostics",
+        "Privacy Note"
+      ],
       "lineCount": 32
     }
   ],
