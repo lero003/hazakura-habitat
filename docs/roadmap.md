@@ -163,11 +163,11 @@ Completion criteria:
 - Output bloat is caught by tests.
 - Agent-facing output and audit/debug reporting are clearly separated.
 
-Release gate:
+Release status:
 
-- Do not tag or publish `v0.2.0` automatically.
-- Do not move automation to `v0.3` automatically.
-- Run an explicit release-trust check before publishing, including local tests, CI, release notes, generated artifact review, and remote artifact verification if binaries are published.
+- `v0.2.0 Developer Preview` was published on 2026-05-02.
+- Released tags remain immutable.
+- Further generated-output or binary behavior changes should use a transparent patch release when they need to be published.
 
 Do not spend v0.2 on:
 

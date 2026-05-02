@@ -139,6 +139,7 @@ Runtime version hints from `.nvmrc`, `.node-version`, `.python-version`, `.ruby-
 - [Known Limitations](docs/known_limitations.md)
 - [Contributing](CONTRIBUTING.md)
 - [Agent Contract](docs/agent_contract.md)
+- [Evaluation](docs/evaluation.md)
 - [Development Loop](docs/development_loop.md)
 - [Self-Use Loop](docs/self_use.md)
 - [Agent Skill](skills/hazakura-habitat/SKILL.md)
@@ -162,9 +163,12 @@ See [Public Readiness](docs/public_readiness.md) for the completed `v0.1.0` publ
 Download `habitat-scan-macos.zip` from the latest GitHub Release, then run:
 
 ```bash
+shasum -c SHA256SUMS
 unzip habitat-scan-macos.zip
 ./dist/habitat-scan scan --project . --output ./habitat-report
 ```
+
+`SHA256SUMS` is published with each release asset. Verification is optional, but recommended before running downloaded binaries.
 
 ## Run
 

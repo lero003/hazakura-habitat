@@ -1,5 +1,16 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- Added initial `docs/evaluation.md` guidance for the `v0.3` Agent Behavior Evaluation phase.
+
+### Changed
+
+- Updated development automation guidance to focus on behavior-evaluation slices after the `v0.2.0` release.
+- Added checksum verification to the README release-install flow.
+
 ## v0.2.0 Developer Preview - 2026-05-02
 
 Agent Reading Contract release.

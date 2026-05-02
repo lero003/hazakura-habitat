@@ -31,34 +31,34 @@ Keep the slice focused enough to review and revert. Avoid broad scanner expansio
 
 If a useful improvement is larger than one hour, split it at an artifact boundary: scan data first, generated guidance second, broader fixtures or ADRs third.
 
-## v0.2 Automation Handoff
+## v0.3 Automation Handoff
 
-Use this handoff when starting automated work from the current public `v0.1.1` baseline:
+Use this handoff when starting automated work after the public `v0.2.0 Developer Preview`:
 
 ```text
-Start v0.2 work from the current public v0.1.1 baseline. Keep v0.1.1 immutable.
+Start v0.3 work from the current public v0.2.0 Developer Preview. Keep released tags immutable.
 
-Focus on Agent Reading Contract:
-- stable read order and agentUse hints
-- stable agent_context.md structure
-- line/shape budget tests for agent-facing Markdown
-- overflow rules that point to command_policy.md when needed
-- policy index and Review First guidance for long command policies
-- advisory command_policy.md clarity
-- policy reason text and reason_code groundwork
-- bundled self-use skill entrypoint
-- generated-output, README, examples, and tests consistency
+Focus on Agent Behavior Evaluation:
+- define representative agent tasks
+- compare agent command choices with and without Habitat context
+- track whether agents choose preferred commands
+- track whether agents ask before Review First or Ask First commands
+- track whether agents avoid Forbidden commands and secret-bearing paths
+- record failures as output-contract improvements, not agent blame
+- keep evidence sanitized; do not store raw prompts, secrets, shell history, clipboard contents, or private local paths
+- update docs/evaluation.md, fixtures, tests, or generated guidance when evaluation reveals a concrete behavior gap
 
 Avoid broad feature expansion:
 - no MCP server
 - no GUI
 - no automatic install/update/repair
 - no command enforcement
-- no new ecosystem breadth unless it directly improves agent command decisions
+- no large multi-LLM benchmark yet
+- no new ecosystem breadth unless it directly improves a measured command decision
 
 When generated output changes, update tests and representative examples in the same slice.
 When versioned output behavior changes after a public release, do not move existing tags; use a transparent patch release.
-Do not cut `v0.2.0`, create release tags, or move automation to `v0.3` without an explicit release handoff from the user.
+Do not cut release tags, create GitHub Releases, or move to `v0.4` without an explicit release handoff from the user.
 ```
 
 ## Self-Use Before Substantial Work
@@ -76,13 +76,13 @@ Do not commit `habitat-report/`. Turn useful findings into docs, fixtures, tests
 
 The intended AI-first direction is that agents trigger this scan themselves before high-impact work. Humans should not need to remember the preflight every time.
 
-The v0.2 acceptance question is:
+The v0.3 acceptance question is:
 
-> Does this make the generated output easier for an AI agent to read in the right order, stop at the right point, explain approval needs, or choose the next command?
+> Does this show that Habitat changes or constrains the agent's next command in a useful, conservative way?
 
 For search commands, evaluate the command shape, not only whether search was used. `rg <pattern>` should remain a reasonable read-only next command when no secret-bearing files are detected. When secret-bearing files are detected, the next command should become safer, such as `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc'`, or the agent should inspect `command_policy.md` before recursive search. The goal is to make exploration safer, not to ban search outright.
 
-If not, keep it out of v0.2.
+If not, keep it out of v0.3.
 
 ## Phase Gate
 
@@ -90,13 +90,13 @@ Automation may keep improving release candidates, but it must not decide that a 
 
 Release and phase-transition work requires an explicit user handoff:
 
-- cut or tag `v0.2.0`
+- cut or tag any release
 - write GitHub Release notes
 - upload or verify release artifacts
-- switch automation from `v0.2` to `v0.3`
-- start broad `v0.3` behavior-evaluation work
+- switch automation from `v0.3` to `v0.4`
+- start broad `v0.4` policy-engine work
 
-Before that handoff, automation should keep changes inside the `v0.2` Agent Reading Contract scope.
+Before that handoff, automation should keep changes inside the `v0.3` Agent Behavior Evaluation scope.
 
 ## Definition of Done
 
