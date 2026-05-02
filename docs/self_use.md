@@ -70,7 +70,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - `command_policy.md` now distinguishes no-secret read-only search from secret-bearing projects: ordinary `rg <pattern>` remains allowed in normal repositories, while secret-bearing repositories steer agents toward targeted inspection and exclusion-aware search.
 - The `agent_context.md` Ask First overflow line now names hidden reason codes in stable catalog order, and when Git/GitHub mutation guards are already summarized it names the other hidden reason families first, so Codex can see remaining dependency, tool, or approval risks before opening the full policy.
 - Ephemeral package execution commands now carry their own `ephemeral_package_execution` reason code, so `npx`/`dlx`/`uvx`/`pipx run` guards no longer collapse into generic approval metadata.
-- `scan_result.json` now records generated Markdown artifact roles, agent reading role, read order, line counts, character counts, the `agent_context.md` line limit, and whether line-limited outputs are within budget, so agents can identify and read the short working context first without parsing every report.
+- `scan_result.json` now records generated Markdown artifact roles, agent reading role, read trigger, read order, line counts, character counts, the `agent_context.md` line limit, and whether line-limited outputs are within budget, so agents can identify the short working context first and know when to continue into policy or diagnostics without parsing every report.
 - `scan_result.json` now records `policy.commandCounts`, so agents can see policy size and reason coverage before deciding whether to inspect the full `command_policy.md`.
 - `scan_result.json` now records `policy.reviewFirstCommandReasons`, so agents and tools can read the highest-priority approval checklist with reasons without parsing `command_policy.md`.
 - The bundled helper must use the current source checkout for self-scans instead of silently falling back to `dist/`, otherwise a stale local release artifact can hide new output-contract sections.
@@ -93,7 +93,7 @@ Improve:
 - Keep Git/GitHub mutation guards visible before broad baseline package-manager guards when reviewing the full command policy.
 - Evaluate search-command shape separately for projects with and without detected secret-bearing files: unrestricted `rg` is reasonable in ordinary repos, but secret-bearing repos should steer agents toward exclusion globs such as `--glob '!.env'`, policy review, or Ask First before recursive search. Do not overcorrect by banning useful search outright.
 - Continue output shape metadata and tests that catch growth before it becomes normal.
-- Treat `agentUse`, `readOrder`, line counts, character counts, and command counts as preview reading hints during `v0.x`, not a fully stable schema promise.
+- Treat `agentUse`, `readTrigger`, `readOrder`, line counts, character counts, and command counts as preview reading hints during `v0.x`, not a fully stable schema promise.
 - Capture future self-use evidence as sanitized traces, not raw prompts or local-path-heavy logs.
 - Update representative examples whenever generated output wording or structure changes.
 

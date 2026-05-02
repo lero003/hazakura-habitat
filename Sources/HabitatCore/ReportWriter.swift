@@ -46,6 +46,7 @@ public struct ReportWriter {
             role: role,
             format: "markdown",
             agentUse: artifactAgentUse(role: role),
+            readTrigger: artifactReadTrigger(role: role),
             lineCount: artifactLineCount,
             characterCount: text.count,
             readOrder: readOrder,
@@ -65,6 +66,19 @@ public struct ReportWriter {
             return "debug_audit_only"
         default:
             return "reference"
+        }
+    }
+
+    private func artifactReadTrigger(role: String) -> String {
+        switch role {
+        case "agent_context":
+            return "before_any_project_command"
+        case "command_policy":
+            return "before_risky_mutating_secret_or_environment_sensitive_commands"
+        case "environment_report":
+            return "only_for_diagnostics_or_audit"
+        default:
+            return "as_needed"
         }
     }
 

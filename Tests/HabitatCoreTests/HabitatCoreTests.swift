@@ -252,6 +252,11 @@ struct HabitatCoreTests {
                 "command_policy.md": "consult_before_risky_commands",
                 "environment_report.md": "debug_audit_only",
             ]
+            let expectedReadTrigger = [
+                "agent_context.md": "before_any_project_command",
+                "command_policy.md": "before_risky_mutating_secret_or_environment_sensitive_commands",
+                "environment_report.md": "only_for_diagnostics_or_audit",
+            ]
             let expectedSections = [
                 "agent_context.md": ["Agent Context", "Use", "Prefer", "Ask First", "Do Not", "Notes"],
                 "command_policy.md": ["Command Policy", "Policy Index", "Review First", "Reason Codes", "Allowed", "Ask First", "Forbidden", "If Dependency Installation Seems Necessary"],
@@ -277,6 +282,10 @@ struct HabitatCoreTests {
                 #expect(
                     artifact["agentUse"] as? String == expectedAgentUse[name],
                     "Expected \(directory)/\(name) agentUse metadata to match its AI reading role"
+                )
+                #expect(
+                    artifact["readTrigger"] as? String == expectedReadTrigger[name],
+                    "Expected \(directory)/\(name) readTrigger metadata to explain when an agent should read it"
                 )
                 #expect(
                     artifact["sections"] as? [String] == expectedSections[name],
@@ -5557,6 +5566,16 @@ struct HabitatCoreTests {
             "command_policy",
             "environment_report"
         ])
+        #expect(decoded.artifacts.map(\.agentUse) == [
+            "read_first",
+            "consult_before_risky_commands",
+            "debug_audit_only"
+        ])
+        #expect(decoded.artifacts.map(\.readTrigger) == [
+            "before_any_project_command",
+            "before_risky_mutating_secret_or_environment_sensitive_commands",
+            "only_for_diagnostics_or_audit"
+        ])
         #expect(decoded.artifacts.map(\.readOrder) == [1, 2, 3])
         #expect(decoded.artifacts.allSatisfy { $0.format == "markdown" })
         #expect(decoded.artifacts.map(\.sections) == [
@@ -5595,6 +5614,8 @@ struct HabitatCoreTests {
         let decoded = try JSONDecoder().decode(GeneratedArtifact.self, from: data)
 
         #expect(decoded.name == "agent_context.md")
+        #expect(decoded.agentUse == nil)
+        #expect(decoded.readTrigger == nil)
         #expect(decoded.readOrder == nil)
         #expect(decoded.sections == nil)
         #expect(decoded.lineCount == 35)
@@ -6697,6 +6718,7 @@ struct HabitatCoreTests {
         let decoded = try JSONDecoder().decode(GeneratedArtifact.self, from: data)
 
         #expect(decoded.agentUse == nil)
+        #expect(decoded.readTrigger == nil)
         #expect(decoded.name == "agent_context.md")
         #expect(decoded.characterCount == nil)
         #expect(decoded.withinLineLimit == true)

@@ -155,6 +155,7 @@ public struct GeneratedArtifact: Codable, Equatable {
     public let role: String
     public let format: String
     public let agentUse: String?
+    public let readTrigger: String?
     public let readOrder: Int?
     public let sections: [String]?
     public let lineCount: Int
@@ -167,6 +168,7 @@ public struct GeneratedArtifact: Codable, Equatable {
         role: String,
         format: String,
         agentUse: String? = nil,
+        readTrigger: String? = nil,
         lineCount: Int,
         characterCount: Int? = nil,
         readOrder: Int? = nil,
@@ -178,6 +180,7 @@ public struct GeneratedArtifact: Codable, Equatable {
         self.role = role
         self.format = format
         self.agentUse = agentUse
+        self.readTrigger = readTrigger
         self.readOrder = readOrder
         self.sections = sections
         self.lineCount = lineCount
