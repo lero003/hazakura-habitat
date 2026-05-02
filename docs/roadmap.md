@@ -227,7 +227,7 @@ Completion criteria:
 
 Release status:
 
-- `v0.3.0 Developer Preview` is ready to publish once release artifacts are built from generator version `0.3.0`.
+- `v0.3.0 Developer Preview` was published on 2026-05-03.
 - The evidence is intentionally scenario-based, not a broad benchmark. It supports deeper policy hardening and high-confidence scenario work before broad ecosystem expansion.
 
 Do not build a large multi-LLM benchmark yet.
@@ -245,6 +245,14 @@ Use the findings to decide what comes next:
 Purpose:
 
 Prevent rule-list growth from making the system hard to maintain.
+
+Starting point:
+
+- Begin from the public `v0.3.0 Developer Preview`.
+- Keep released tags immutable.
+- Do not begin with a broad refactor. Use Habitat during real Codex work, observe one concrete command-decision improvement, over-constraint, or misunderstanding, then return that finding to policy structure, evidence fixtures, tests, or docs.
+- Prefer small, reviewable slices that make an existing high-confidence scenario easier to explain or maintain.
+- Defer broad ecosystem expansion unless a measured self-use case shows it would change the next command.
 
 Target flow:
 
@@ -264,6 +272,7 @@ Focus:
 - centralize classification criteria
 - make renderers consume `PolicyFinding`-like data
 - reduce duplicated rule strings where practical
+- preserve behavior-evaluation evidence when refactoring policy internals
 
 Classification criteria:
 
@@ -298,17 +307,20 @@ Completion criteria:
 - Reason codes are not duplicated casually.
 - Ask First and Do Not classifications are consistent.
 - Tests can target policy findings, not only rendered strings.
+- Self-use observations continue to explain why a policy-hardening slice changes, constrains, or relaxes an agent's next command.
 
 Do not add custom policy DSLs, plugin systems, or organization policy management here.
 
-## v0.5: Ecosystem Depth, Not Breadth
+## v0.5: High-Confidence Behavior Depth
 
 Purpose:
 
-Improve precision in ecosystems already supported instead of adding broad new domains.
+Deepen the scenarios where behavior evidence shows Habitat changes an agent's next command, instead of adding broad new domains.
 
 Priority areas:
 
+- SwiftPM self-use and Git/GitHub mutation restraint
+- Secret-bearing search without over-banning targeted source inspection
 - Node package manager conflicts
 - Python uv/pip ambiguity
 - SwiftPM and Xcode command selection
@@ -333,6 +345,7 @@ Package-manager version metadata may be added when it affects policy. Avoid addi
 
 Completion criteria:
 
+- At least one self-use or behavior-evaluation finding explains why each depth change matters.
 - Existing ecosystem ambiguity does not produce overconfident guidance.
 - Lockfile conflict wording is stable.
 - Missing preferred tool behavior is natural.

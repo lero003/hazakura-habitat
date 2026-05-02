@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-No changes yet.
+### Changed
+
+- Updated post-`v0.3.0` development guidance to keep automation focused on small self-use observation loops that feed policy, evidence, and documentation improvements before broad feature expansion.
 
 ## v0.3.0 Developer Preview - 2026-05-03
 

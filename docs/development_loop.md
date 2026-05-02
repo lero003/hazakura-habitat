@@ -31,26 +31,22 @@ Keep the slice focused enough to review and revert. Avoid broad scanner expansio
 
 If a useful improvement is larger than one hour, split it at an artifact boundary: scan data first, generated guidance second, broader fixtures or ADRs third.
 
-## v0.3 Automation Handoff
+## Post-v0.3 Automation Handoff
 
-Use this handoff when starting automated work after the public `v0.2.0 Developer Preview`:
+Use this handoff when starting automated work after the public `v0.3.0 Developer Preview`:
 
 ```text
-Start v0.3 work from the current public v0.2.0 Developer Preview. Keep released tags immutable.
+Start post-v0.3 work from the current public v0.3.0 Developer Preview. Keep released tags immutable.
 
-Focus on Agent Behavior Evaluation:
-- define representative agent tasks
-- compare agent command choices with and without Habitat context
-- keep evaluation human-observed for now; do not build an automated runner or large benchmark yet
-- prioritize SwiftPM self-use and secret-bearing search behavior before broader ecosystem cases
-- use risk-aware behavior as the primary metric: stop, ask, avoid, or switch to safer command shape
-- track whether agents choose preferred commands
-- track whether agents ask before Review First or Ask First commands
-- track whether agents avoid Forbidden commands and secret-bearing paths
-- record Pass / Partial / Fail with behavior-level evidence only
-- record failures as output-contract improvements, not agent blame
-- keep evidence sanitized; do not store raw prompts, secrets, shell history, clipboard contents, or private local paths
-- update docs/evaluation.md, fixtures, tests, or generated guidance when evaluation reveals a concrete behavior gap
+Focus on the self-use observation loop:
+- use Habitat during real Codex work on this repository
+- observe what changed the next command, where the policy over-constrained useful work, and where the agent misunderstood guidance
+- keep each automation slice small, verifiable, and commit/push oriented
+- feed findings back into policy wording, reason-code structure, behavior evidence, tests, or docs
+- record behavior-level evidence only when it adds a new command-decision boundary, regression, over-constraint, or concrete artifact improvement
+- keep evidence sanitized; do not store raw prompts, secrets, shell history, clipboard contents, private local paths, or release credentials
+- prefer policy-engine hardening and high-confidence scenario depth over broad feature expansion
+- if a code change affects generated output, update representative examples and tests in the same slice
 
 Avoid broad feature expansion:
 - no MCP server
@@ -58,12 +54,10 @@ Avoid broad feature expansion:
 - no automatic install/update/repair
 - no command enforcement
 - no large multi-LLM benchmark yet
-- no new ecosystem breadth unless it directly improves a measured command decision
-- later roadmap order may change after behavior evidence; deepen high-confidence scenarios before expanding broadly
+- no new ecosystem breadth unless it directly improves a measured command decision observed during self-use
+- no release tags, GitHub Releases, or release asset changes without an explicit release handoff
 
-When generated output changes, update tests and representative examples in the same slice.
-When versioned output behavior changes after a public release, do not move existing tags; use a transparent patch release.
-Do not cut release tags, create GitHub Releases, or move to `v0.4` without an explicit release handoff from the user.
+When versioned output behavior changes after a public release, do not move existing tags; use a transparent patch release only when the published artifact would otherwise mislead users.
 ```
 
 ## Self-Use Before Substantial Work
@@ -81,13 +75,13 @@ Do not commit `habitat-report/`. Turn useful findings into docs, fixtures, tests
 
 The intended AI-first direction is that agents trigger this scan themselves before high-impact work. Humans should not need to remember the preflight every time.
 
-The v0.3 acceptance question is:
+The post-v0.3 acceptance question is:
 
-> Does this show that Habitat changes or constrains the agent's next command in a useful, conservative way?
+> Did this self-use slice reveal a concrete command-decision improvement, over-constraint, or misunderstanding that should return to policy, evidence, tests, or docs?
 
 For search commands, evaluate the command shape, not only whether search was used. `rg <pattern>` should remain a reasonable read-only next command when no secret-bearing files are detected. When secret-bearing files are detected, the next command should become safer, such as `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc'`, or the agent should inspect `command_policy.md` before recursive search. The goal is to make exploration safer, not to ban search outright.
 
-If not, keep it out of v0.3.
+If not, keep it out of the current cycle.
 
 ## Phase Gate
 
@@ -98,12 +92,11 @@ Release and phase-transition work requires an explicit user handoff:
 - cut or tag any release
 - write GitHub Release notes
 - upload or verify release artifacts
-- switch automation from `v0.3` to `v0.4`
 - start broad `v0.4` policy-engine work
 
-Before that handoff, automation should keep changes inside the `v0.3` Agent Behavior Evaluation scope.
+Before that handoff, automation should keep changes inside the post-`v0.3` self-use observation loop.
 
-`v0.3` may change what should happen next. Do not assume `v0.4`, `v0.5`, or `v0.6` must happen in the current roadmap order if observed behavior points elsewhere.
+Post-`v0.3` evidence may still change what should happen next. Do not assume `v0.4`, `v0.5`, or `v0.6` must happen in the current roadmap order if observed behavior points elsewhere.
 
 ## Definition of Done
 

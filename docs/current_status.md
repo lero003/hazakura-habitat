@@ -2,17 +2,17 @@
 
 ## Current Phase
 
-CLI MVP is usable. The project is now in evidence-led Agent Safety Hardening after the `v0.3.0 Developer Preview` behavior-evaluation release.
+CLI MVP is usable. The project is now in post-`v0.3.0` evidence-led Agent Safety Hardening.
 
 The goal is not broad Mac environment coverage. The goal is to keep AI-facing outputs short, conservative, stable, and useful enough that an AI coding agent avoids wrong or unsafe commands before touching a repository.
 
-The `v0.3.0 Developer Preview` milestone focuses on Agent Behavior Evaluation: behavior-level evidence that Habitat changes or constrains an AI coding agent's next command. The next work is continued policy hardening and selective high-confidence scenario depth rather than broad feature expansion:
+The `v0.3.0 Developer Preview` milestone shipped the first Agent Behavior Evaluation loop: behavior-level evidence that Habitat changes or constrains an AI coding agent's next command. The next work is continued policy hardening and selective high-confidence scenario depth rather than broad feature expansion:
 
 - keep README expectations and non-goals current
 - keep advisory policy language clear, with no enforcement claims
 - keep privacy, dummy-secret, and prompt-injection guidance visible
-- expand representative examples
-- refine issue and contribution guidance
+- add representative examples only when self-use evidence shows a new command-decision boundary
+- refine issue and contribution guidance when real feedback exposes a misunderstanding
 - harden output contract and behavior evaluation
 
 ## Implemented
@@ -179,8 +179,9 @@ The `v0.3.0 Developer Preview` milestone focuses on Agent Behavior Evaluation: b
 
 ## Next Useful Improvements
 
+- Keep the next cycle small: use Habitat during real Codex work, observe what changed the next command, then return the finding to policy, evidence fixtures, tests, or docs.
 - Use `v0.3` evidence to harden policy structure, reason-code maintainability, and generated guidance before adding broad ecosystem coverage.
-- Capture new sanitized traces only when they show a new command-decision boundary, a regression, or a failure that can become an artifact improvement.
+- Capture new sanitized traces only when they show a new command-decision boundary, a regression, over-constraint, or a failure that can become an artifact improvement.
 - Turn evaluation failures into focused output-contract, fixture, test, or documentation improvements.
 - Prefer high-confidence SwiftPM and secret-bearing search depth over broad coverage unless another ecosystem shows a clear measured command-decision gain.
 - Keep feature expansion deferred unless it directly improves a measured agent command decision.
