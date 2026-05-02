@@ -92,6 +92,10 @@ enum PolicyReasonCatalog {
             return .init(code: "symlink_target_review", text: "Review symlink targets before trusting linked metadata.")
         }
 
+        if isSecretBearingBroadSearchCommand(command) {
+            return .init(code: "secret_or_credential_access", text: "Command can read, expose, copy, or load secrets or credentials.")
+        }
+
         if command == "modifying lockfiles" {
             return .init(code: "dependency_resolution_mutation", text: "Dependency resolution or lockfile changes can change project state.")
         }
@@ -220,6 +224,36 @@ enum PolicyReasonCatalog {
             "uv tool run",
             "pipx run",
             "pipx runpip",
+        ].contains(command)
+    }
+
+    private static func isSecretBearingBroadSearchCommand(_ command: String) -> Bool {
+        [
+            "recursive project search without excluding secret-bearing files",
+            "grep -R <pattern> .",
+            "grep -r <pattern> .",
+            "grep -R -n <pattern> .",
+            "grep -r -n <pattern> .",
+            "find . -type f -exec grep <pattern> {} +",
+            "find . -type f -exec grep -n <pattern> {} +",
+            "find . -type f -print0 | xargs -0 grep <pattern>",
+            "find . -type f -print0 | xargs -0 grep -n <pattern>",
+            "rg <pattern>",
+            "rg -n <pattern>",
+            "rg <pattern> .",
+            "rg -n <pattern> .",
+            "rg --line-number <pattern> .",
+            "rg --hidden <pattern> .",
+            "rg --hidden -n <pattern> .",
+            "rg --no-ignore <pattern> .",
+            "rg --no-ignore -n <pattern> .",
+            "rg -u <pattern> .",
+            "rg -uu <pattern> .",
+            "rg -uuu <pattern> .",
+            "git grep <pattern>",
+            "git grep -n <pattern>",
+            "git grep <pattern> -- .",
+            "git grep -n <pattern> -- .",
         ].contains(command)
     }
 

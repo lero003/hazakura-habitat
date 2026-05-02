@@ -7,6 +7,7 @@
 - Prefer commands that do not read, print, copy, archive, or upload secret-bearing paths.
 
 ## Ask First
+- Ask before broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc' --glob '!id_ed25519'`.
 - Ask before dependency installs.
 - Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`.
 
@@ -14,7 +15,6 @@
 - Do not read `.env`.
 - Do not read `.npmrc`.
 - Do not read private-key-like files.
-- Do not run broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc' --glob '!id_ed25519'`.
 - Do not archive or upload the whole project without reviewing exclusions.
 - Do not dump environment variables, shell history, clipboard contents, browser data, or mail data.
 

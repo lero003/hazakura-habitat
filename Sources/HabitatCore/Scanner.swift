@@ -564,7 +564,6 @@ public struct HabitatScanner {
             ] + secretFileAccessForbiddenCommands(project)
             + secretEnvironmentFileLoadForbiddenCommands(project)
             + secretEnvironmentRenderForbiddenCommands(project)
-            + recursiveSecretSearchForbiddenCommands(project)
             + secretProjectBulkExportForbiddenCommands(project)
         )
         let preferredCommands = preferredCommands(project: project)
@@ -1160,6 +1159,13 @@ public struct HabitatScanner {
             commands.insert(missingPreferredToolAskFirstCommand(packageManager: packageManager), at: 0)
         }
 
+        let recursiveSearchCommands = recursiveSecretSearchAskFirstCommands(project)
+        if !recursiveSearchCommands.isEmpty {
+            commands.removeAll { recursiveSearchCommands.contains($0) }
+            commands.append(contentsOf: recursiveSearchCommands.dropFirst())
+            commands.insert(recursiveSearchCommands[0], at: 0)
+        }
+
         return commands
     }
 
@@ -1604,7 +1610,7 @@ public struct HabitatScanner {
         }
     }
 
-    private func recursiveSecretSearchForbiddenCommands(_ project: ProjectInfo) -> [String] {
+    private func recursiveSecretSearchAskFirstCommands(_ project: ProjectInfo) -> [String] {
         guard !secretValueFiles(project).isEmpty else { return [] }
 
         return [

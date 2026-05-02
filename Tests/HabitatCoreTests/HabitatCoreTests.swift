@@ -195,6 +195,7 @@ struct HabitatCoreTests {
             "## If Dependency Installation Seems Necessary"
         ])
         #expect(policy.contains("`If Secret-Bearing Files Are Detected` - 3 detected paths requiring exclusions before broad search or export."))
+        #expect(policy.contains("`recursive project search without excluding secret-bearing files` (`secret_or_credential_access`) - Command can read, expose, copy, or load secrets or credentials."))
         #expect(policy.contains("For necessary broad `rg`, start with: `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc' --glob '!id_ed25519'`."))
         #expect(policy.contains("Prefer targeted project inspection over broad `rg`, `grep -R`, `rsync`, `tar`, `zip`, or `git archive` commands."))
     }
@@ -1994,7 +1995,7 @@ struct HabitatCoreTests {
         #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive `.netrc` files."))
         #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
         #expect(context.contains("Do not read, open, copy, upload, or archive local cloud or container credential files, or print cloud auth tokens."))
-        #expect(context.contains("Do not run broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.aws/credentials' --glob '!.env' --glob '!.env.*' --glob '!.envrc' --glob '!.envrc.*' --glob '!.netrc'`."))
+        #expect(context.contains("Ask before broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.aws/credentials' --glob '!.env' --glob '!.env.*' --glob '!.envrc' --glob '!.envrc.*' --glob '!.netrc'`."))
         #expect(context.contains("Do not copy, sync, or archive the project without excluding detected secret-bearing files."))
         #expect(!context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load private keys."))
         #expect(!context.contains(secretValue))
@@ -3022,7 +3023,7 @@ struct HabitatCoreTests {
     }
 
     @Test
-    func scanForbidsRecursiveSearchWhenSecretBearingProjectFilesExist() throws {
+    func scanAsksBeforeRecursiveSearchWhenSecretBearingProjectFilesExist() throws {
         let projectURL = try makeProject(files: [
             ".env": "TOKEN=secret\n",
             ".env.example": "TOKEN=\n",
@@ -3058,7 +3059,8 @@ struct HabitatCoreTests {
         ]
 
         for command in recursiveSearchCommands {
-            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+            #expect(!result.policy.forbiddenCommands.contains(command), "Did not expect \(command) to be forbidden")
         }
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -3073,7 +3075,7 @@ struct HabitatCoreTests {
         #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Allowed"))
         #expect(section(policy, "## If Secret-Bearing Files Are Detected", appearsBefore: "## Forbidden"))
         #expect(policy.contains("- For necessary broad `rg`, start with: `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
-        #expect(context.contains("Do not run broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
+        #expect(context.contains("Ask before broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `rg <pattern> --glob '!.env' --glob '!.env.*'`."))
 
         let exampleOnlyProjectURL = try makeProject(files: [
             ".env.example": "TOKEN=\n",
@@ -3081,6 +3083,7 @@ struct HabitatCoreTests {
         let exampleOnlyResult = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: exampleOnlyProjectURL)
 
         for command in recursiveSearchCommands {
+            #expect(!exampleOnlyResult.policy.askFirstCommands.contains(command), "Did not expect \(command) to require approval when only examples exist")
             #expect(!exampleOnlyResult.policy.forbiddenCommands.contains(command), "Did not expect \(command) when only examples exist")
         }
         let exampleOnlyOutputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

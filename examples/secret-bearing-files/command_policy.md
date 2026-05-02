@@ -3,14 +3,15 @@
 This policy is advisory. Habitat does not block commands. `Forbidden` means this generated context tells the agent not to run the command.
 
 ## Policy Index
-- `Review First` - 2 highest-priority approval rules with reasons.
+- `Review First` - 3 highest-priority approval rules with reasons.
 - `Reason Codes` - 4 reason families used by this policy.
 - `If Secret-Bearing Files Are Detected` - 3 detected paths requiring exclusions before broad search or export.
 - `Allowed` - 1 concrete safe starting point.
-- `Ask First` - 2 commands or command families requiring approval.
-- `Forbidden` - 6 commands or command families to avoid.
+- `Ask First` - 3 commands or command families requiring approval.
+- `Forbidden` - 5 commands or command families to avoid.
 
 ## Review First
+- `recursive project search without excluding secret-bearing files` (`secret_or_credential_access`) - Command can read, expose, copy, or load secrets or credentials.
 - `modifying lockfiles` (`dependency_resolution_mutation`) - Dependency resolution or lockfile changes can change project state.
 - `git add` (`git_mutation`) - Git/GitHub mutation can change workspace, history, branches, or remotes.
 
@@ -30,6 +31,7 @@ This policy is advisory. Habitat does not block commands. `Forbidden` means this
 - `read-only project inspection`
 
 ## Ask First
+- `recursive project search without excluding secret-bearing files` (`secret_or_credential_access`)
 - `modifying lockfiles` (`dependency_resolution_mutation`)
 - `git add` (`git_mutation`)
 
@@ -37,7 +39,6 @@ This policy is advisory. Habitat does not block commands. `Forbidden` means this
 - `read .env values` (`secret_or_credential_access`)
 - `read package manager auth config values` (`secret_or_credential_access`)
 - `read private keys` (`secret_or_credential_access`)
-- `recursive project search without excluding secret-bearing files` (`secret_or_credential_access`)
 - `dump environment variables` (`host_private_data`)
 - `read shell history` (`host_private_data`)
 

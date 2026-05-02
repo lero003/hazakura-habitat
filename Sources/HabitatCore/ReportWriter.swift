@@ -103,12 +103,12 @@ public struct ReportWriter {
             useLines = [packageManagerUse].compactMap { $0 }
             preferLines = preferredCommands.prefix(2).map { "Prefer `\($0)`." }
         }
-        let avoidLimit = hasDetectedSecretValueFile(result.project) ? 11 : 9
+        let avoidLimit = hasDetectedSecretValueFile(result.project) ? 10 : 9
         let avoidLines = prioritizedForbiddenCommands(result)
             .prefix(avoidLimit)
             .map { avoidLine(for: $0, result: result) }
         let askFirstCommands = prioritizedAskFirstCommands(result)
-        let askLines = agentContextAskFirstLines(askFirstCommands)
+        let askLines = agentContextAskFirstLines(askFirstCommands, result: result)
         let relevantDiagnostics = agentRelevantDiagnostics(result)
         let mismatchLines = result.warnings.isEmpty
             ? ["- Mismatches: none detected."]
@@ -387,14 +387,14 @@ public struct ReportWriter {
         return shown + ["- \(hiddenCount) additional \(overflowLabel) in `\(overflowDestination)`."]
     }
 
-    private func agentContextAskFirstLines(_ commands: [String]) -> [String] {
+    private func agentContextAskFirstLines(_ commands: [String], result: ScanResult) -> [String] {
         guard !commands.isEmpty else {
             return ["- Ask before dependency installation or version changes."]
         }
 
         let limit = 4
         let shownCommands = Array(commands.prefix(limit))
-        var lines = shownCommands.map { "- Ask before `\($0)`." }
+        var lines = shownCommands.map { agentContextAskFirstLine(for: $0, result: result) }
 
         let hiddenGitGuardsSummarized = shouldSummarizeHiddenGitMutationGuards(commands: commands, shownCommands: shownCommands)
         if hiddenGitGuardsSummarized {
@@ -412,6 +412,14 @@ public struct ReportWriter {
         }
 
         return lines
+    }
+
+    private func agentContextAskFirstLine(for command: String, result: ScanResult) -> String {
+        if command == "recursive project search without excluding secret-bearing files" {
+            return "- Ask before broad `rg`/`grep -R` unless detected secret-bearing files are excluded; start with `\(broadSearchShape(for: result.project))`."
+        }
+
+        return "- Ask before `\(command)`."
     }
 
     private func hiddenAskFirstReasonSuffix(for commands: [String], gitGuardsSummarized: Bool) -> String {
@@ -509,6 +517,7 @@ public struct ReportWriter {
                 || command == "Swift/Xcode build commands before xcode-select -p succeeds"
                 || command.hasPrefix("dependency installs ")
                 || command == "following project symlinks before reviewing targets"
+                || command == "recursive project search without excluding secret-bearing files"
         }
 
         appendAskFirstCommands(
@@ -816,7 +825,6 @@ public struct ReportWriter {
             append("read local cloud and container credential files", to: &commands, from: result.policy.forbiddenCommands)
         }
 
-        append("recursive project search without excluding secret-bearing files", to: &commands, from: result.policy.forbiddenCommands)
         append("project copy, sync, or archive without excluding secret-bearing files", to: &commands, from: result.policy.forbiddenCommands)
 
         if !hasSSHPrivateKeyFile(result.project) {
