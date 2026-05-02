@@ -4813,6 +4813,60 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanResultReviewFirstMetadataPrioritizesNonJavaScriptMissingToolGuards() throws {
+        let cases: [(files: [String: String], missingGuard: String, mutationCommand: String)] = [
+            (
+                ["go.mod": "module example.com/demo\n\ngo 1.22\n"],
+                "running Go commands before go is available",
+                "go get"
+            ),
+            (
+                [
+                    "Cargo.toml": """
+                    [package]
+                    name = "demo"
+                    version = "0.1.0"
+                    edition = "2021"
+                    """
+                ],
+                "running Cargo commands before cargo is available",
+                "cargo add"
+            )
+        ]
+
+        for testCase in cases {
+            let projectURL = try makeProject(files: testCase.files)
+            let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+            let data = try Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+            let decoded = try JSONDecoder().decode(ScanResult.self, from: data)
+            let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+            #expect(decoded.policy.reviewFirstCommandReasons.first == PolicyCommandReason(
+                command: testCase.missingGuard,
+                classification: "ask_first",
+                reasonCode: "missing_tool",
+                reason: "Required project tool is missing on `PATH`."
+            ))
+            #expect(decoded.policy.reviewFirstCommandReasons.contains(PolicyCommandReason(
+                command: testCase.mutationCommand,
+                classification: "ask_first",
+                reasonCode: "dependency_mutation",
+                reason: "Dependency install, update, or removal can mutate project state."
+            )))
+            #expect(decoded.policy.commandReasons.contains(where: {
+                $0.command == testCase.missingGuard && $0.reasonCode == "missing_tool"
+            }))
+
+            let missingLine = "`\(testCase.missingGuard)` (`missing_tool`)"
+            let mutationLine = "`\(testCase.mutationCommand)` (`dependency_mutation`)"
+            #expect(section(policy, missingLine, appearsBefore: mutationLine))
+        }
+    }
+
+    @Test
     func scanTreatsCargoTomlAsCargoProjectAndGuardsMissingCargo() throws {
         let projectURL = try makeProject(files: [
             "Cargo.toml": """
