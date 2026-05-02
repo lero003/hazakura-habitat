@@ -260,7 +260,8 @@ struct HabitatCoreTests {
 
             for artifact in artifacts {
                 guard let name = artifact["name"] as? String,
-                      let expectedLineCount = artifact["lineCount"] as? Int else {
+                      let expectedLineCount = artifact["lineCount"] as? Int,
+                      let expectedCharacterCount = artifact["characterCount"] as? Int else {
                     Issue.record("Malformed artifact metadata in \(directory)")
                     continue
                 }
@@ -278,6 +279,10 @@ struct HabitatCoreTests {
                 #expect(
                     lineCount(artifactText) == expectedLineCount,
                     "Expected \(directory)/\(name) lineCount metadata to match the example file"
+                )
+                #expect(
+                    artifactText.count == expectedCharacterCount,
+                    "Expected \(directory)/\(name) characterCount metadata to match the example file"
                 )
 
                 if name == "agent_context.md" {
@@ -5565,6 +5570,7 @@ struct HabitatCoreTests {
         ])
         let agentContextText = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         #expect(decoded.artifacts.first?.lineCount == lineCount(agentContextText))
+        #expect(decoded.artifacts.first?.characterCount == agentContextText.count)
         #expect((decoded.artifacts.first?.lineCount ?? 0) <= (decoded.artifacts.first?.lineLimit ?? 0))
         #expect(decoded.artifacts.first?.withinLineLimit == true)
     }
@@ -5586,6 +5592,7 @@ struct HabitatCoreTests {
         #expect(decoded.readOrder == nil)
         #expect(decoded.sections == nil)
         #expect(decoded.lineCount == 35)
+        #expect(decoded.characterCount == nil)
         #expect(decoded.lineLimit == nil)
         #expect(decoded.withinLineLimit == nil)
     }
@@ -6684,6 +6691,7 @@ struct HabitatCoreTests {
 
         #expect(decoded.agentUse == nil)
         #expect(decoded.name == "agent_context.md")
+        #expect(decoded.characterCount == nil)
         #expect(decoded.withinLineLimit == true)
     }
 

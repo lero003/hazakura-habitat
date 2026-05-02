@@ -47,6 +47,7 @@ public struct ReportWriter {
             format: "markdown",
             agentUse: artifactAgentUse(role: role),
             lineCount: artifactLineCount,
+            characterCount: text.count,
             readOrder: readOrder,
             sections: markdownSections(text),
             lineLimit: lineLimit,

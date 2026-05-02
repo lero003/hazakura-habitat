@@ -665,6 +665,7 @@ Top-level shape:
       "readOrder": 1,
       "sections": ["Agent Context", "Use", "Prefer", "Ask First", "Do Not", "Notes"],
       "lineCount": 33,
+      "characterCount": 900,
       "lineLimit": 120,
       "withinLineLimit": true
     },
@@ -675,7 +676,8 @@ Top-level shape:
       "agentUse": "consult_before_risky_commands",
       "readOrder": 2,
       "sections": ["Command Policy", "Policy Index", "Review First", "Reason Codes", "Allowed", "Ask First", "Forbidden", "If Dependency Installation Seems Necessary"],
-      "lineCount": 790
+      "lineCount": 790,
+      "characterCount": 30000
     },
     {
       "name": "environment_report.md",
@@ -684,7 +686,8 @@ Top-level shape:
       "agentUse": "debug_audit_only",
       "readOrder": 3,
       "sections": ["Environment Report", "System", "Project Signals", "Symlinked Project Signals", "Resolved Tools", "Tool Versions", "Changes Since Previous Scan", "Warnings", "Diagnostics", "Privacy Note"],
-      "lineCount": 75
+      "lineCount": 75,
+      "characterCount": 4000
     }
   ],
   "scannedAt": "2026-04-25T00:00:00Z",
@@ -762,7 +765,7 @@ Top-level shape:
 
 Preview contract:
 
-- During `v0.x`, `artifacts.agentUse`, `artifacts.readOrder`, `artifacts.sections`, `artifacts.lineCount`, `artifacts.lineLimit`, `artifacts.withinLineLimit`, and `policy.commandCounts` are preview reading hints. Agents may use them to choose what to read first and decide whether the full policy is needed, but they should not treat exact values or field presence as a stable `1.0` schema promise yet.
+- During `v0.x`, `artifacts.agentUse`, `artifacts.readOrder`, `artifacts.sections`, `artifacts.lineCount`, `artifacts.characterCount`, `artifacts.lineLimit`, `artifacts.withinLineLimit`, and `policy.commandCounts` are preview reading hints. Agents may use them to choose what to read first and decide whether the full policy is needed, but they should not treat exact values or field presence as a stable `1.0` schema promise yet.
 - Keep these hints additive and backward compatible. Older `0.x` scans may omit them; consumers should fall back to artifact order, Markdown headings, or command array counts.
 
 Compatibility:
@@ -770,7 +773,7 @@ Compatibility:
 - Add fields freely during `0.x`.
 - Do not rename or remove fields without documenting a schema change.
 - `generatorVersion` records the Habitat generator release that produced the scan. Previous-scan comparison should surface generator-version changes so agents do not mistake report-shape or policy-generator differences for local environment drift.
-- `artifacts` records generated Markdown artifact names, roles, formats, `agentUse`, read order, generated Markdown section headings, physical line counts, any hard line limit for budgeted agent-facing artifacts, and `withinLineLimit` when a line limit applies. Agents can use it to read the short working context first and distinguish longer policy or audit outputs without parsing Markdown first. Current `agentUse` values are `read_first`, `consult_before_risky_commands`, and `debug_audit_only`.
+- `artifacts` records generated Markdown artifact names, roles, formats, `agentUse`, read order, generated Markdown section headings, physical line counts, character counts, any hard line limit for budgeted agent-facing artifacts, and `withinLineLimit` when a line limit applies. Agents can use it to read the short working context first and distinguish longer policy or audit outputs without parsing Markdown first. Current `agentUse` values are `read_first`, `consult_before_risky_commands`, and `debug_audit_only`.
 - `policy.reasonCodes` records the stable snake_case legend for reason codes used by generated Ask First and Forbidden policy. Keep it additive to the existing command arrays so older consumers can continue reading `preferredCommands`, `askFirstCommands`, and `forbiddenCommands`.
 - `policy.reasonCodes` should be emitted in the fixed catalog order, filtered to codes present in the generated policy, so metadata diffs do not depend on command list ordering.
 - `policy.commandCounts` records the number of preferred, Ask First, Forbidden, and reason-annotated commands so agents can estimate policy size and reason coverage before reading a long `command_policy.md`. Older `0.x` scans may omit it; consumers can derive counts from the command arrays.

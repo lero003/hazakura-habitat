@@ -17,6 +17,7 @@
         "Notes"
       ],
       "lineCount": 29,
+      "characterCount": 786,
       "lineLimit": 120,
       "withinLineLimit": true
     },
@@ -36,7 +37,8 @@
         "Forbidden",
         "If Dependency Installation Seems Necessary"
       ],
-      "lineCount": 53
+      "lineCount": 53,
+      "characterCount": 2499
     },
     {
       "name": "environment_report.md",
@@ -56,7 +58,8 @@
         "Diagnostics",
         "Privacy Note"
       ],
-      "lineCount": 32
+      "lineCount": 32,
+      "characterCount": 455
     }
   ],
   "scannedAt": "example timestamp",
