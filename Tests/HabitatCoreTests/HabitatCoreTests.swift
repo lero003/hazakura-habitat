@@ -1633,6 +1633,10 @@ struct HabitatCoreTests {
         for command in commands {
             #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
         }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in ["npm whoami", "pnpm whoami", "yarn npm whoami", "gem signin", "cargo login", "pod trunk me"] {
+            #expect(commandReasonCodes[command] == "secret_or_credential_access", "Expected \(command) to explain credential/session risk")
+        }
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -1738,6 +1742,10 @@ struct HabitatCoreTests {
         for command in commands {
             #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
         }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in ["npm config get", "pnpm config get", "yarn config get"] {
+            #expect(commandReasonCodes[command] == "secret_or_credential_access", "Expected \(command) to explain credential/config risk")
+        }
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -1780,6 +1788,10 @@ struct HabitatCoreTests {
 
         for command in commands {
             #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in ["gh auth login", "gh auth setup-git", "git credential fill", "security export"] {
+            #expect(commandReasonCodes[command] == "secret_or_credential_access", "Expected \(command) to explain credential/session risk")
         }
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -1866,6 +1878,10 @@ struct HabitatCoreTests {
 
         for command in commands {
             #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in ["aws sso login", "gcloud auth login", "docker login", "kubectl config view --raw"] {
+            #expect(commandReasonCodes[command] == "secret_or_credential_access", "Expected \(command) to explain credential/session risk")
         }
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

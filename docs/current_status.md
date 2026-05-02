@@ -150,6 +150,7 @@ The first public milestone, `v0.1.0 Developer Preview`, has been published. The 
 - `scan_result.json` includes `policy.commandReasons`, which attaches `classification`, `reasonCode`, and short reason text to generated Ask First and Forbidden commands while preserving the existing command arrays for compatibility.
 - `scan_result.json` includes `policy.commandCounts`, so agents can estimate policy size and reason coverage before deciding whether they need to inspect the full `command_policy.md`.
 - `scan_result.json` and `command_policy.md` emit reason-code legends in a fixed catalog order filtered to used codes, so metadata and Markdown diffs do not churn when command list order changes.
+- Package registry auth, CLI auth-session, credential-helper, cloud/container auth, and package-manager config commands now use the `secret_or_credential_access` reason family instead of falling back to generic unsafe-command metadata, so long policies explain credential/session risk at the command line.
 - JavaScript projects that are missing or cannot verify both `node` and the selected package manager now name both blockers in the first `agent_context.md` `Use` line, instead of sending agents to verify only the runtime first.
 - Selected package-manager install guards are prioritized so the short `agent_context.md` shows the relevant install command first.
 - Multiple JavaScript lockfile warnings that tell agents to ask before dependency installs when package-manager signals conflict.

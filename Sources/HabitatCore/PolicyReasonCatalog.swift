@@ -149,7 +149,8 @@ enum PolicyReasonCatalog {
             return .init(code: "host_private_data", text: "Command can reveal local private host data.")
         }
 
-        if command.contains("secret")
+        if isCredentialOrAuthSessionCommand(command)
+            || command.contains("secret")
             || command.contains("credential")
             || command.contains("token")
             || command.contains("private key")
@@ -220,5 +221,53 @@ enum PolicyReasonCatalog {
             "pipx run",
             "pipx runpip",
         ].contains(command)
+    }
+
+    private static func isCredentialOrAuthSessionCommand(_ command: String) -> Bool {
+        let prefixes = [
+            "npm token",
+            "npm login",
+            "npm logout",
+            "npm adduser",
+            "npm whoami",
+            "npm config ",
+            "pnpm login",
+            "pnpm logout",
+            "pnpm whoami",
+            "pnpm config ",
+            "yarn npm login",
+            "yarn npm logout",
+            "yarn npm whoami",
+            "yarn config",
+            "gem signin",
+            "gem signout",
+            "bundle config",
+            "cargo login",
+            "cargo logout",
+            "pod trunk register",
+            "pod trunk me",
+            "gh auth ",
+            "git credential",
+            "security find-",
+            "security dump-keychain",
+            "security export",
+            "aws configure ",
+            "aws sso ",
+            "aws ecr get-login-password",
+            "aws codeartifact get-authorization-token",
+            "gcloud auth ",
+            "gcloud config config-helper",
+            "docker login",
+            "docker logout",
+            "docker context export",
+            "kubectl config ",
+            "kubectl create token",
+            "pip config ",
+            "pip3 config ",
+            "python -m pip config ",
+            "python3 -m pip config ",
+        ]
+
+        return prefixes.contains { command.hasPrefix($0) }
     }
 }
