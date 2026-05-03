@@ -2,10 +2,17 @@
 
 ## Unreleased
 
+## v0.4.0 Developer Preview - 2026-05-04
+
+Policy Finding Foundation release.
+
 ### Changed
 
 - Added a project-local Nenrin improvement observation ledger and connected it to the Habitat self-use development loop.
 - Updated post-`v0.3.0` development guidance to keep automation focused on small self-use observation loops that feed policy, evidence, and documentation improvements before broad feature expansion.
+- Re-scoped the post-`v0.3.0` roadmap so `v0.4` targets a thin Policy Finding Foundation, with broader evidence normalization and behavior feedback-loop work moved to later phases.
+- Introduced a thin `PolicyFinding` policy-decision model and routed generated command-reason metadata through it while preserving the existing `scan_result.json` shape.
+- Updated generated artifact metadata to report generator version `0.4.0`.
 - Centralized JavaScript package-manager dependency-mutation command families used by generated Ask First policy and selected review ordering, preserving command lists while classifying `yarn up` as `dependency_mutation`.
 - Centralized Corepack package-manager activation commands and annotated them with `package_manager_activation` instead of generic approval metadata.
 

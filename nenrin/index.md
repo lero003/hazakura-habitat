@@ -2,11 +2,13 @@
 
 ## Active Summary
 
-- observing: 12
+- observing: 14
 - reviewed: 3
 
 ## Active Changes
 
+- `roadmap-policy-finding-foundation` - [changes/2026-05-04-roadmap-policy-finding-foundation.md](changes/2026-05-04-roadmap-policy-finding-foundation.md)
+- `policy-finding-command-reasons` - [changes/2026-05-04-policy-finding-command-reasons.md](changes/2026-05-04-policy-finding-command-reasons.md)
 - `corepack-package-manager-activation-reason` - [changes/2026-05-04-corepack-package-manager-activation-reason.md](changes/2026-05-04-corepack-package-manager-activation-reason.md)
 - `javascript-package-manager-mutation-command-families` - [changes/2026-05-04-javascript-package-manager-mutation-command-families.md](changes/2026-05-04-javascript-package-manager-mutation-command-families.md)
 - `swiftpm-dependency-resolution-command-family` - [changes/2026-05-04-swiftpm-dependency-resolution-command-family.md](changes/2026-05-04-swiftpm-dependency-resolution-command-family.md)

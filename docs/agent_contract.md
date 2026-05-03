@@ -668,7 +668,7 @@ Top-level shape:
 ```json
 {
   "schemaVersion": "0.1",
-  "generatorVersion": "0.3.0",
+  "generatorVersion": "0.4.0",
   "artifacts": [
     {
       "name": "agent_context.md",

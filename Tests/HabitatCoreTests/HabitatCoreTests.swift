@@ -1351,6 +1351,33 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func policyFindingsBackCommandReasonMetadata() throws {
+        let findings = PolicyReasonCatalog.findings(
+            askFirstCommands: ["swift package update"],
+            forbiddenCommands: ["sudo"]
+        )
+
+        #expect(findings == [
+            PolicyFinding(
+                command: "swift package update",
+                classification: "ask_first",
+                reasonCode: "dependency_resolution_mutation",
+                reason: "Dependency resolution or lockfile changes can change project state."
+            ),
+            PolicyFinding(
+                command: "sudo",
+                classification: "forbidden",
+                reasonCode: "privileged_command",
+                reason: "Privileged commands can mutate the host outside the project."
+            ),
+        ])
+        #expect(PolicyReasonCatalog.commandReasons(
+            askFirstCommands: ["swift package update"],
+            forbiddenCommands: ["sudo"]
+        ) == findings.map { PolicyCommandReason(finding: $0) })
+    }
+
+    @Test
     func policySummaryDecodesOlderJsonWithoutCommandCounts() throws {
         let json = """
         {

@@ -45,7 +45,7 @@ Focus on the self-use observation loop:
 - feed findings back into policy wording, reason-code structure, behavior evidence, tests, or docs
 - record behavior-level evidence only when it adds a new command-decision boundary, regression, over-constraint, or concrete artifact improvement
 - keep evidence sanitized; do not store raw prompts, secrets, shell history, clipboard contents, private local paths, or release credentials
-- prefer policy-engine hardening and high-confidence scenario depth over broad feature expansion
+- prefer the `v0.4` Policy Finding Foundation and later evidence normalization over broad feature expansion
 - if a code change affects generated output, update representative examples and tests in the same slice
 
 Avoid broad feature expansion:
@@ -102,7 +102,7 @@ Release and phase-transition work requires an explicit user handoff:
 - cut or tag any release
 - write GitHub Release notes
 - upload or verify release artifacts
-- start broad `v0.4` policy-engine work
+- expand or re-scope `v0.4` beyond the Policy Finding Foundation
 
 Before that handoff, automation should keep changes inside the post-`v0.3` self-use observation loop.
 

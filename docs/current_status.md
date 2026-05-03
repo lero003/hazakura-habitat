@@ -2,11 +2,15 @@
 
 ## Current Phase
 
-CLI MVP is usable. The project is now in post-`v0.3.0` evidence-led Agent Safety Hardening.
+CLI MVP is usable. The project is now at the `v0.4.0 Developer Preview` Policy Finding Foundation.
 
 The goal is not broad Mac environment coverage. The goal is to keep AI-facing outputs short, conservative, stable, and useful enough that an AI coding agent avoids wrong or unsafe commands before touching a repository.
 
-The `v0.3.0 Developer Preview` milestone shipped the first Agent Behavior Evaluation loop: behavior-level evidence that Habitat changes or constrains an AI coding agent's next command. The next work is continued policy hardening and selective high-confidence scenario depth rather than broad feature expansion:
+The `v0.3.0 Developer Preview` milestone shipped the first Agent Behavior Evaluation loop: behavior-level evidence that Habitat changes or constrains an AI coding agent's next command. The next work is continued policy hardening and selective high-confidence scenario depth rather than broad feature expansion.
+
+The immediate `v0.4` target is now scoped as Policy Finding Foundation: introduce a thin `PolicyFinding`-like policy-decision core and make reason codes, command families, and renderer inputs gather around it. The broader `DetectedSignal -> NormalizedEvidence -> PolicyFinding -> RenderedOutput` pipeline remains the direction of travel, but full evidence normalization belongs after `v0.4`.
+
+Keep the current cycle focused:
 
 - keep README expectations and non-goals current
 - keep advisory policy language clear, with no enforcement claims
@@ -160,6 +164,7 @@ The `v0.3.0 Developer Preview` milestone shipped the first Agent Behavior Evalua
 - `scan_result.json` includes `policy.commandReasons`, which attaches `classification`, `reasonCode`, and short reason text to generated Ask First and Forbidden commands while preserving the existing command arrays for compatibility.
 - `scan_result.json` includes `policy.commandCounts`, so agents can estimate policy size, short approval-checklist size, and reason coverage before deciding whether they need to inspect the full `command_policy.md`.
 - `scan_result.json` and `command_policy.md` emit reason-code legends in a fixed catalog order filtered to used codes, so metadata and Markdown diffs do not churn when command list order changes.
+- `PolicyFinding` provides a thin policy-decision model behind generated command-reason metadata, so `scan_result.json` compatibility is preserved while one generated policy path now flows through explicit policy findings.
 - Policy reason-code matching now uses ordered catalog rule tables instead of long renderer-facing condition chains, keeping classification criteria easier to audit while preserving generated output behavior.
 - Policy command families now use a small shared command-family wrapper for renderer-facing command arrays and reason-classifier membership checks, reducing array/set drift risk while preserving generated output behavior.
 - Selected package-manager mutation review command ordering now lives in `PolicyReasonCatalog` and is consumed by both scanner generation and report prioritization, reducing drift between generated Ask First ordering and rendered short-context review emphasis while preserving generated output behavior.
@@ -199,7 +204,9 @@ The `v0.3.0 Developer Preview` milestone shipped the first Agent Behavior Evalua
 
 - Keep the next cycle small: use Habitat during real Codex work, observe what changed the next command, then return the finding to policy, evidence fixtures, tests, or docs.
 - Use Nenrin during self-use and automation work to record why agent-facing guidance changed, what behavior was expected, and whether the change should be kept, removed, merged, narrowed, or moved.
+- Treat `v0.4` as a foundation release for `PolicyFinding`-like policy-decision data, not as a full scanner-to-renderer pipeline rewrite.
 - Use `v0.3` evidence to harden policy structure, reason-code maintainability, and generated guidance before adding broad ecosystem coverage.
+- Move broader evidence normalization into the next phase unless a small normalization slice is necessary to land the `PolicyFinding` foundation safely.
 - Capture new sanitized traces only when they show a new command-decision boundary, a regression, over-constraint, or a failure that can become an artifact improvement.
 - Turn evaluation failures into focused output-contract, fixture, test, or documentation improvements.
 - Prefer high-confidence SwiftPM and secret-bearing search depth over broad coverage unless another ecosystem shows a clear measured command-decision gain.

@@ -650,22 +650,35 @@ enum PolicyReasonCatalog {
     }
 
     static func commandReasons(askFirstCommands: [String], forbiddenCommands: [String]) -> [PolicyCommandReason] {
-        askFirstCommands.map(askFirstCommandReason)
-            + forbiddenCommands.map(forbiddenCommandReason)
+        findings(askFirstCommands: askFirstCommands, forbiddenCommands: forbiddenCommands)
+            .map { PolicyCommandReason(finding: $0) }
+    }
+
+    static func findings(askFirstCommands: [String], forbiddenCommands: [String]) -> [PolicyFinding] {
+        askFirstCommands.map(askFirstFinding)
+            + forbiddenCommands.map(forbiddenFinding)
     }
 
     static func askFirstCommandReason(for command: String) -> PolicyCommandReason {
-        commandReason(
+        PolicyCommandReason(finding: askFirstFinding(for: command))
+    }
+
+    static func forbiddenCommandReason(for command: String) -> PolicyCommandReason {
+        PolicyCommandReason(finding: forbiddenFinding(for: command))
+    }
+
+    static func askFirstFinding(for command: String) -> PolicyFinding {
+        finding(
             command: command,
-            classification: PolicyCommandReason.askFirstClassification,
+            classification: PolicyFinding.askFirstClassification,
             reason: askFirstReason(for: command)
         )
     }
 
-    static func forbiddenCommandReason(for command: String) -> PolicyCommandReason {
-        commandReason(
+    static func forbiddenFinding(for command: String) -> PolicyFinding {
+        finding(
             command: command,
-            classification: PolicyCommandReason.forbiddenClassification,
+            classification: PolicyFinding.forbiddenClassification,
             reason: forbiddenReason(for: command)
         )
     }
@@ -694,12 +707,12 @@ enum PolicyReasonCatalog {
         remoteRepositoryActionCommandFamily.contains(command)
     }
 
-    private static func commandReason(
+    private static func finding(
         command: String,
         classification: String,
         reason: PolicyReasonCode
-    ) -> PolicyCommandReason {
-        PolicyCommandReason(
+    ) -> PolicyFinding {
+        PolicyFinding(
             command: command,
             classification: classification,
             reasonCode: reason.code,

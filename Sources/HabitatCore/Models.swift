@@ -354,6 +354,23 @@ public struct ToolVersion: Codable {
     public let available: Bool
 }
 
+public struct PolicyFinding: Codable, Equatable, Sendable {
+    public static let askFirstClassification = "ask_first"
+    public static let forbiddenClassification = "forbidden"
+
+    public let command: String
+    public let classification: String
+    public let reasonCode: String
+    public let reason: String
+
+    public init(command: String, classification: String, reasonCode: String, reason: String) {
+        self.command = command
+        self.classification = classification
+        self.reasonCode = reasonCode
+        self.reason = reason
+    }
+}
+
 public struct PolicyCommandReason: Codable, Equatable {
     public static let askFirstClassification = "ask_first"
     public static let forbiddenClassification = "forbidden"
@@ -368,6 +385,15 @@ public struct PolicyCommandReason: Codable, Equatable {
         self.classification = classification
         self.reasonCode = reasonCode
         self.reason = reason
+    }
+
+    public init(finding: PolicyFinding) {
+        self.init(
+            command: finding.command,
+            classification: finding.classification,
+            reasonCode: finding.reasonCode,
+            reason: finding.reason
+        )
     }
 }
 

@@ -35,11 +35,11 @@ If behavior evaluation shows Habitat is most useful in a smaller set of high-con
 | 1 | `v0.1.x` | Public stabilization | Trust, clarity, and issue handling |
 | 2 | `v0.2` | Agent reading contract | Read order, stopping points, reasons, and shortness |
 | 3 | `v0.3` | Agent behavior evaluation | Evidence that agent decisions improve |
-| 4 | `v0.4` | Policy engine hardening | Maintainability and reason codes |
-| 5 | `v0.5` | High-confidence behavior depth | Deeper SwiftPM and secret-bearing search scenarios |
-| 6 | `v0.6` | Read-only integrations | Easier agent workflow consumption |
-| 7 | `v0.7` | Previous scan intelligence | Command-changing drift only |
-| 8 | `v0.8` | Distribution and trust | Releases, checksums, install clarity |
+| 4 | `v0.4` | Policy finding foundation | A visible policy-decision core |
+| 5 | `v0.5` | Evidence normalization | Cleaner inputs for policy decisions |
+| 6 | `v0.6` | Agent behavior feedback loop | Turning observations into measured policy changes |
+| 7 | `v0.7` | Integration and distribution foundations | Easier consumption and safer installation path |
+| 8 | `v0.8` | Release trust hardening | Checksums, compatibility, install clarity |
 | 9 | `v0.9` | Pre-1.0 hardening | Stability boundaries |
 | 10 | `v1.0` | Stable advisory generator | Narrow, reliable, documented behavior |
 
@@ -240,11 +240,11 @@ Use the findings to decide what comes next:
 - If previous-scan deltas clearly change the next command, consider previous scan intelligence then.
 - If a theme makes `agent_context.md` generic, noisy, or too broad, defer it to the parking lot.
 
-## v0.4: Policy Engine Hardening
+## v0.4: Policy Finding Foundation
 
 Purpose:
 
-Prevent rule-list growth from making the system hard to maintain.
+Prevent rule-list growth from making the system hard to maintain by introducing a thin `PolicyFinding`-like policy-decision core.
 
 Starting point:
 
@@ -254,7 +254,7 @@ Starting point:
 - Prefer small, reviewable slices that make an existing high-confidence scenario easier to explain or maintain.
 - Defer broad ecosystem expansion unless a measured self-use case shows it would change the next command.
 
-Target flow:
+Direction of travel:
 
 ```text
 Project files
@@ -264,13 +264,15 @@ Project files
   -> RenderedOutput
 ```
 
+This full flow is not the `v0.4` exit gate. `v0.4` should make the policy-decision boundary visible first: reason codes, command families, review ordering, and renderer inputs should start to gather around a `PolicyFinding`-like concept. `DetectedSignal` and `NormalizedEvidence` can remain later work.
+
 Focus:
 
-- separate ecosystem detection from policy decisions
-- keep Markdown rendering out of scanner logic
-- introduce a reason-code registry
-- centralize classification criteria
-- make renderers consume `PolicyFinding`-like data
+- introduce a thin `PolicyFinding`-like intermediate concept
+- make reason codes and command families feed that concept
+- make renderers consume policy-decision data where practical
+- keep Markdown rendering from gaining new policy rules
+- centralize classification criteria before adding more command families
 - reduce duplicated rule strings where practical
 - preserve behavior-evaluation evidence when refactoring policy internals
 
@@ -303,19 +305,29 @@ Do Not:
 
 Completion criteria:
 
-- Adding an ecosystem rule does not require changing Markdown rendering.
-- Reason codes are not duplicated casually.
-- Ask First and Do Not classifications are consistent.
-- Tests can target policy findings, not only rendered strings.
+- `PolicyFinding` or an equivalent thin structure exists in code and is used by at least one generated policy path.
+- Adding a command-family classification does not require adding a parallel Markdown-only rule.
+- Reason codes and command families are not duplicated casually.
+- Ask First and Do Not classifications stay consistent across `scan_result.json` and `command_policy.md`.
+- Tests can target policy-decision data for the migrated path, not only rendered strings.
 - Self-use observations continue to explain why a policy-hardening slice changes, constrains, or relaxes an agent's next command.
 
 Do not add custom policy DSLs, plugin systems, or organization policy management here.
 
-## v0.5: High-Confidence Behavior Depth
+## v0.5: Evidence Normalization
 
 Purpose:
 
-Deepen the scenarios where behavior evidence shows Habitat changes an agent's next command, instead of adding broad new domains.
+Move from raw project signals toward normalized evidence that can support deeper high-confidence behavior scenarios without making the scanner or renderer own policy interpretation.
+
+This is where the broader `DetectedSignal -> NormalizedEvidence` part of the target flow should become real. Keep it tied to scenarios where behavior evidence shows Habitat changes an agent's next command, instead of adding broad new domains.
+
+Focus:
+
+- normalize selected package-manager, runtime, missing-tool, symlink, and secret-bearing-file signals
+- keep normalized evidence value-safe; do not read or emit secrets
+- make policy decisions consume normalized evidence rather than scattered scanner facts where practical
+- deepen high-confidence scenarios only when the evidence shape is clear
 
 Priority areas:
 
@@ -345,6 +357,8 @@ Package-manager version metadata may be added when it affects policy. Avoid addi
 
 Completion criteria:
 
+- Normalized evidence exists for at least one high-confidence scenario.
+- Policy decisions in that scenario no longer depend on renderer-local interpretation of raw project signals.
 - At least one self-use or behavior-evaluation finding explains why each depth change matters.
 - Existing ecosystem ambiguity does not produce overconfident guidance.
 - Lockfile conflict wording is stable.
@@ -353,22 +367,22 @@ Completion criteria:
 
 Do not add broad Docker, Terraform, Kubernetes, full Homebrew, or global package inventory scope.
 
-## v0.6: Previous Scan Intelligence
+## v0.6: Agent Behavior Feedback Loop
 
 Purpose:
 
-Turn previous-scan comparison into a concise command-decision signal.
+Make the self-use and behavior-evaluation loop more repeatable, so policy and evidence changes are judged by whether they improve an agent's next command.
 
-This phase is optional until behavior evidence shows previous-scan deltas would change agent command choice. Do not implement it just because it is interesting.
+Previous-scan intelligence belongs here only when behavior evidence shows a concise delta would change agent command choice. Do not implement more comparison detail just because it is interesting.
 
 Focus:
 
-- emphasize preferred-command changes
-- show policy risk transitions briefly
-- show secret-bearing file signal deltas without values
-- show newly relevant missing tools
-- keep detailed deltas in `environment_report.md`
-- keep `agent_context.md` limited to command-changing drift
+- keep sanitized behavior fixtures small and scenario-based
+- use Nenrin observations to decide whether doc, skill, or policy changes should be kept, narrowed, merged, or removed
+- connect each behavior finding to a policy, evidence, test, or documentation change
+- preserve the risk-aware verdict scale without turning it into a broad benchmark
+- surface previous-scan deltas only when they are command-changing
+- keep `agent_context.md` limited to the next-command decision
 
 Good deltas:
 
@@ -390,18 +404,19 @@ Detected file count changed from 184 to 187.
 
 Completion criteria:
 
-- Previous-scan notes do not make `agent_context.md` noisy.
+- Behavior observations have a repeatable path back into policy, evidence, tests, or docs.
+- Self-use findings distinguish improvements from over-constraint and misunderstanding.
+- Previous-scan notes, when used, do not make `agent_context.md` noisy.
 - Only command-changing deltas appear in agent-facing output.
-- Policy risk transitions are explainable.
 - Secret-bearing file deltas never expose values.
 
-Do not build a full diff viewer, Git history analyzer, project timeline, or changed-file dashboard.
+Do not build a large multi-LLM benchmark, full diff viewer, Git history analyzer, project timeline, or changed-file dashboard.
 
-## v0.7: Read-Only Agent Integrations
+## v0.7: Integration and Distribution Foundations
 
 Purpose:
 
-Make Habitat easier for agent workflows to consume while preserving the advisory, read-only boundary.
+Make Habitat easier for agent workflows to consume and obtain while preserving the advisory, read-only boundary.
 
 Candidate work:
 
@@ -410,6 +425,8 @@ Candidate work:
 - limited `--format` modes
 - more stable machine-readable policy output
 - setup guide for agent workflows
+- release install guidance that models Habitat's own caution around remote scripts
+- checksum verification in the default install path
 - minimal read-only MCP prototype, if the CLI contract is mature enough
 
 Possible read-only MCP surface:
@@ -433,12 +450,13 @@ Completion criteria:
 - Agent workflows can read Habitat output without awkward file plumbing.
 - Read-only boundaries are preserved.
 - Integration docs repeat that policy is advisory, not enforcement.
+- Users can obtain the preview without install instructions contradicting the product's command policy philosophy.
 
-## v0.8: Distribution and Trust
+## v0.8: Release Trust Hardening
 
 Purpose:
 
-Make the tool easy to obtain without contradicting its own safety model.
+Make releases easier to trust, compare, and upgrade without broadening the product surface.
 
 Focus:
 
