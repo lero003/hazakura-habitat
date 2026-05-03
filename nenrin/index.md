@@ -2,11 +2,12 @@
 
 ## Active Summary
 
-- observing: 7
+- observing: 8
 - reviewed: 3
 
 ## Active Changes
 
+- `policy-command-family-wrapper` - [changes/2026-05-04-policy-command-family-wrapper.md](changes/2026-05-04-policy-command-family-wrapper.md)
 - `host-private-command-family` - [changes/2026-05-04-host-private-command-family.md](changes/2026-05-04-host-private-command-family.md)
 - `local-git-workspace-command-family` - [changes/2026-05-03-local-git-workspace-command-family.md](changes/2026-05-03-local-git-workspace-command-family.md)
 - `package-manager-credential-command-family` - [changes/2026-05-03-package-manager-credential-command-family.md](changes/2026-05-03-package-manager-credential-command-family.md)

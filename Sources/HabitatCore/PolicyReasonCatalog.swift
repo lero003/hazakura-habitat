@@ -11,6 +11,20 @@ public struct PolicyReasonCode: Codable, Equatable, Sendable {
 }
 
 enum PolicyReasonCatalog {
+    private struct CommandFamily: Sendable {
+        let commands: [String]
+        private let commandSet: Set<String>
+
+        init(_ commands: [String]) {
+            self.commands = commands
+            self.commandSet = Set(commands)
+        }
+
+        func contains(_ command: String) -> Bool {
+            commandSet.contains(command)
+        }
+    }
+
     private struct ReasonRule: Sendable {
         let reasonCode: ReasonCode
         let matches: @Sendable (String) -> Bool
@@ -94,7 +108,7 @@ enum PolicyReasonCatalog {
     }
 
     private static let orderedReasonCodes: [PolicyReasonCode] = ReasonCode.allCases.map(\.reason)
-    static let localGitWorkspaceMutationCommands = [
+    private static let localGitWorkspaceMutationCommandFamily = CommandFamily([
         "git clean",
         "git reset --hard",
         "git checkout",
@@ -157,9 +171,9 @@ enum PolicyReasonCatalog {
         "git push --tags",
         "git push <remote> +<ref>",
         "git push <remote> :<ref>",
-    ]
-    private static let localGitWorkspaceMutationCommandSet = Set(localGitWorkspaceMutationCommands)
-    static let gitHubCliMutationCommands = [
+    ])
+    static let localGitWorkspaceMutationCommands = localGitWorkspaceMutationCommandFamily.commands
+    private static let gitHubCliMutationCommandFamily = CommandFamily([
         "gh pr checkout",
         "gh pr create",
         "gh pr edit",
@@ -198,19 +212,19 @@ enum PolicyReasonCatalog {
         "gh variable set",
         "gh variable delete",
         "gh api",
-    ]
+    ])
+    static let gitHubCliMutationCommands = gitHubCliMutationCommandFamily.commands
 
     private static let localGitHubWorkspaceMutationCommands = [
         "gh pr checkout",
         "gh repo clone",
     ]
-    private static let localGitHubWorkspaceMutationCommandSet = Set(localGitHubWorkspaceMutationCommands)
+    private static let localGitHubWorkspaceMutationCommandFamily = CommandFamily(localGitHubWorkspaceMutationCommands)
 
-    private static let remoteRepositoryActionCommands = gitHubCliMutationCommands.filter {
+    private static let remoteRepositoryActionCommandFamily = CommandFamily(gitHubCliMutationCommands.filter {
         !localGitHubWorkspaceMutationCommands.contains($0)
-    }
-    private static let remoteRepositoryActionCommandSet = Set(remoteRepositoryActionCommands)
-    static let packageRegistryMutationCommands = [
+    })
+    private static let packageRegistryMutationCommandFamily = CommandFamily([
         "npm publish",
         "npm unpublish",
         "npm deprecate",
@@ -237,8 +251,8 @@ enum PolicyReasonCatalog {
         "pod trunk push",
         "pod trunk deprecate",
         "pod trunk delete",
-    ]
-    private static let packageRegistryMutationCommandSet = Set(packageRegistryMutationCommands)
+    ])
+    static let packageRegistryMutationCommands = packageRegistryMutationCommandFamily.commands
     static let npmEphemeralPackageExecutionCommands = [
         "npm exec",
         "npx",
@@ -263,8 +277,8 @@ enum PolicyReasonCatalog {
         + yarnEphemeralPackageExecutionCommands
         + bunEphemeralPackageExecutionCommands
         + pythonEphemeralPackageExecutionCommands
-    private static let ephemeralPackageExecutionCommandSet = Set(ephemeralPackageExecutionCommands)
-    static let cliAuthAndCredentialStoreCommands = [
+    private static let ephemeralPackageExecutionCommandFamily = CommandFamily(ephemeralPackageExecutionCommands)
+    private static let cliAuthAndCredentialStoreCommandFamily = CommandFamily([
         "gh auth token",
         "gh auth status --show-token",
         "gh auth status -t",
@@ -282,9 +296,9 @@ enum PolicyReasonCatalog {
         "security find-internet-password -w",
         "security dump-keychain",
         "security export",
-    ]
-    private static let cliAuthAndCredentialStoreCommandSet = Set(cliAuthAndCredentialStoreCommands)
-    static let packageManagerCredentialAndConfigCommands = [
+    ])
+    static let cliAuthAndCredentialStoreCommands = cliAuthAndCredentialStoreCommandFamily.commands
+    private static let packageManagerCredentialAndConfigCommandFamily = CommandFamily([
         "pip config list",
         "pip3 config list",
         "python -m pip config list",
@@ -351,9 +365,9 @@ enum PolicyReasonCatalog {
         "cargo logout",
         "pod trunk register",
         "pod trunk me",
-    ]
-    private static let packageManagerCredentialAndConfigCommandSet = Set(packageManagerCredentialAndConfigCommands)
-    static let cloudAndContainerCredentialCommands = [
+    ])
+    static let packageManagerCredentialAndConfigCommands = packageManagerCredentialAndConfigCommandFamily.commands
+    private static let cloudAndContainerCredentialCommandFamily = CommandFamily([
         "read local cloud and container credential files",
         "cat ~/.aws/credentials",
         "less ~/.aws/credentials",
@@ -417,9 +431,9 @@ enum PolicyReasonCatalog {
         "kubectl config unset",
         "kubectl config delete-user",
         "kubectl create token",
-    ]
-    private static let cloudAndContainerCredentialCommandSet = Set(cloudAndContainerCredentialCommands)
-    static let hostPrivateDataCommands = [
+    ])
+    static let cloudAndContainerCredentialCommands = cloudAndContainerCredentialCommandFamily.commands
+    private static let hostPrivateDataCommandFamily = CommandFamily([
         "dump environment variables",
         "env",
         "printenv",
@@ -500,8 +514,8 @@ enum PolicyReasonCatalog {
         "cp -R ~/Library/Mail <destination>",
         "rsync -a ~/Library/Mail <destination>",
         "tar -czf <archive> ~/Library/Mail",
-    ]
-    private static let hostPrivateDataCommandSet = Set(hostPrivateDataCommands)
+    ])
+    static let hostPrivateDataCommands = hostPrivateDataCommandFamily.commands
 
     private static let askFirstReasonRules: [ReasonRule] = [
         .init(reasonCode: .projectPathUnverified) { $0 == "running project commands before project path is verified" },
@@ -578,8 +592,8 @@ enum PolicyReasonCatalog {
     }
 
     static func isGitOrGitHubMutationGuard(_ command: String) -> Bool {
-        localGitWorkspaceMutationCommandSet.contains(command)
-            || localGitHubWorkspaceMutationCommandSet.contains(command)
+        localGitWorkspaceMutationCommandFamily.contains(command)
+            || localGitHubWorkspaceMutationCommandFamily.contains(command)
     }
 
     static func isGitOrGitHubPolicyGuard(_ command: String) -> Bool {
@@ -588,7 +602,7 @@ enum PolicyReasonCatalog {
     }
 
     private static func isRemoteRepositoryActionCommand(_ command: String) -> Bool {
-        remoteRepositoryActionCommandSet.contains(command)
+        remoteRepositoryActionCommandFamily.contains(command)
     }
 
     private static func commandReason(
@@ -615,15 +629,15 @@ enum PolicyReasonCatalog {
     }
 
     private static func isEphemeralPackageExecutionCommand(_ command: String) -> Bool {
-        ephemeralPackageExecutionCommandSet.contains(command)
+        ephemeralPackageExecutionCommandFamily.contains(command)
     }
 
     private static func isPackageRegistryMutationCommand(_ command: String) -> Bool {
-        packageRegistryMutationCommandSet.contains(command)
+        packageRegistryMutationCommandFamily.contains(command)
     }
 
     private static func isHostPrivateDataCommand(_ command: String) -> Bool {
-        hostPrivateDataCommandSet.contains(command)
+        hostPrivateDataCommandFamily.contains(command)
     }
 
     private static func isSecretOrCredentialCommand(_ command: String) -> Bool {
@@ -686,13 +700,13 @@ enum PolicyReasonCatalog {
     }
 
     private static func isCredentialOrAuthSessionCommand(_ command: String) -> Bool {
-        if cliAuthAndCredentialStoreCommandSet.contains(command) {
+        if cliAuthAndCredentialStoreCommandFamily.contains(command) {
             return true
         }
-        if packageManagerCredentialAndConfigCommandSet.contains(command) {
+        if packageManagerCredentialAndConfigCommandFamily.contains(command) {
             return true
         }
-        if cloudAndContainerCredentialCommandSet.contains(command) {
+        if cloudAndContainerCredentialCommandFamily.contains(command) {
             return true
         }
 
