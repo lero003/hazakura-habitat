@@ -2,8 +2,8 @@
 type: nenrin_change
 id: policy-reason-rule-tables
 date: 2026-05-03
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog.swift
   - docs/current_status.md
@@ -48,4 +48,4 @@ The v0.3 self-use scan produced a long advisory command policy where reason code
 
 ## Result
 
-Unjudged.
+Kept. Three related observations showed later reason-code changes staying localized to catalog tables while generated output and renderer behavior remained stable.

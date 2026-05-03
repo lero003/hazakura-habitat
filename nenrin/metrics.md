@@ -8,11 +8,13 @@
 
 ## Status
 
-- observing: 5
+- observing: 2
+- reviewed: 3
 
 ## Change Impact
 
-- unknown: 5
+- effective: 3
+- unknown: 2
 
 ## Observation Impact Judgment
 
@@ -25,13 +27,8 @@
 
 ## Recurring Failure Signals
 
-- `index_missing_active_record_links`: 1
+- None
 
 ## Suggested Actions
 
-- Keep active index links observing until review; latest self-use again avoided discovery search.
-- Prefer structured policy metadata in renderers where it reduces reason-code recomputation.
-- Keep policy reason rule tables observing; verify future changes stay behavior-preserving unless evidence calls for output changes.
-- Keep the centralized GitHub CLI command family if future additions stay localized.
-- Observe whether `package_registry_mutation` improves long-policy explanations without bloating short context.
-- Observe whether `remote_repository_action` improves GitHub CLI approval explanations without weakening Ask First behavior.
+- None

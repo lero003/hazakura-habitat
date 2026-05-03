@@ -2,8 +2,8 @@
 type: nenrin_change
 id: nenrin-active-index-links
 date: 2026-05-03
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - nenrin/index.md
   - nenrin/metrics.md
@@ -48,4 +48,4 @@ The previous index said one change was observing, but did not name the change or
 
 ## Result
 
-Unjudged.
+Kept. Later self-use runs used the active links directly and avoided repository-wide discovery searches just to find active Nenrin records.

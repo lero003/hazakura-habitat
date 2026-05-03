@@ -2,8 +2,8 @@
 type: nenrin_change
 id: habitat-nenrin-self-use
 date: 2026-05-03
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - docs/development_loop.md
   - docs/self_use.md
@@ -54,4 +54,4 @@ Habitat already relies on self-use evidence, but its agent-facing workflow impro
 
 ## Result
 
-Unjudged.
+Kept. Six related observations showed that the ledger changed context-gathering order, narrowed cleanup choices, and produced reviewable evidence instead of more permanent workflow wording.
