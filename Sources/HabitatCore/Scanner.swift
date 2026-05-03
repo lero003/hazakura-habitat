@@ -627,29 +627,13 @@ public struct HabitatScanner {
             "pip3 cache remove",
             "python -m pip cache remove",
             "python3 -m pip cache remove",
-            "npm install",
-            "npm ci",
-            "npm update",
-            "npm uninstall",
-            "npm remove",
-            "npm rm",
+        ] + PolicyReasonCatalog.npmDependencyMutationCommands + [
         ] + PolicyReasonCatalog.npmEphemeralPackageExecutionCommands + [
-            "pnpm install",
-            "pnpm add",
-            "pnpm update",
-            "pnpm remove",
-            "pnpm rm",
-            "pnpm uninstall",
+        ] + PolicyReasonCatalog.pnpmDependencyMutationCommands + [
         ] + PolicyReasonCatalog.pnpmEphemeralPackageExecutionCommands + [
-            "yarn install",
-            "yarn add",
-            "yarn up",
-            "yarn remove",
+        ] + PolicyReasonCatalog.yarnDependencyMutationCommands + [
         ] + PolicyReasonCatalog.yarnEphemeralPackageExecutionCommands + [
-            "bun install",
-            "bun add",
-            "bun update",
-            "bun remove",
+        ] + PolicyReasonCatalog.bunDependencyMutationCommands + [
         ] + PolicyReasonCatalog.bunEphemeralPackageExecutionCommands
             + PolicyReasonCatalog.packageRegistryMutationCommands + [
             "corepack enable",

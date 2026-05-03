@@ -171,6 +171,16 @@ struct HabitatCoreTests {
         for command in PolicyReasonCatalog.swiftPackageDependencyResolutionCommands {
             #expect(PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_resolution_mutation")
         }
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "npm") == PolicyReasonCatalog.npmDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "pnpm") == PolicyReasonCatalog.pnpmDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "yarn") == PolicyReasonCatalog.yarnDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "bun") == PolicyReasonCatalog.bunDependencyMutationCommands)
+        for command in PolicyReasonCatalog.npmDependencyMutationCommands
+            + PolicyReasonCatalog.pnpmDependencyMutationCommands
+            + PolicyReasonCatalog.yarnDependencyMutationCommands
+            + PolicyReasonCatalog.bunDependencyMutationCommands {
+            #expect(PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_mutation")
+        }
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "homebrew") == [
             "brew bundle",
             "brew bundle install",
