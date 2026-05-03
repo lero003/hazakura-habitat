@@ -1385,6 +1385,7 @@ struct HabitatCoreTests {
         let firstOrder = PolicyReasonCatalog.legend(
             askFirstCommands: [
                 "pnpm install",
+                "corepack enable",
                 "swift package update",
                 "running pnpm commands before pnpm is available",
                 "npx",
@@ -1400,6 +1401,7 @@ struct HabitatCoreTests {
             askFirstCommands: [
                 "running pnpm commands before pnpm is available",
                 "swift package update",
+                "corepack enable",
                 "pnpm install",
                 "npx",
             ],
@@ -1412,6 +1414,7 @@ struct HabitatCoreTests {
 
         let expectedOrder = [
             "missing_tool",
+            "package_manager_activation",
             "dependency_resolution_mutation",
             "dependency_mutation",
             "ephemeral_package_execution",
@@ -3228,25 +3231,21 @@ struct HabitatCoreTests {
         ])
 
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
-        let commands = [
-            "corepack enable",
-            "corepack disable",
-            "corepack prepare",
-            "corepack install",
-            "corepack use",
-            "corepack up",
-        ]
+        let commands = PolicyReasonCatalog.corepackPackageManagerActivationCommands
 
         for command in commands {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
         }
+        #expect(PolicyReasonCatalog.askFirstReason(for: "corepack enable").code == "package_manager_activation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "corepack install").code == "package_manager_activation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "corepack use").code == "package_manager_activation")
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
         for command in commands {
-            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+            #expect(policy.contains("`\(command)` (`package_manager_activation`)"), "Expected command_policy.md to include \(command) with package-manager activation reason")
         }
     }
 

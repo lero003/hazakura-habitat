@@ -11,7 +11,7 @@
 - Ask before `pnpm install`.
 - Ask before `npm install` because `package-lock.json` is also present.
 - Ask before modifying lockfiles.
-- Ask before `corepack enable`, `corepack prepare`, or package-manager shim changes.
+- Ask before `corepack enable`, `corepack prepare`, or package-manager activation that may change shims, fetched package-manager versions, or project metadata.
 
 ## Do Not
 - Do not silently switch to npm.

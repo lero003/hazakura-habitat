@@ -7,6 +7,7 @@
 - Added a project-local Nenrin improvement observation ledger and connected it to the Habitat self-use development loop.
 - Updated post-`v0.3.0` development guidance to keep automation focused on small self-use observation loops that feed policy, evidence, and documentation improvements before broad feature expansion.
 - Centralized JavaScript package-manager dependency-mutation command families used by generated Ask First policy and selected review ordering, preserving command lists while classifying `yarn up` as `dependency_mutation`.
+- Centralized Corepack package-manager activation commands and annotated them with `package_manager_activation` instead of generic approval metadata.
 
 ## v0.3.0 Developer Preview - 2026-05-03
 

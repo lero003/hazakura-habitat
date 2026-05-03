@@ -635,13 +635,8 @@ public struct HabitatScanner {
         ] + PolicyReasonCatalog.yarnEphemeralPackageExecutionCommands + [
         ] + PolicyReasonCatalog.bunDependencyMutationCommands + [
         ] + PolicyReasonCatalog.bunEphemeralPackageExecutionCommands
-            + PolicyReasonCatalog.packageRegistryMutationCommands + [
-            "corepack enable",
-            "corepack disable",
-            "corepack prepare",
-            "corepack install",
-            "corepack use",
-            "corepack up",
+            + PolicyReasonCatalog.packageRegistryMutationCommands
+            + PolicyReasonCatalog.corepackPackageManagerActivationCommands + [
             "uv sync",
             "uv add",
             "uv remove",

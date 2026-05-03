@@ -241,6 +241,9 @@ Ask First:
 - `corepack install`
 - `corepack use`
 - `corepack up`
+
+Corepack entries should use `package_manager_activation`, because they can change package-manager shims, fetch package-manager versions, or mutate project package-manager metadata. They should not fall back to generic approval metadata.
+
 - `uv sync`
 - `uv add`
 - `uv remove`

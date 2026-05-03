@@ -37,6 +37,7 @@ enum PolicyReasonCatalog {
         case developerDirectoryUnverified = "developer_directory_unverified"
         case runtimeVersionMismatch = "runtime_version_mismatch"
         case packageManagerVersionMismatch = "package_manager_version_mismatch"
+        case packageManagerActivation = "package_manager_activation"
         case dependencySignalConflict = "dependency_signal_conflict"
         case symlinkTargetReview = "symlink_target_review"
         case dependencyResolutionMutation = "dependency_resolution_mutation"
@@ -69,6 +70,8 @@ enum PolicyReasonCatalog {
                 return .init(code: rawValue, text: "Active runtime differs from project version hints.")
             case .packageManagerVersionMismatch:
                 return .init(code: rawValue, text: "Package-manager version guidance is not yet verified.")
+            case .packageManagerActivation:
+                return .init(code: rawValue, text: "Package-manager activation can change shims, fetch package-manager versions, or mutate project metadata.")
             case .dependencySignalConflict:
                 return .init(code: rawValue, text: "Project dependency signals need review before mutation.")
             case .symlinkTargetReview:
@@ -290,6 +293,15 @@ enum PolicyReasonCatalog {
         "bun remove",
     ])
     static let bunDependencyMutationCommands = bunDependencyMutationCommandFamily.commands
+    private static let corepackPackageManagerActivationCommandFamily = CommandFamily([
+        "corepack enable",
+        "corepack disable",
+        "corepack prepare",
+        "corepack install",
+        "corepack use",
+        "corepack up",
+    ])
+    static let corepackPackageManagerActivationCommands = corepackPackageManagerActivationCommandFamily.commands
     static let npmEphemeralPackageExecutionCommands = [
         "npm exec",
         "npx",
@@ -609,6 +621,7 @@ enum PolicyReasonCatalog {
         .init(reasonCode: .remoteRepositoryAction) { isRemoteRepositoryActionCommand($0) },
         .init(reasonCode: .gitMutation) { isGitOrGitHubMutationGuard($0) },
         .init(reasonCode: .packageRegistryMutation) { isPackageRegistryMutationCommand($0) },
+        .init(reasonCode: .packageManagerActivation) { isPackageManagerActivationCommand($0) },
         .init(reasonCode: .dependencyMutation) { isDependencyMutationCommand($0) },
         .init(reasonCode: .ephemeralPackageExecution) { isEphemeralPackageExecutionCommand($0) },
     ]
@@ -717,6 +730,10 @@ enum PolicyReasonCatalog {
 
     private static func isPackageRegistryMutationCommand(_ command: String) -> Bool {
         packageRegistryMutationCommandFamily.contains(command)
+    }
+
+    private static func isPackageManagerActivationCommand(_ command: String) -> Bool {
+        corepackPackageManagerActivationCommandFamily.contains(command)
     }
 
     private static func isSwiftPackageDependencyResolutionCommand(_ command: String) -> Bool {

@@ -2,11 +2,12 @@
 
 ## Active Summary
 
-- observing: 11
+- observing: 12
 - reviewed: 3
 
 ## Active Changes
 
+- `corepack-package-manager-activation-reason` - [changes/2026-05-04-corepack-package-manager-activation-reason.md](changes/2026-05-04-corepack-package-manager-activation-reason.md)
 - `javascript-package-manager-mutation-command-families` - [changes/2026-05-04-javascript-package-manager-mutation-command-families.md](changes/2026-05-04-javascript-package-manager-mutation-command-families.md)
 - `swiftpm-dependency-resolution-command-family` - [changes/2026-05-04-swiftpm-dependency-resolution-command-family.md](changes/2026-05-04-swiftpm-dependency-resolution-command-family.md)
 - `package-manager-mutation-review-map` - [changes/2026-05-04-package-manager-mutation-review-map.md](changes/2026-05-04-package-manager-mutation-review-map.md)
