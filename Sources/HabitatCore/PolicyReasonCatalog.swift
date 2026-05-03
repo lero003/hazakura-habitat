@@ -29,6 +29,7 @@ enum PolicyReasonCatalog {
         case versionManagerMutation = "version_manager_mutation"
         case gitMutation = "git_mutation"
         case dependencyMutation = "dependency_mutation"
+        case packageRegistryMutation = "package_registry_mutation"
         case ephemeralPackageExecution = "ephemeral_package_execution"
         case userApprovalRequired = "user_approval_required"
         case privilegedCommand = "privileged_command"
@@ -65,6 +66,8 @@ enum PolicyReasonCatalog {
                 return .init(code: rawValue, text: "Git/GitHub mutation can change workspace, history, branches, or remotes.")
             case .dependencyMutation:
                 return .init(code: rawValue, text: "Dependency install, update, or removal can mutate project state.")
+            case .packageRegistryMutation:
+                return .init(code: rawValue, text: "Package registry publication or metadata changes affect external package state.")
             case .ephemeralPackageExecution:
                 return .init(code: rawValue, text: "Ephemeral package execution can fetch or run unpinned code outside the selected workflow.")
             case .userApprovalRequired:
@@ -102,6 +105,7 @@ enum PolicyReasonCatalog {
         .init(reasonCode: .versionManagerMutation) { $0 == "modifying version manager files" },
         .init(reasonCode: .dependencyResolutionMutation) { $0 == "swift package update" || $0 == "swift package resolve" },
         .init(reasonCode: .gitMutation) { isGitOrGitHubMutationGuard($0) },
+        .init(reasonCode: .packageRegistryMutation) { isPackageRegistryMutationCommand($0) },
         .init(reasonCode: .dependencyMutation) { isDependencyMutationCommand($0) },
         .init(reasonCode: .ephemeralPackageExecution) { isEphemeralPackageExecutionCommand($0) },
     ]
@@ -199,6 +203,37 @@ enum PolicyReasonCatalog {
             "uv tool run",
             "pipx run",
             "pipx runpip",
+        ].contains(command)
+    }
+
+    private static func isPackageRegistryMutationCommand(_ command: String) -> Bool {
+        [
+            "npm publish",
+            "npm unpublish",
+            "npm deprecate",
+            "npm dist-tag",
+            "npm owner",
+            "npm access",
+            "npm team",
+            "pnpm publish",
+            "yarn publish",
+            "yarn npm publish",
+            "bun publish",
+            "uv publish",
+            "twine upload",
+            "python -m twine upload",
+            "python3 -m twine upload",
+            "gem push",
+            "gem yank",
+            "gem owner",
+            "cargo publish",
+            "cargo yank",
+            "cargo owner",
+            "pod trunk add-owner",
+            "pod trunk remove-owner",
+            "pod trunk push",
+            "pod trunk deprecate",
+            "pod trunk delete",
         ].contains(command)
     }
 

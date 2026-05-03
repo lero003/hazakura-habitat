@@ -2554,6 +2554,10 @@ struct HabitatCoreTests {
         for command in commands {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
         }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in commands {
+            #expect(commandReasonCodes[command] == "package_registry_mutation", "Expected \(command) to explain external package registry mutation risk")
+        }
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -2561,6 +2565,7 @@ struct HabitatCoreTests {
 
         for command in commands {
             #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+            #expect(policy.contains("`\(command)` (`package_registry_mutation`)"), "Expected command_policy.md to annotate \(command) with package_registry_mutation")
         }
     }
 
@@ -2584,6 +2589,10 @@ struct HabitatCoreTests {
         for command in commands {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
         }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in commands {
+            #expect(commandReasonCodes[command] == "package_registry_mutation", "Expected \(command) to explain external package registry mutation risk")
+        }
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -2591,6 +2600,7 @@ struct HabitatCoreTests {
 
         for command in commands {
             #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+            #expect(policy.contains("`\(command)` (`package_registry_mutation`)"), "Expected command_policy.md to annotate \(command) with package_registry_mutation")
         }
     }
 

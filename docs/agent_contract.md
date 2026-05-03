@@ -141,6 +141,7 @@ When `Review First` repeats the highest-priority Ask First commands, each entry 
 `Reason Codes` should list only codes that appear in the generated policy and explain why those command families are conservative.
 The full `Ask First` and `Forbidden` lists should annotate each command with the same stable reason code family, while leaving detailed reason text in `Review First`, `Reason Codes`, and `scan_result.json`.
 Ephemeral package execution commands such as `npx`, `npm exec`, `pnpm dlx`, `yarn dlx`, `bunx`, `uvx`, `uv tool run`, `pipx run`, and `pipx runpip` should use `ephemeral_package_execution` instead of the generic approval reason, because they can fetch or run unpinned code outside the selected workflow.
+Package publication and registry metadata mutation commands such as `npm publish`, `npm dist-tag`, `gem yank`, `cargo owner`, and `pod trunk push` should use `package_registry_mutation` instead of generic dependency or approval reasons, because they mutate external package registry state.
 
 Ask First:
 
@@ -830,6 +831,7 @@ Compatibility:
 - `policy.reasonCodes` should be emitted in the fixed catalog order, filtered to codes present in the generated policy, so metadata diffs do not depend on command list ordering.
 - `policy.commandCounts` records the number of preferred, Ask First, Review First, Forbidden, and reason-annotated commands so agents can estimate policy size, short approval-checklist size, and reason coverage before reading a long `command_policy.md`. Older `0.x` scans may omit it; consumers can derive counts from the command arrays and `reviewFirstCommandReasons`.
 - `policy.commandReasons` records per-command `classification`, `reasonCode`, and `reason` metadata for generated Ask First and Forbidden commands. Keep it additive to the existing command arrays so agents can explain a command decision without parsing Markdown.
+- Package publication and registry metadata mutation commands should use `package_registry_mutation` rather than generic dependency or approval metadata, so agents can explain that the approval point is external package-state mutation.
 - Package registry auth, CLI auth-session, credential-helper, cloud/container auth, and package-manager config forbids should use `secret_or_credential_access` rather than generic unsafe-command metadata, so agents can explain that the refusal is about credential/session exposure or mutation.
 - `policy.reviewFirstCommandReasons` records the same highest-priority Ask First commands rendered in `command_policy.md` `Review First`, including `classification`, `reasonCode`, and `reason`. Use it when a machine consumer needs the short approval checklist without parsing Markdown. Older `0.x` scans may omit it; consumers can fall back to `commandReasons` or `askFirstCommands`.
 - Generate Markdown from this JSON when possible.
