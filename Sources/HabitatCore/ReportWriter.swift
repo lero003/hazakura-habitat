@@ -494,6 +494,7 @@ public struct ReportWriter {
             let hiddenCount = commands.count - limit
             let reasonSuffix = hiddenAskFirstReasonSuffix(
                 for: hiddenCommands,
+                result: result,
                 gitGuardsSummarized: hiddenGitGuardsSummarized
             )
             lines.append("- \(hiddenCount) additional Ask First commands or command families in `command_policy.md`\(reasonSuffix).")
@@ -510,14 +511,19 @@ public struct ReportWriter {
         return "- Ask before `\(command)`."
     }
 
-    private func hiddenAskFirstReasonSuffix(for commands: [String], gitGuardsSummarized: Bool) -> String {
+    private func hiddenAskFirstReasonSuffix(
+        for commands: [String],
+        result: ScanResult,
+        gitGuardsSummarized: Bool
+    ) -> String {
         let commandsForReasonSummary = gitGuardsSummarized
             ? commands.filter { !PolicyReasonCatalog.isGitOrGitHubMutationGuard($0) }
             : commands
-        let reasonCodes = PolicyReasonCatalog.legend(
-            askFirstCommands: commandsForReasonSummary,
-            forbiddenCommands: []
-        ).map(\.code)
+        let reasonCodes = structuredPolicyReasonCodes(
+            for: commandsForReasonSummary,
+            classification: PolicyCommandReason.askFirstClassification,
+            result: result
+        )
         guard !reasonCodes.isEmpty else {
             return gitGuardsSummarized ? " (Git/GitHub guards summarized above)" : ""
         }
@@ -525,6 +531,54 @@ public struct ReportWriter {
         let overflow = reasonCodes.count > 3 ? ", more" : ""
         let label = gitGuardsSummarized ? "other reason codes" : "reason codes"
         return " (\(label): \(summarizedCodes)\(overflow))"
+    }
+
+    private func structuredPolicyReasonCodes(
+        for commands: [String],
+        classification: String,
+        result: ScanResult
+    ) -> [String] {
+        let commandSet = Set(commands)
+        let matchingReasons = result.policy.commandReasons.filter {
+            commandSet.contains($0.command) && $0.classification == classification
+        }
+
+        guard !matchingReasons.isEmpty else {
+            if classification == PolicyCommandReason.askFirstClassification {
+                return PolicyReasonCatalog.legend(
+                    askFirstCommands: commands,
+                    forbiddenCommands: []
+                ).map(\.code)
+            }
+
+            if classification == PolicyCommandReason.forbiddenClassification {
+                return PolicyReasonCatalog.legend(
+                    askFirstCommands: [],
+                    forbiddenCommands: commands
+                ).map(\.code)
+            }
+
+            return []
+        }
+
+        let usedCodes = Set(matchingReasons.map(\.reasonCode))
+        let orderedCodes = result.policy.reasonCodes
+            .map(\.code)
+            .filter { usedCodes.contains($0) }
+        let catalogCodes = orderedCodes.isEmpty
+            ? PolicyReasonCatalog.legend(
+                askFirstCommands: classification == PolicyCommandReason.askFirstClassification ? commands : [],
+                forbiddenCommands: classification == PolicyCommandReason.forbiddenClassification ? commands : []
+            ).map(\.code).filter { usedCodes.contains($0) }
+            : orderedCodes
+        let extraCodes = matchingReasons.map(\.reasonCode).filter { !catalogCodes.contains($0) }
+
+        return catalogCodes + uniquePreservingOrder(extraCodes)
+    }
+
+    private func uniquePreservingOrder(_ values: [String]) -> [String] {
+        var seen = Set<String>()
+        return values.filter { seen.insert($0).inserted }
     }
 
     private func shouldSummarizeHiddenGitMutationGuards(commands: [String], shownCommands: [String]) -> Bool {

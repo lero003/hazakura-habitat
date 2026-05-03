@@ -6643,6 +6643,79 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func agentContextOverflowUsesStructuredReasonMetadata() throws {
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let askFirstCommands = [
+            "review generated output",
+            "review snapshots",
+            "review examples",
+            "review docs",
+            "structured hidden command",
+            "another structured hidden command",
+        ]
+        let result = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(
+                operatingSystemVersion: "macOS",
+                architecture: "arm64",
+                shell: "/bin/zsh",
+                path: ["/usr/bin"]
+            ),
+            commands: [],
+            project: .init(
+                detectedFiles: ["Package.swift"],
+                packageManager: "swiftpm",
+                packageManagerVersion: nil,
+                packageScripts: [],
+                runtimeHints: .init(node: nil, python: nil)
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["swift test"],
+                askFirstCommands: askFirstCommands,
+                forbiddenCommands: ["sudo"],
+                reasonCodes: [
+                    .init(code: "visible_structured_reason", text: "Visible commands use structured metadata."),
+                    .init(code: "hidden_structured_reason", text: "Hidden commands use structured metadata."),
+                ],
+                commandReasons: askFirstCommands.prefix(4).map {
+                    .init(
+                        command: $0,
+                        classification: PolicyCommandReason.askFirstClassification,
+                        reasonCode: "visible_structured_reason",
+                        reason: "Visible commands use structured metadata."
+                    )
+                } + askFirstCommands.dropFirst(4).map {
+                    .init(
+                        command: $0,
+                        classification: PolicyCommandReason.askFirstClassification,
+                        reasonCode: "hidden_structured_reason",
+                        reason: "Hidden commands use structured metadata."
+                    )
+                } + [
+                    .init(
+                        command: "sudo",
+                        classification: PolicyCommandReason.forbiddenClassification,
+                        reasonCode: "privileged_command",
+                        reason: "Privileged commands can mutate the host outside the project."
+                    )
+                ]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        assertAgentContextContract(context)
+        #expect(context.contains("2 additional Ask First commands or command families in `command_policy.md` (reason codes: `hidden_structured_reason`)."))
+        #expect(!context.contains("2 additional Ask First commands or command families in `command_policy.md` (reason codes: `user_approval_required`)."))
+    }
+
+    @Test
     func artifactEntrySectionFallsBackWhenReviewFirstIsOmitted() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(
