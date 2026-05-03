@@ -198,6 +198,26 @@ enum PolicyReasonCatalog {
         + bunEphemeralPackageExecutionCommands
         + pythonEphemeralPackageExecutionCommands
     private static let ephemeralPackageExecutionCommandSet = Set(ephemeralPackageExecutionCommands)
+    static let cliAuthAndCredentialStoreCommands = [
+        "gh auth token",
+        "gh auth status --show-token",
+        "gh auth status -t",
+        "gh auth login",
+        "gh auth logout",
+        "gh auth refresh",
+        "gh auth setup-git",
+        "git credential fill",
+        "git credential approve",
+        "git credential reject",
+        "git credential-osxkeychain get",
+        "git credential-osxkeychain store",
+        "git credential-osxkeychain erase",
+        "security find-generic-password -w",
+        "security find-internet-password -w",
+        "security dump-keychain",
+        "security export",
+    ]
+    private static let cliAuthAndCredentialStoreCommandSet = Set(cliAuthAndCredentialStoreCommands)
 
     private static let askFirstReasonRules: [ReasonRule] = [
         .init(reasonCode: .projectPathUnverified) { $0 == "running project commands before project path is verified" },
@@ -387,6 +407,10 @@ enum PolicyReasonCatalog {
     }
 
     private static func isCredentialOrAuthSessionCommand(_ command: String) -> Bool {
+        if cliAuthAndCredentialStoreCommandSet.contains(command) {
+            return true
+        }
+
         let prefixes = [
             "npm token",
             "npm login",
@@ -409,11 +433,6 @@ enum PolicyReasonCatalog {
             "cargo logout",
             "pod trunk register",
             "pod trunk me",
-            "gh auth ",
-            "git credential",
-            "security find-",
-            "security dump-keychain",
-            "security export",
             "aws configure ",
             "aws sso ",
             "aws ecr get-login-password",
