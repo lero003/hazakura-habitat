@@ -94,6 +94,57 @@ enum PolicyReasonCatalog {
     }
 
     private static let orderedReasonCodes: [PolicyReasonCode] = ReasonCode.allCases.map(\.reason)
+    static let gitHubCliMutationCommands = [
+        "gh pr checkout",
+        "gh pr create",
+        "gh pr edit",
+        "gh pr close",
+        "gh pr reopen",
+        "gh pr merge",
+        "gh pr comment",
+        "gh pr review",
+        "gh issue create",
+        "gh issue edit",
+        "gh issue close",
+        "gh issue reopen",
+        "gh issue comment",
+        "gh repo clone",
+        "gh repo fork",
+        "gh repo edit",
+        "gh repo rename",
+        "gh repo archive",
+        "gh repo delete",
+        "gh workflow run",
+        "gh workflow enable",
+        "gh workflow disable",
+        "gh run cancel",
+        "gh run delete",
+        "gh run rerun",
+        "gh release create",
+        "gh release edit",
+        "gh release upload",
+        "gh release delete",
+        "gh release delete-asset",
+        "gh secret list",
+        "gh secret set",
+        "gh secret delete",
+        "gh variable list",
+        "gh variable get",
+        "gh variable set",
+        "gh variable delete",
+        "gh api",
+    ]
+
+    private static let localGitHubWorkspaceMutationCommands = [
+        "gh pr checkout",
+        "gh repo clone",
+    ]
+
+    private static let remoteRepositoryActionCommands = gitHubCliMutationCommands.filter {
+        !localGitHubWorkspaceMutationCommands.contains($0)
+    }
+    private static let remoteRepositoryActionCommandSet = Set(remoteRepositoryActionCommands)
+
     private static let askFirstReasonRules: [ReasonRule] = [
         .init(reasonCode: .projectPathUnverified) { $0 == "running project commands before project path is verified" },
         .init(reasonCode: .missingTool) { $0.hasPrefix("running ") && $0.contains("is available") },
@@ -174,44 +225,7 @@ enum PolicyReasonCatalog {
     }
 
     private static func isRemoteRepositoryActionCommand(_ command: String) -> Bool {
-        [
-            "gh pr create",
-            "gh pr edit",
-            "gh pr close",
-            "gh pr reopen",
-            "gh pr merge",
-            "gh pr comment",
-            "gh pr review",
-            "gh issue create",
-            "gh issue edit",
-            "gh issue close",
-            "gh issue reopen",
-            "gh issue comment",
-            "gh repo fork",
-            "gh repo edit",
-            "gh repo rename",
-            "gh repo archive",
-            "gh repo delete",
-            "gh workflow run",
-            "gh workflow enable",
-            "gh workflow disable",
-            "gh run cancel",
-            "gh run delete",
-            "gh run rerun",
-            "gh release create",
-            "gh release edit",
-            "gh release upload",
-            "gh release delete",
-            "gh release delete-asset",
-            "gh secret list",
-            "gh secret set",
-            "gh secret delete",
-            "gh variable list",
-            "gh variable get",
-            "gh variable set",
-            "gh variable delete",
-            "gh api",
-        ].contains(command)
+        remoteRepositoryActionCommandSet.contains(command)
     }
 
     private static func commandReason(
