@@ -355,6 +355,9 @@ public struct ToolVersion: Codable {
 }
 
 public struct PolicyCommandReason: Codable, Equatable {
+    public static let askFirstClassification = "ask_first"
+    public static let forbiddenClassification = "forbidden"
+
     public let command: String
     public let classification: String
     public let reasonCode: String

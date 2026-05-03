@@ -277,11 +277,11 @@ public struct ReportWriter {
             """,
             """
             ## Ask First
-            \(bulletList(askFirstCommands.map(askFirstPolicyLine), fallback: "- `dependency installation`"))
+            \(bulletList(askFirstCommands.map { askFirstPolicyLine(for: $0, result: result) }, fallback: "- `dependency installation`"))
             """,
             """
             ## Forbidden
-            \(bulletList(result.policy.forbiddenCommands.map(forbiddenPolicyLine), fallback: "- `sudo`"))
+            \(bulletList(result.policy.forbiddenCommands.map { forbiddenPolicyLine(for: $0, result: result) }, fallback: "- `sudo`"))
             """
         ])
 
@@ -362,22 +362,42 @@ public struct ReportWriter {
             .map(PolicyReasonCatalog.askFirstCommandReason)
     }
 
-    private func askFirstPolicyLine(for command: String) -> String {
-        let reason = PolicyReasonCatalog.askFirstReason(for: command)
-        return "`\(command)` (`\(reason.code)`)"
+    private func askFirstPolicyLine(for command: String, result: ScanResult) -> String {
+        let reason = policyCommandReason(
+            for: command,
+            classification: PolicyCommandReason.askFirstClassification,
+            result: result
+        ) ?? PolicyReasonCatalog.askFirstCommandReason(for: command)
+        return "`\(command)` (`\(reason.reasonCode)`)"
     }
 
-    private func forbiddenPolicyLine(for command: String) -> String {
-        let reason = PolicyReasonCatalog.forbiddenReason(for: command)
-        return "`\(command)` (`\(reason.code)`)"
+    private func forbiddenPolicyLine(for command: String, result: ScanResult) -> String {
+        let reason = policyCommandReason(
+            for: command,
+            classification: PolicyCommandReason.forbiddenClassification,
+            result: result
+        ) ?? PolicyReasonCatalog.forbiddenCommandReason(for: command)
+        return "`\(command)` (`\(reason.reasonCode)`)"
     }
 
     private func commandPolicyReasonLegend(_ result: ScanResult) -> [String] {
-        let reasons = PolicyReasonCatalog.legend(
-            askFirstCommands: prioritizedAskFirstCommands(result),
-            forbiddenCommands: result.policy.forbiddenCommands
-        )
+        let reasons = result.policy.reasonCodes.isEmpty
+            ? PolicyReasonCatalog.legend(
+                askFirstCommands: prioritizedAskFirstCommands(result),
+                forbiddenCommands: result.policy.forbiddenCommands
+            )
+            : result.policy.reasonCodes
         return reasons.map { "`\($0.code)` - \($0.text)" }
+    }
+
+    private func policyCommandReason(
+        for command: String,
+        classification: String,
+        result: ScanResult
+    ) -> PolicyCommandReason? {
+        result.policy.commandReasons.first {
+            $0.command == command && $0.classification == classification
+        }
     }
 
     private func environmentReport(_ result: ScanResult) -> String {

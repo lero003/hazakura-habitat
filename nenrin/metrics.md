@@ -3,7 +3,7 @@
 ## Summary
 
 - Change records: 2
-- Observation records: 3
+- Observation records: 4
 - Review overdue: 0
 
 ## Status
@@ -16,7 +16,7 @@
 
 ## Observation Impact Judgment
 
-- effective: 2
+- effective: 3
 - partially_effective: 1
 
 ## Review Overdue
@@ -29,4 +29,5 @@
 
 ## Suggested Actions
 
-- Keep active index links observing until review; latest self-use avoided discovery search.
+- Keep active index links observing until review; latest self-use again avoided discovery search.
+- Prefer structured policy metadata in renderers where it reduces reason-code recomputation.

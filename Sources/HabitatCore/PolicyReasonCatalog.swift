@@ -11,9 +11,6 @@ public struct PolicyReasonCode: Codable, Equatable, Sendable {
 }
 
 enum PolicyReasonCatalog {
-    private static let askFirstClassification = "ask_first"
-    private static let forbiddenClassification = "forbidden"
-
     private static let orderedReasonCodes: [PolicyReasonCode] = [
         .init(code: "project_path_unverified", text: "Verify `--project` before running project commands."),
         .init(code: "missing_tool", text: "Required project tool is missing on `PATH`."),
@@ -54,7 +51,7 @@ enum PolicyReasonCatalog {
     static func askFirstCommandReason(for command: String) -> PolicyCommandReason {
         commandReason(
             command: command,
-            classification: askFirstClassification,
+            classification: PolicyCommandReason.askFirstClassification,
             reason: askFirstReason(for: command)
         )
     }
@@ -62,7 +59,7 @@ enum PolicyReasonCatalog {
     static func forbiddenCommandReason(for command: String) -> PolicyCommandReason {
         commandReason(
             command: command,
-            classification: forbiddenClassification,
+            classification: PolicyCommandReason.forbiddenClassification,
             reason: forbiddenReason(for: command)
         )
     }

@@ -6585,6 +6585,64 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func commandPolicyMarkdownUsesStructuredReasonMetadata() throws {
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let result = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(
+                operatingSystemVersion: "macOS",
+                architecture: "arm64",
+                shell: "/bin/zsh",
+                path: ["/usr/bin"]
+            ),
+            commands: [],
+            project: .init(
+                detectedFiles: ["Package.swift"],
+                packageManager: "swiftpm",
+                packageManagerVersion: nil,
+                packageScripts: [],
+                runtimeHints: .init(node: nil, python: nil)
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["swift test"],
+                askFirstCommands: ["pnpm install"],
+                forbiddenCommands: ["sudo"],
+                reasonCodes: [
+                    .init(code: "structured_ask_first", text: "Ask-first reason supplied by scan metadata."),
+                    .init(code: "structured_forbidden", text: "Forbidden reason supplied by scan metadata."),
+                ],
+                commandReasons: [
+                    .init(
+                        command: "pnpm install",
+                        classification: PolicyCommandReason.askFirstClassification,
+                        reasonCode: "structured_ask_first",
+                        reason: "Ask-first reason supplied by scan metadata."
+                    ),
+                    .init(
+                        command: "sudo",
+                        classification: PolicyCommandReason.forbiddenClassification,
+                        reasonCode: "structured_forbidden",
+                        reason: "Forbidden reason supplied by scan metadata."
+                    ),
+                ]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        #expect(policy.contains("`structured_ask_first` - Ask-first reason supplied by scan metadata."))
+        #expect(policy.contains("`structured_forbidden` - Forbidden reason supplied by scan metadata."))
+        #expect(policy.contains("`pnpm install` (`structured_ask_first`)"))
+        #expect(policy.contains("`sudo` (`structured_forbidden`)"))
+    }
+
+    @Test
     func artifactEntrySectionFallsBackWhenReviewFirstIsOmitted() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(
