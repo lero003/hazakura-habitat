@@ -218,6 +218,75 @@ enum PolicyReasonCatalog {
         "security export",
     ]
     private static let cliAuthAndCredentialStoreCommandSet = Set(cliAuthAndCredentialStoreCommands)
+    static let packageManagerCredentialAndConfigCommands = [
+        "pip config list",
+        "pip3 config list",
+        "python -m pip config list",
+        "python3 -m pip config list",
+        "pip config get",
+        "pip3 config get",
+        "python -m pip config get",
+        "python3 -m pip config get",
+        "pip config debug",
+        "pip3 config debug",
+        "python -m pip config debug",
+        "python3 -m pip config debug",
+        "pip config set",
+        "pip3 config set",
+        "python -m pip config set",
+        "python3 -m pip config set",
+        "pip config unset",
+        "pip3 config unset",
+        "python -m pip config unset",
+        "python3 -m pip config unset",
+        "pip config edit",
+        "pip3 config edit",
+        "python -m pip config edit",
+        "python3 -m pip config edit",
+        "npm config list",
+        "npm config ls",
+        "npm config get",
+        "npm config set",
+        "npm config delete",
+        "npm config rm",
+        "npm config edit",
+        "pnpm config list",
+        "pnpm config get",
+        "pnpm config set",
+        "pnpm config delete",
+        "yarn config",
+        "yarn config list",
+        "yarn config get",
+        "yarn config set",
+        "yarn config unset",
+        "yarn config delete",
+        "npm token",
+        "npm token create",
+        "npm token list",
+        "npm token revoke",
+        "npm login",
+        "npm logout",
+        "npm adduser",
+        "npm whoami",
+        "pnpm login",
+        "pnpm logout",
+        "pnpm whoami",
+        "yarn npm login",
+        "yarn npm logout",
+        "yarn npm whoami",
+        "gem signin",
+        "gem signout",
+        "bundle config",
+        "bundle config list",
+        "bundle config get",
+        "bundle config set",
+        "bundle config unset",
+        "cargo login",
+        "cargo logout",
+        "pod trunk register",
+        "pod trunk me",
+    ]
+    private static let packageManagerCredentialAndConfigCommandSet = Set(packageManagerCredentialAndConfigCommands)
     static let cloudAndContainerCredentialCommands = [
         "read local cloud and container credential files",
         "cat ~/.aws/credentials",
@@ -474,6 +543,9 @@ enum PolicyReasonCatalog {
 
     private static func isCredentialOrAuthSessionCommand(_ command: String) -> Bool {
         if cliAuthAndCredentialStoreCommandSet.contains(command) {
+            return true
+        }
+        if packageManagerCredentialAndConfigCommandSet.contains(command) {
             return true
         }
         if cloudAndContainerCredentialCommandSet.contains(command) {

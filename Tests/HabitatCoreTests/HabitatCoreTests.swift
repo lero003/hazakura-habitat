@@ -2632,28 +2632,25 @@ struct HabitatCoreTests {
         ])
 
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
-        let commands = [
-            "npm token",
-            "npm token create",
-            "npm token list",
-            "npm token revoke",
-            "npm login",
-            "npm logout",
-            "npm adduser",
-            "npm whoami",
-            "pnpm login",
-            "pnpm logout",
-            "pnpm whoami",
-            "yarn npm login",
-            "yarn npm logout",
-            "yarn npm whoami",
-            "gem signin",
-            "gem signout",
-            "cargo login",
-            "cargo logout",
-            "pod trunk register",
-            "pod trunk me",
-        ]
+        let commands = PolicyReasonCatalog.packageManagerCredentialAndConfigCommands.filter { command in
+            command.hasPrefix("npm token")
+                || command.hasPrefix("npm login")
+                || command.hasPrefix("npm logout")
+                || command.hasPrefix("npm adduser")
+                || command.hasPrefix("npm whoami")
+                || command.hasPrefix("pnpm login")
+                || command.hasPrefix("pnpm logout")
+                || command.hasPrefix("pnpm whoami")
+                || command.hasPrefix("yarn npm login")
+                || command.hasPrefix("yarn npm logout")
+                || command.hasPrefix("yarn npm whoami")
+                || command.hasPrefix("gem signin")
+                || command.hasPrefix("gem signout")
+                || command.hasPrefix("cargo login")
+                || command.hasPrefix("cargo logout")
+                || command.hasPrefix("pod trunk register")
+                || command.hasPrefix("pod trunk me")
+        }
 
         for command in commands {
             #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
@@ -2744,25 +2741,11 @@ struct HabitatCoreTests {
         ])
 
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
-        let commands = [
-            "npm config list",
-            "npm config ls",
-            "npm config get",
-            "npm config set",
-            "npm config delete",
-            "npm config rm",
-            "npm config edit",
-            "pnpm config list",
-            "pnpm config get",
-            "pnpm config set",
-            "pnpm config delete",
-            "yarn config",
-            "yarn config list",
-            "yarn config get",
-            "yarn config set",
-            "yarn config unset",
-            "yarn config delete",
-        ]
+        let commands = PolicyReasonCatalog.packageManagerCredentialAndConfigCommands.filter { command in
+            command.hasPrefix("npm config")
+                || command.hasPrefix("pnpm config")
+                || command.hasPrefix("yarn config")
+        }
 
         for command in commands {
             #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
