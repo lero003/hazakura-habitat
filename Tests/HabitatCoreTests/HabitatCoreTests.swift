@@ -2936,6 +2936,29 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func scanExplainsHostPrivateDataCommandsWithSpecificReasonCode() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+
+        for command in PolicyReasonCatalog.hostPrivateDataCommands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+            #expect(commandReasonCodes[command] == "host_private_data", "Expected \(command) to explain host-private data risk")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in ["pbpaste", "history", "cat ~/Library/Safari/History.db", "open ~/Library/Mail"] {
+            #expect(policy.contains("`\(command)` (`host_private_data`)"), "Expected command_policy.md to annotate \(command) with host_private_data")
+        }
+    }
+
+    @Test
     func scanForbidsClipboardReadCommands() throws {
         let projectURL = try makeProject(files: [
             "README.md": "# Demo\n",
