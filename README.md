@@ -160,7 +160,7 @@ See [Public Readiness](docs/public_readiness.md) for the completed `v0.1.0` publ
 
 ## Install From Release
 
-Download `habitat-scan-macos.zip` from the latest GitHub Release, then run:
+Download `habitat-scan-macos.zip`, `habitat-scan`, and `SHA256SUMS` from the latest GitHub Release, keep them in the same directory, then run:
 
 ```bash
 shasum -c SHA256SUMS
@@ -168,7 +168,9 @@ unzip habitat-scan-macos.zip
 ./dist/habitat-scan scan --project . --output ./habitat-report
 ```
 
-`SHA256SUMS` is published with each release asset. Verification is optional, but recommended before running downloaded binaries.
+`SHA256SUMS` is published alongside the generated release assets. Verification is optional, but recommended before running downloaded binaries.
+
+The zip path is the recommended run path. The standalone `habitat-scan` asset is included so `SHA256SUMS` can verify every generated release artifact.
 
 ## Run
 

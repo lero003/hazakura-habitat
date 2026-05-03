@@ -314,13 +314,19 @@ Completion criteria:
 
 Do not add custom policy DSLs, plugin systems, or organization policy management here.
 
+Release status:
+
+- `v0.4.0 Developer Preview` was published on 2026-05-04.
+- The release intentionally shipped a thin Policy Finding Foundation, not the full evidence-normalization pipeline.
+- Further generated-output or binary behavior changes should use a transparent patch release when they need to affect the published `v0.4.x` line.
+
 ## v0.5: Evidence Normalization
 
 Purpose:
 
 Move from raw project signals toward normalized evidence that can support deeper high-confidence behavior scenarios without making the scanner or renderer own policy interpretation.
 
-This is where the broader `DetectedSignal -> NormalizedEvidence` part of the target flow should become real. Keep it tied to scenarios where behavior evidence shows Habitat changes an agent's next command, instead of adding broad new domains.
+This is where the broader `DetectedSignal -> NormalizedEvidence` part of the target flow may become real. Keep it tied to scenarios where `v0.4` self-use shows Habitat changes an agent's next command, instead of adding broad new domains or a generic evidence layer up front.
 
 Focus:
 

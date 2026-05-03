@@ -2,11 +2,12 @@
 
 ## Active Summary
 
-- observing: 14
+- observing: 15
 - reviewed: 3
 
 ## Active Changes
 
+- `post-v0-4-doc-sync` - [changes/2026-05-04-post-v0-4-doc-sync.md](changes/2026-05-04-post-v0-4-doc-sync.md)
 - `roadmap-policy-finding-foundation` - [changes/2026-05-04-roadmap-policy-finding-foundation.md](changes/2026-05-04-roadmap-policy-finding-foundation.md)
 - `policy-finding-command-reasons` - [changes/2026-05-04-policy-finding-command-reasons.md](changes/2026-05-04-policy-finding-command-reasons.md)
 - `corepack-package-manager-activation-reason` - [changes/2026-05-04-corepack-package-manager-activation-reason.md](changes/2026-05-04-corepack-package-manager-activation-reason.md)

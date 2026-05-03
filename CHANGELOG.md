@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Changed
+
+- Clarified post-`v0.4.0` documentation so the next cycle observes published PolicyFinding behavior before starting broad evidence normalization.
+- Updated release-install guidance to explain that full `SHA256SUMS` verification expects all generated release assets in the same directory.
+
 ## v0.4.0 Developer Preview - 2026-05-04
 
 Policy Finding Foundation release.

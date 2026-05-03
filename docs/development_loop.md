@@ -31,12 +31,12 @@ Keep the slice focused enough to review and revert. Avoid broad scanner expansio
 
 If a useful improvement is larger than one hour, split it at an artifact boundary: scan data first, generated guidance second, broader fixtures or ADRs third.
 
-## Post-v0.3 Automation Handoff
+## Post-v0.4 Observation Handoff
 
-Use this handoff when starting automated work after the public `v0.3.0 Developer Preview`:
+Use this handoff when starting automated work after the public `v0.4.0 Developer Preview`:
 
 ```text
-Start post-v0.3 work from the current public v0.3.0 Developer Preview. Keep released tags immutable.
+Start post-v0.4 work from the current public v0.4.0 Developer Preview. Keep released tags immutable.
 
 Focus on the self-use observation loop:
 - use Habitat during real Codex work on this repository
@@ -45,7 +45,8 @@ Focus on the self-use observation loop:
 - feed findings back into policy wording, reason-code structure, behavior evidence, tests, or docs
 - record behavior-level evidence only when it adds a new command-decision boundary, regression, over-constraint, or concrete artifact improvement
 - keep evidence sanitized; do not store raw prompts, secrets, shell history, clipboard contents, private local paths, or release credentials
-- prefer the `v0.4` Policy Finding Foundation and later evidence normalization over broad feature expansion
+- use `v0.4` PolicyFinding, reason-code, and command-reason output to decide whether a future evidence-normalization slice is actually needed
+- keep `v0.5` Evidence Normalization provisional; extract one concrete normalized-evidence shape from self-use before generalizing
 - if a code change affects generated output, update representative examples and tests in the same slice
 
 Avoid broad feature expansion:
@@ -85,9 +86,9 @@ Before substantial self-use, automation, release-prep, or docs workflow changes,
 
 Keep this loop lightweight. Nenrin is for the retrospective question: did this improvement help enough to keep, remove, merge, narrow, or move it?
 
-The post-v0.3 acceptance question is:
+The post-v0.4 acceptance question is:
 
-> Did this self-use slice reveal a concrete command-decision improvement, over-constraint, or misunderstanding that should return to policy, evidence, tests, or docs?
+> Did this self-use slice show that a specific scanner fact should become normalized evidence before it feeds `PolicyFinding`, rendered policy, tests, or docs?
 
 For search commands, evaluate the command shape, not only whether search was used. `rg <pattern>` should remain a reasonable read-only next command when no secret-bearing files are detected. When secret-bearing files are detected, the next command should become safer, such as `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc'`, or the agent should inspect `command_policy.md` before recursive search. The goal is to make exploration safer, not to ban search outright.
 
@@ -102,11 +103,11 @@ Release and phase-transition work requires an explicit user handoff:
 - cut or tag any release
 - write GitHub Release notes
 - upload or verify release artifacts
-- expand or re-scope `v0.4` beyond the Policy Finding Foundation
+- expand or re-scope `v0.5` beyond observed evidence-normalization needs
 
-Before that handoff, automation should keep changes inside the post-`v0.3` self-use observation loop.
+Before that handoff, automation should keep changes inside the post-`v0.4` self-use observation loop.
 
-Post-`v0.3` evidence may still change what should happen next. Do not assume `v0.4`, `v0.5`, or `v0.6` must happen in the current roadmap order if observed behavior points elsewhere.
+Post-`v0.4` evidence may still change what should happen next. Do not assume `v0.5`, `v0.6`, or `v0.7` must happen in the current roadmap order if observed behavior points elsewhere.
 
 ## Definition of Done
 

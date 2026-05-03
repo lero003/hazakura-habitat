@@ -2,13 +2,13 @@
 
 ## Current Phase
 
-CLI MVP is usable. The project is now at the `v0.4.0 Developer Preview` Policy Finding Foundation.
+CLI MVP is usable. The project is now in post-`v0.4.0` self-use observation after the Policy Finding Foundation release.
 
 The goal is not broad Mac environment coverage. The goal is to keep AI-facing outputs short, conservative, stable, and useful enough that an AI coding agent avoids wrong or unsafe commands before touching a repository.
 
-The `v0.3.0 Developer Preview` milestone shipped the first Agent Behavior Evaluation loop: behavior-level evidence that Habitat changes or constrains an AI coding agent's next command. The next work is continued policy hardening and selective high-confidence scenario depth rather than broad feature expansion.
+The `v0.4.0 Developer Preview` milestone shipped the first thin `PolicyFinding` policy-decision core and routed generated command-reason metadata through it while preserving the existing preview `scan_result.json` shape. The next work is to use `v0.4.0` during real self-use and observe which reason codes, command reasons, and policy findings actually change an agent's next command.
 
-The immediate `v0.4` target is now scoped as Policy Finding Foundation: introduce a thin `PolicyFinding`-like policy-decision core and make reason codes, command families, and renderer inputs gather around it. The broader `DetectedSignal -> NormalizedEvidence -> PolicyFinding -> RenderedOutput` pipeline remains the direction of travel, but full evidence normalization belongs after `v0.4`.
+Treat `v0.5` as provisional Evidence Normalization. Do not build a broad `NormalizedEvidence` layer up front. Let `v0.4` self-use show which scanner facts need to become explicit evidence before they feed `PolicyFinding` or rendered output.
 
 Keep the current cycle focused:
 
@@ -204,9 +204,9 @@ Keep the current cycle focused:
 
 - Keep the next cycle small: use Habitat during real Codex work, observe what changed the next command, then return the finding to policy, evidence fixtures, tests, or docs.
 - Use Nenrin during self-use and automation work to record why agent-facing guidance changed, what behavior was expected, and whether the change should be kept, removed, merged, narrowed, or moved.
-- Treat `v0.4` as a foundation release for `PolicyFinding`-like policy-decision data, not as a full scanner-to-renderer pipeline rewrite.
-- Use `v0.3` evidence to harden policy structure, reason-code maintainability, and generated guidance before adding broad ecosystem coverage.
-- Move broader evidence normalization into the next phase unless a small normalization slice is necessary to land the `PolicyFinding` foundation safely.
+- Use the published `v0.4.0` artifacts during real Codex work and observe which `reasonCodes`, `commandReasons`, or `PolicyFinding` paths change the next command.
+- Keep `v0.5` Evidence Normalization provisional until self-use identifies a concrete scanner responsibility that should become normalized evidence.
+- Avoid turning `NormalizedEvidence` into a broad upfront architecture layer; extract it from one measured command-decision problem at a time.
 - Capture new sanitized traces only when they show a new command-decision boundary, a regression, over-constraint, or a failure that can become an artifact improvement.
 - Turn evaluation failures into focused output-contract, fixture, test, or documentation improvements.
 - Prefer high-confidence SwiftPM and secret-bearing search depth over broad coverage unless another ecosystem shows a clear measured command-decision gain.
