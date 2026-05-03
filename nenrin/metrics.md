@@ -3,7 +3,7 @@
 ## Summary
 
 - Change records: 2
-- Observation records: 2
+- Observation records: 3
 - Review overdue: 0
 
 ## Status
@@ -16,7 +16,7 @@
 
 ## Observation Impact Judgment
 
-- effective: 1
+- effective: 2
 - partially_effective: 1
 
 ## Review Overdue
@@ -29,4 +29,4 @@
 
 ## Suggested Actions
 
-- Observe whether active index links remove repository-wide searches during the next related self-use task.
+- Keep active index links observing until review; latest self-use avoided discovery search.

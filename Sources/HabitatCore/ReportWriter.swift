@@ -359,15 +359,7 @@ public struct ReportWriter {
     private func commandPolicyReviewFirstCommandReasons(_ result: ScanResult) -> [PolicyCommandReason] {
         prioritizedAskFirstCommands(result)
             .prefix(6)
-            .map { command in
-                let reason = PolicyReasonCatalog.askFirstReason(for: command)
-                return PolicyCommandReason(
-                    command: command,
-                    classification: "ask_first",
-                    reasonCode: reason.code,
-                    reason: reason.text
-                )
-            }
+            .map(PolicyReasonCatalog.askFirstCommandReason)
     }
 
     private func askFirstPolicyLine(for command: String) -> String {
