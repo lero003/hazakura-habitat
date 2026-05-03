@@ -142,6 +142,7 @@ When `Review First` repeats the highest-priority Ask First commands, each entry 
 The full `Ask First` and `Forbidden` lists should annotate each command with the same stable reason code family, while leaving detailed reason text in `Review First`, `Reason Codes`, and `scan_result.json`.
 Ephemeral package execution commands such as `npx`, `npm exec`, `pnpm dlx`, `yarn dlx`, `bunx`, `uvx`, `uv tool run`, `pipx run`, and `pipx runpip` should use `ephemeral_package_execution` instead of the generic approval reason, because they can fetch or run unpinned code outside the selected workflow.
 Package publication and registry metadata mutation commands such as `npm publish`, `npm dist-tag`, `gem yank`, `cargo owner`, and `pod trunk push` should use `package_registry_mutation` instead of generic dependency or approval reasons, because they mutate external package registry state.
+Remote GitHub commands such as `gh pr review`, `gh issue comment`, `gh workflow run`, `gh release upload`, `gh secret list`, `gh variable get`, and `gh api` should use `remote_repository_action` instead of `git_mutation`, because they act on remote repository metadata, CI state, releases, variables, or content rather than the local Git workspace. Keep local checkout or clone commands such as `gh pr checkout` and `gh repo clone` under `git_mutation`.
 
 Ask First:
 

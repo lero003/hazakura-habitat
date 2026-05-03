@@ -13,11 +13,11 @@ This policy is advisory. Habitat does not block commands. `Forbidden` means this
 ## Review First
 - `recursive project search without excluding secret-bearing files` (`secret_or_credential_access`) - Command can read, expose, copy, or load secrets or credentials.
 - `modifying lockfiles` (`dependency_resolution_mutation`) - Dependency resolution or lockfile changes can change project state.
-- `git add` (`git_mutation`) - Git/GitHub mutation can change workspace, history, branches, or remotes.
+- `git add` (`git_mutation`) - Git mutation can change workspace, history, branches, or remotes.
 
 ## Reason Codes
 - `dependency_resolution_mutation` - Dependency resolution or lockfile changes can change project state.
-- `git_mutation` - Git/GitHub mutation can change workspace, history, branches, or remotes.
+- `git_mutation` - Git mutation can change workspace, history, branches, or remotes.
 - `host_private_data` - Command can reveal local private host data.
 - `secret_or_credential_access` - Command can read, expose, copy, or load secrets or credentials.
 

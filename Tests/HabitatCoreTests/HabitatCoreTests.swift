@@ -2075,6 +2075,22 @@ struct HabitatCoreTests {
         for command in commands {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
         }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in ["gh pr checkout", "gh repo clone"] {
+            #expect(commandReasonCodes[command] == "git_mutation", "Expected \(command) to explain local Git workspace mutation risk")
+        }
+        for command in [
+            "gh pr create",
+            "gh pr review",
+            "gh issue comment",
+            "gh workflow run",
+            "gh release upload",
+            "gh secret list",
+            "gh variable get",
+            "gh api",
+        ] {
+            #expect(commandReasonCodes[command] == "remote_repository_action", "Expected \(command) to explain remote repository action risk")
+        }
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -2083,6 +2099,10 @@ struct HabitatCoreTests {
         for command in commands {
             #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
         }
+        #expect(policy.contains("`gh pr checkout` (`git_mutation`)"))
+        #expect(policy.contains("`gh pr create` (`remote_repository_action`)"))
+        #expect(policy.contains("`gh workflow run` (`remote_repository_action`)"))
+        #expect(policy.contains("`gh variable get` (`remote_repository_action`)"))
     }
 
     @Test

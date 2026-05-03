@@ -106,7 +106,7 @@
         }
       ],
       "lineCount": 53,
-      "characterCount": 2523
+      "characterCount": 2495
     },
     {
       "name": "environment_report.md",
@@ -258,7 +258,7 @@
       },
       {
         "code": "git_mutation",
-        "text": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+        "text": "Git mutation can change workspace, history, branches, or remotes."
       },
       {
         "code": "privileged_command",
@@ -296,19 +296,19 @@
         "command": "git add",
         "classification": "ask_first",
         "reasonCode": "git_mutation",
-        "reason": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+        "reason": "Git mutation can change workspace, history, branches, or remotes."
       },
       {
         "command": "git commit",
         "classification": "ask_first",
         "reasonCode": "git_mutation",
-        "reason": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+        "reason": "Git mutation can change workspace, history, branches, or remotes."
       },
       {
         "command": "git push",
         "classification": "ask_first",
         "reasonCode": "git_mutation",
-        "reason": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+        "reason": "Git mutation can change workspace, history, branches, or remotes."
       },
       {
         "command": "sudo",
@@ -376,19 +376,19 @@
         "command": "git add",
         "classification": "ask_first",
         "reasonCode": "git_mutation",
-        "reason": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+        "reason": "Git mutation can change workspace, history, branches, or remotes."
       },
       {
         "command": "git commit",
         "classification": "ask_first",
         "reasonCode": "git_mutation",
-        "reason": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+        "reason": "Git mutation can change workspace, history, branches, or remotes."
       },
       {
         "command": "git push",
         "classification": "ask_first",
         "reasonCode": "git_mutation",
-        "reason": "Git/GitHub mutation can change workspace, history, branches, or remotes."
+        "reason": "Git mutation can change workspace, history, branches, or remotes."
       }
     ]
   },

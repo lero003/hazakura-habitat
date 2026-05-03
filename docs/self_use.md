@@ -48,19 +48,19 @@ Use `nenrin/` as the companion observation ledger for changes to the self-use en
 
 ## Current Self-Scan Snapshot
 
-Snapshot date: 2026-05-02.
+Snapshot date: 2026-05-03.
 
 Observed output from scanning this repository:
 
 - Package manager: SwiftPM.
 - Preferred commands: `swift test`, `swift build`.
 - `agent_context.md`: 35 lines in `scan_result.json` artifact metadata.
-- `command_policy.md`: 798 lines in `scan_result.json` artifact metadata.
-- `environment_report.md`: 75 lines in `scan_result.json` artifact metadata.
+- `command_policy.md`: 800 lines in `scan_result.json` artifact metadata.
+- `environment_report.md`: 73 lines in `scan_result.json` artifact metadata.
 - Ask First commands: 262.
 - Forbidden commands: 489.
 - `scan_result.json` `policy.commandCounts`: 2 preferred, 262 Ask First, 6 Review First, 489 Forbidden, 751 with reasons.
-- `scan_result.json` `policy.reasonCodes`: 14 reason families, including `ephemeral_package_execution` and `package_registry_mutation`.
+- `scan_result.json` `policy.reasonCodes`: 15 reason families, including `remote_repository_action`, `ephemeral_package_execution`, and `package_registry_mutation`.
 - Warnings: none.
 
 Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in machine-readable data, but they did not pollute `agent_context.md` because they were not relevant to the SwiftPM command decision.
@@ -82,6 +82,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - The `agent_context.md` Ask First overflow line now names hidden reason codes in stable catalog order, and when Git/GitHub mutation guards are already summarized it names the other hidden reason families first, so Codex can see remaining dependency, tool, or approval risks before opening the full policy.
 - Ephemeral package execution commands now carry their own `ephemeral_package_execution` reason code, so `npx`/`dlx`/`uvx`/`pipx run` guards no longer collapse into generic approval metadata.
 - Package publication and registry metadata mutation commands now carry `package_registry_mutation`, so the long policy explains external package-state risk instead of collapsing publish, yank, owner, or dist-tag commands into generic dependency or approval metadata.
+- Remote GitHub commands now carry `remote_repository_action` when they act on PRs, issues, CI, releases, secrets, variables, or remote API content, so long-policy review separates remote repository risk from local Git workspace mutation.
 - `scan_result.json` now records generated Markdown artifact roles, report-relative paths, agent reading role, read trigger, read order, entry section, entry line, section heading line index, line counts, character counts, the `agent_context.md` line limit, and whether line-limited outputs are within budget, so agents can open the right report-local file, identify the short working context first, and jump to `Review First`, `Ask First`, `Forbidden`, or diagnostics when continuing into longer reports without parsing every report.
 - `agent_context.md` now states that it is the short working context and keeps full approval detail in `command_policy.md`, so agents can stop after the first artifact unless a risky command needs policy review.
 - `scan_result.json` now records `policy.commandCounts`, so agents can see policy size, short approval-checklist size, and reason coverage before deciding whether to inspect the full `command_policy.md`.

@@ -28,6 +28,7 @@ enum PolicyReasonCatalog {
         case dependencyResolutionMutation = "dependency_resolution_mutation"
         case versionManagerMutation = "version_manager_mutation"
         case gitMutation = "git_mutation"
+        case remoteRepositoryAction = "remote_repository_action"
         case dependencyMutation = "dependency_mutation"
         case packageRegistryMutation = "package_registry_mutation"
         case ephemeralPackageExecution = "ephemeral_package_execution"
@@ -63,7 +64,9 @@ enum PolicyReasonCatalog {
             case .versionManagerMutation:
                 return .init(code: rawValue, text: "Runtime or tool-version edits change future command behavior.")
             case .gitMutation:
-                return .init(code: rawValue, text: "Git/GitHub mutation can change workspace, history, branches, or remotes.")
+                return .init(code: rawValue, text: "Git mutation can change workspace, history, branches, or remotes.")
+            case .remoteRepositoryAction:
+                return .init(code: rawValue, text: "Remote repository actions can change or reveal repository metadata, CI state, releases, variables, or remote content.")
             case .dependencyMutation:
                 return .init(code: rawValue, text: "Dependency install, update, or removal can mutate project state.")
             case .packageRegistryMutation:
@@ -104,6 +107,7 @@ enum PolicyReasonCatalog {
         .init(reasonCode: .dependencyResolutionMutation) { $0 == "modifying lockfiles" },
         .init(reasonCode: .versionManagerMutation) { $0 == "modifying version manager files" },
         .init(reasonCode: .dependencyResolutionMutation) { $0 == "swift package update" || $0 == "swift package resolve" },
+        .init(reasonCode: .remoteRepositoryAction) { isRemoteRepositoryActionCommand($0) },
         .init(reasonCode: .gitMutation) { isGitOrGitHubMutationGuard($0) },
         .init(reasonCode: .packageRegistryMutation) { isPackageRegistryMutationCommand($0) },
         .init(reasonCode: .dependencyMutation) { isDependencyMutationCommand($0) },
@@ -167,6 +171,47 @@ enum PolicyReasonCatalog {
     static func isGitOrGitHubMutationGuard(_ command: String) -> Bool {
         command.hasPrefix("git ")
             || command.hasPrefix("gh ")
+    }
+
+    private static func isRemoteRepositoryActionCommand(_ command: String) -> Bool {
+        [
+            "gh pr create",
+            "gh pr edit",
+            "gh pr close",
+            "gh pr reopen",
+            "gh pr merge",
+            "gh pr comment",
+            "gh pr review",
+            "gh issue create",
+            "gh issue edit",
+            "gh issue close",
+            "gh issue reopen",
+            "gh issue comment",
+            "gh repo fork",
+            "gh repo edit",
+            "gh repo rename",
+            "gh repo archive",
+            "gh repo delete",
+            "gh workflow run",
+            "gh workflow enable",
+            "gh workflow disable",
+            "gh run cancel",
+            "gh run delete",
+            "gh run rerun",
+            "gh release create",
+            "gh release edit",
+            "gh release upload",
+            "gh release delete",
+            "gh release delete-asset",
+            "gh secret list",
+            "gh secret set",
+            "gh secret delete",
+            "gh variable list",
+            "gh variable get",
+            "gh variable set",
+            "gh variable delete",
+            "gh api",
+        ].contains(command)
     }
 
     private static func commandReason(
