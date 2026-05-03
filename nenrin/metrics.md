@@ -2,21 +2,21 @@
 
 ## Summary
 
-- Change records: 2
-- Observation records: 6
+- Change records: 3
+- Observation records: 7
 - Review overdue: 0
 
 ## Status
 
-- observing: 2
+- observing: 3
 
 ## Change Impact
 
-- unknown: 2
+- unknown: 3
 
 ## Observation Impact Judgment
 
-- effective: 5
+- effective: 6
 - partially_effective: 1
 
 ## Review Overdue
@@ -31,3 +31,4 @@
 
 - Keep active index links observing until review; latest self-use again avoided discovery search.
 - Prefer structured policy metadata in renderers where it reduces reason-code recomputation.
+- Keep policy reason rule tables observing; verify future changes stay behavior-preserving unless evidence calls for output changes.

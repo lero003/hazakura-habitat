@@ -11,7 +11,12 @@ public struct PolicyReasonCode: Codable, Equatable, Sendable {
 }
 
 enum PolicyReasonCatalog {
-    private enum ReasonCode: String, CaseIterable {
+    private struct ReasonRule: Sendable {
+        let reasonCode: ReasonCode
+        let matches: @Sendable (String) -> Bool
+    }
+
+    private enum ReasonCode: String, CaseIterable, Sendable {
         case projectPathUnverified = "project_path_unverified"
         case missingTool = "missing_tool"
         case toolVerificationFailed = "tool_verification_failed"
@@ -83,6 +88,38 @@ enum PolicyReasonCatalog {
     }
 
     private static let orderedReasonCodes: [PolicyReasonCode] = ReasonCode.allCases.map(\.reason)
+    private static let askFirstReasonRules: [ReasonRule] = [
+        .init(reasonCode: .projectPathUnverified) { $0 == "running project commands before project path is verified" },
+        .init(reasonCode: .missingTool) { $0.hasPrefix("running ") && $0.contains("is available") },
+        .init(reasonCode: .toolVerificationFailed) { $0.hasPrefix("running ") && $0.contains("version check succeeds") },
+        .init(reasonCode: .developerDirectoryUnverified) { $0 == "Swift/Xcode build commands before xcode-select -p succeeds" },
+        .init(reasonCode: .runtimeVersionMismatch) { $0.hasPrefix("dependency installs before matching active ") },
+        .init(reasonCode: .packageManagerVersionMismatch) { $0.hasPrefix("dependency installs before matching ") },
+        .init(reasonCode: .dependencySignalConflict) { $0.hasPrefix("dependency installs ") },
+        .init(reasonCode: .symlinkTargetReview) { $0 == "following project symlinks before reviewing targets" },
+        .init(reasonCode: .secretOrCredentialAccess) { isSecretBearingBroadSearchCommand($0) },
+        .init(reasonCode: .dependencyResolutionMutation) { $0 == "modifying lockfiles" },
+        .init(reasonCode: .versionManagerMutation) { $0 == "modifying version manager files" },
+        .init(reasonCode: .dependencyResolutionMutation) { $0 == "swift package update" || $0 == "swift package resolve" },
+        .init(reasonCode: .gitMutation) { isGitOrGitHubMutationGuard($0) },
+        .init(reasonCode: .dependencyMutation) { isDependencyMutationCommand($0) },
+        .init(reasonCode: .ephemeralPackageExecution) { isEphemeralPackageExecutionCommand($0) },
+    ]
+    private static let forbiddenReasonRules: [ReasonRule] = [
+        .init(reasonCode: .privilegedCommand) { $0 == "sudo" },
+        .init(reasonCode: .outsideProjectDeletion) { $0 == "destructive file deletion outside the selected project" },
+        .init(reasonCode: .remoteScriptExecution) {
+            $0 == "remote script execution through curl or wget"
+                || $0.contains("| sh")
+                || $0.contains("| bash")
+                || $0.contains("| zsh")
+                || $0.contains("<(curl")
+                || $0.contains("<(wget")
+        },
+        .init(reasonCode: .hostPrivateData) { isHostPrivateDataCommand($0) },
+        .init(reasonCode: .secretOrCredentialAccess) { isSecretOrCredentialCommand($0) },
+        .init(reasonCode: .globalEnvironmentMutation) { isGlobalEnvironmentMutationCommand($0) },
+    ]
 
     static func legend(askFirstCommands: [String], forbiddenCommands: [String]) -> [PolicyReasonCode] {
         let usedCodes = Set(
@@ -114,129 +151,13 @@ enum PolicyReasonCatalog {
     }
 
     static func askFirstReason(for command: String) -> PolicyReasonCode {
-        if command == "running project commands before project path is verified" {
-            return ReasonCode.projectPathUnverified.reason
-        }
-
-        if command.hasPrefix("running "), command.contains("is available") {
-            return ReasonCode.missingTool.reason
-        }
-
-        if command.hasPrefix("running "), command.contains("version check succeeds") {
-            return ReasonCode.toolVerificationFailed.reason
-        }
-
-        if command == "Swift/Xcode build commands before xcode-select -p succeeds" {
-            return ReasonCode.developerDirectoryUnverified.reason
-        }
-
-        if command.hasPrefix("dependency installs before matching active ") {
-            return ReasonCode.runtimeVersionMismatch.reason
-        }
-
-        if command.hasPrefix("dependency installs before matching ") {
-            return ReasonCode.packageManagerVersionMismatch.reason
-        }
-
-        if command.hasPrefix("dependency installs ") {
-            return ReasonCode.dependencySignalConflict.reason
-        }
-
-        if command == "following project symlinks before reviewing targets" {
-            return ReasonCode.symlinkTargetReview.reason
-        }
-
-        if isSecretBearingBroadSearchCommand(command) {
-            return ReasonCode.secretOrCredentialAccess.reason
-        }
-
-        if command == "modifying lockfiles" {
-            return ReasonCode.dependencyResolutionMutation.reason
-        }
-
-        if command == "modifying version manager files" {
-            return ReasonCode.versionManagerMutation.reason
-        }
-
-        if command == "swift package update" || command == "swift package resolve" {
-            return ReasonCode.dependencyResolutionMutation.reason
-        }
-
-        if isGitOrGitHubMutationGuard(command) {
-            return ReasonCode.gitMutation.reason
-        }
-
-        if isDependencyMutationCommand(command) {
-            return ReasonCode.dependencyMutation.reason
-        }
-
-        if isEphemeralPackageExecutionCommand(command) {
-            return ReasonCode.ephemeralPackageExecution.reason
-        }
-
-        return ReasonCode.userApprovalRequired.reason
+        askFirstReasonRules.first { $0.matches(command) }?.reasonCode.reason
+            ?? ReasonCode.userApprovalRequired.reason
     }
 
     static func forbiddenReason(for command: String) -> PolicyReasonCode {
-        if command == "sudo" {
-            return ReasonCode.privilegedCommand.reason
-        }
-
-        if command == "destructive file deletion outside the selected project" {
-            return ReasonCode.outsideProjectDeletion.reason
-        }
-
-        if command == "remote script execution through curl or wget"
-            || command.contains("| sh")
-            || command.contains("| bash")
-            || command.contains("| zsh")
-            || command.contains("<(curl")
-            || command.contains("<(wget") {
-            return ReasonCode.remoteScriptExecution.reason
-        }
-
-        if command == "dump environment variables"
-            || command == "env"
-            || command == "printenv"
-            || command == "export -p"
-            || command == "set"
-            || command == "declare -x"
-            || command == "read clipboard contents"
-            || command == "read shell history"
-            || command == "read browser or mail data" {
-            return ReasonCode.hostPrivateData.reason
-        }
-
-        if isCredentialOrAuthSessionCommand(command)
-            || command.contains("secret")
-            || command.contains("credential")
-            || command.contains("token")
-            || command.contains("private key")
-            || command.contains(".env")
-            || command.contains(".netrc")
-            || command.contains(".npmrc")
-            || command.contains(".pypirc")
-            || command.contains("auth config")
-            || command.contains("~/.ssh")
-            || command.contains("~/.aws")
-            || command.contains("~/.docker")
-            || command.contains("~/.kube") {
-            return ReasonCode.secretOrCredentialAccess.reason
-        }
-
-        if command.hasPrefix("brew ")
-            || command.contains(" install")
-            || command.contains(" uninstall")
-            || command.contains(" upgrade")
-            || command.contains(" cleanup")
-            || command.contains(" ensurepath")
-            || command.contains(" add -g")
-            || command.contains(" --global")
-            || command.contains(" -g") {
-            return ReasonCode.globalEnvironmentMutation.reason
-        }
-
-        return ReasonCode.unsafeOrSensitiveCommand.reason
+        forbiddenReasonRules.first { $0.matches(command) }?.reasonCode.reason
+            ?? ReasonCode.unsafeOrSensitiveCommand.reason
     }
 
     static func isGitOrGitHubMutationGuard(_ command: String) -> Bool {
@@ -279,6 +200,49 @@ enum PolicyReasonCatalog {
             "pipx run",
             "pipx runpip",
         ].contains(command)
+    }
+
+    private static func isHostPrivateDataCommand(_ command: String) -> Bool {
+        [
+            "dump environment variables",
+            "env",
+            "printenv",
+            "export -p",
+            "set",
+            "declare -x",
+            "read clipboard contents",
+            "read shell history",
+            "read browser or mail data",
+        ].contains(command)
+    }
+
+    private static func isSecretOrCredentialCommand(_ command: String) -> Bool {
+        isCredentialOrAuthSessionCommand(command)
+            || command.contains("secret")
+            || command.contains("credential")
+            || command.contains("token")
+            || command.contains("private key")
+            || command.contains(".env")
+            || command.contains(".netrc")
+            || command.contains(".npmrc")
+            || command.contains(".pypirc")
+            || command.contains("auth config")
+            || command.contains("~/.ssh")
+            || command.contains("~/.aws")
+            || command.contains("~/.docker")
+            || command.contains("~/.kube")
+    }
+
+    private static func isGlobalEnvironmentMutationCommand(_ command: String) -> Bool {
+        command.hasPrefix("brew ")
+            || command.contains(" install")
+            || command.contains(" uninstall")
+            || command.contains(" upgrade")
+            || command.contains(" cleanup")
+            || command.contains(" ensurepath")
+            || command.contains(" add -g")
+            || command.contains(" --global")
+            || command.contains(" -g")
     }
 
     private static func isSecretBearingBroadSearchCommand(_ command: String) -> Bool {
