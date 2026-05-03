@@ -162,6 +162,26 @@ struct HabitatCoreTests {
     }
 
     @Test
+    func packageManagerMutationReviewCommandsStayCentralizedForPolicyConsumers() throws {
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "swiftpm") == [
+            "swift package update",
+            "swift package resolve",
+        ])
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "homebrew") == [
+            "brew bundle",
+            "brew bundle install",
+            "brew bundle cleanup",
+            "brew bundle dump",
+            "brew update",
+            "brew cleanup",
+            "brew autoremove",
+            "brew tap",
+            "brew tap-new",
+        ])
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "unknown") == [])
+    }
+
+    @Test
     func pythonUvMissingToolExampleMatchesCurrentGuidanceShape() throws {
         let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
         let context = try String(

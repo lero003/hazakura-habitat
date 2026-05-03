@@ -517,6 +517,45 @@ enum PolicyReasonCatalog {
     ])
     static let hostPrivateDataCommands = hostPrivateDataCommandFamily.commands
 
+    static func packageManagerMutationReviewCommands(for packageManager: String) -> [String] {
+        switch packageManager {
+        case "npm":
+            return ["npm install", "npm ci", "npm update", "npm uninstall", "npm remove", "npm rm"]
+        case "pnpm":
+            return ["pnpm install", "pnpm add", "pnpm update", "pnpm remove", "pnpm rm", "pnpm uninstall"]
+        case "yarn":
+            return ["yarn install", "yarn add", "yarn up", "yarn remove"]
+        case "bun":
+            return ["bun install", "bun add", "bun update", "bun remove"]
+        case "uv":
+            return ["uv sync", "uv add", "uv remove", "uv pip install", "uv pip uninstall", "uv pip sync", "uv pip compile"]
+        case "python":
+            return ["pip install", "pip3 install", "python -m pip install", "python3 -m pip install", "pip uninstall", "pip3 uninstall", "python -m pip uninstall", "python3 -m pip uninstall"]
+        case "bundler":
+            return ["bundle install", "bundle add", "bundle update", "bundle lock", "bundle remove"]
+        case "homebrew":
+            return ["brew bundle", "brew bundle install", "brew bundle cleanup", "brew bundle dump", "brew update", "brew cleanup", "brew autoremove", "brew tap", "brew tap-new"]
+        case "swiftpm":
+            return ["swift package update", "swift package resolve"]
+        case "go":
+            return ["go get", "go mod tidy"]
+        case "cargo":
+            return ["cargo add", "cargo update", "cargo remove"]
+        case "cocoapods":
+            return ["pod install", "pod update", "pod repo update", "pod deintegrate"]
+        case "carthage":
+            return ["carthage bootstrap", "carthage update", "carthage checkout", "carthage build"]
+        case "xcodebuild":
+            return [
+                "xcodebuild build/test/archive before selecting a scheme",
+                "xcodebuild -resolvePackageDependencies",
+                "xcodebuild -allowProvisioningUpdates",
+            ]
+        default:
+            return []
+        }
+    }
+
     private static let askFirstReasonRules: [ReasonRule] = [
         .init(reasonCode: .projectPathUnverified) { $0 == "running project commands before project path is verified" },
         .init(reasonCode: .missingTool) { $0.hasPrefix("running ") && $0.contains("is available") },
