@@ -144,6 +144,35 @@ enum PolicyReasonCatalog {
         !localGitHubWorkspaceMutationCommands.contains($0)
     }
     private static let remoteRepositoryActionCommandSet = Set(remoteRepositoryActionCommands)
+    static let packageRegistryMutationCommands = [
+        "npm publish",
+        "npm unpublish",
+        "npm deprecate",
+        "npm dist-tag",
+        "npm owner",
+        "npm access",
+        "npm team",
+        "pnpm publish",
+        "yarn publish",
+        "yarn npm publish",
+        "bun publish",
+        "uv publish",
+        "twine upload",
+        "python -m twine upload",
+        "python3 -m twine upload",
+        "gem push",
+        "gem yank",
+        "gem owner",
+        "cargo publish",
+        "cargo yank",
+        "cargo owner",
+        "pod trunk add-owner",
+        "pod trunk remove-owner",
+        "pod trunk push",
+        "pod trunk deprecate",
+        "pod trunk delete",
+    ]
+    private static let packageRegistryMutationCommandSet = Set(packageRegistryMutationCommands)
 
     private static let askFirstReasonRules: [ReasonRule] = [
         .init(reasonCode: .projectPathUnverified) { $0 == "running project commands before project path is verified" },
@@ -266,34 +295,7 @@ enum PolicyReasonCatalog {
     }
 
     private static func isPackageRegistryMutationCommand(_ command: String) -> Bool {
-        [
-            "npm publish",
-            "npm unpublish",
-            "npm deprecate",
-            "npm dist-tag",
-            "npm owner",
-            "npm access",
-            "npm team",
-            "pnpm publish",
-            "yarn publish",
-            "yarn npm publish",
-            "bun publish",
-            "uv publish",
-            "twine upload",
-            "python -m twine upload",
-            "python3 -m twine upload",
-            "gem push",
-            "gem yank",
-            "gem owner",
-            "cargo publish",
-            "cargo yank",
-            "cargo owner",
-            "pod trunk add-owner",
-            "pod trunk remove-owner",
-            "pod trunk push",
-            "pod trunk deprecate",
-            "pod trunk delete",
-        ].contains(command)
+        packageRegistryMutationCommandSet.contains(command)
     }
 
     private static func isHostPrivateDataCommand(_ command: String) -> Bool {
