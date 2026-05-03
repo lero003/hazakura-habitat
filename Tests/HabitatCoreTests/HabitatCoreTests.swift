@@ -163,10 +163,14 @@ struct HabitatCoreTests {
 
     @Test
     func packageManagerMutationReviewCommandsStayCentralizedForPolicyConsumers() throws {
-        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "swiftpm") == [
+        #expect(PolicyReasonCatalog.swiftPackageDependencyResolutionCommands == [
             "swift package update",
             "swift package resolve",
         ])
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "swiftpm") == PolicyReasonCatalog.swiftPackageDependencyResolutionCommands)
+        for command in PolicyReasonCatalog.swiftPackageDependencyResolutionCommands {
+            #expect(PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_resolution_mutation")
+        }
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "homebrew") == [
             "brew bundle",
             "brew bundle install",

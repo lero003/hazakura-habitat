@@ -253,6 +253,11 @@ enum PolicyReasonCatalog {
         "pod trunk delete",
     ])
     static let packageRegistryMutationCommands = packageRegistryMutationCommandFamily.commands
+    private static let swiftPackageDependencyResolutionCommandFamily = CommandFamily([
+        "swift package update",
+        "swift package resolve",
+    ])
+    static let swiftPackageDependencyResolutionCommands = swiftPackageDependencyResolutionCommandFamily.commands
     static let npmEphemeralPackageExecutionCommands = [
         "npm exec",
         "npx",
@@ -536,7 +541,7 @@ enum PolicyReasonCatalog {
         case "homebrew":
             return ["brew bundle", "brew bundle install", "brew bundle cleanup", "brew bundle dump", "brew update", "brew cleanup", "brew autoremove", "brew tap", "brew tap-new"]
         case "swiftpm":
-            return ["swift package update", "swift package resolve"]
+            return swiftPackageDependencyResolutionCommands
         case "go":
             return ["go get", "go mod tidy"]
         case "cargo":
@@ -568,7 +573,7 @@ enum PolicyReasonCatalog {
         .init(reasonCode: .secretOrCredentialAccess) { isSecretBearingBroadSearchCommand($0) },
         .init(reasonCode: .dependencyResolutionMutation) { $0 == "modifying lockfiles" },
         .init(reasonCode: .versionManagerMutation) { $0 == "modifying version manager files" },
-        .init(reasonCode: .dependencyResolutionMutation) { $0 == "swift package update" || $0 == "swift package resolve" },
+        .init(reasonCode: .dependencyResolutionMutation) { isSwiftPackageDependencyResolutionCommand($0) },
         .init(reasonCode: .remoteRepositoryAction) { isRemoteRepositoryActionCommand($0) },
         .init(reasonCode: .gitMutation) { isGitOrGitHubMutationGuard($0) },
         .init(reasonCode: .packageRegistryMutation) { isPackageRegistryMutationCommand($0) },
@@ -673,6 +678,10 @@ enum PolicyReasonCatalog {
 
     private static func isPackageRegistryMutationCommand(_ command: String) -> Bool {
         packageRegistryMutationCommandFamily.contains(command)
+    }
+
+    private static func isSwiftPackageDependencyResolutionCommand(_ command: String) -> Bool {
+        swiftPackageDependencyResolutionCommandFamily.contains(command)
     }
 
     private static func isHostPrivateDataCommand(_ command: String) -> Bool {

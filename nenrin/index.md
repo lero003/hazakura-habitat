@@ -2,11 +2,12 @@
 
 ## Active Summary
 
-- observing: 9
+- observing: 10
 - reviewed: 3
 
 ## Active Changes
 
+- `swiftpm-dependency-resolution-command-family` - [changes/2026-05-04-swiftpm-dependency-resolution-command-family.md](changes/2026-05-04-swiftpm-dependency-resolution-command-family.md)
 - `package-manager-mutation-review-map` - [changes/2026-05-04-package-manager-mutation-review-map.md](changes/2026-05-04-package-manager-mutation-review-map.md)
 - `policy-command-family-wrapper` - [changes/2026-05-04-policy-command-family-wrapper.md](changes/2026-05-04-policy-command-family-wrapper.md)
 - `host-private-command-family` - [changes/2026-05-04-host-private-command-family.md](changes/2026-05-04-host-private-command-family.md)
