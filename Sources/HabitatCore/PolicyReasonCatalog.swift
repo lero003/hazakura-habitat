@@ -173,6 +173,31 @@ enum PolicyReasonCatalog {
         "pod trunk delete",
     ]
     private static let packageRegistryMutationCommandSet = Set(packageRegistryMutationCommands)
+    static let npmEphemeralPackageExecutionCommands = [
+        "npm exec",
+        "npx",
+    ]
+    static let pnpmEphemeralPackageExecutionCommands = [
+        "pnpm dlx",
+    ]
+    static let yarnEphemeralPackageExecutionCommands = [
+        "yarn dlx",
+    ]
+    static let bunEphemeralPackageExecutionCommands = [
+        "bunx",
+    ]
+    static let pythonEphemeralPackageExecutionCommands = [
+        "uvx",
+        "uv tool run",
+        "pipx run",
+        "pipx runpip",
+    ]
+    static let ephemeralPackageExecutionCommands = npmEphemeralPackageExecutionCommands
+        + pnpmEphemeralPackageExecutionCommands
+        + yarnEphemeralPackageExecutionCommands
+        + bunEphemeralPackageExecutionCommands
+        + pythonEphemeralPackageExecutionCommands
+    private static let ephemeralPackageExecutionCommandSet = Set(ephemeralPackageExecutionCommands)
 
     private static let askFirstReasonRules: [ReasonRule] = [
         .init(reasonCode: .projectPathUnverified) { $0 == "running project commands before project path is verified" },
@@ -281,17 +306,7 @@ enum PolicyReasonCatalog {
     }
 
     private static func isEphemeralPackageExecutionCommand(_ command: String) -> Bool {
-        [
-            "npm exec",
-            "npx",
-            "pnpm dlx",
-            "yarn dlx",
-            "bunx",
-            "uvx",
-            "uv tool run",
-            "pipx run",
-            "pipx runpip",
-        ].contains(command)
+        ephemeralPackageExecutionCommandSet.contains(command)
     }
 
     private static func isPackageRegistryMutationCommand(_ command: String) -> Bool {

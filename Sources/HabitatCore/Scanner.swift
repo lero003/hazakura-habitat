@@ -855,26 +855,25 @@ public struct HabitatScanner {
             "npm uninstall",
             "npm remove",
             "npm rm",
-            "npm exec",
-            "npx",
+        ] + PolicyReasonCatalog.npmEphemeralPackageExecutionCommands + [
             "pnpm install",
             "pnpm add",
             "pnpm update",
             "pnpm remove",
             "pnpm rm",
             "pnpm uninstall",
-            "pnpm dlx",
+        ] + PolicyReasonCatalog.pnpmEphemeralPackageExecutionCommands + [
             "yarn install",
             "yarn add",
             "yarn up",
             "yarn remove",
-            "yarn dlx",
+        ] + PolicyReasonCatalog.yarnEphemeralPackageExecutionCommands + [
             "bun install",
             "bun add",
             "bun update",
             "bun remove",
-            "bunx",
-        ] + PolicyReasonCatalog.packageRegistryMutationCommands + [
+        ] + PolicyReasonCatalog.bunEphemeralPackageExecutionCommands
+            + PolicyReasonCatalog.packageRegistryMutationCommands + [
             "corepack enable",
             "corepack disable",
             "corepack prepare",
@@ -888,10 +887,7 @@ public struct HabitatScanner {
             "uv pip uninstall",
             "uv pip sync",
             "uv pip compile",
-            "uvx",
-            "uv tool run",
-            "pipx run",
-            "pipx runpip",
+        ] + PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands + [
             "bundle install",
             "bundle add",
             "bundle update",
