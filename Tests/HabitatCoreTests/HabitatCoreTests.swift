@@ -2076,6 +2076,10 @@ struct HabitatCoreTests {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
         }
         let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in PolicyReasonCatalog.localGitWorkspaceMutationCommands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+            #expect(commandReasonCodes[command] == "git_mutation", "Expected \(command) to explain local Git workspace mutation risk")
+        }
         for command in ["gh pr checkout", "gh repo clone"] {
             #expect(commandReasonCodes[command] == "git_mutation", "Expected \(command) to explain local Git workspace mutation risk")
         }

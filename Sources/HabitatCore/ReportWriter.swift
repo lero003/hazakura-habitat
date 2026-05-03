@@ -517,7 +517,7 @@ public struct ReportWriter {
         gitGuardsSummarized: Bool
     ) -> String {
         let commandsForReasonSummary = gitGuardsSummarized
-            ? commands.filter { !PolicyReasonCatalog.isGitOrGitHubMutationGuard($0) }
+            ? commands.filter { !PolicyReasonCatalog.isGitOrGitHubPolicyGuard($0) }
             : commands
         let reasonCodes = structuredPolicyReasonCodes(
             for: commandsForReasonSummary,
@@ -583,11 +583,11 @@ public struct ReportWriter {
 
     private func shouldSummarizeHiddenGitMutationGuards(commands: [String], shownCommands: [String]) -> Bool {
         let hiddenCommands = Set(commands.dropFirst(shownCommands.count))
-        guard hiddenCommands.contains(where: PolicyReasonCatalog.isGitOrGitHubMutationGuard) else {
+        guard hiddenCommands.contains(where: PolicyReasonCatalog.isGitOrGitHubPolicyGuard) else {
             return false
         }
 
-        return !shownCommands.contains(where: PolicyReasonCatalog.isGitOrGitHubMutationGuard)
+        return !shownCommands.contains(where: PolicyReasonCatalog.isGitOrGitHubPolicyGuard)
     }
 
     private func avoidLine(for command: String, result: ScanResult) -> String {
