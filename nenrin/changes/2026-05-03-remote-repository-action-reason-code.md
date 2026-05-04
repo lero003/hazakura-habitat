@@ -2,8 +2,8 @@
 type: nenrin_change
 id: remote-repository-action-reason-code
 date: 2026-05-03
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog.swift
   - Tests/HabitatCoreTests/HabitatCoreTests.swift
@@ -51,4 +51,4 @@ The v0.3 self-use policy review requires reading the full command policy before 
 
 ## Result
 
-Unjudged.
+Reviewed on 2026-05-04: keep. The evidence shows later policy cleanup preserved the local Git vs remote GitHub action boundary and used it to avoid merging unrelated GitHub CLI command reasoning.

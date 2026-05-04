@@ -2,8 +2,8 @@
 type: nenrin_change
 id: policy-command-family-wrapper
 date: 2026-05-04
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog.swift
   - docs/current_status.md
@@ -49,4 +49,4 @@ The v0.3 self-use report kept directing the agent to inspect long policy section
 
 ## Result
 
-Unjudged.
+Reviewed on 2026-05-04: keep. The evidence shows the wrapper pattern changed later cleanup choices by moving duplicated command-decision data toward one-owner policy catalog structures without changing generated output.
