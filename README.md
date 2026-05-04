@@ -78,11 +78,13 @@ Hazakura Habitat is developed around output quality, not feature breadth. After 
 The roadmap prioritizes:
 
 1. Policy Finding Foundation
-2. Evidence normalization
+2. Evidence and instruction alignment
 3. Agent behavior feedback loop
 4. Integration and distribution foundations
 
 The goal is not to inspect everything on the machine. The goal is to generate concise, conservative context that changes an AI coding agent's next command choice.
+
+Habitat is meant to complement `AGENTS.md` and project docs, not duplicate them. Its value is strongest when it surfaces current repository facts, risky command boundaries, or instruction drift that written guidance alone does not prove. If project docs already answer the command question for a low-risk task, skipping Habitat is acceptable.
 
 ## Development Model
 

@@ -3,6 +3,7 @@ import Foundation
 public struct HabitatScanner {
     private let runner: CommandRunning
     private let detector: ProjectDetector
+    private let secretDetector = SecretFileDetector()
 
     public init(runner: CommandRunning = ProcessCommandRunner(), detector: ProjectDetector = ProjectDetector()) {
         self.runner = runner
@@ -339,10 +340,10 @@ public struct HabitatScanner {
                 "read .netrc values",
                 "read package manager auth config values",
                 "read private keys"
-            ] + secretFileAccessForbiddenCommands(project)
-            + secretEnvironmentFileLoadForbiddenCommands(project)
-            + secretEnvironmentRenderForbiddenCommands(project)
-            + secretProjectBulkExportForbiddenCommands(project)
+            ] + secretDetector.secretFileAccessForbiddenCommands(project)
+            + secretDetector.secretEnvironmentFileLoadForbiddenCommands(project)
+            + secretDetector.secretEnvironmentRenderForbiddenCommands(project)
+            + secretDetector.secretProjectBulkExportForbiddenCommands(project)
         )
         let preferredCommands = preferredCommands(project: project)
         let askFirstCommands = askFirstCommands(
@@ -755,16 +756,16 @@ public struct HabitatScanner {
             commands.insert("dependency installs before choosing between uv.lock and requirements files", at: 0)
         }
 
-        if hasSymlinkedProjectSignals(project) {
+        if secretDetector.hasSymlinkedProjectSignals(project) {
             commands.insert("dependency installs before reviewing symlinked project metadata", at: 0)
             commands.insert("following project symlinks before reviewing targets", at: 0)
         }
 
-        if hasUnsafeRuntimeHintFiles(project) {
+        if secretDetector.hasUnsafeRuntimeHintFiles(project) {
             commands.insert("dependency installs before verifying unsafe runtime version hint files", at: 0)
         }
 
-        if hasUnsafePackageMetadataFields(project) {
+        if secretDetector.hasUnsafePackageMetadataFields(project) {
             commands.insert("dependency installs before verifying unsafe package metadata version fields", at: 0)
         }
 
@@ -789,7 +790,7 @@ public struct HabitatScanner {
             commands.insert(missingPreferredToolAskFirstCommand(packageManager: packageManager), at: 0)
         }
 
-        let recursiveSearchCommands = recursiveSecretSearchAskFirstCommands(project)
+        let recursiveSearchCommands = secretDetector.recursiveSecretSearchAskFirstCommands(project)
         if !recursiveSearchCommands.isEmpty {
             commands.removeAll { recursiveSearchCommands.contains($0) }
             commands.append(contentsOf: recursiveSearchCommands.dropFirst())
@@ -852,42 +853,42 @@ public struct HabitatScanner {
             }
         }
 
-        if hasSecretDotEnvFile(project) {
+        if secretDetector.hasSecretDotEnvFile(project) {
             warnings.append("Environment file exists; do not read .env values.")
         } else if project.detectedFiles.contains(".env.example") {
             warnings.append("Environment examples exist; do not read real .env values.")
         }
 
-        if hasSecretEnvrcFile(project) {
+        if secretDetector.hasSecretEnvrcFile(project) {
             warnings.append("Direnv environment file exists; do not read .envrc values.")
         }
 
-        if hasNetrcFile(project) {
+        if secretDetector.hasNetrcFile(project) {
             warnings.append("Netrc credentials file exists; do not read .netrc values.")
         }
 
-        if hasPackageManagerAuthConfig(project) {
+        if secretDetector.hasPackageManagerAuthConfig(project) {
             warnings.append("Package manager auth config exists; do not read token values from npm, yarn, Python, Ruby, Cargo, or Composer package auth config files.")
-            warnings.append("Package manager auth config files detected (\(packageManagerAuthConfigFiles(project).joined(separator: ", "))); do not read credential values.")
+            warnings.append("Package manager auth config files detected (\(secretDetector.packageManagerAuthConfigFiles(project).joined(separator: ", "))); do not read credential values.")
         }
 
-        if hasProjectCloudOrContainerCredentialFiles(project) {
-            warnings.append("Project cloud/container credential files detected (\(projectCloudOrContainerCredentialFiles(project).joined(separator: ", "))); do not read credential values or print auth tokens.")
+        if secretDetector.hasProjectCloudOrContainerCredentialFiles(project) {
+            warnings.append("Project cloud/container credential files detected (\(secretDetector.projectCloudOrContainerCredentialFiles(project).joined(separator: ", "))); do not read credential values or print auth tokens.")
         }
 
-        if hasSymlinkedProjectSignals(project) {
+        if secretDetector.hasSymlinkedProjectSignals(project) {
             warnings.append("Project symlinks detected (\(project.symlinkedFiles.joined(separator: ", "))); do not follow linked metadata or secret-bearing directories before reviewing targets.")
         }
 
-        if hasUnsafeRuntimeHintFiles(project) {
+        if secretDetector.hasUnsafeRuntimeHintFiles(project) {
             warnings.append("Runtime version hint files were not safely read (\(project.unsafeRuntimeHintFiles.joined(separator: ", "))); verify runtimes before dependency installs.")
         }
 
-        if hasUnsafePackageMetadataFields(project) {
+        if secretDetector.hasUnsafePackageMetadataFields(project) {
             warnings.append("Package metadata version fields were not safely read (\(project.unsafePackageMetadataFields.joined(separator: ", "))); verify runtimes and package managers before dependency installs.")
         }
 
-        if hasSSHPrivateKeyFile(project) {
+        if secretDetector.hasSSHPrivateKeyFile(project) {
             warnings.append("Private key file exists; do not read private key values.")
         }
 
@@ -1051,309 +1052,6 @@ public struct HabitatScanner {
     private func hasUvRequirementsDependencyFiles(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains("uv.lock")
             && (project.detectedFiles.contains("requirements.txt") || project.detectedFiles.contains("requirements-dev.txt"))
-    }
-
-    private func hasSymlinkedProjectSignals(_ project: ProjectInfo) -> Bool {
-        !project.symlinkedFiles.isEmpty
-    }
-
-    private func hasUnsafeRuntimeHintFiles(_ project: ProjectInfo) -> Bool {
-        !project.unsafeRuntimeHintFiles.isEmpty
-    }
-
-    private func hasUnsafePackageMetadataFields(_ project: ProjectInfo) -> Bool {
-        !project.unsafePackageMetadataFields.isEmpty
-    }
-
-    private func hasSecretDotEnvFile(_ project: ProjectInfo) -> Bool {
-        project.detectedFiles.contains { file in
-            isSecretDotEnvFile(file)
-        }
-    }
-
-    private func secretFileAccessForbiddenCommands(_ project: ProjectInfo) -> [String] {
-        secretValueFiles(project).flatMap { file in
-            var commands = [
-                "cat \(file)",
-                "less \(file)",
-                "head \(file)",
-                "tail \(file)",
-                "grep <pattern> \(file)",
-                "grep -n <pattern> \(file)",
-                "rg <pattern> \(file)",
-                "rg -n <pattern> \(file)",
-                "rg --line-number <pattern> \(file)",
-                "git grep <pattern> -- \(file)",
-                "git grep -n <pattern> -- \(file)",
-                "git grep <pattern> \(file)",
-                "git grep -n <pattern> \(file)",
-                "sed -n <range> \(file)",
-                "awk <program> \(file)",
-                "diff \(file) <other>",
-                "cmp \(file) <other>",
-                "git diff -- \(file)",
-                "git diff --cached -- \(file)",
-                "git diff --staged -- \(file)",
-                "git diff HEAD -- \(file)",
-                "git diff <rev> -- \(file)",
-                "git diff <rev>..<rev> -- \(file)",
-                "git log -p -- \(file)",
-                "git blame \(file)",
-                "git blame -- \(file)",
-                "git annotate \(file)",
-                "git annotate -- \(file)",
-                "git show -- \(file)",
-                "git show HEAD -- \(file)",
-                "git show <rev> -- \(file)",
-                "git show :\(file)",
-                "git show HEAD:\(file)",
-                "git show <rev>:\(file)",
-                "git cat-file -p :\(file)",
-                "git cat-file -p HEAD:\(file)",
-                "git cat-file -p <rev>:\(file)",
-                "git checkout -- \(file)",
-                "git checkout HEAD -- \(file)",
-                "git checkout <rev> -- \(file)",
-                "git restore -- \(file)",
-                "git restore --staged -- \(file)",
-                "git restore --worktree -- \(file)",
-                "git restore --source HEAD -- \(file)",
-                "git restore --source <rev> -- \(file)",
-                "bat \(file)",
-                "nl -ba \(file)",
-                "base64 \(file)",
-                "xxd \(file)",
-                "hexdump -C \(file)",
-                "strings \(file)",
-                "open \(file)",
-                "code \(file)",
-                "vim \(file)",
-                "vi \(file)",
-                "nano \(file)",
-                "emacs \(file)",
-                "cp \(file) <destination>",
-                "cp -R \(file) <destination>",
-                "cp -r \(file) <destination>",
-                "mv \(file) <destination>",
-                "rsync \(file) <destination>",
-                "rsync -a \(file) <destination>",
-                "scp \(file) <destination>",
-                "curl -F file=@\(file) <url>",
-                "curl --data-binary @\(file) <url>",
-                "curl -T \(file) <url>",
-                "wget --post-file=\(file) <url>",
-                "tar -cf <archive> \(file)",
-                "tar -czf <archive> \(file)",
-                "tar -cjf <archive> \(file)",
-                "tar -cJf <archive> \(file)",
-                "zip <archive> \(file)",
-                "zip -r <archive> \(file)",
-            ]
-
-            if isSSHPrivateKeyFilename(file) {
-                commands += [
-                    "ssh-add \(file)",
-                    "ssh-add -K \(file)",
-                    "ssh-add --apple-use-keychain \(file)",
-                    "ssh-keygen -y -f \(file)",
-                ]
-            }
-
-            return commands
-        }
-    }
-
-    private func secretEnvironmentFileLoadForbiddenCommands(_ project: ProjectInfo) -> [String] {
-        var commands = secretEnvironmentValueFiles(project).flatMap { file in
-            [
-                "source \(file)",
-                ". \(file)",
-            ]
-        }
-
-        if hasSecretEnvrcFile(project) {
-            commands += [
-                "direnv allow",
-                "direnv reload",
-                "direnv export <shell>",
-                "direnv exec . <command>",
-            ]
-        }
-
-        return commands
-    }
-
-    private func secretEnvironmentRenderForbiddenCommands(_ project: ProjectInfo) -> [String] {
-        let files = secretEnvironmentValueFiles(project)
-        guard !files.isEmpty else { return [] }
-
-        return [
-            "render Docker Compose config when secret environment files exist",
-            "docker compose config",
-            "docker-compose config",
-            "docker compose config --environment",
-            "docker-compose config --environment",
-        ] + files.flatMap { file in
-            [
-                "docker compose --env-file \(file) config",
-                "docker-compose --env-file \(file) config",
-            ]
-        }
-    }
-
-    private func recursiveSecretSearchAskFirstCommands(_ project: ProjectInfo) -> [String] {
-        guard !secretValueFiles(project).isEmpty else { return [] }
-
-        return [
-            "recursive project search without excluding secret-bearing files",
-            "grep -R <pattern> .",
-            "grep -r <pattern> .",
-            "grep -R -n <pattern> .",
-            "grep -r -n <pattern> .",
-            "find . -type f -exec grep <pattern> {} +",
-            "find . -type f -exec grep -n <pattern> {} +",
-            "find . -type f -print0 | xargs -0 grep <pattern>",
-            "find . -type f -print0 | xargs -0 grep -n <pattern>",
-            "rg <pattern>",
-            "rg -n <pattern>",
-            "rg <pattern> .",
-            "rg -n <pattern> .",
-            "rg --line-number <pattern> .",
-            "rg --hidden <pattern> .",
-            "rg --hidden -n <pattern> .",
-            "rg --no-ignore <pattern> .",
-            "rg --no-ignore -n <pattern> .",
-            "rg -u <pattern> .",
-            "rg -uu <pattern> .",
-            "rg -uuu <pattern> .",
-            "git grep <pattern>",
-            "git grep -n <pattern>",
-            "git grep <pattern> -- .",
-            "git grep -n <pattern> -- .",
-        ]
-    }
-
-    private func secretProjectBulkExportForbiddenCommands(_ project: ProjectInfo) -> [String] {
-        guard !secretValueFiles(project).isEmpty else { return [] }
-
-        return [
-            "project copy, sync, or archive without excluding secret-bearing files",
-            "cp -R . <destination>",
-            "cp -r . <destination>",
-            "rsync -a . <destination>",
-            "rsync -av . <destination>",
-            "ditto . <destination>",
-            "tar -cf <archive> .",
-            "tar -czf <archive> .",
-            "tar -cjf <archive> .",
-            "tar -cJf <archive> .",
-            "zip -r <archive> .",
-            "git archive HEAD",
-            "git archive --format=tar HEAD",
-            "git archive --format=zip HEAD",
-            "git archive -o <archive> HEAD",
-            "git archive --output <archive> HEAD",
-            "git archive --output=<archive> HEAD",
-        ]
-    }
-
-    private func secretEnvironmentValueFiles(_ project: ProjectInfo) -> [String] {
-        project.detectedFiles
-            .filter { file in
-                isSecretDotEnvFile(file) || isSecretEnvrcFile(file)
-            }
-            .sorted()
-    }
-
-    private func secretValueFiles(_ project: ProjectInfo) -> [String] {
-        project.detectedFiles
-            .filter { file in
-                isSecretDotEnvFile(file)
-                    || isSecretEnvrcFile(file)
-                    || file == ".netrc"
-                    || isPackageManagerAuthConfigFile(file)
-                    || isProjectCloudOrContainerCredentialFile(file)
-                    || isSSHPrivateKeyFilename(file)
-            }
-            .sorted()
-    }
-
-    private func isSecretDotEnvFile(_ file: String) -> Bool {
-        file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
-    }
-
-    private func hasSecretEnvrcFile(_ project: ProjectInfo) -> Bool {
-        project.detectedFiles.contains { file in
-            isSecretEnvrcFile(file)
-        }
-    }
-
-    private func isSecretEnvrcFile(_ file: String) -> Bool {
-        file == ".envrc" || (file.hasPrefix(".envrc.") && file != ".envrc.example")
-    }
-
-    private func hasPackageManagerAuthConfig(_ project: ProjectInfo) -> Bool {
-        !packageManagerAuthConfigFiles(project).isEmpty
-    }
-
-    private func packageManagerAuthConfigFiles(_ project: ProjectInfo) -> [String] {
-        project.detectedFiles
-            .filter(isPackageManagerAuthConfigFile)
-            .sorted()
-    }
-
-    private func isPackageManagerAuthConfigFile(_ file: String) -> Bool {
-        file == ".npmrc"
-            || file == ".pnpmrc"
-            || file == ".yarnrc"
-            || file == ".yarnrc.yml"
-            || file == ".pypirc"
-            || file == "pip.conf"
-            || file == ".gem/credentials"
-            || file == ".bundle/config"
-            || file == ".cargo/credentials.toml"
-            || file == ".cargo/credentials"
-            || file == "auth.json"
-            || file == ".composer/auth.json"
-    }
-
-    private func hasProjectCloudOrContainerCredentialFiles(_ project: ProjectInfo) -> Bool {
-        !projectCloudOrContainerCredentialFiles(project).isEmpty
-    }
-
-    private func projectCloudOrContainerCredentialFiles(_ project: ProjectInfo) -> [String] {
-        project.detectedFiles
-            .filter(isProjectCloudOrContainerCredentialFile)
-            .sorted()
-    }
-
-    private func isProjectCloudOrContainerCredentialFile(_ file: String) -> Bool {
-        file == ".aws/credentials"
-            || file == ".aws/config"
-            || file == ".config/gcloud/application_default_credentials.json"
-            || file == ".docker/config.json"
-            || file == ".kube/config"
-    }
-
-    private func hasNetrcFile(_ project: ProjectInfo) -> Bool {
-        project.detectedFiles.contains(".netrc")
-    }
-
-    private func hasSSHPrivateKeyFile(_ project: ProjectInfo) -> Bool {
-        project.detectedFiles.contains { file in
-            isSSHPrivateKeyFilename(file)
-        }
-    }
-
-    private func isSSHPrivateKeyFilename(_ file: String) -> Bool {
-        let basename = URL(fileURLWithPath: file).lastPathComponent.lowercased()
-        guard !basename.hasSuffix(".pub") else { return false }
-
-        if ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(basename) {
-            return true
-        }
-
-        return [".pem", ".key", ".p8", ".p12", ".ppk"].contains { basename.hasSuffix($0) }
     }
 
     private func orderedUnique(_ values: [String]) -> [String] {

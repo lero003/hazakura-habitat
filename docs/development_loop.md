@@ -45,8 +45,9 @@ Focus on the self-use observation loop:
 - feed findings back into policy wording, reason-code structure, behavior evidence, tests, or docs
 - record behavior-level evidence only when it adds a new command-decision boundary, regression, over-constraint, or concrete artifact improvement
 - keep evidence sanitized; do not store raw prompts, secrets, shell history, clipboard contents, private local paths, or release credentials
-- use `v0.4` PolicyFinding, reason-code, and command-reason output to decide whether a future evidence-normalization slice is actually needed
-- keep `v0.5` Evidence Normalization provisional; extract one concrete normalized-evidence shape from self-use before generalizing
+- use `v0.4` PolicyFinding, reason-code, and command-reason output to decide whether a future evidence or instruction-alignment slice is actually needed
+- keep `v0.5` Evidence and Instruction Alignment provisional; extract one concrete normalized-evidence or instruction-drift shape from observed command behavior before generalizing
+- when a slice touches scanner, catalog, or test-heavy behavior, include a small local decomposition that preserves generated output
 - if a code change affects generated output, update representative examples and tests in the same slice
 
 Avoid broad feature expansion:
@@ -76,7 +77,9 @@ Use `habitat-report/agent_context.md` as the working context for Codex. Consult 
 
 Do not commit `habitat-report/`. Turn useful findings into docs, fixtures, tests, examples, or roadmap items. See [Self-Use Loop](self_use.md) for the current snapshot and v0.2 findings.
 
-The intended AI-first direction is that agents trigger this scan themselves before high-impact work. Humans should not need to remember the preflight every time.
+This is a high-impact preflight, not a ritual for every tiny edit. Prefer it when an agent is new to the repository, when package-manager/runtime/secret/release signals may matter, before dependency or Git/GitHub mutation, and after project guidance changes. If `AGENTS.md` and the development docs already answer the command question for a low-risk task, skipping the scan is acceptable.
+
+The intended AI-first direction is that agents trigger this scan themselves before high-impact work. Humans should not need to remember the preflight every time. The scan is most valuable when it reports current repository facts or instruction drift that `AGENTS.md` alone cannot prove.
 
 ## Nenrin Observation Ledger
 
@@ -89,6 +92,8 @@ Keep this loop lightweight. Nenrin is for the retrospective question: did this i
 The post-v0.4 acceptance question is:
 
 > Did this self-use slice show that a specific scanner fact should become normalized evidence before it feeds `PolicyFinding`, rendered policy, tests, or docs?
+
+Also ask whether the slice exposed a maintainability risk: a scanner responsibility, catalog family, or test scenario group that should be split before adding more behavior nearby.
 
 For search commands, evaluate the command shape, not only whether search was used. `rg <pattern>` should remain a reasonable read-only next command when no secret-bearing files are detected. When secret-bearing files are detected, the next command should become safer, such as `rg <pattern> --glob '!.env' --glob '!.env.*' --glob '!.npmrc'`, or the agent should inspect `command_policy.md` before recursive search. The goal is to make exploration safer, not to ban search outright.
 
@@ -103,7 +108,7 @@ Release and phase-transition work requires an explicit user handoff:
 - cut or tag any release
 - write GitHub Release notes
 - upload or verify release artifacts
-- expand or re-scope `v0.5` beyond observed evidence-normalization needs
+- expand or re-scope `v0.5` beyond observed evidence, instruction-alignment, or maintainability needs
 
 Before that handoff, automation should keep changes inside the post-`v0.4` self-use observation loop.
 

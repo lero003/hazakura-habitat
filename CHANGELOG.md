@@ -4,8 +4,12 @@
 
 ### Changed
 
-- Clarified post-`v0.4.0` documentation so the next cycle observes published PolicyFinding behavior before starting broad evidence normalization.
+- Clarified post-`v0.4.0` documentation so the next cycle observes published PolicyFinding behavior before starting broad evidence or instruction-alignment work.
+- Added roadmap guardrails for Scanner/test/catalog maintainability, `v0.5` entry criteria, non-Habitat behavior evidence, read-only MCP timing, Linux feasibility, and release distribution trust.
 - Updated release-install guidance to explain that full `SHA256SUMS` verification expects all generated release assets in the same directory.
+- Extracted `SecretFileDetector` from `Scanner.swift` (~300 lines), leaving Scanner at 1548 lines and giving secret detection a clear module boundary.
+- Split monolithic `HabitatCoreTests.swift` (8628 lines) into scenario-grouped test suites: `BehaviorEvaluationTests`, `SecretFileDetectionTests`, `PackageAndCommandPolicyTests`, and `CoreInfrastructureTests`, with shared helpers in `TestHelpers.swift`.
+- Added Nenrin change record for the maintainability split and observation guidance for future decomposition slices.
 
 ## v0.4.0 Developer Preview - 2026-05-04
 

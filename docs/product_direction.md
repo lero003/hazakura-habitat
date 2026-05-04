@@ -35,6 +35,7 @@ Hazakura Habitat exists to generate that context before work begins.
 3. Conservative guidance over automatic mutation.
 4. Secret presence over secret contents.
 5. Short agent context over exhaustive reports.
+6. Repository reality over instruction repetition.
 
 Every proposed feature should pass this question:
 
@@ -45,6 +46,8 @@ If not, defer it.
 The public roadmap should strengthen the reliability of this decision context before it expands the product surface. Prefer output quality, behavior evaluation, and policy maintainability over new integrations or broad ecosystem coverage.
 
 Behavior evidence should be allowed to re-rank the roadmap. If Habitat proves most useful in a smaller set of high-confidence scenarios, deepen those scenarios instead of turning the product into a generic tool for every project type.
+
+Habitat should not compete with `AGENTS.md` as the place for durable project rules. Instead, it should help an agent verify whether the current repository state supports those rules: which package manager is actually signaled, whether validation commands are available, whether secret-bearing files change search shape, and whether release, CI, or generated-output facts create approval points that the written guidance does not mention.
 
 ## Positioning
 

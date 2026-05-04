@@ -24,6 +24,20 @@ Every item should pass this question:
 
 If not, put it in the parking lot.
 
+Habitat should complement `AGENTS.md`, roadmap, and development docs rather than restate them. Its stronger job is to read repository reality: package-manager signals, runnable scripts, generated-output state, secret-bearing paths, release or CI configuration, and other facts that may confirm or contradict written instructions. If `AGENTS.md` is complete and current enough for a low-risk task, skipping Habitat is acceptable. If generated context mostly repeats existing project guidance, treat that as weak output.
+
+## Maintenance Guardrails
+
+Do not let the narrow product scope hide codebase risk.
+
+Current warning lights:
+
+- `Scanner.swift` owns scanning, policy assembly, and report shaping responsibilities.
+- `PolicyReasonCatalog.swift` still contains large curated command catalogs, even after command-family centralization reduced drift.
+- `HabitatCoreTests.swift` concentrates scenario coverage in one very large file.
+
+Near-term feature work should pay down one of those risks when it adds adjacent behavior. Prefer extraction that preserves generated output over broad rewrites: move one scanner responsibility behind a small type, split one focused test group, or give one command family a clearer catalog boundary. Do not introduce a custom DSL, plugin system, or external rule format until ordering, trust, and prompt-injection risks are understood.
+
 ## Version Themes
 
 This table is a planning scaffold, not a fixed train schedule. After `v0.3.0`, later items should be re-ranked from observed behavior evidence. It is acceptable to skip, defer, or reorder phases that do not clearly improve agent command choice.
@@ -36,7 +50,7 @@ If behavior evaluation shows Habitat is most useful in a smaller set of high-con
 | 2 | `v0.2` | Agent reading contract | Read order, stopping points, reasons, and shortness |
 | 3 | `v0.3` | Agent behavior evaluation | Evidence that agent decisions improve |
 | 4 | `v0.4` | Policy finding foundation | A visible policy-decision core |
-| 5 | `v0.5` | Evidence normalization | Cleaner inputs for policy decisions |
+| 5 | `v0.5` | Evidence and instruction alignment | Cleaner inputs for policy decisions and instruction-drift checks |
 | 6 | `v0.6` | Agent behavior feedback loop | Turning observations into measured policy changes |
 | 7 | `v0.7` | Integration and distribution foundations | Easier consumption and safer installation path |
 | 8 | `v0.8` | Release trust hardening | Checksums, compatibility, install clarity |
@@ -320,20 +334,31 @@ Release status:
 - The release intentionally shipped a thin Policy Finding Foundation, not the full evidence-normalization pipeline.
 - Further generated-output or binary behavior changes should use a transparent patch release when they need to affect the published `v0.4.x` line.
 
-## v0.5: Evidence Normalization
+## v0.5: Evidence and Instruction Alignment
 
 Purpose:
 
-Move from raw project signals toward normalized evidence that can support deeper high-confidence behavior scenarios without making the scanner or renderer own policy interpretation.
+Move from raw project signals toward normalized evidence that can support deeper high-confidence behavior scenarios without making the scanner or renderer own policy interpretation. Start also treating project instructions as advisory claims that can be checked against current repository facts.
 
 This is where the broader `DetectedSignal -> NormalizedEvidence` part of the target flow may become real. Keep it tied to scenarios where `v0.4` self-use shows Habitat changes an agent's next command, instead of adding broad new domains or a generic evidence layer up front.
+
+Entry criteria for a `v0.5` slice:
+
+- the case changes or constrains the next command
+- the evidence can be captured without reading secret values or raw project prose
+- the expected behavior can be represented in a focused fixture or self-use trace
+- the implementation has a clear owner boundary, such as scanner extraction, policy input shaping, or renderer consumption
+- the resulting `agent_context.md` remains short
 
 Focus:
 
 - normalize selected package-manager, runtime, missing-tool, symlink, and secret-bearing-file signals
+- detect small, command-changing mismatches between written project guidance and actual repository state
 - keep normalized evidence value-safe; do not read or emit secrets
 - make policy decisions consume normalized evidence rather than scattered scanner facts where practical
+- reduce scanner responsibility while normalizing evidence; a `v0.5` slice should leave the relevant code easier to test
 - deepen high-confidence scenarios only when the evidence shape is clear
+- avoid ingesting raw instruction prose into agent-facing output; summarize only verified, command-relevant facts
 
 Priority areas:
 
@@ -341,6 +366,9 @@ Priority areas:
 - Secret-bearing search without over-banning targeted source inspection
 - Node package manager conflicts
 - Python uv/pip ambiguity
+- `AGENTS.md` or development-doc package-manager claims versus lockfiles and package metadata
+- documented validation commands versus actual script or SwiftPM/Xcode availability
+- docs that ask for a check whose local command is missing or unverifiable
 - SwiftPM and Xcode command selection
 - Ruby Bundler dependency mutation
 - Cargo and Go command guidance
@@ -365,13 +393,15 @@ Completion criteria:
 
 - Normalized evidence exists for at least one high-confidence scenario.
 - Policy decisions in that scenario no longer depend on renderer-local interpretation of raw project signals.
+- At least one instruction-alignment case shows Habitat surfacing a repository fact that `AGENTS.md` or development docs alone would not reveal.
+- At least one monolithic test area or scanner responsibility touched by the slice is split enough that future behavior changes can be reviewed locally.
 - At least one self-use or behavior-evaluation finding explains why each depth change matters.
 - Existing ecosystem ambiguity does not produce overconfident guidance.
 - Lockfile conflict wording is stable.
 - Missing preferred tool behavior is natural.
 - Version metadata appears only when it changes command choice, approval requirements, or refusal decisions.
 
-Do not add broad Docker, Terraform, Kubernetes, full Homebrew, or global package inventory scope.
+Do not add broad Docker, Terraform, Kubernetes, full Homebrew, global package inventory scope, or a generic prose linter for project docs.
 
 ## v0.6: Agent Behavior Feedback Loop
 
@@ -384,9 +414,12 @@ Previous-scan intelligence belongs here only when behavior evidence shows a conc
 Focus:
 
 - keep sanitized behavior fixtures small and scenario-based
+- add at least one non-Habitat fixture or external-project trace before re-ranking broad ecosystem priorities from self-use
 - use Nenrin observations to decide whether doc, skill, or policy changes should be kept, narrowed, merged, or removed
 - connect each behavior finding to a policy, evidence, test, or documentation change
 - preserve the risk-aware verdict scale without turning it into a broad benchmark
+- measure whether first-time agents make fewer initial command mistakes than they would from `AGENTS.md` alone
+- distinguish useful no-scan cases from missed preflight cases, especially when `AGENTS.md` already gives enough current context
 - surface previous-scan deltas only when they are command-changing
 - keep `agent_context.md` limited to the next-command decision
 
@@ -433,7 +466,8 @@ Candidate work:
 - setup guide for agent workflows
 - release install guidance that models Habitat's own caution around remote scripts
 - checksum verification in the default install path
-- minimal read-only MCP prototype, if the CLI contract is mature enough
+- minimal read-only MCP prototype, if file-based consumption is a measured blocker and the CLI contract is mature enough
+- Linux feasibility notes for read-only scan paths, without promising support before portability risks are known
 
 Possible read-only MCP surface:
 
@@ -457,6 +491,7 @@ Completion criteria:
 - Read-only boundaries are preserved.
 - Integration docs repeat that policy is advisory, not enforcement.
 - Users can obtain the preview without install instructions contradicting the product's command policy philosophy.
+- If MCP is pulled earlier than this phase, it remains read-only and thin enough to be removed or reshaped before `v1.0`.
 
 ## v0.8: Release Trust Hardening
 
@@ -479,6 +514,8 @@ Future macOS distribution candidates:
 - Homebrew tap
 - signed binary
 - notarization
+
+These are trust and reach improvements, not a reason to expand scanner behavior. If users repeatedly fail to install or verify the preview before `v0.8`, move the smallest distribution fix earlier rather than waiting for the full hardening phase.
 
 Avoid recommending `curl | sh` install flows. Habitat itself treats remote script piping as dangerous, so distribution should model the same caution.
 
@@ -595,6 +632,8 @@ Stable advisory context generation for AI coding agents.
 - behavior evaluation fixtures
 - policy finding model
 - renderer separation
+- targeted Scanner decomposition
+- scenario-based test-file split
 - lockfile conflict tests
 - missing preferred tool scenarios
 
@@ -606,6 +645,7 @@ Stable advisory context generation for AI coding agents.
 - previous-scan command-changing deltas
 - stdout or format modes
 - read-only MCP prototype
+- Linux feasibility spike
 
 ### Parking Lot
 

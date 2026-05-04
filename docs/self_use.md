@@ -4,6 +4,8 @@ Hazakura Habitat should be used by Codex before substantial work on Hazakura Hab
 
 This is not a marketing demo. It is a product feedback loop: if the generated context does not help an AI coding agent choose a better next command in this repository, the output contract needs work.
 
+Do not treat the self-scan as a requirement for every small edit. It should earn its cost by catching current repository facts, risky command boundaries, or instruction drift that an agent would not get from `AGENTS.md`, roadmap, or development docs alone. When those docs are complete, current, and enough for a low-risk task, not running Habitat is a valid outcome.
+
 ## Workflow
 
 For recurring agent work, prefer the bundled skill at `skills/hazakura-habitat`. It lets Codex decide when to scan before substantial work instead of waiting for a human to remember the step.
@@ -45,6 +47,8 @@ Read the generated files before continuing:
 Do not commit `habitat-report/`. Convert useful findings into docs, fixtures, tests, examples, or roadmap items.
 
 Use `nenrin/` as the companion observation ledger for changes to the self-use environment itself. When self-use changes Habitat docs, bundled skills, roadmap, release guidance, QA criteria, or automation prompts, create or update a Nenrin change record. After a later related task, add an observation describing whether the change affected the agent's next command or cleanup decision.
+
+When evaluating self-use output, discount guidance that merely repeats existing instructions. Stronger evidence is a repository fact that changes or constrains the next command: a conflicting lockfile, a missing preferred tool, a secret-bearing path that changes search shape, a generated-output mismatch, or a release/CI/GitHub risk that requires policy review. Also record when a strong `AGENTS.md` made Habitat unnecessary; that is not a product failure unless a later command mistake shows the skipped preflight mattered.
 
 ## Current Self-Scan Snapshot
 

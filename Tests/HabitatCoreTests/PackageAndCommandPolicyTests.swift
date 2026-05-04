@@ -1,0 +1,4614 @@
+import Testing
+import Foundation
+@testable import HabitatCore
+
+struct PackageAndCommandPolicyTests {
+    func scanPrefersPnpmWhenLockfileExists() throws {
+        let projectURL = try makeProject(files: [
+            "pnpm-lock.yaml": "lockfile",
+            "package.json": "{}",
+            ".nvmrc": "v20\n",
+            ".env.example": "EXAMPLE=1\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.schemaVersion == HabitatMetadata.schemaVersion)
+        #expect(result.generatorVersion == HabitatMetadata.generatorVersion)
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.runtimeHints.node == "v20")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.warnings.contains(where: { $0.contains("do not read real .env values") }))
+    }
+
+    @Test
+    func scanResultIncludesPolicyReasonCodes() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commandCounts = result.policy.commandCounts
+        let reasonCodes = result.policy.reasonCodes.map { $0.code }
+        let commandReasons = result.policy.commandReasons
+
+        #expect(commandCounts.preferred == result.policy.preferredCommands.count)
+        #expect(commandCounts.askFirst == result.policy.askFirstCommands.count)
+        #expect(commandCounts.reviewFirst == result.policy.reviewFirstCommandReasons.count)
+        #expect(commandCounts.forbidden == result.policy.forbiddenCommands.count)
+        #expect(commandCounts.withReasons == result.policy.commandReasons.count)
+        #expect(reasonCodes.contains("missing_tool"))
+        #expect(reasonCodes.contains("dependency_resolution_mutation"))
+        #expect(reasonCodes.contains("ephemeral_package_execution"))
+        #expect(reasonCodes.contains("privileged_command"))
+        #expect(reasonCodes.count == Set(reasonCodes).count)
+        #expect(commandReasons.contains(PolicyCommandReason(
+            command: "running SwiftPM commands before swift is available",
+            classification: "ask_first",
+            reasonCode: "missing_tool",
+            reason: "Required project tool is missing on `PATH`."
+        )))
+        #expect(commandReasons.contains(PolicyCommandReason(
+            command: "swift package update",
+            classification: "ask_first",
+            reasonCode: "dependency_resolution_mutation",
+            reason: "Dependency resolution or lockfile changes can change project state."
+        )))
+        #expect(commandReasons.contains(PolicyCommandReason(
+            command: "npx",
+            classification: "ask_first",
+            reasonCode: "ephemeral_package_execution",
+            reason: "Ephemeral package execution can fetch or run unpinned code outside the selected workflow."
+        )))
+        #expect(commandReasons.contains(PolicyCommandReason(
+            command: "sudo",
+            classification: "forbidden",
+            reasonCode: "privileged_command",
+            reason: "Privileged commands can mutate the host outside the project."
+        )))
+    }
+
+    @Test
+    func policyFindingsBackCommandReasonMetadata() throws {
+        let findings = PolicyReasonCatalog.findings(
+            askFirstCommands: ["swift package update"],
+            forbiddenCommands: ["sudo"]
+        )
+
+        #expect(findings == [
+            PolicyFinding(
+                command: "swift package update",
+                classification: "ask_first",
+                reasonCode: "dependency_resolution_mutation",
+                reason: "Dependency resolution or lockfile changes can change project state."
+            ),
+            PolicyFinding(
+                command: "sudo",
+                classification: "forbidden",
+                reasonCode: "privileged_command",
+                reason: "Privileged commands can mutate the host outside the project."
+            ),
+        ])
+        #expect(PolicyReasonCatalog.commandReasons(
+            askFirstCommands: ["swift package update"],
+            forbiddenCommands: ["sudo"]
+        ) == findings.map { PolicyCommandReason(finding: $0) })
+    }
+
+    @Test
+    func policySummaryDecodesOlderJsonWithoutCommandCounts() throws {
+        let json = """
+        {
+          "preferredCommands": ["swift test"],
+          "askFirstCommands": ["swift package update"],
+          "forbiddenCommands": ["sudo"],
+          "reasonCodes": [],
+          "commandReasons": [
+            {
+              "command": "swift package update",
+              "classification": "ask_first",
+              "reasonCode": "dependency_resolution_mutation",
+              "reason": "Dependency resolution or lockfile changes can change project state."
+            }
+          ]
+        }
+        """
+
+        let policy = try JSONDecoder().decode(PolicySummary.self, from: Data(json.utf8))
+
+        #expect(policy.commandCounts == PolicyCommandCounts(
+            preferred: 1,
+            askFirst: 1,
+            reviewFirst: 0,
+            forbidden: 1,
+            withReasons: 1
+        ))
+    }
+
+    @Test
+    func policyReasonLegendUsesStableCatalogOrder() throws {
+        let firstOrder = PolicyReasonCatalog.legend(
+            askFirstCommands: [
+                "pnpm install",
+                "corepack enable",
+                "swift package update",
+                "running pnpm commands before pnpm is available",
+                "npx",
+            ],
+            forbiddenCommands: [
+                "brew upgrade",
+                "env",
+                "sudo",
+            ]
+        ).map(\.code)
+
+        let reversedOrder = PolicyReasonCatalog.legend(
+            askFirstCommands: [
+                "running pnpm commands before pnpm is available",
+                "swift package update",
+                "corepack enable",
+                "pnpm install",
+                "npx",
+            ],
+            forbiddenCommands: [
+                "sudo",
+                "env",
+                "brew upgrade",
+            ]
+        ).map(\.code)
+
+        let expectedOrder = [
+            "missing_tool",
+            "package_manager_activation",
+            "dependency_resolution_mutation",
+            "dependency_mutation",
+            "ephemeral_package_execution",
+            "privileged_command",
+            "host_private_data",
+            "global_environment_mutation",
+        ]
+
+        #expect(firstOrder == expectedOrder)
+        #expect(reversedOrder == expectedOrder)
+    }
+
+    @Test
+    func scanWarnsWhenActiveNodeDiffersFromNvmrc() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "pnpm-lock.yaml": "lockfile",
+            ".nvmrc": "v20\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v25.9.0", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.warnings.contains("Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node)."))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+    }
+
+    @Test
+    func scanUsesNodeVersionFileForRuntimeInstallGuard() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+            ".node-version": "24.0.0\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".node-version"))
+        #expect(result.project.runtimeHints.node == "24.0.0")
+        #expect(result.warnings.contains("Active Node is v22.15.0, but project requests 24.0.0; ask before dependency installs (/opt/homebrew/bin/node)."))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+    }
+
+    @Test
+    func scanUsesToolVersionsForNodeRuntimeInstallGuard() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+            ".tool-versions": """
+            nodejs 24.0.0
+            ruby 3.3.0
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".tool-versions"))
+        #expect(result.project.runtimeHints.node == "24.0.0")
+        #expect(result.warnings.contains("Active Node is v22.15.0, but project requests 24.0.0; ask before dependency installs (/opt/homebrew/bin/node)."))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Active Node is v22.15.0, but project requests 24.0.0; ask before dependency installs"))
+        #expect(policy.contains("`dependency installs before matching active Node to project version hints`"))
+    }
+
+    @Test
+    func scanUsesPackageJsonEnginesNodeForRuntimeInstallGuard() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "engines": {
+                "node": "20.x"
+              },
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.project.runtimeHints.node == "20.x")
+        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(result.warnings.contains("Active Node is v22.15.0, but project requests 20.x; ask before dependency installs (/opt/homebrew/bin/node)."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"node\" : \"20.x\""))
+        #expect(context.contains("Active Node is v22.15.0, but project requests 20.x; ask before dependency installs"))
+        #expect(policy.contains("`dependency installs before matching active Node to project version hints`"))
+    }
+
+    @Test
+    func scanAcceptsSatisfiedPackageJsonEnginesNodeRange() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "engines": {
+                "node": ">=20 <22"
+              },
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v21.6.2", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.project.runtimeHints.node == ">=20 <22")
+        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(!result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(!result.warnings.contains(where: { $0.contains("Project requests Node >=20 <22") }))
+        #expect(!result.warnings.contains(where: { $0.contains("project requests >=20 <22") }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(!context.contains("dependency installs before matching active Node to project version hints"))
+        #expect(!policy.contains("`dependency installs before matching active Node to project version hints`"))
+    }
+
+    @Test
+    func scanAcceptsSatisfiedPackageJsonEnginesNodeOrRange() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "engines": {
+                "node": ">=18 <19 || >=20 <21"
+              },
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.project.runtimeHints.node == ">=18 <19 || >=20 <21")
+        #expect(result.policy.preferredCommands == ["npm run test"])
+        #expect(!result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(!result.warnings.contains(where: { $0.contains(">=18 <19 || >=20 <21") }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(!context.contains("dependency installs before matching active Node to project version hints"))
+        #expect(!policy.contains("`dependency installs before matching active Node to project version hints`"))
+    }
+
+    @Test
+    func scanWarnsBeforeSubstitutingMissingPreferredPackageManager() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "pnpm-lock.yaml": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.policy.askFirstCommands.contains("running pnpm commands before pnpm is available"))
+        #expect(result.warnings.contains("Project files prefer pnpm, but pnpm was not found on PATH; ask before running pnpm commands or substituting another package manager."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        #expect(context.contains("Ask before `running pnpm commands before pnpm is available`."))
+    }
+
+    @Test
+    func scanGuardsNpmLockfileWhenNpmIsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running npm commands before npm is available"))
+        #expect(result.policy.askFirstCommands.contains("npm install"))
+        #expect(result.warnings.contains("Project files prefer npm, but npm was not found on PATH; ask before running npm commands or substituting another package manager."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running npm commands before npm is available`."))
+        #expect(context.contains("Project files prefer npm, but npm was not found on PATH; ask before running npm commands or substituting another package manager."))
+        #expect(!context.contains("Prefer `npm run test`."))
+        #expect(policy.contains("`running npm commands before npm is available`"))
+        #expect(!policy.contains("`npm run test`"))
+    }
+
+    @Test
+    func scanTreatsNpmShrinkwrapAsNpmLockfileAndGuardsMissingNpm() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "npm-shrinkwrap.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("npm-shrinkwrap.json"))
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running npm commands before npm is available"))
+        #expect(result.warnings.contains("Project files prefer npm, but npm was not found on PATH; ask before running npm commands or substituting another package manager."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `npm` before running npm commands."))
+        #expect(context.contains("Ask before `running npm commands before npm is available`."))
+        #expect(!context.contains("Prefer `npm run test`."))
+        #expect(policy.contains("`running npm commands before npm is available`"))
+        #expect(!policy.contains("`npm run test`"))
+    }
+
+    @Test
+    func scanGuardsYarnAndBunLockfilesWhenPreferredToolIsMissing() throws {
+        let cases: [(lockfile: String, packageManager: String, preferredCommand: String, installCommand: String)] = [
+            ("yarn.lock", "yarn", "yarn run test", "yarn install"),
+            ("bun.lock", "bun", "bun test", "bun install"),
+            ("bun.lockb", "bun", "bun test", "bun install"),
+        ]
+
+        for testCase in cases {
+            let projectURL = try makeProject(files: [
+                "package.json": """
+                {
+                  "name": "demo",
+                  "scripts": {
+                    "test": "vitest run"
+                  }
+                }
+                """,
+                testCase.lockfile: "lockfile",
+            ])
+
+            let runner = FakeCommandRunner(results: [
+                "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            ])
+
+            let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+            let missingToolGuard = "running \(testCase.packageManager) commands before \(testCase.packageManager) is available"
+            let missingToolWarning = "Project files prefer \(testCase.packageManager), but \(testCase.packageManager) was not found on PATH; ask before running \(testCase.packageManager) commands or substituting another package manager."
+
+            #expect(result.project.packageManager == testCase.packageManager)
+            #expect(result.policy.preferredCommands.isEmpty)
+            #expect(result.policy.askFirstCommands.contains(missingToolGuard))
+            #expect(result.policy.askFirstCommands.contains(testCase.installCommand))
+            #expect(result.warnings.contains(missingToolWarning))
+
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+            let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+            let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+            #expect(context.contains("Ask before `\(missingToolGuard)`."))
+            #expect(context.contains(missingToolWarning))
+            #expect(policy.contains("`\(missingToolGuard)`"))
+        }
+    }
+
+    @Test
+    func scanAsksBeforeInstallsWhenMultipleJavaScriptLockfilesExist() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "npm lockfile",
+            "pnpm-lock.yaml": "pnpm lockfile",
+            "yarn.lock": "yarn lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.policy.askFirstCommands.contains("dependency installs when multiple JavaScript lockfiles exist"))
+        #expect(result.warnings.contains("Multiple JavaScript lockfiles detected (package-lock.json, pnpm-lock.yaml, yarn.lock); ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `dependency installs when multiple JavaScript lockfiles exist`."))
+        #expect(context.contains("Multiple JavaScript lockfiles detected (package-lock.json, pnpm-lock.yaml, yarn.lock); ask before dependency installs."))
+        #expect(policy.contains("`dependency installs when multiple JavaScript lockfiles exist`"))
+    }
+
+    @Test
+    func scanPrefersBunWhenTextLockfileExists() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "bun test"
+              }
+            }
+            """,
+            "bun.lock": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a bun": .init(name: "/usr/bin/which", args: ["-a", "bun"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/bun", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("bun.lock"))
+        #expect(result.project.packageManager == "bun")
+        #expect(result.policy.preferredCommands == ["bun test"])
+        #expect(result.policy.askFirstCommands.contains("bun install"))
+        #expect(result.policy.askFirstCommands.contains("bun add"))
+        #expect(result.policy.askFirstCommands.contains("bun update"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `bun` because project files point to it."))
+        #expect(context.contains("Prefer `bun test`."))
+        #expect(context.contains("Ask before `bun install`."))
+        #expect(policy.contains("`bun test`"))
+        #expect(policy.contains("`bun install`"))
+    }
+
+    @Test
+    func scanPrefersPnpmWhenWorkspaceFileExists() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "workspace-root",
+              "scripts": {
+                "build": "pnpm -r build",
+                "test": "pnpm -r test"
+              }
+            }
+            """,
+            "pnpm-workspace.yaml": """
+            packages:
+              - "packages/*"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("pnpm-workspace.yaml"))
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.policy.preferredCommands == ["pnpm run test", "pnpm run build"])
+        #expect(result.policy.askFirstCommands.contains("pnpm install"))
+        #expect(!result.policy.askFirstCommands.contains("running pnpm commands before pnpm is available"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `pnpm` because project files point to it."))
+        #expect(context.contains("Prefer `pnpm run test`."))
+        #expect(!context.contains("Use `npm`"))
+        #expect(policy.contains("`pnpm run build`"))
+        #expect(policy.contains("`pnpm install`"))
+    }
+
+    @Test
+    func scanPrefersPnpmWorkspaceOverConflictingNpmLockfile() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "workspace-root",
+              "packageManager": "npm@10.8.2",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "npm lockfile",
+            "pnpm-workspace.yaml": """
+            packages:
+              - "packages/*"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "9.15.4", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.declaredPackageManager == "npm")
+        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs when pnpm-workspace.yaml conflicts with JavaScript lockfiles"))
+        #expect(result.policy.askFirstCommands.contains("dependency installs when package.json packageManager conflicts with project package-manager signals"))
+        #expect(!result.policy.askFirstCommands.contains("dependency installs when package.json packageManager conflicts with lockfiles"))
+        #expect(result.warnings.contains("pnpm-workspace.yaml selects pnpm, but JavaScript lockfiles also include package-lock.json; ask before dependency installs."))
+        #expect(result.warnings.contains("package.json requests npm, but pnpm-workspace.yaml selects pnpm; ask before dependency installs."))
+        #expect(!result.warnings.contains("package.json requests npm, but project lockfiles select pnpm; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `pnpm` because project files point to it."))
+        #expect(context.contains("Prefer `pnpm run test`."))
+        #expect(context.contains("Ask before `dependency installs when pnpm-workspace.yaml conflicts with JavaScript lockfiles`."))
+        #expect(context.contains("pnpm-workspace.yaml selects pnpm, but JavaScript lockfiles also include package-lock.json; ask before dependency installs."))
+        #expect(context.contains("package.json requests npm, but pnpm-workspace.yaml selects pnpm; ask before dependency installs."))
+        #expect(!context.contains("Use `npm`"))
+        #expect(policy.contains("`dependency installs when pnpm-workspace.yaml conflicts with JavaScript lockfiles`"))
+        #expect(policy.contains("`dependency installs when package.json packageManager conflicts with project package-manager signals`"))
+        #expect(policy.contains("`pnpm run test`"))
+    }
+
+    @Test
+    func scanPrefersPnpmWorkspaceOverConflictingPackageManagerField() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "workspace-root",
+              "packageManager": "npm@10.8.2",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-workspace.yaml": """
+            packages:
+              - "packages/*"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "9.15.4", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.declaredPackageManager == "npm")
+        #expect(result.project.declaredPackageManagerVersion == "10.8.2")
+        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs when package.json packageManager conflicts with project package-manager signals"))
+        #expect(result.warnings.contains("package.json requests npm, but pnpm-workspace.yaml selects pnpm; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `pnpm` because project files point to it."))
+        #expect(context.contains("Prefer `pnpm run test`."))
+        #expect(context.contains("Ask before `dependency installs when package.json packageManager conflicts with project package-manager signals`."))
+        #expect(context.contains("package.json requests npm, but pnpm-workspace.yaml selects pnpm; ask before dependency installs."))
+        #expect(!context.contains("Use `npm@10.8.2`"))
+        #expect(policy.contains("`dependency installs when package.json packageManager conflicts with project package-manager signals`"))
+    }
+
+    @Test
+    func scanAsksBeforeLockfileMutation() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.askFirstCommands.contains("modifying lockfiles"))
+        #expect(result.policy.askFirstCommands.contains("modifying version manager files"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(policy.contains("`modifying lockfiles`"))
+        #expect(policy.contains("`modifying version manager files`"))
+    }
+
+    @Test
+    func scanAsksBeforeProjectDeletionCleanupIndexHistoryBranchAndWorktreeCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "git clean",
+            "git reset --hard",
+            "git checkout",
+            "git checkout --",
+            "git checkout -f",
+            "git checkout -B",
+            "git switch",
+            "git switch --discard-changes",
+            "git switch -C",
+            "git restore",
+            "git rm",
+            "git stash",
+            "git stash push",
+            "git stash pop",
+            "git stash apply",
+            "git stash drop",
+            "git stash clear",
+            "git branch -d",
+            "git branch -D",
+            "git tag -d",
+            "git tag",
+            "git fetch",
+            "git fetch --all",
+            "git fetch --prune",
+            "git remote add",
+            "git remote set-url",
+            "git remote remove",
+            "git init",
+            "git clone",
+            "git add",
+            "git add -A",
+            "git add --all",
+            "git add -u",
+            "git commit",
+            "git commit --amend",
+            "git reset",
+            "git reset --soft",
+            "git reset --mixed",
+            "git pull",
+            "git merge",
+            "git cherry-pick",
+            "git revert",
+            "git rebase",
+            "git submodule update",
+            "git submodule update --init",
+            "git submodule update --init --recursive",
+            "git worktree add",
+            "git worktree remove",
+            "git worktree move",
+            "git worktree prune",
+            "git push",
+            "git push -u",
+            "git push --set-upstream",
+            "git push -f",
+            "git push --force",
+            "git push --force-with-lease",
+            "git push --delete",
+            "git push --mirror",
+            "git push --all",
+            "git push --tags",
+            "git push <remote> +<ref>",
+            "git push <remote> :<ref>",
+            "rm",
+            "rm -r",
+            "rm -rf",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanAsksBeforePermissionAndOwnershipChanges() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "chmod",
+            "chown",
+            "chgrp",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in PolicyReasonCatalog.localGitWorkspaceMutationCommands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+            #expect(commandReasonCodes[command] == "git_mutation", "Expected \(command) to explain local Git workspace mutation risk")
+        }
+        for command in ["gh pr checkout", "gh repo clone"] {
+            #expect(commandReasonCodes[command] == "git_mutation", "Expected \(command) to explain local Git workspace mutation risk")
+        }
+        for command in [
+            "gh pr create",
+            "gh pr review",
+            "gh issue comment",
+            "gh workflow run",
+            "gh release upload",
+            "gh secret list",
+            "gh variable get",
+            "gh api",
+        ] {
+            #expect(commandReasonCodes[command] == "remote_repository_action", "Expected \(command) to explain remote repository action risk")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+        #expect(policy.contains("`gh pr checkout` (`git_mutation`)"))
+        #expect(policy.contains("`gh pr create` (`remote_repository_action`)"))
+        #expect(policy.contains("`gh workflow run` (`remote_repository_action`)"))
+        #expect(policy.contains("`gh variable get` (`remote_repository_action`)"))
+    }
+
+    @Test
+    func scanAsksBeforeBulkRewriteAndDeletionShellCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "sed -i",
+            "perl -pi",
+            "find -delete",
+            "xargs rm",
+            "truncate",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanAsksBeforeShellCopyMoveSyncAndArchiveExtractionCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "cp",
+            "cp -R",
+            "cp -r",
+            "mv",
+            "rsync",
+            "rsync --delete",
+            "ditto",
+            "tar -xf",
+            "tar -xzf",
+            "tar -xJf",
+            "unzip",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanForbidsDestructiveDeletionOutsideSelectedProject() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.policy.forbiddenCommands.contains("destructive file deletion outside the selected project"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not delete files outside the selected project."))
+        #expect(!context.contains("Do not run `destructive file deletion outside the selected project`."))
+        #expect(policy.contains("`destructive file deletion outside the selected project`"))
+    }
+
+    @Test
+    func scanForbidsRemoteScriptShellExecution() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "remote script execution through curl or wget",
+            "curl | sh",
+            "curl | bash",
+            "curl | zsh",
+            "wget | sh",
+            "wget | bash",
+            "wget | zsh",
+            "sh <(curl ...)",
+            "bash <(curl ...)",
+            "zsh <(curl ...)",
+            "sh <(wget ...)",
+            "bash <(wget ...)",
+            "zsh <(wget ...)",
+        ]
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not execute remote scripts through `curl` or `wget` piped into a shell."))
+        #expect(!context.contains("Do not run `remote script execution through curl or wget`."))
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanGuardsHomebrewHostStateMutationCommands() throws {
+        let projectURL = try makeProject(files: [
+            "Brewfile": "brew \"swiftlint\"\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let askFirstCommands = [
+            "brew tap",
+            "brew tap-new",
+        ]
+        let forbiddenCommands = [
+            "brew untap",
+            "brew services start",
+            "brew services stop",
+            "brew services restart",
+            "brew services run",
+            "brew services cleanup",
+        ]
+
+        for command in askFirstCommands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        for command in forbiddenCommands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in askFirstCommands + forbiddenCommands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanTreatsPackageJsonOnlyAsNpmProjectAndGuardsMissingNpm() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.project.packageScripts.isEmpty)
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("npm ci"))
+        #expect(result.policy.askFirstCommands.contains("npm update"))
+        #expect(result.policy.askFirstCommands.contains("running npm commands before npm is available"))
+        #expect(result.warnings.contains("Project files prefer npm, but npm was not found on PATH; ask before running npm commands or substituting another package manager."))
+        #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `node` and `npm` before running JavaScript commands."))
+        #expect(context.contains("Ask before `running JavaScript commands before node is available`."))
+        #expect(context.contains("Ask before `running npm commands before npm is available`."))
+        #expect(context.contains("Ask before `npm ci`."))
+        #expect(!context.contains("Prefer `npm run`."))
+        #expect(!policy.contains("`npm run`"))
+        #expect(policy.contains("`npm ci`"))
+        #expect(policy.contains("`npm update`"))
+        #expect(policy.contains("`running npm commands before npm is available`"))
+    }
+
+    @Test
+    func commandPolicyDoesNotAllowGenericTestOrBuildWithoutConcretePreferredCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env npm --version": .init(name: "/usr/bin/env", args: ["npm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "10.8.2", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.preferredCommands == ["npm run"])
+        #expect(!result.policy.askFirstCommands.contains("running JavaScript commands before node is available"))
+        #expect(!result.policy.askFirstCommands.contains("running npm commands before npm is available"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(policy.contains("`npm run`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanAsksBeforeJavaScriptCommandsWhenNodeRuntimeIsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running JavaScript commands before node is available"))
+        #expect(!result.policy.askFirstCommands.contains("running npm commands before npm is available"))
+        #expect(result.warnings.contains("Project files need Node, but node was not found on PATH; ask before running JavaScript commands."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running JavaScript commands before node is available`."))
+        #expect(context.contains("Project files need Node, but node was not found on PATH; ask before running JavaScript commands."))
+        #expect(!context.contains("Prefer `npm run test`."))
+        #expect(!policy.contains("`npm run test`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+        #expect(policy.contains("`running JavaScript commands before node is available`"))
+    }
+
+    @Test
+    func scanGuardsJavaScriptDependencyMutationCommands() throws {
+        let cases: [(lockfile: String, packageManager: String, commands: [String])] = [
+            ("package-lock.json", "npm", ["npm install", "npm ci", "npm update", "npm uninstall", "npm remove", "npm rm"]),
+            ("pnpm-lock.yaml", "pnpm", ["pnpm install", "pnpm add", "pnpm update", "pnpm remove", "pnpm rm", "pnpm uninstall"]),
+            ("yarn.lock", "yarn", ["yarn install", "yarn add", "yarn up", "yarn remove"]),
+            ("bun.lock", "bun", ["bun install", "bun add", "bun update", "bun remove"]),
+            ("bun.lockb", "bun", ["bun install", "bun add", "bun update", "bun remove"]),
+        ]
+
+        for testCase in cases {
+            let projectURL = try makeProject(files: [
+                "package.json": "{}",
+                testCase.lockfile: "lockfile",
+            ])
+
+            let result = HabitatScanner(runner: FakeCommandRunner(results: [
+                "/usr/bin/which -a \(testCase.packageManager)": .init(name: "/usr/bin/which", args: ["-a", testCase.packageManager], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/\(testCase.packageManager)", stderr: ""),
+            ])).scan(projectURL: projectURL)
+
+            #expect(result.project.packageManager == testCase.packageManager)
+
+            for command in testCase.commands {
+                #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+            }
+
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+            let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+            for command in testCase.commands {
+                #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+            }
+        }
+    }
+
+    @Test
+    func scanForbidsJavaScriptGlobalPackageInstalls() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "pnpm-lock.yaml": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "npm install -g",
+            "npm install --global",
+            "npm i -g",
+            "npm i --global",
+            "npm uninstall -g",
+            "npm uninstall --global",
+            "npm remove -g",
+            "npm remove --global",
+            "npm rm -g",
+            "npm rm --global",
+            "pnpm add -g",
+            "pnpm add --global",
+            "pnpm remove -g",
+            "pnpm remove --global",
+            "pnpm rm -g",
+            "pnpm rm --global",
+            "yarn global add",
+            "yarn global remove",
+            "yarn add -g",
+            "yarn add --global",
+            "yarn remove -g",
+            "yarn remove --global",
+            "bun add -g",
+            "bun add --global",
+            "bun remove -g",
+            "bun remove --global",
+        ]
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanForbidsLanguageGlobalPackageMutationCommands() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "gem install",
+            "gem update",
+            "gem uninstall",
+            "gem cleanup",
+            "go install",
+            "cargo install",
+            "cargo uninstall",
+            "pipx install",
+            "pipx install-all",
+            "pipx uninstall",
+            "pipx uninstall-all",
+            "pipx upgrade",
+            "pipx upgrade-all",
+            "pipx reinstall",
+            "pipx reinstall-all",
+            "pipx inject",
+            "pipx uninject",
+            "pipx pin",
+            "pipx unpin",
+            "pipx ensurepath",
+            "uv tool install",
+            "uv tool upgrade",
+            "uv tool upgrade --all",
+            "uv tool uninstall",
+        ]
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanAsksBeforeEphemeralPackageExecutionCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "npm exec",
+            "npx",
+            "pnpm dlx",
+            "yarn dlx",
+            "bunx",
+            "uvx",
+            "uv tool run",
+            "pipx run",
+            "pipx runpip",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanAsksBeforePackagePublicationCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            "Gemfile": "source \"https://rubygems.org\"\n",
+            "Cargo.toml": "[package]\nname = \"demo\"\nversion = \"0.1.0\"\n",
+            "Podfile": "platform :ios, '17.0'\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "npm publish",
+            "pnpm publish",
+            "yarn publish",
+            "yarn npm publish",
+            "bun publish",
+            "uv publish",
+            "twine upload",
+            "python -m twine upload",
+            "python3 -m twine upload",
+            "gem push",
+            "gem yank",
+            "gem owner",
+            "cargo publish",
+            "cargo yank",
+            "cargo owner",
+            "pod trunk add-owner",
+            "pod trunk remove-owner",
+            "pod trunk push",
+            "pod trunk deprecate",
+            "pod trunk delete",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in commands {
+            #expect(commandReasonCodes[command] == "package_registry_mutation", "Expected \(command) to explain external package registry mutation risk")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+            #expect(policy.contains("`\(command)` (`package_registry_mutation`)"), "Expected command_policy.md to annotate \(command) with package_registry_mutation")
+        }
+    }
+
+    @Test
+    func scanAsksBeforeRegistryMetadataMutationCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "npm unpublish",
+            "npm deprecate",
+            "npm dist-tag",
+            "npm owner",
+            "npm access",
+            "npm team",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in commands {
+            #expect(commandReasonCodes[command] == "package_registry_mutation", "Expected \(command) to explain external package registry mutation risk")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+            #expect(policy.contains("`\(command)` (`package_registry_mutation`)"), "Expected command_policy.md to annotate \(command) with package_registry_mutation")
+        }
+    }
+
+    @Test
+    func scanForbidsPackageRegistryAuthTokenAndSessionCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = PolicyReasonCatalog.packageManagerCredentialAndConfigCommands.filter { command in
+            command.hasPrefix("npm token")
+                || command.hasPrefix("npm login")
+                || command.hasPrefix("npm logout")
+                || command.hasPrefix("npm adduser")
+                || command.hasPrefix("npm whoami")
+                || command.hasPrefix("pnpm login")
+                || command.hasPrefix("pnpm logout")
+                || command.hasPrefix("pnpm whoami")
+                || command.hasPrefix("yarn npm login")
+                || command.hasPrefix("yarn npm logout")
+                || command.hasPrefix("yarn npm whoami")
+                || command.hasPrefix("gem signin")
+                || command.hasPrefix("gem signout")
+                || command.hasPrefix("cargo login")
+                || command.hasPrefix("cargo logout")
+                || command.hasPrefix("pod trunk register")
+                || command.hasPrefix("pod trunk me")
+        }
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in ["npm whoami", "pnpm whoami", "yarn npm whoami", "gem signin", "cargo login", "pod trunk me"] {
+            #expect(commandReasonCodes[command] == "secret_or_credential_access", "Expected \(command) to explain credential/session risk")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanAsksBeforeGitHubCliLocalAndRemoteMutationCommands() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "gh pr checkout",
+            "gh pr create",
+            "gh pr edit",
+            "gh pr close",
+            "gh pr reopen",
+            "gh pr merge",
+            "gh pr comment",
+            "gh pr review",
+            "gh issue create",
+            "gh issue edit",
+            "gh issue close",
+            "gh issue reopen",
+            "gh issue comment",
+            "gh repo clone",
+            "gh repo fork",
+            "gh repo edit",
+            "gh repo rename",
+            "gh repo archive",
+            "gh repo delete",
+            "gh workflow run",
+            "gh workflow enable",
+            "gh workflow disable",
+            "gh run cancel",
+            "gh run delete",
+            "gh run rerun",
+            "gh release create",
+            "gh release edit",
+            "gh release upload",
+            "gh release delete",
+            "gh release delete-asset",
+            "gh secret list",
+            "gh secret set",
+            "gh secret delete",
+            "gh variable list",
+            "gh variable get",
+            "gh variable set",
+            "gh variable delete",
+            "gh api",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanForbidsJavaScriptPackageManagerConfigAccessCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+            ".npmrc": "//registry.npmjs.org/:_authToken=secret\n",
+            ".pnpmrc": "//registry.npmjs.org/:_authToken=secret\n",
+            ".yarnrc.yml": "npmAuthToken: secret\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = PolicyReasonCatalog.packageManagerCredentialAndConfigCommands.filter { command in
+            command.hasPrefix("npm config")
+                || command.hasPrefix("pnpm config")
+                || command.hasPrefix("yarn config")
+        }
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in ["npm config get", "pnpm config get", "yarn config get"] {
+            #expect(commandReasonCodes[command] == "secret_or_credential_access", "Expected \(command) to explain credential/config risk")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, or archive package manager auth config files."))
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanForbidsCredentialStoreAndCliAuthTokenCommands() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = PolicyReasonCatalog.cliAuthAndCredentialStoreCommands
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in ["gh auth login", "gh auth setup-git", "git credential fill", "security export"] {
+            #expect(commandReasonCodes[command] == "secret_or_credential_access", "Expected \(command) to explain credential/session risk")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanForbidsCloudAndContainerCredentialReads() throws {
+        let projectURL = try makeProject(files: [
+            "README.md": "# Demo\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = PolicyReasonCatalog.cloudAndContainerCredentialCommands
+
+        for command in commands {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in ["aws sso login", "gcloud auth login", "docker login", "kubectl config view --raw"] {
+            #expect(commandReasonCodes[command] == "secret_or_credential_access", "Expected \(command) to explain credential/session risk")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Do not read, open, copy, upload, or archive local cloud or container credential files, or print cloud auth tokens."))
+        #expect(!context.contains("Do not run `read local cloud and container credential files`."))
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanAsksBeforeCorepackMutationCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "packageManager": "pnpm@10.0.0"
+            }
+            """,
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = PolicyReasonCatalog.corepackPackageManagerActivationCommands
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+        #expect(PolicyReasonCatalog.askFirstReason(for: "corepack enable").code == "package_manager_activation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "corepack install").code == "package_manager_activation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "corepack use").code == "package_manager_activation")
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)` (`package_manager_activation`)"), "Expected command_policy.md to include \(command) with package-manager activation reason")
+        }
+    }
+
+    @Test
+    func scanUsesPackageJsonScriptNamesForJavaScriptPreferredCommands() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "build": "vite build",
+                "deploy": "secret deploy target",
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.project.packageScripts == ["build", "deploy", "test"])
+        #expect(result.policy.preferredCommands == ["npm run test", "npm run build"])
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Prefer `npm run test`."))
+        #expect(context.contains("Prefer `npm run build`."))
+        #expect(policy.contains("`npm run test`"))
+        #expect(policy.contains("`npm run build`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+        #expect(!context.contains("secret deploy target"))
+        #expect(!context.contains("npm run deploy"))
+    }
+
+    @Test
+    func scanUsesPackageManagerFieldWhenNoJavaScriptLockfileExists() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "packageManager": "pnpm@9.15.4",
+              "scripts": {
+                "build": "vite build",
+                "test": "vitest run"
+              }
+            }
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "9.15.4", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.project.packageScripts == ["build", "test"])
+        #expect(result.policy.preferredCommands == ["pnpm run test", "pnpm run build"])
+        #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+        #expect(!result.policy.askFirstCommands.contains("running pnpm commands before pnpm is available"))
+        #expect(!result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `pnpm@9.15.4` because `package.json` packageManager points to it."))
+        #expect(context.contains("Prefer `pnpm run test`."))
+        #expect(policy.contains("`pnpm run build`"))
+    }
+
+    @Test
+    func scanOmitsPackageManagerIntegritySuffixFromAgentArtifacts() throws {
+        let integrity = "sha512-abcdefghijklmnopqrstuvwxyz0123456789"
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "packageManager": "pnpm@9.15.4+\(integrity)",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "9.15.4", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.project.declaredPackageManagerVersion == "9.15.4")
+        #expect(!result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"packageManagerVersion\" : \"9.15.4\""))
+        #expect(context.contains("Use `pnpm@9.15.4` because `package.json` packageManager points to it."))
+        #expect(!scanResult.contains(integrity))
+        #expect(!context.contains(integrity))
+    }
+
+    @Test
+    func scanUsesToolVersionsForPackageManagerVersionGuard() throws {
+        let integrity = "sha512-toolversionsabcdefghijklmnopqrstuvwxyz0123456789"
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-lock.yaml": "lockfile",
+            ".tool-versions": """
+            nodejs 20.11.1
+            pnpm 9.15.4+\(integrity)
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "8.15.9", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.project.packageManagerVersionSource == ".tool-versions")
+        #expect(result.project.declaredPackageManager == nil)
+        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+        #expect(result.warnings.contains("Project requests pnpm 9.15.4 via .tool-versions; active pnpm is 8.15.9; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"packageManagerVersion\" : \"9.15.4\""))
+        #expect(scanResult.contains("\"packageManagerVersionSource\" : \".tool-versions\""))
+        #expect(context.contains("Use `pnpm@9.15.4` because `.tool-versions` pins it."))
+        #expect(context.contains("Ask before `dependency installs before matching pnpm to packageManager version`."))
+        #expect(policy.contains("`dependency installs before matching pnpm to packageManager version`"))
+        #expect(!scanResult.contains(integrity))
+        #expect(!context.contains(integrity))
+    }
+
+    @Test
+    func scanUsesMiseTomlForRuntimeAndPackageManagerVersionGuards() throws {
+        let integrity = "sha512-miseabcdefghijklmnopqrstuvwxyz0123456789"
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-lock.yaml": "lockfile",
+            "mise.toml": """
+            [tools]
+            node = "20.11.1"
+            pnpm = "9.15.4+\(integrity)"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "8.15.9", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("mise.toml"))
+        #expect(result.project.runtimeHints.node == "20.11.1")
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.project.packageManagerVersionSource == "mise.toml")
+        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+        #expect(result.warnings.contains("Active Node is v22.15.0, but project requests 20.11.1; ask before dependency installs (/opt/homebrew/bin/node)."))
+        #expect(result.warnings.contains("Project requests pnpm 9.15.4 via mise.toml; active pnpm is 8.15.9; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"packageManagerVersionSource\" : \"mise.toml\""))
+        #expect(context.contains("Use `pnpm@9.15.4` because `mise.toml` pins it."))
+        #expect(context.contains("Ask before `dependency installs before matching active Node to project version hints`."))
+        #expect(context.contains("Ask before `dependency installs before matching pnpm to packageManager version`."))
+        #expect(policy.contains("`dependency installs before matching active Node to project version hints`"))
+        #expect(policy.contains("`dependency installs before matching pnpm to packageManager version`"))
+        #expect(!scanResult.contains(integrity))
+        #expect(!context.contains(integrity))
+    }
+
+    @Test
+    func scanUsesCommentedMiseToolsSectionForVersionGuards() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-lock.yaml": "lockfile",
+            "mise.toml": """
+            [ tools ] # project tool versions
+            node = "20.11.1"
+            pnpm = "9.15.4"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "8.15.9", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.runtimeHints.node == "20.11.1")
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.project.packageManagerVersionSource == "mise.toml")
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"packageManagerVersionSource\" : \"mise.toml\""))
+        #expect(context.contains("Use `pnpm@9.15.4` because `mise.toml` pins it."))
+        #expect(context.contains("Ask before `dependency installs before matching active Node to project version hints`."))
+        #expect(context.contains("Ask before `dependency installs before matching pnpm to packageManager version`."))
+    }
+
+    @Test
+    func scanUsesHiddenMiseTomlForRuntimeAndPackageManagerVersionGuards() throws {
+        let integrity = "sha512-hiddenmiseabcdefghijklmnopqrstuvwxyz0123456789"
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-lock.yaml": "lockfile",
+            ".mise.toml": """
+            [tools]
+            node = "20.11.1"
+            pnpm = "9.15.4+\(integrity)"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "8.15.9", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".mise.toml"))
+        #expect(result.project.runtimeHints.node == "20.11.1")
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.project.packageManagerVersionSource == ".mise.toml")
+        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+        #expect(result.warnings.contains("Project requests pnpm 9.15.4 via .mise.toml; active pnpm is 8.15.9; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"packageManagerVersionSource\" : \".mise.toml\""))
+        #expect(context.contains("Use `pnpm@9.15.4` because `.mise.toml` pins it."))
+        #expect(context.contains("Ask before `dependency installs before matching active Node to project version hints`."))
+        #expect(context.contains("Ask before `dependency installs before matching pnpm to packageManager version`."))
+        #expect(policy.contains("`dependency installs before matching active Node to project version hints`"))
+        #expect(policy.contains("`dependency installs before matching pnpm to packageManager version`"))
+        #expect(!scanResult.contains(integrity))
+        #expect(!context.contains(integrity))
+    }
+
+    @Test
+    func scanAsksBeforeInstallsWhenPackageManagerFieldConflictsWithLockfile() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "packageManager": "pnpm@9.15.4",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "yarn.lock": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env yarn --version": .init(name: "/usr/bin/env", args: ["yarn", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "1.22.22", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a yarn": .init(name: "/usr/bin/which", args: ["-a", "yarn"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/yarn", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "yarn")
+        #expect(result.project.packageManagerVersion == nil)
+        #expect(result.project.declaredPackageManager == "pnpm")
+        #expect(result.project.declaredPackageManagerVersion == "9.15.4")
+        #expect(result.policy.preferredCommands == ["yarn run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs when package.json packageManager conflicts with lockfiles"))
+        #expect(result.warnings.contains("package.json requests pnpm, but project lockfiles select yarn; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"declaredPackageManager\" : \"pnpm\""))
+        #expect(scanResult.contains("\"declaredPackageManagerVersion\" : \"9.15.4\""))
+        #expect(context.contains("Use `yarn` because project files point to it."))
+        #expect(context.contains("Ask before `dependency installs when package.json packageManager conflicts with lockfiles`."))
+        #expect(context.contains("package.json requests pnpm, but project lockfiles select yarn; ask before dependency installs."))
+        #expect(policy.contains("`dependency installs when package.json packageManager conflicts with lockfiles`"))
+    }
+
+    @Test
+    func scanAsksBeforeInstallsWhenPackageManagerVersionDiffers() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "packageManager": "pnpm@9.15.4"
+            }
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "10.0.0", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+        #expect(result.warnings.contains("Project requests pnpm 9.15.4 via package.json; active pnpm is 10.0.0; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `pnpm@9.15.4` because `package.json` packageManager points to it."))
+        #expect(context.contains("Ask before `dependency installs before matching pnpm to packageManager version`."))
+        #expect(policy.contains("`dependency installs before matching pnpm to packageManager version`"))
+    }
+
+    @Test
+    func scanAsksBeforeInstallsWhenPackageManagerVersionCannotBeVerified() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "packageManager": "yarn@4.8.1"
+            }
+            """,
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "yarn")
+        #expect(result.project.packageManagerVersion == "4.8.1")
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching yarn to packageManager version"))
+        #expect(result.warnings.contains("Project requests yarn 4.8.1 via package.json; verify active yarn before dependency installs."))
+    }
+
+    @Test
+    func scanUsesPackageJsonVoltaPinsForNodeAndPackageManagerVersionGuards() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "volta": {
+                "node": "20.11.1",
+                "pnpm": "9.15.4"
+              },
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-lock.yaml": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.15.0", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "10.0.0", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.project.runtimeHints.node == "20.11.1")
+        #expect(result.project.declaredPackageManager == nil)
+        #expect(result.policy.preferredCommands == ["pnpm run test"])
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+        #expect(result.warnings.contains("Active Node is v22.15.0, but project requests 20.11.1; ask before dependency installs (/opt/homebrew/bin/node)."))
+        #expect(result.warnings.contains("Project requests pnpm 9.15.4 via package.json; active pnpm is 10.0.0; ask before dependency installs."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"packageManagerVersion\" : \"9.15.4\""))
+        #expect(scanResult.contains("\"node\" : \"20.11.1\""))
+        #expect(context.contains("Use `pnpm@9.15.4` because `package.json` pins it."))
+        #expect(context.contains("Ask before `dependency installs before matching pnpm to packageManager version`."))
+        #expect(context.contains("Active Node is v22.15.0, but project requests 20.11.1; ask before dependency installs"))
+        #expect(policy.contains("`dependency installs before matching active Node to project version hints`"))
+        #expect(policy.contains("`dependency installs before matching pnpm to packageManager version`"))
+    }
+
+    @Test
+    func scanAsksBeforeInstallsWhenPackageManagerVersionCommandFails() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "packageManager": "pnpm@9.15.4"
+            }
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 127, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "env: pnpm: No such file or directory"),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == "9.15.4")
+        #expect(result.tools.versions.contains(where: { $0.name == "pnpm" && !$0.available && $0.version == nil }))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching pnpm to packageManager version"))
+        #expect(result.warnings.contains("Project requests pnpm 9.15.4 via package.json; verify active pnpm before dependency installs."))
+        #expect(result.diagnostics.contains("pnpm --version failed with exit code 127: env: pnpm: No such file or directory"))
+    }
+
+    @Test
+    func scanUsesCleanReadOnlyFallbackWhenNoPackageManagerSignalExists() throws {
+        let projectURL = try makeProject(files: [:])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == nil)
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("- Use read-only inspection first."))
+        #expect(!context.contains("Prefer `Use read-only inspection first`."))
+        #expect(policy.contains("`read-only project inspection, including rg <pattern>`"))
+    }
+
+    @Test
+    func scanPrefersProjectVenvForPythonCommands() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            ".python-version": "3.12\n",
+        ])
+        try makeExecutableProjectVenvPython(projectURL)
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".venv"))
+        #expect(result.project.detectedFiles.contains(".venv/bin/python"))
+        #expect(result.project.packageManager == "python")
+        #expect(result.project.runtimeHints.python == "3.12")
+        #expect(result.policy.preferredCommands.first == ".venv/bin/python -m pytest")
+        #expect(result.warnings.contains("Project .venv exists; use .venv/bin/python for Python commands before system python3."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Prefer `.venv/bin/python -m pytest`."))
+        #expect(context.contains("Project .venv exists; use .venv/bin/python for Python commands before system python3."))
+    }
+
+    @Test
+    func scanAllowsProjectVenvWhenPython3IsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+        ])
+        try makeExecutableProjectVenvPython(projectURL)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(result.project.detectedFiles.contains(".venv/bin/python"))
+        #expect(result.policy.preferredCommands == [".venv/bin/python -m pytest", ".venv/bin/python"])
+        #expect(!result.policy.askFirstCommands.contains("running Python commands before python3 is available"))
+        #expect(!result.warnings.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
+        #expect(result.warnings.contains("Project .venv exists; use .venv/bin/python for Python commands before system python3."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Prefer `.venv/bin/python -m pytest`."))
+        #expect(!context.contains("Ask before `running Python commands before python3 is available`."))
+        #expect(!context.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
+        #expect(policy.contains("`.venv/bin/python -m pytest`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`running Python commands before python3 is available`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanAsksBeforePythonCommandsWhenProjectVenvIsBroken() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+        ])
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent(".venv"), withIntermediateDirectories: true)
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".venv"))
+        #expect(!result.project.detectedFiles.contains(".venv/bin/python"))
+        #expect(result.project.packageManager == "python")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Python commands before project .venv/bin/python exists"))
+        #expect(result.warnings.contains("Project .venv exists, but executable .venv/bin/python was not found; ask before Python commands or recreating the virtual environment."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Python commands before project .venv/bin/python exists`."))
+        #expect(context.contains("Project .venv exists, but executable .venv/bin/python was not found; ask before Python commands or recreating the virtual environment."))
+        #expect(!context.contains("Prefer `.venv/bin/python -m pytest`."))
+        #expect(!context.contains("Prefer `python3 -m pytest`."))
+        #expect(policy.contains("`running Python commands before project .venv/bin/python exists`"))
+        #expect(!policy.contains("`python3 -m pytest`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+    }
+
+    @Test
+    func scanAsksBeforePythonCommandsWhenProjectVenvPythonIsNotExecutable() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+        ])
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent(".venv/bin"), withIntermediateDirectories: true)
+        try "".write(to: projectURL.appendingPathComponent(".venv/bin/python"), atomically: true, encoding: .utf8)
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".venv"))
+        #expect(!result.project.detectedFiles.contains(".venv/bin/python"))
+        #expect(result.project.packageManager == "python")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Python commands before project .venv/bin/python exists"))
+        #expect(result.warnings.contains("Project .venv exists, but executable .venv/bin/python was not found; ask before Python commands or recreating the virtual environment."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Python commands before project .venv/bin/python exists`."))
+        #expect(!context.contains("Prefer `.venv/bin/python -m pytest`."))
+        #expect(policy.contains("`running Python commands before project .venv/bin/python exists`"))
+        #expect(!policy.contains("`.venv/bin/python -m pytest`"))
+    }
+
+    @Test
+    func scanTreatsSecondaryPythonSignalsAsPythonProjects() throws {
+        for signal in ["requirements-dev.txt", "Pipfile", "Pipfile.lock"] {
+            let projectURL = try makeProject(files: [
+                signal: "test dependency signal\n",
+            ])
+
+            let runner = FakeCommandRunner(results: [
+                "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+            ])
+
+            let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+            #expect(result.project.packageManager == "python", "Expected \(signal) to select Python commands")
+            #expect(result.policy.preferredCommands == ["python3 -m pytest"])
+
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+            let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+            #expect(context.contains("Use `python` because project files point to it."))
+            #expect(context.contains("Prefer `python3 -m pytest`."))
+        }
+    }
+
+    @Test
+    func scanGuardsPythonProjectsWhenPython3IsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "requirements.txt": "pytest\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Python commands before python3 is available"))
+        #expect(result.policy.askFirstCommands.contains("python3 -m pip install"))
+        #expect(result.warnings.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `python3` before running Python commands."))
+        #expect(context.contains("Ask before `running Python commands before python3 is available`."))
+        #expect(context.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
+        #expect(!context.contains("Prefer `python3 -m pytest`."))
+        #expect(policy.contains("`running Python commands before python3 is available`"))
+        #expect(!policy.contains("`python3 -m pytest`"))
+    }
+
+    @Test
+    func scanGuardsPythonPipInstallAliases() throws {
+        let projectURL = try makeProject(files: [
+            "requirements.txt": "pytest\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        for command in [
+            "pip install",
+            "pip3 install",
+            "python -m pip install",
+            "python3 -m pip install",
+            "pip uninstall",
+            "pip3 uninstall",
+            "python -m pip uninstall",
+            "python3 -m pip uninstall",
+            "pip download",
+            "pip3 download",
+            "python -m pip download",
+            "python3 -m pip download",
+            "pip wheel",
+            "pip3 wheel",
+            "python -m pip wheel",
+            "python3 -m pip wheel",
+            "pip index",
+            "pip3 index",
+            "python -m pip index",
+            "python3 -m pip index",
+            "pip search",
+            "pip3 search",
+            "python -m pip search",
+            "python3 -m pip search",
+            "pip cache purge",
+            "pip3 cache purge",
+            "python -m pip cache purge",
+            "python3 -m pip cache purge",
+            "pip cache remove",
+            "pip3 cache remove",
+            "python -m pip cache remove",
+            "python3 -m pip cache remove",
+        ] {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        for command in [
+            "global pip install",
+            "global pip3 install",
+            "global python -m pip install",
+            "global python3 -m pip install",
+            "pip install --user",
+            "pip3 install --user",
+            "python -m pip install --user",
+            "python3 -m pip install --user",
+            "pip install --break-system-packages",
+            "pip3 install --break-system-packages",
+            "python -m pip install --break-system-packages",
+            "python3 -m pip install --break-system-packages",
+            "pip config list",
+            "pip3 config list",
+            "python -m pip config list",
+            "python3 -m pip config list",
+            "pip config get",
+            "pip3 config get",
+            "python -m pip config get",
+            "python3 -m pip config get",
+            "pip config debug",
+            "pip3 config debug",
+            "python -m pip config debug",
+            "python3 -m pip config debug",
+            "pip config set",
+            "pip3 config set",
+            "python -m pip config set",
+            "python3 -m pip config set",
+            "pip config unset",
+            "pip3 config unset",
+            "python -m pip config unset",
+            "python3 -m pip config unset",
+            "pip config edit",
+            "pip3 config edit",
+            "python -m pip config edit",
+            "python3 -m pip config edit",
+        ] {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `pip install`."))
+        #expect(context.contains("Ask before `python3 -m pip install`."))
+        #expect(policy.contains("`pip3 install`"))
+        #expect(policy.contains("`python -m pip install`"))
+        #expect(policy.contains("`pip uninstall`"))
+        #expect(policy.contains("`python3 -m pip uninstall`"))
+        #expect(policy.contains("`pip download`"))
+        #expect(policy.contains("`python3 -m pip wheel`"))
+        #expect(policy.contains("`pip index`"))
+        #expect(policy.contains("`python3 -m pip search`"))
+        #expect(policy.contains("`pip cache purge`"))
+        #expect(policy.contains("`python3 -m pip cache remove`"))
+        #expect(policy.contains("`pip config set`"))
+        #expect(policy.contains("`python3 -m pip config edit`"))
+        #expect(policy.contains("`global pip install`"))
+        #expect(policy.contains("`global python3 -m pip install`"))
+        #expect(policy.contains("`python3 -m pip install --user`"))
+        #expect(policy.contains("`python3 -m pip install --break-system-packages`"))
+        #expect(policy.contains("`pip config list`"))
+        #expect(policy.contains("`python3 -m pip config debug`"))
+    }
+
+    @Test
+    func scanAsksBeforeVirtualEnvironmentCreationCommands() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let commands = [
+            "python -m venv",
+            "python3 -m venv",
+            "uv venv",
+            "virtualenv",
+            "creating or deleting virtual environments",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        for command in commands {
+            #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
+        }
+    }
+
+    @Test
+    func scanAsksBeforeUvPipMutationCommands() throws {
+        let projectURL = try makeProject(files: [
+            "uv.lock": "version = 1\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a uv": .init(name: "/usr/bin/which", args: ["-a", "uv"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/uv", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+        let commands = [
+            "uv sync",
+            "uv add",
+            "uv remove",
+            "uv pip install",
+            "uv pip uninstall",
+            "uv pip sync",
+            "uv pip compile",
+        ]
+
+        for command in commands {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `uv sync`."))
+        #expect(context.contains("Ask before `uv pip install`."))
+        #expect(policy.contains("`uv pip uninstall`"))
+        #expect(policy.contains("`uv pip sync`"))
+        #expect(policy.contains("`uv pip compile`"))
+    }
+
+    @Test
+    func scanAsksBeforeInstallsWhenPythonDependencySignalsAreMixed() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            "requirements.txt": "pytest\n",
+            "requirements-dev.txt": "ruff\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(result.policy.askFirstCommands.contains("dependency installs before choosing between pyproject.toml and requirements files"))
+        #expect(result.warnings.contains("Python dependency files include both pyproject.toml and requirements files; ask before dependency installs until the source of truth is clear."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `dependency installs before choosing between pyproject.toml and requirements files`."))
+        #expect(context.contains("Python dependency files include both pyproject.toml and requirements files; ask before dependency installs until the source of truth is clear."))
+        #expect(policy.contains("`dependency installs before choosing between pyproject.toml and requirements files`"))
+    }
+
+    @Test
+    func scanAsksBeforeInstallsWhenUvLockAndRequirementsFilesCoexist() throws {
+        let projectURL = try makeProject(files: [
+            "uv.lock": "version = 1\n",
+            "requirements.txt": "pytest\n",
+            "requirements-dev.txt": "ruff\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a uv": .init(name: "/usr/bin/which", args: ["-a", "uv"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/uv", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "uv")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("uv sync"))
+        #expect(result.policy.askFirstCommands.contains("uv add"))
+        #expect(result.policy.askFirstCommands.contains("uv remove"))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before choosing between uv.lock and requirements files"))
+        #expect(result.warnings.contains("Python dependency files include both uv.lock and requirements files; ask before dependency installs until the source of truth is clear."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `uv` because project files point to it."))
+        #expect(!context.contains("Prefer `uv run`."))
+        #expect(context.contains("Ask before `dependency installs before choosing between uv.lock and requirements files`."))
+        #expect(context.contains("Python dependency files include both uv.lock and requirements files; ask before dependency installs until the source of truth is clear."))
+        #expect(!policy.contains("`uv run`"))
+        #expect(policy.contains("`dependency installs before choosing between uv.lock and requirements files`"))
+    }
+
+    @Test
+    func scanResolvesPythonPipAndRubyTooling() throws {
+        let projectURL = try makeProject(files: [
+            "requirements.txt": "pytest\n",
+            "Gemfile": "source \"https://rubygems.org\"\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env python --version": .init(name: "/usr/bin/env", args: ["python", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.12.4", stderr: ""),
+            "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.12.4", stderr: ""),
+            "/usr/bin/env pip --version": .init(name: "/usr/bin/env", args: ["pip", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "pip 24.0", stderr: ""),
+            "/usr/bin/env pip3 --version": .init(name: "/usr/bin/env", args: ["pip3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "pip 24.0", stderr: ""),
+            "/usr/bin/env ruby --version": .init(name: "/usr/bin/env", args: ["ruby", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "ruby 3.3.0", stderr: ""),
+            "/usr/bin/env gem --version": .init(name: "/usr/bin/env", args: ["gem", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "3.5.0", stderr: ""),
+            "/usr/bin/which -a python": .init(name: "/usr/bin/which", args: ["-a", "python"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python", stderr: ""),
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+            "/usr/bin/which -a pip": .init(name: "/usr/bin/which", args: ["-a", "pip"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pip", stderr: ""),
+            "/usr/bin/which -a pip3": .init(name: "/usr/bin/which", args: ["-a", "pip3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pip3", stderr: ""),
+            "/usr/bin/which -a ruby": .init(name: "/usr/bin/which", args: ["-a", "ruby"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/ruby", stderr: ""),
+            "/usr/bin/which -a gem": .init(name: "/usr/bin/which", args: ["-a", "gem"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/gem", stderr: ""),
+            "/usr/bin/which -a bundle": .init(name: "/usr/bin/which", args: ["-a", "bundle"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/bundle", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        for tool in ["python", "python3", "pip", "pip3", "ruby", "gem"] {
+            #expect(result.tools.resolvedPaths.contains(where: { $0.name == tool && !$0.paths.isEmpty }), "Expected \(tool) paths in scan_result.json")
+            #expect(result.tools.versions.contains(where: { $0.name == tool && $0.available }), "Expected \(tool) version in scan_result.json")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"name\" : \"pip3\""))
+        #expect(scanResult.contains("\"name\" : \"ruby\""))
+        #expect(report.contains("- pip3: /opt/homebrew/bin/pip3"))
+        #expect(report.contains("- ruby: /opt/homebrew/bin/ruby"))
+    }
+
+    @Test
+    func scanResolvesUvAndPyenvPythonTooling() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            "uv.lock": "version = 1\n",
+            ".python-version": "3.12\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env uv --version": .init(name: "/usr/bin/env", args: ["uv", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "uv 0.7.2", stderr: ""),
+            "/usr/bin/env pyenv --version": .init(name: "/usr/bin/env", args: ["pyenv", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "pyenv 2.5.5", stderr: ""),
+            "/usr/bin/which -a uv": .init(name: "/usr/bin/which", args: ["-a", "uv"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/uv", stderr: ""),
+            "/usr/bin/which -a pyenv": .init(name: "/usr/bin/which", args: ["-a", "pyenv"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pyenv", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "uv")
+        #expect(result.policy.preferredCommands.isEmpty)
+        for tool in ["uv", "pyenv"] {
+            #expect(result.tools.resolvedPaths.contains(where: { $0.name == tool && !$0.paths.isEmpty }), "Expected \(tool) paths in scan_result.json")
+            #expect(result.tools.versions.contains(where: { $0.name == tool && $0.available }), "Expected \(tool) version in scan_result.json")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"name\" : \"uv\""))
+        #expect(scanResult.contains("\"version\" : \"pyenv 2.5.5\""))
+        #expect(report.contains("- uv: /opt/homebrew/bin/uv"))
+        #expect(report.contains("- pyenv: pyenv 2.5.5"))
+    }
+
+    @Test
+    func scanTreatsBundlerSignalsAsRubyProjectsAndGuardsMissingBundle() throws {
+        for signal in ["Gemfile", "Gemfile.lock"] {
+            let projectURL = try makeProject(files: [
+                signal: "ruby dependency signal\n",
+            ])
+
+            let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+            #expect(result.project.packageManager == "bundler", "Expected \(signal) to select Bundler commands")
+            #expect(result.policy.preferredCommands.isEmpty)
+            #expect(result.policy.askFirstCommands.contains("running Bundler commands before bundle is available"))
+            #expect(result.policy.askFirstCommands.contains("bundle install"))
+            #expect(result.warnings.contains("Project files prefer Bundler, but bundle was not found on PATH; ask before running Bundler commands."))
+            #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+            let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+            let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+            #expect(context.contains("Verify `bundle` before running Bundler commands."))
+            #expect(context.contains("Ask before `running Bundler commands before bundle is available`."))
+            #expect(context.contains("Ask before `bundle install`."))
+            #expect(!context.contains("Prefer `bundle exec`."))
+            #expect(!policy.contains("`bundle exec`"))
+            #expect(policy.contains("`running Bundler commands before bundle is available`"))
+        }
+    }
+
+    @Test
+    func scanDoesNotAllowIncompleteBundlerCommandPrefix() throws {
+        let projectURL = try makeProject(files: [
+            "Gemfile": "source \"https://rubygems.org\"\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env bundle --version": .init(name: "/usr/bin/env", args: ["bundle", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Bundler version 2.5.10", stderr: ""),
+            "/usr/bin/which -a bundle": .init(name: "/usr/bin/which", args: ["-a", "bundle"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/bundle", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "bundler")
+        #expect(result.policy.preferredCommands.isEmpty)
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use Bundler (`bundle`) because project files point to it."))
+        #expect(!context.contains("Prefer `bundle exec`."))
+        #expect(!policy.contains("`bundle exec`"))
+        #expect(policy.contains("`read-only project inspection, including rg <pattern>`"))
+    }
+
+    @Test
+    func scanClassifiesBundlerDependencyMutationsAsAskFirst() throws {
+        let projectURL = try makeProject(files: [
+            "Gemfile": "source \"https://rubygems.org\"\n",
+            "Gemfile.lock": "GEM\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env bundle --version": .init(name: "/usr/bin/env", args: ["bundle", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Bundler version 2.5.10", stderr: ""),
+            "/usr/bin/which -a bundle": .init(name: "/usr/bin/which", args: ["-a", "bundle"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/bundle", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        for command in ["bundle install", "bundle add", "bundle update", "bundle lock", "bundle remove"] {
+            #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `bundle update`."))
+        #expect(policy.contains("`bundle add`"))
+        #expect(policy.contains("`bundle update`"))
+        #expect(policy.contains("`bundle lock`"))
+    }
+
+    @Test
+    func scanForbidsBundlerConfigValueReads() throws {
+        let projectURL = try makeProject(files: [
+            "Gemfile": "source \"https://rubygems.org\"\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        for command in ["bundle config", "bundle config list", "bundle config get", "bundle config set", "bundle config unset"] {
+            #expect(result.policy.forbiddenCommands.contains(command), "Expected \(command) to be forbidden")
+        }
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(policy.contains("`bundle config`"))
+        #expect(policy.contains("`bundle config list`"))
+        #expect(policy.contains("`bundle config get`"))
+        #expect(policy.contains("`bundle config set`"))
+        #expect(policy.contains("`bundle config unset`"))
+    }
+
+    @Test
+    func scanAsksBeforeBundlerCommandsWhenBundleVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "Gemfile": "source \"https://rubygems.org\"\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env bundle --version": .init(name: "/usr/bin/env", args: ["bundle", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "bundle: failed to load command"),
+            "/usr/bin/which -a bundle": .init(name: "/usr/bin/which", args: ["-a", "bundle"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/bundle", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "bundler")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Bundler commands before bundle version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running Bundler commands before bundle is available"))
+        #expect(result.diagnostics.contains("bundle --version failed with exit code 1: bundle: failed to load command"))
+        #expect(result.tools.versions.contains(where: { $0.name == "bundle" && !$0.available }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Bundler commands before bundle version check succeeds`."))
+        #expect(context.contains("bundle --version failed with exit code 1: bundle: failed to load command"))
+        #expect(!context.contains("Prefer `bundle exec`."))
+        #expect(policy.contains("`running Bundler commands before bundle version check succeeds`"))
+        #expect(!policy.contains("`bundle exec`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanUsesRubyVersionHintsForBundlerInstallGuard() throws {
+        let cases: [(file: String, content: String)] = [
+            (".ruby-version", "3.3.0\n"),
+            (".tool-versions", "ruby 3.3.0\n"),
+        ]
+
+        for testCase in cases {
+            let projectURL = try makeProject(files: [
+                "Gemfile": "source \"https://rubygems.org\"\n",
+                testCase.file: testCase.content,
+            ])
+
+            let runner = FakeCommandRunner(results: [
+                "/usr/bin/env ruby --version": .init(name: "/usr/bin/env", args: ["ruby", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "ruby 3.2.2", stderr: ""),
+                "/usr/bin/env bundle --version": .init(name: "/usr/bin/env", args: ["bundle", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Bundler version 2.5.10", stderr: ""),
+                "/usr/bin/which -a ruby": .init(name: "/usr/bin/which", args: ["-a", "ruby"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/ruby", stderr: ""),
+                "/usr/bin/which -a bundle": .init(name: "/usr/bin/which", args: ["-a", "bundle"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/bundle", stderr: ""),
+            ])
+
+            let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+            #expect(result.project.packageManager == "bundler")
+            #expect(result.project.detectedFiles.contains(testCase.file))
+            #expect(result.project.runtimeHints.ruby == "3.3.0")
+            #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Ruby to project version hints"))
+            #expect(result.warnings.contains("Active Ruby is ruby 3.2.2, but project requests 3.3.0; ask before dependency installs (/opt/homebrew/bin/ruby)."))
+
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+            let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+            let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+            let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+            #expect(scanResult.contains("\"ruby\" : \"3.3.0\""))
+            #expect(context.contains("Ask before `dependency installs before matching active Ruby to project version hints`."))
+            #expect(context.contains("Active Ruby is ruby 3.2.2, but project requests 3.3.0; ask before dependency installs"))
+            #expect(policy.contains("`dependency installs before matching active Ruby to project version hints`"))
+        }
+    }
+
+    @Test
+    func scanTreatsGoModAsGoProjectAndGuardsMissingGo() throws {
+        let projectURL = try makeProject(files: [
+            "go.mod": "module example.com/demo\n\ngo 1.22\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "go")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Go commands before go is available"))
+        #expect(result.policy.askFirstCommands.contains("go get"))
+        #expect(result.warnings.contains("Project files prefer Go, but go was not found on PATH; ask before running Go commands."))
+        #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `go` before running Go commands."))
+        #expect(context.contains("Ask before `running Go commands before go is available`."))
+        #expect(context.contains("Ask before `go mod tidy`."))
+        #expect(!context.contains("Prefer `go test ./...`."))
+        #expect(!policy.contains("`go test ./...`"))
+        #expect(policy.contains("`go get`"))
+    }
+
+    @Test
+    func scanAsksBeforeGoCommandsWhenGoVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "go.mod": "module example.com/demo\n\ngo 1.22\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env go version": .init(name: "/usr/bin/env", args: ["go", "version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "go: invalid toolchain"),
+            "/usr/bin/which -a go": .init(name: "/usr/bin/which", args: ["-a", "go"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/go", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "go")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Go commands before go version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running Go commands before go is available"))
+        #expect(result.diagnostics.contains("go version failed with exit code 1: go: invalid toolchain"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `go` before running Go commands."))
+        #expect(context.contains("Ask before `running Go commands before go version check succeeds`."))
+        #expect(context.contains("go version failed with exit code 1: go: invalid toolchain"))
+        #expect(!context.contains("Use `go` because project files point to it."))
+        #expect(!context.contains("Prefer `go test ./...`."))
+        #expect(policy.contains("`running Go commands before go version check succeeds`"))
+        #expect(!policy.contains("`go test ./...`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanResultReviewFirstMetadataPrioritizesNonJavaScriptMissingToolGuards() throws {
+        let cases: [(files: [String: String], missingGuard: String, mutationCommand: String)] = [
+            (
+                ["go.mod": "module example.com/demo\n\ngo 1.22\n"],
+                "running Go commands before go is available",
+                "go get"
+            ),
+            (
+                [
+                    "Cargo.toml": """
+                    [package]
+                    name = "demo"
+                    version = "0.1.0"
+                    edition = "2021"
+                    """
+                ],
+                "running Cargo commands before cargo is available",
+                "cargo add"
+            )
+        ]
+
+        for testCase in cases {
+            let projectURL = try makeProject(files: testCase.files)
+            let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+            let data = try Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+            let decoded = try JSONDecoder().decode(ScanResult.self, from: data)
+            let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+            #expect(decoded.policy.reviewFirstCommandReasons.first == PolicyCommandReason(
+                command: testCase.missingGuard,
+                classification: "ask_first",
+                reasonCode: "missing_tool",
+                reason: "Required project tool is missing on `PATH`."
+            ))
+            #expect(decoded.policy.reviewFirstCommandReasons.contains(PolicyCommandReason(
+                command: testCase.mutationCommand,
+                classification: "ask_first",
+                reasonCode: "dependency_mutation",
+                reason: "Dependency install, update, or removal can mutate project state."
+            )))
+            #expect(decoded.policy.commandReasons.contains(where: {
+                $0.command == testCase.missingGuard && $0.reasonCode == "missing_tool"
+            }))
+
+            let missingLine = "`\(testCase.missingGuard)` (`missing_tool`)"
+            let mutationLine = "`\(testCase.mutationCommand)` (`dependency_mutation`)"
+            #expect(section(policy, missingLine, appearsBefore: mutationLine))
+        }
+    }
+
+    @Test
+    func scanTreatsCargoTomlAsCargoProjectAndGuardsMissingCargo() throws {
+        let projectURL = try makeProject(files: [
+            "Cargo.toml": """
+            [package]
+            name = "demo"
+            version = "0.1.0"
+            edition = "2021"
+            """,
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "cargo")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Cargo commands before cargo is available"))
+        #expect(result.policy.askFirstCommands.contains("cargo add"))
+        #expect(result.policy.askFirstCommands.contains("cargo update"))
+        #expect(result.policy.askFirstCommands.contains("cargo remove"))
+        #expect(result.warnings.contains("Project files prefer Cargo, but cargo was not found on PATH; ask before running Cargo commands."))
+        #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `cargo` before running Cargo commands."))
+        #expect(context.contains("Ask before `running Cargo commands before cargo is available`."))
+        #expect(policy.contains("`cargo remove`"))
+        #expect(context.contains("Ask before `cargo update`."))
+        #expect(!context.contains("Prefer `cargo test`."))
+        #expect(!policy.contains("`cargo test`"))
+        #expect(policy.contains("`cargo add`"))
+    }
+
+    @Test
+    func scanAsksBeforeCargoCommandsWhenCargoVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "Cargo.toml": """
+            [package]
+            name = "demo"
+            version = "0.1.0"
+            edition = "2021"
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env cargo --version": .init(name: "/usr/bin/env", args: ["cargo", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "cargo: rustup toolchain is not installed"),
+            "/usr/bin/which -a cargo": .init(name: "/usr/bin/which", args: ["-a", "cargo"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/cargo", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "cargo")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Cargo commands before cargo version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running Cargo commands before cargo is available"))
+        #expect(result.diagnostics.contains("cargo --version failed with exit code 1: cargo: rustup toolchain is not installed"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Cargo commands before cargo version check succeeds`."))
+        #expect(context.contains("cargo --version failed with exit code 1: cargo: rustup toolchain is not installed"))
+        #expect(!context.contains("Prefer `cargo test`."))
+        #expect(policy.contains("`running Cargo commands before cargo version check succeeds`"))
+        #expect(!policy.contains("`cargo test`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanTreatsBrewfileAsHomebrewProjectAndGuardsBundleMutation() throws {
+        let projectURL = try makeProject(files: [
+            "Brewfile": "brew \"swiftlint\"\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "homebrew")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Homebrew Bundle commands before brew is available"))
+        #expect(result.policy.askFirstCommands.contains("brew bundle"))
+        #expect(result.policy.askFirstCommands.contains("brew bundle install"))
+        #expect(result.policy.askFirstCommands.contains("brew bundle cleanup"))
+        #expect(result.policy.askFirstCommands.contains("brew bundle dump"))
+        #expect(result.policy.askFirstCommands.contains("brew update"))
+        #expect(result.policy.askFirstCommands.contains("brew cleanup"))
+        #expect(result.policy.askFirstCommands.contains("brew autoremove"))
+        #expect(result.warnings.contains("Project files include Brewfile, but brew was not found on PATH; ask before running Homebrew Bundle commands."))
+        #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `brew` before running Homebrew Bundle commands."))
+        #expect(context.contains("Ask before `running Homebrew Bundle commands before brew is available`."))
+        #expect(context.contains("Ask before `brew bundle`."))
+        #expect(context.contains("Project files include Brewfile, but brew was not found on PATH; ask before running Homebrew Bundle commands."))
+        #expect(!context.contains("Prefer `brew bundle check`."))
+        #expect(!policy.contains("`brew bundle check`"))
+        #expect(policy.contains("`brew bundle install`"))
+        #expect(policy.contains("`brew bundle cleanup`"))
+        #expect(policy.contains("`brew bundle dump`"))
+        #expect(policy.contains("`brew update`"))
+        #expect(policy.contains("`brew cleanup`"))
+        #expect(policy.contains("`brew autoremove`"))
+    }
+
+    @Test
+    func scanAsksBeforeHomebrewBundleCommandsWhenBrewVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "Brewfile": "brew \"swiftlint\"\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env brew --version": .init(name: "/usr/bin/env", args: ["brew", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "brew: failed to load"),
+            "/usr/bin/which -a brew": .init(name: "/usr/bin/which", args: ["-a", "brew"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/brew", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "homebrew")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Homebrew Bundle commands before brew version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running Homebrew Bundle commands before brew is available"))
+        #expect(result.diagnostics.contains("brew --version failed with exit code 1: brew: failed to load"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Homebrew Bundle commands before brew version check succeeds`."))
+        #expect(context.contains("brew --version failed with exit code 1: brew: failed to load"))
+        #expect(!context.contains("Prefer `brew bundle check`."))
+        #expect(policy.contains("`running Homebrew Bundle commands before brew version check succeeds`"))
+        #expect(!policy.contains("`brew bundle check`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanTreatsPodfileAsCocoaPodsProjectAndGuardsPodMutation() throws {
+        for signal in ["Podfile", "Podfile.lock"] {
+            let projectURL = try makeProject(files: [
+                signal: "cocoapods dependency signal\n",
+            ])
+
+            let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+            #expect(result.project.packageManager == "cocoapods", "Expected \(signal) to select CocoaPods guidance")
+            #expect(result.project.detectedFiles.contains(signal))
+            #expect(result.policy.preferredCommands.isEmpty)
+            #expect(result.policy.askFirstCommands.contains("running CocoaPods commands before pod is available"))
+            #expect(result.policy.askFirstCommands.contains("pod install"))
+            #expect(result.policy.askFirstCommands.contains("pod update"))
+            #expect(result.policy.askFirstCommands.contains("pod repo update"))
+            #expect(result.policy.askFirstCommands.contains("pod deintegrate"))
+            #expect(result.warnings.contains("Project files prefer CocoaPods, but pod was not found on PATH; ask before running CocoaPods commands."))
+            #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+            let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+            let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+            #expect(context.contains("Verify `pod` before running CocoaPods commands."))
+            #expect(context.contains("Ask before `running CocoaPods commands before pod is available`."))
+            #expect(context.contains("Ask before `pod install`."))
+            #expect(context.contains("Project files prefer CocoaPods, but pod was not found on PATH; ask before running CocoaPods commands."))
+            #expect(!context.contains("Prefer `pod --version`."))
+            #expect(!policy.contains("`pod --version`"))
+            #expect(policy.contains("`pod install`"))
+            #expect(policy.contains("`pod update`"))
+            #expect(policy.contains("`pod repo update`"))
+            #expect(policy.contains("`pod deintegrate`"))
+        }
+    }
+
+    @Test
+    func scanAsksBeforeCocoaPodsCommandsWhenPodVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "Podfile": "platform :ios, '17.0'\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env pod --version": .init(name: "/usr/bin/env", args: ["pod", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "pod: failed to load"),
+            "/usr/bin/which -a pod": .init(name: "/usr/bin/which", args: ["-a", "pod"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pod", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "cocoapods")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running CocoaPods commands before pod version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running CocoaPods commands before pod is available"))
+        #expect(result.diagnostics.contains("pod --version failed with exit code 1: pod: failed to load"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running CocoaPods commands before pod version check succeeds`."))
+        #expect(context.contains("pod --version failed with exit code 1: pod: failed to load"))
+        #expect(!context.contains("Prefer `pod --version`."))
+        #expect(policy.contains("`running CocoaPods commands before pod version check succeeds`"))
+        #expect(!policy.contains("`pod --version`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+    }
+
+    @Test
+    func scanTreatsCartfileAsCarthageProjectAndGuardsCarthageMutation() throws {
+        for signal in ["Cartfile", "Cartfile.resolved"] {
+            let projectURL = try makeProject(files: [
+                signal: "github \"Alamofire/Alamofire\"\n",
+            ])
+
+            let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+            #expect(result.project.packageManager == "carthage", "Expected \(signal) to select Carthage guidance")
+            #expect(result.project.detectedFiles.contains(signal))
+            #expect(result.policy.preferredCommands.isEmpty)
+            #expect(result.policy.askFirstCommands.contains("running Carthage commands before carthage is available"))
+            #expect(result.policy.askFirstCommands.contains("carthage bootstrap"))
+            #expect(result.policy.askFirstCommands.contains("carthage update"))
+            #expect(result.policy.askFirstCommands.contains("carthage checkout"))
+            #expect(result.policy.askFirstCommands.contains("carthage build"))
+            #expect(result.warnings.contains("Project files prefer Carthage, but carthage was not found on PATH; ask before running Carthage commands."))
+            #expect(!result.warnings.contains("No primary package manager signal detected; prefer read-only inspection before mutation."))
+
+            let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+            try ReportWriter().write(scanResult: result, outputURL: outputURL)
+            let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+            let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+            #expect(context.contains("Verify `carthage` before running Carthage commands."))
+            #expect(context.contains("Ask before `running Carthage commands before carthage is available`."))
+            #expect(context.contains("Ask before `carthage bootstrap`."))
+            #expect(context.contains("Project files prefer Carthage, but carthage was not found on PATH; ask before running Carthage commands."))
+            #expect(!context.contains("Prefer `carthage version`."))
+            #expect(!policy.contains("`carthage version`"))
+            #expect(policy.contains("`carthage bootstrap`"))
+            #expect(policy.contains("`carthage update`"))
+            #expect(policy.contains("`carthage checkout`"))
+            #expect(policy.contains("`carthage build`"))
+        }
+    }
+
+    @Test
+    func scanAsksBeforeCarthageCommandsWhenCarthageVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "Cartfile": "github \"Alamofire/Alamofire\"\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env carthage version": .init(name: "/usr/bin/env", args: ["carthage", "version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "carthage: failed to load"),
+            "/usr/bin/which -a carthage": .init(name: "/usr/bin/which", args: ["-a", "carthage"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/carthage", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "carthage")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Carthage commands before carthage version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running Carthage commands before carthage is available"))
+        #expect(result.diagnostics.contains("carthage version failed with exit code 1: carthage: failed to load"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Carthage commands before carthage version check succeeds`."))
+        #expect(context.contains("carthage version failed with exit code 1: carthage: failed to load"))
+        #expect(!context.contains("Prefer `carthage version`."))
+        #expect(policy.contains("`running Carthage commands before carthage version check succeeds`"))
+        #expect(!policy.contains("`carthage version`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanGuardsUvProjectsWhenUvIsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            "uv.lock": "version = 1\n",
+            ".python-version": "3.12\n",
+        ])
+        try makeExecutableProjectVenvPython(projectURL)
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.12.4", stderr: ""),
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+            "/usr/bin/which -a pip3": .init(name: "/usr/bin/which", args: ["-a", "pip3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pip3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "uv")
+        #expect(result.project.detectedFiles.contains("uv.lock"))
+        #expect(result.project.detectedFiles.contains(".venv/bin/python"))
+        #expect(result.policy.preferredCommands == [".venv/bin/python -m pytest"])
+        #expect(result.policy.askFirstCommands.contains("running uv commands before uv is available"))
+        #expect(result.warnings.contains("Project files prefer uv, but uv was not found on PATH; ask before running uv commands or substituting another package manager."))
+        #expect(result.warnings.contains("Project .venv exists; use .venv/bin/python for Python commands before system python3."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `uv` before running uv commands."))
+        #expect(context.contains("Prefer `.venv/bin/python -m pytest`."))
+        #expect(context.contains("Ask before `running uv commands before uv is available`."))
+        #expect(!context.contains("Prefer `uv run`."))
+        #expect(policy.contains("`.venv/bin/python -m pytest`"))
+        #expect(!policy.contains("`uv run`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+        #expect(policy.contains("`running uv commands before uv is available`"))
+    }
+
+    @Test
+    func scanAsksBeforeUvCommandsWhenUvVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            "uv.lock": "version = 1\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env uv --version": .init(name: "/usr/bin/env", args: ["uv", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "uv: failed to load"),
+            "/usr/bin/which -a uv": .init(name: "/usr/bin/which", args: ["-a", "uv"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/uv", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "uv")
+        #expect(result.commands.filter { $0.args == ["uv", "--version"] }.count == 1)
+        #expect(result.tools.versions.filter { $0.name == "uv" }.count == 1)
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running uv commands before uv version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running uv commands before uv is available"))
+        #expect(result.diagnostics.filter { $0 == "uv --version failed with exit code 1: uv: failed to load" }.count == 1)
+        #expect(result.tools.versions.contains(where: { $0.name == "uv" && !$0.available }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running uv commands before uv version check succeeds`."))
+        #expect(context.contains("uv --version failed with exit code 1: uv: failed to load"))
+        #expect(!context.contains("Prefer `uv run`."))
+        #expect(policy.contains("`running uv commands before uv version check succeeds`"))
+        #expect(!policy.contains("`uv run`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanAsksBeforePythonCommandsWhenPythonVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "python3: failed to load runtime"),
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Python commands before python3 version check succeeds"))
+        #expect(result.policy.askFirstCommands.contains("python3 -m pip install"))
+        #expect(!result.policy.askFirstCommands.contains("running Python commands before python3 is available"))
+        #expect(result.diagnostics.contains("python3 --version failed with exit code 1: python3: failed to load runtime"))
+        #expect(result.tools.versions.contains(where: { $0.name == "python3" && $0.available == false }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `python3` before running Python commands."))
+        #expect(context.contains("Ask before `running Python commands before python3 version check succeeds`."))
+        #expect(context.contains("python3 --version failed with exit code 1: python3: failed to load runtime"))
+        #expect(!context.contains("Use `python` because project files point to it."))
+        #expect(!context.contains("Prefer `python3 -m pytest`."))
+        #expect(policy.contains("`running Python commands before python3 version check succeeds`"))
+        #expect(!policy.contains("`python3 -m pytest`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanWarnsWhenActivePythonDiffersFromPythonVersion() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            ".python-version": "3.12\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.11.9", stderr: ""),
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(result.project.runtimeHints.python == "3.12")
+        #expect(result.warnings.contains("Active Python is Python 3.11.9, but project requests 3.12; ask before dependency installs (/opt/homebrew/bin/python3)."))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Python to project version hints"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(policy.contains("`dependency installs before matching active Python to project version hints`"))
+    }
+
+    @Test
+    func scanDoesNotWarnWhenActivePythonSatisfiesPythonVersion() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            ".python-version": "3.12\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.12.4", stderr: ""),
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(!result.warnings.contains("Project requests Python 3.12; verify active python before installs (/opt/homebrew/bin/python3)."))
+        #expect(!result.policy.askFirstCommands.contains("dependency installs before matching active Python to project version hints"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(!context.contains("Project requests Python 3.12; verify active python before installs"))
+    }
+
+    @Test
+    func scanUsesToolVersionsForPythonRuntimeInstallGuard() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            ".tool-versions": """
+            # asdf-style runtime hints
+            python 3.12.4 3.11.9
+            ruby 3.3.0
+            """,
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.11.9", stderr: ""),
+            "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "python")
+        #expect(result.project.detectedFiles.contains(".tool-versions"))
+        #expect(result.project.runtimeHints.python == "3.12.4")
+        #expect(result.warnings.contains("Active Python is Python 3.11.9, but project requests 3.12.4; ask before dependency installs (/opt/homebrew/bin/python3)."))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Python to project version hints"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Active Python is Python 3.11.9, but project requests 3.12.4; ask before dependency installs"))
+        #expect(policy.contains("`dependency installs before matching active Python to project version hints`"))
+    }
+
+    @Test
+    func scanAsksBeforeInstallsWhenNodeVersionCommandFails() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}",
+            "package-lock.json": "lockfile",
+            ".nvmrc": "v20\n",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 127, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "env: node: No such file or directory"),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.tools.versions.contains(where: { $0.name == "node" && !$0.available && $0.version == nil }))
+        #expect(result.policy.askFirstCommands.contains("dependency installs before matching active Node to project version hints"))
+        #expect(result.warnings.contains("Project requests Node v20; verify active node before installs (/opt/homebrew/bin/node)."))
+        #expect(result.diagnostics.contains("node --version failed with exit code 127: env: node: No such file or directory"))
+    }
+
+    @Test
+    func scanGuardsJavaScriptPackageManagerWhenVersionCheckFailsWithoutPackageManagerPin() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "pnpm-lock.yaml": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v20.11.1", stderr: ""),
+            "/usr/bin/env pnpm --version": .init(name: "/usr/bin/env", args: ["pnpm", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "pnpm: failed to load"),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a pnpm": .init(name: "/usr/bin/which", args: ["-a", "pnpm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pnpm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "pnpm")
+        #expect(result.project.packageManagerVersion == nil)
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running pnpm commands before pnpm version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running pnpm commands before pnpm is available"))
+        #expect(result.diagnostics.contains("pnpm --version failed with exit code 1: pnpm: failed to load"))
+        #expect(result.tools.versions.contains(where: { $0.name == "pnpm" && !$0.available }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `pnpm` before running pnpm commands."))
+        #expect(context.contains("Ask before `running pnpm commands before pnpm version check succeeds`."))
+        #expect(context.contains("pnpm --version failed with exit code 1: pnpm: failed to load"))
+        #expect(!context.contains("Use `pnpm` because project files point to it."))
+        #expect(!context.contains("Prefer `pnpm run test`."))
+        #expect(policy.contains("`running pnpm commands before pnpm version check succeeds`"))
+        #expect(!policy.contains("`pnpm run test`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+    }
+
+    @Test
+    func scanShowsNodeVersionFailureDiagnosticsForJavaScriptProjects() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "name": "demo",
+              "scripts": {
+                "test": "vitest run"
+              }
+            }
+            """,
+            "package-lock.json": "lockfile",
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "node: failed to load"),
+            "/usr/bin/env npm --version": .init(name: "/usr/bin/env", args: ["npm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "10.8.2", stderr: ""),
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/node", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/npm", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "npm")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running JavaScript commands before node version check succeeds"))
+        #expect(result.diagnostics.contains("node --version failed with exit code 1: node: failed to load"))
+        #expect(result.tools.versions.contains(where: { $0.name == "node" && !$0.available }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `node` before running JavaScript commands."))
+        #expect(context.contains("Ask before `running JavaScript commands before node version check succeeds`."))
+        #expect(context.contains("node --version failed with exit code 1: node: failed to load"))
+        #expect(!context.contains("Use `npm` because project files point to it."))
+        #expect(!context.contains("Prefer `npm run test`."))
+        #expect(policy.contains("`running JavaScript commands before node version check succeeds`"))
+        #expect(!policy.contains("`npm run test`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+    }
+
+    @Test
+    func scanComparisonSurfacesActionableDeltas() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "package-lock.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                    .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+                    .init(name: "pnpm", paths: []),
+                ],
+                versions: []
+            ),
+            policy: .init(preferredCommands: ["npm run"], askFirstCommands: ["npm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: []),
+                    .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+                    .init(name: "pnpm", paths: []),
+                ],
+                versions: []
+            ),
+            policy: .init(
+                preferredCommands: ["pnpm run"],
+                askFirstCommands: ["running pnpm commands before pnpm is available", "pnpm install"],
+                forbiddenCommands: ["sudo", "brew upgrade"]
+            ),
+            warnings: ["Project files prefer pnpm, but pnpm was not found on PATH; ask before running pnpm commands or substituting another package manager."],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.contains(where: { $0.category == "package_manager" && $0.summary.contains("npm to pnpm") }))
+        #expect(changes.contains(where: { $0.category == "lockfiles" && $0.summary.contains("added pnpm-lock.yaml") && $0.summary.contains("removed package-lock.json") }))
+        #expect(changes.contains(where: { $0.category == "missing_tools" && $0.summary.contains("node") && $0.summary.contains("pnpm") }))
+        #expect(changes.contains(where: { $0.category == "command_policy" && $0.summary.contains("New Ask First commands") }))
+        #expect(changes.contains(where: { $0.category == "command_policy" && $0.summary.contains("New Forbidden commands") }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"changes\""))
+        #expect(scanResult.contains("\"category\" : \"package_manager\""))
+        #expect(context.contains("Package manager changed from npm to pnpm."))
+        #expect(context.contains("Ask before these commands even if a previous scan did not require it."))
+        #expect(report.contains("## Changes Since Previous Scan"))
+        #expect(report.contains("[lockfiles] Lockfiles changed"))
+    }
+
+    @Test
+    func scanComparisonSurfacesGeneratorVersionDeltas() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            generatorVersion: "0.0.9",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["swift test"], askFirstCommands: [], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            generatorVersion: HabitatMetadata.generatorVersion,
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["swift test"], askFirstCommands: [], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.first?.category == "generator")
+        #expect(changes.first?.summary == "Generator version changed from 0.0.9 to \(HabitatMetadata.generatorVersion).")
+        #expect(changes.first?.impact.contains("before assuming the local environment changed") == true)
+    }
+
+    @Test
+    func scanComparisonSeparatesResolvedAndIrrelevantMissingTools() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["go.mod"], packageManager: "go", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "go", paths: []),
+                    .init(name: "node", paths: []),
+                ],
+                versions: []
+            ),
+            policy: .init(
+                preferredCommands: ["go test ./..."],
+                askFirstCommands: ["running Go commands before go is available", "go get"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: ["Project files prefer Go, but go was not found on PATH; ask before running Go commands."],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "package-lock.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "go", paths: []),
+                    .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                    .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+                ],
+                versions: []
+            ),
+            policy: .init(
+                preferredCommands: ["npm run"],
+                askFirstCommands: ["npm install"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.contains(where: {
+            $0.summary == "Previously missing tools are no longer project-relevant: go."
+                && $0.impact == "Do not treat them as available; follow the current project signals and command policy."
+        }))
+        #expect(!changes.contains(where: {
+            $0.summary == "Project-relevant tools are now available: go."
+        }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Previously missing tools are no longer project-relevant: go. Do not treat them as available; follow the current project signals and command policy."))
+    }
+
+    @Test
+    func scanComparisonDoesNotReportRecoveredToolsWhenVersionChecksFail() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "package-lock.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: ["test"], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: []),
+                    .init(name: "npm", paths: []),
+                ],
+                versions: []
+            ),
+            policy: .init(
+                preferredCommands: ["npm run test"],
+                askFirstCommands: [
+                    "running JavaScript commands before node is available",
+                    "running npm commands before npm is available",
+                    "npm install",
+                ],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "package-lock.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: ["test"], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                    .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+                ],
+                versions: [
+                    .init(name: "node", version: nil, available: false),
+                    .init(name: "npm", version: nil, available: false),
+                ]
+            ),
+            policy: .init(
+                preferredCommands: ["npm run test"],
+                askFirstCommands: [
+                    "running JavaScript commands before node version check succeeds",
+                    "running npm commands before npm version check succeeds",
+                    "npm install",
+                ],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: [
+                "node --version failed with exit code 1: node failed",
+                "npm --version failed with exit code 1: npm failed",
+            ]
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(!changes.contains(where: {
+            $0.summary == "Project-relevant tools are now available: node, npm."
+        }))
+        #expect(changes.contains(where: {
+            $0.summary == "Project-relevant tool checks now fail: node, npm."
+                && $0.impact == "Treat related build, test, or install commands as Ask First until the current command policy allows them."
+        }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(!context.contains("Project-relevant tools are now available: node, npm."))
+        #expect(context.contains("Project-relevant tool checks now fail: node, npm. Treat related build, test, or install commands as Ask First until the current command policy allows them."))
+    }
+
+    @Test
+    func scanComparisonReportsRelevantToolVerificationFailures() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "swift", paths: ["/usr/bin/swift"]),
+                    .init(name: "xcode-select", paths: ["/usr/bin/xcode-select"]),
+                ],
+                versions: [
+                    .init(name: "swift", version: "Swift version 6.1", available: true),
+                    .init(name: "xcode-select", version: "/Applications/Xcode.app/Contents/Developer", available: true),
+                ]
+            ),
+            policy: .init(
+                preferredCommands: ["swift test", "swift build"],
+                askFirstCommands: ["swift package update"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "swift", paths: ["/usr/bin/swift"]),
+                    .init(name: "xcode-select", paths: ["/usr/bin/xcode-select"]),
+                ],
+                versions: [
+                    .init(name: "swift", version: "Swift version 6.1", available: true),
+                    .init(name: "xcode-select", version: nil, available: false),
+                ]
+            ),
+            policy: .init(
+                preferredCommands: ["swift test", "swift build"],
+                askFirstCommands: ["Swift/Xcode build commands before xcode-select -p succeeds", "swift package update"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: ["xcode-select -p did not return a developer directory; ask before Swift/Xcode build or test commands."],
+            diagnostics: ["xcode-select -p failed with exit code 2: xcode-select: error: tool 'xcodebuild' requires Xcode"]
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.contains(where: {
+            $0.summary == "Project-relevant tool checks now fail: xcode-select."
+                && $0.impact == "Treat related build, test, or install commands as Ask First until the current command policy allows them."
+        }))
+        #expect(!changes.contains(where: {
+            $0.category == "missing_tools" && $0.summary.contains("xcode-select")
+        }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+
+        #expect(context.contains("Project-relevant tool checks now fail: xcode-select. Treat related build, test, or install commands as Ask First until the current command policy allows them."))
+        #expect(scanResult.contains("\"category\" : \"tool_verification\""))
+    }
+
+    @Test
+    func scanComparisonReportsPackageManagerVersionGuidanceChanges() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: ["package.json", "pnpm-lock.yaml"],
+                packageManager: "pnpm",
+                packageManagerVersion: "9.15.4",
+                packageManagerVersionSource: "package.json",
+                packageScripts: ["test"],
+                runtimeHints: .init(node: nil, python: nil),
+                declaredPackageManager: "pnpm",
+                declaredPackageManagerVersion: "9.15.4"
+            ),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                    .init(name: "pnpm", paths: ["/opt/homebrew/bin/pnpm"]),
+                ],
+                versions: [
+                    .init(name: "pnpm", version: "9.15.4", available: true),
+                ]
+            ),
+            policy: .init(preferredCommands: ["pnpm run test"], askFirstCommands: ["pnpm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: [".tool-versions", "package.json", "pnpm-lock.yaml"],
+                packageManager: "pnpm",
+                packageManagerVersion: "10.0.0",
+                packageManagerVersionSource: ".tool-versions",
+                packageScripts: ["test"],
+                runtimeHints: .init(node: nil, python: nil),
+                declaredPackageManager: "pnpm",
+                declaredPackageManagerVersion: nil
+            ),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                    .init(name: "pnpm", paths: ["/opt/homebrew/bin/pnpm"]),
+                ],
+                versions: [
+                    .init(name: "pnpm", version: "10.0.0", available: true),
+                ]
+            ),
+            policy: .init(preferredCommands: ["pnpm run test"], askFirstCommands: ["pnpm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let packageManagerVersionChange = changes.first(where: { $0.category == "package_manager_version" })
+
+        #expect(packageManagerVersionChange?.summary == "Package manager version guidance changed from pnpm@9.15.4 via package.json to pnpm@10.0.0 via .tool-versions.")
+        #expect(packageManagerVersionChange?.impact == "Re-check the active pnpm version before dependency installs; follow current agent_context.md guidance.")
+        #expect(!changes.contains(where: { $0.category == "package_manager" }))
+        #expect(!changes.contains(where: { $0.category == "preferred_commands" }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"category\" : \"package_manager_version\""))
+        #expect(context.contains("Package manager version guidance changed from pnpm@9.15.4 via package.json to pnpm@10.0.0 via .tool-versions. Re-check the active pnpm version before dependency installs; follow current agent_context.md guidance."))
+    }
+
+    @Test
+    func scanComparisonReportsRuntimeHintGuidanceChanges() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: [".nvmrc", "package.json", "pnpm-lock.yaml"],
+                packageManager: "pnpm",
+                packageManagerVersion: nil,
+                packageScripts: ["test"],
+                runtimeHints: .init(node: "20.11.1", python: nil, ruby: "3.2.0")
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["pnpm run test"], askFirstCommands: ["pnpm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: [".nvmrc", ".python-version", "package.json", "pnpm-lock.yaml"],
+                packageManager: "pnpm",
+                packageManagerVersion: nil,
+                packageScripts: ["test"],
+                runtimeHints: .init(node: "22.0.0", python: "3.12.2", ruby: nil)
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["pnpm run test"], askFirstCommands: ["pnpm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let runtimeHintChange = changes.first(where: { $0.category == "runtime_hints" })
+
+        #expect(runtimeHintChange?.summary == "Runtime version guidance changed: Node 20.11.1 -> 22.0.0; Python none -> 3.12.2; Ruby 3.2.0 -> none.")
+        #expect(runtimeHintChange?.impact == "Re-check active runtimes before dependency installs or build/test commands; follow current command policy.")
+        #expect(!changes.contains(where: { $0.category == "package_manager" }))
+        #expect(!changes.contains(where: { $0.category == "preferred_commands" }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"category\" : \"runtime_hints\""))
+        #expect(context.contains("Runtime version guidance changed: Node 20.11.1 -> 22.0.0; Python none -> 3.12.2; Ruby 3.2.0 -> none. Re-check active runtimes before dependency installs or build/test commands; follow current command policy."))
+    }
+
+    @Test
+    func scanComparisonReportsPreferredCommandChangesForSamePackageManager() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [
+                .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+            ], versions: []),
+            policy: .init(preferredCommands: ["npm run"], askFirstCommands: ["npm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: ["build", "test"], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [
+                .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+            ], versions: []),
+            policy: .init(preferredCommands: ["npm run test", "npm run build"], askFirstCommands: ["npm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let preferredChange = changes.first(where: { $0.category == "preferred_commands" })
+
+        #expect(preferredChange?.summary == "Preferred commands changed from npm run to npm run test, npm run build.")
+        #expect(preferredChange?.impact == "Re-check command_policy.md; use only current allowed preferred commands.")
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"category\" : \"preferred_commands\""))
+        #expect(context.contains("Preferred commands changed from npm run to npm run test, npm run build. Re-check command_policy.md; use only current allowed preferred commands."))
+    }
+
+    @Test
+    func scanComparisonSeparatesCommandPolicyRiskTransitions() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["npm run"],
+                askFirstCommands: ["npm install", "npx"],
+                forbiddenCommands: ["sudo", "brew upgrade"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["npm run"],
+                askFirstCommands: ["brew upgrade", "npm install", "pnpm install"],
+                forbiddenCommands: ["sudo", "npx", "npm install -g"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.contains(where: {
+            $0.summary == "Commands changed from Ask First to Forbidden: npx."
+                && $0.impact == "Refuse these commands under the current scan policy."
+        }))
+        #expect(changes.contains(where: {
+            $0.summary == "Commands changed from Forbidden to Ask First: brew upgrade."
+                && $0.impact == "Ask before these commands; do not refuse solely because a previous scan did."
+        }))
+        #expect(changes.contains(where: {
+            $0.summary == "New Ask First commands: pnpm install."
+        }))
+        #expect(changes.contains(where: {
+            $0.summary == "New Forbidden commands: npm install -g."
+        }))
+        #expect(!changes.contains(where: {
+            $0.summary.contains("New Ask First commands") && $0.summary.contains("brew upgrade")
+        }))
+        #expect(!changes.contains(where: {
+            $0.summary.contains("New Forbidden commands") && $0.summary.contains("npx")
+        }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Commands changed from Ask First to Forbidden: npx. Refuse these commands under the current scan policy."))
+        #expect(context.contains("Commands changed from Forbidden to Ask First: brew upgrade. Ask before these commands; do not refuse solely because a previous scan did."))
+    }
+
+    @Test
+    func scanComparisonReportsResolvedCommandPolicyEntries() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["pnpm run"],
+                askFirstCommands: ["running pnpm commands before pnpm is available", "pnpm install"],
+                forbiddenCommands: ["sudo", "legacy forbidden command"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["pnpm run"],
+                askFirstCommands: ["pnpm install"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.contains(where: {
+            $0.summary == "Ask First commands no longer highlighted: running pnpm commands before pnpm is available."
+                && $0.impact == "Do not ask solely because a previous scan did; apply the current command policy."
+        }))
+        #expect(changes.contains(where: {
+            $0.summary == "Forbidden commands no longer highlighted: legacy forbidden command."
+                && $0.impact == "Do not refuse solely because a previous scan did; apply the current command policy."
+        }))
+        #expect(!changes.contains(where: {
+            $0.summary.contains("changed from Ask First to Forbidden")
+        }))
+        #expect(!changes.contains(where: {
+            $0.summary.contains("changed from Forbidden to Ask First")
+        }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask First commands no longer highlighted: running pnpm commands before pnpm is available. Do not ask solely because a previous scan did; apply the current command policy."))
+        #expect(context.contains("Forbidden commands no longer highlighted: legacy forbidden command. Do not refuse solely because a previous scan did; apply the current command policy."))
+    }
+
+    @Test
+    func scanTreatsXcodeWorkspaceAsXcodebuildProject() throws {
+        let projectURL = try makeProject(files: [:])
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent("Demo App.xcworkspace"), withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent("Demo App.xcodeproj"), withIntermediateDirectories: true)
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: ""),
+            "/usr/bin/which -a xcodebuild": .init(name: "/usr/bin/which", args: ["-a", "xcodebuild"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/xcodebuild", stderr: ""),
+            "/usr/bin/env xcodebuild -version": .init(name: "/usr/bin/env", args: ["xcodebuild", "-version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Xcode 16.3\nBuild version 16E140", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("Demo App.xcworkspace"))
+        #expect(result.project.detectedFiles.contains("Demo App.xcodeproj"))
+        #expect(result.project.packageManager == "xcodebuild")
+        #expect(result.policy.preferredCommands == ["xcodebuild -list -workspace 'Demo App.xcworkspace'"])
+        #expect(result.policy.askFirstCommands.contains("xcodebuild build/test/archive before selecting a scheme"))
+        #expect(result.policy.askFirstCommands.contains("xcodebuild -resolvePackageDependencies"))
+        #expect(result.policy.askFirstCommands.contains("xcodebuild -allowProvisioningUpdates"))
+        #expect(!result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild is available"))
+        #expect(!result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
+        #expect(result.tools.resolvedPaths.contains(where: { $0.name == "xcodebuild" && !$0.paths.isEmpty }))
+        #expect(result.tools.versions.contains(where: { $0.name == "xcodebuild" && $0.available }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Use `xcodebuild` because project files point to it."))
+        #expect(context.contains("Prefer `xcodebuild -list -workspace 'Demo App.xcworkspace'`."))
+        #expect(context.contains("Ask before `xcodebuild build/test/archive before selecting a scheme`."))
+        #expect(policy.contains("`xcodebuild -list -workspace 'Demo App.xcworkspace'`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(policy.contains("`xcodebuild -resolvePackageDependencies`"))
+    }
+
+    @Test
+    func scanGuardsXcodebuildCommandsWhenXcodebuildIsMissing() throws {
+        let projectURL = try makeProject(files: [:])
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent("Demo.xcodeproj"), withIntermediateDirectories: true)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "xcodebuild")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild is available"))
+        #expect(result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
+        #expect(result.policy.askFirstCommands.contains("xcodebuild build/test/archive before selecting a scheme"))
+        #expect(result.warnings.contains("Project files prefer xcodebuild, but xcodebuild was not found on PATH; ask before running Xcode build commands."))
+        #expect(result.warnings.contains("xcode-select -p did not return a developer directory; ask before Swift/Xcode build or test commands."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify Xcode tooling before running Xcode commands."))
+        #expect(context.contains("Ask before `running Xcode build commands before xcodebuild is available`."))
+        #expect(context.contains("Ask before `Swift/Xcode build commands before xcode-select -p succeeds`."))
+        #expect(context.contains("Project files prefer xcodebuild, but xcodebuild was not found on PATH; ask before running Xcode build commands."))
+        #expect(context.contains("xcode-select -p unavailable: missing"))
+        #expect(!context.contains("Use `xcodebuild` because project files point to it."))
+        #expect(!context.contains("Prefer `xcodebuild -list -project Demo.xcodeproj`."))
+        #expect(policy.contains("`running Xcode build commands before xcodebuild is available`"))
+        #expect(policy.contains("`Swift/Xcode build commands before xcode-select -p succeeds`"))
+        #expect(!policy.contains("`xcodebuild -list -project Demo.xcodeproj`"))
+    }
+
+    @Test
+    func scanSuppressesXcodebuildPreferredCommandsWhenVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [:])
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent("Demo.xcodeproj"), withIntermediateDirectories: true)
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: ""),
+            "/usr/bin/which -a xcodebuild": .init(name: "/usr/bin/which", args: ["-a", "xcodebuild"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/xcodebuild", stderr: ""),
+            "/usr/bin/env xcodebuild -version": .init(name: "/usr/bin/env", args: ["xcodebuild", "-version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "xcodebuild: failed to load developer tools"),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "xcodebuild")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild is available"))
+        #expect(!result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
+        #expect(result.diagnostics.contains("xcodebuild -version failed with exit code 1: xcodebuild: failed to load developer tools"))
+        #expect(result.tools.versions.contains(where: { $0.name == "xcodebuild" && !$0.available }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running Xcode build commands before xcodebuild version check succeeds`."))
+        #expect(context.contains("xcodebuild -version failed with exit code 1: xcodebuild: failed to load developer tools"))
+        #expect(context.contains("Verify Xcode tooling before running Xcode commands."))
+        #expect(!context.contains("Use `xcodebuild` because project files point to it."))
+        #expect(!context.contains("Prefer `xcodebuild -list -project Demo.xcodeproj`."))
+        #expect(policy.contains("`running Xcode build commands before xcodebuild version check succeeds`"))
+        #expect(!policy.contains("`xcodebuild -list -project Demo.xcodeproj`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanSuppressesXcodebuildPreferredCommandsWhenDeveloperDirectoryIsMissing() throws {
+        let projectURL = try makeProject(files: [:])
+        try FileManager.default.createDirectory(at: projectURL.appendingPathComponent("Demo.xcodeproj"), withIntermediateDirectories: true)
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env xcodebuild -version": .init(name: "/usr/bin/env", args: ["xcodebuild", "-version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Xcode 16.3\nBuild version 16E140", stderr: ""),
+            "/usr/bin/which -a xcodebuild": .init(name: "/usr/bin/which", args: ["-a", "xcodebuild"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/xcodebuild", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "xcodebuild")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(!result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild is available"))
+        #expect(result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
+        #expect(result.warnings.contains("xcode-select -p did not return a developer directory; ask before Swift/Xcode build or test commands."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `Swift/Xcode build commands before xcode-select -p succeeds`."))
+        #expect(context.contains("xcode-select -p unavailable: missing"))
+        #expect(context.contains("Verify Xcode tooling before running Xcode commands."))
+        #expect(!context.contains("Use `xcodebuild` because project files point to it."))
+        #expect(!context.contains("Prefer `xcodebuild -list -project Demo.xcodeproj`."))
+        #expect(!policy.contains("`xcodebuild -list -project Demo.xcodeproj`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanAsksBeforeSwiftBuildWhenDeveloperDirectoryIsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift package"
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Swift version 6.1", stderr: ""),
+            "/usr/bin/which -a swift": .init(name: "/usr/bin/which", args: ["-a", "swift"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/swift", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(!result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
+        #expect(result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
+        #expect(result.warnings.contains("xcode-select -p did not return a developer directory; ask before Swift/Xcode build or test commands."))
+        #expect(result.diagnostics.contains("xcode-select -p unavailable: missing"))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(!context.contains("Prefer `swift test`."))
+        #expect(!context.contains("Prefer `swift build`."))
+        #expect(context.contains("Ask before `Swift/Xcode build commands before xcode-select -p succeeds`."))
+        #expect(context.contains("xcode-select -p unavailable: missing"))
+        #expect(policy.contains("`Swift/Xcode build commands before xcode-select -p succeeds`"))
+        #expect(!policy.contains("`swift test`"))
+        #expect(!policy.contains("`swift build`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanAsksBeforeSwiftBuildWhenDeveloperDirectoryOutputIsEmpty() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift package"
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Swift version 6.1", stderr: ""),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: " \n", stderr: ""),
+            "/usr/bin/which -a swift": .init(name: "/usr/bin/which", args: ["-a", "swift"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/swift", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
+        #expect(result.diagnostics.contains("xcode-select -p returned empty output"))
+        #expect(result.tools.versions.contains(where: { $0.name == "xcode-select" && !$0.available && $0.version == nil }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `Swift/Xcode build commands before xcode-select -p succeeds`."))
+        #expect(context.contains("xcode-select -p returned empty output"))
+        #expect(!context.contains("Prefer `swift test`."))
+        #expect(!context.contains("Prefer `swift build`."))
+        #expect(policy.contains("`Swift/Xcode build commands before xcode-select -p succeeds`"))
+        #expect(!policy.contains("`swift test`"))
+        #expect(!policy.contains("`swift build`"))
+    }
+
+    @Test
+    func agentContextNamesSwiftPMExecutableWhenCommandsAreAllowed() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift package"
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Swift version 6.1", stderr: ""),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: ""),
+            "/usr/bin/which -a swift": .init(name: "/usr/bin/which", args: ["-a", "swift"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/swift", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.policy.preferredCommands == ["swift test", "swift build"])
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Use SwiftPM (`swift`) because project files point to it."))
+        #expect(!context.contains("Use `swiftpm` because project files point to it."))
+        #expect(context.contains("Prefer `swift test`."))
+        #expect(context.contains("Prefer `swift build`."))
+    }
+
+    @Test
+    func scanAsksBeforeSwiftPMCommandsWhenSwiftVersionCheckFails() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift package"
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 1, durationMs: 1, timedOut: false, available: true, stdout: "", stderr: "swift: failed to load toolchain"),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: ""),
+            "/usr/bin/which -a swift": .init(name: "/usr/bin/which", args: ["-a", "swift"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/swift", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running SwiftPM commands before swift version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
+        #expect(!result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
+        #expect(result.diagnostics.contains("swift --version failed with exit code 1: swift: failed to load toolchain"))
+        #expect(result.tools.versions.contains(where: { $0.name == "swift" && !$0.available }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `swift` before running SwiftPM commands."))
+        #expect(context.contains("Ask before `running SwiftPM commands before swift version check succeeds`."))
+        #expect(context.contains("swift --version failed with exit code 1: swift: failed to load toolchain"))
+        #expect(!context.contains("Use `swiftpm` because project files point to it."))
+        #expect(!context.contains("Prefer `swift test`."))
+        #expect(!context.contains("Prefer `swift build`."))
+        #expect(policy.contains("`running SwiftPM commands before swift version check succeeds`"))
+        #expect(!policy.contains("`swift test`"))
+        #expect(!policy.contains("`swift build`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanAsksBeforeSwiftPMCommandsWhenSwiftVersionCheckOutputIsEmpty() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift package"
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: " \n", stderr: ""),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: ""),
+            "/usr/bin/which -a swift": .init(name: "/usr/bin/which", args: ["-a", "swift"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/swift", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running SwiftPM commands before swift version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
+        #expect(!result.policy.askFirstCommands.contains("Swift/Xcode build commands before xcode-select -p succeeds"))
+        #expect(result.diagnostics.contains("swift --version returned empty output"))
+        #expect(result.tools.versions.contains(where: { $0.name == "swift" && !$0.available && $0.version == nil }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `swift` before running SwiftPM commands."))
+        #expect(context.contains("Ask before `running SwiftPM commands before swift version check succeeds`."))
+        #expect(context.contains("swift --version returned empty output"))
+        #expect(!context.contains("Use `swiftpm` because project files point to it."))
+        #expect(!context.contains("Prefer `swift test`."))
+        #expect(!context.contains("Prefer `swift build`."))
+        #expect(policy.contains("`running SwiftPM commands before swift version check succeeds`"))
+        #expect(!policy.contains("`swift test`"))
+        #expect(!policy.contains("`swift build`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanAsksBeforeSwiftPMCommandsWhenSwiftVersionCheckTimesOut() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift package"
+        ])
+
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: nil, durationMs: 3000, timedOut: true, available: true, stdout: "", stderr: ""),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: ""),
+            "/usr/bin/which -a swift": .init(name: "/usr/bin/which", args: ["-a", "swift"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/swift", stderr: ""),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.policy.askFirstCommands.contains("running SwiftPM commands before swift version check succeeds"))
+        #expect(!result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
+        #expect(result.diagnostics.contains("swift --version timed out"))
+        #expect(result.tools.versions.contains(where: { $0.name == "swift" && !$0.available }))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `swift` before running SwiftPM commands."))
+        #expect(context.contains("Ask before `running SwiftPM commands before swift version check succeeds`."))
+        #expect(context.contains("swift --version timed out"))
+        #expect(!context.contains("Prefer `swift test`."))
+        #expect(!context.contains("Prefer `swift build`."))
+        #expect(policy.contains("`running SwiftPM commands before swift version check succeeds`"))
+        #expect(!policy.contains("`swift test`"))
+        #expect(!policy.contains("`swift build`"))
+        #expect(!policy.contains("`test commands for the selected project`"))
+        #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanGuardsSwiftPMCommandsWhenSwiftIsMissing() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift package"
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
+        #expect(result.policy.askFirstCommands.contains("swift package update"))
+        #expect(result.policy.askFirstCommands.contains("swift package resolve"))
+        #expect(result.warnings.contains("Project files prefer SwiftPM, but swift was not found on PATH; ask before running SwiftPM commands."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before `running SwiftPM commands before swift is available`."))
+        #expect(context.contains("Ask before `swift package update`."))
+        #expect(policy.contains("`swift package update`"))
+        #expect(policy.contains("`swift package resolve`"))
+        #expect(context.contains("Project files prefer SwiftPM, but swift was not found on PATH; ask before running SwiftPM commands."))
+        #expect(policy.contains("`running SwiftPM commands before swift is available`"))
+    }
+
+    @Test
+    func scanTreatsPackageResolvedAsSwiftPMSignal() throws {
+        let projectURL = try makeProject(files: [
+            "Package.resolved": """
+            {
+              "pins": [],
+              "version": 2
+            }
+            """
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.packageManager == "swiftpm")
+        #expect(result.project.detectedFiles.contains("Package.resolved"))
+        #expect(result.policy.preferredCommands.isEmpty)
+        #expect(result.policy.askFirstCommands.contains("running SwiftPM commands before swift is available"))
+        #expect(result.policy.askFirstCommands.contains("swift package resolve"))
+        #expect(result.policy.askFirstCommands.contains("swift package update"))
+        #expect(result.warnings.contains("Project files prefer SwiftPM, but swift was not found on PATH; ask before running SwiftPM commands."))
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Verify `swift` before running SwiftPM commands."))
+        #expect(context.contains("Ask before `running SwiftPM commands before swift is available`."))
+        #expect(!context.contains("Prefer `swift test`."))
+        #expect(!policy.contains("`swift test`"))
+        #expect(policy.contains("`swift package resolve`"))
+    }
+}

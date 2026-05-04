@@ -8,7 +8,9 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 
 The `v0.4.0 Developer Preview` milestone shipped the first thin `PolicyFinding` policy-decision core and routed generated command-reason metadata through it while preserving the existing preview `scan_result.json` shape. The next work is to use `v0.4.0` during real self-use and observe which reason codes, command reasons, and policy findings actually change an agent's next command.
 
-Treat `v0.5` as provisional Evidence Normalization. Do not build a broad `NormalizedEvidence` layer up front. Let `v0.4` self-use show which scanner facts need to become explicit evidence before they feed `PolicyFinding` or rendered output.
+Treat `v0.5` as provisional Evidence and Instruction Alignment. Do not build a broad `NormalizedEvidence` layer up front, and do not turn Habitat into a prose linter for project instructions. Let `v0.4` self-use show which scanner facts need to become explicit evidence before they feed `PolicyFinding` or rendered output, especially when current repository facts confirm or contradict `AGENTS.md`, roadmap, or development-doc guidance.
+
+The main near-term project risk is no longer concept quality; it is maintainability under more policy growth. As of 2026-05-05, `Scanner.swift` is about 1,850 lines, `PolicyReasonCatalog.swift` is about 860 lines, and `HabitatCoreTests.swift` is about 8,628 lines. Treat those as warning lights before adding broad ecosystems, not as an emergency rewrite.
 
 Keep the current cycle focused:
 
@@ -193,20 +195,29 @@ Keep the current cycle focused:
 
 ## Not Yet Implemented
 
+- External command catalog loading or user-defined policy extension. The preview still owns a curated advisory catalog; any extension point needs a clear trust, ordering, and prompt-injection model first.
 - Homebrew scanner detail beyond command-decision guidance; this should stay narrow and avoid `brew doctor`-style broad diagnostics.
 - Detailed pip/uv policy beyond pip install, fetch, wheel, package-index lookup, cache-removal, config value-reading/mutation, uv pip mutation, uv tool mutation, package-publication guards, and mixed-dependency signal guards.
 - Additional Node package-manager version metadata beyond `package.json`, Volta pins, `engines.node`, `.tool-versions`, `mise.toml`, and `.mise.toml`.
 - Swift/Xcode scanner detail beyond safe first-command guidance; this should stay focused on build/test command selection and safety.
 - Broader scan comparison beyond the initial AI-actionable deltas; avoid adding this unless it changes agent behavior.
+- Linux support guarantee. A narrow Linux feasibility spike may be useful before `v1.0`, but the current published promise remains macOS-first.
+- Structured concurrency in scanner execution. Keep synchronous command capture until a measured scan-size or timeout problem justifies parallel execution.
 - GUI, MCP server, and redaction modes.
 
 ## Next Useful Improvements
 
+- Before adding more policy families, pay down one maintainability slice: extract a coherent scanner responsibility, split one scenario group from the monolithic test file, or move one catalog family behind a clearer local boundary.
 - Keep the next cycle small: use Habitat during real Codex work, observe what changed the next command, then return the finding to policy, evidence fixtures, tests, or docs.
 - Use Nenrin during self-use and automation work to record why agent-facing guidance changed, what behavior was expected, and whether the change should be kept, removed, merged, narrowed, or moved.
 - Use the published `v0.4.0` artifacts during real Codex work and observe which `reasonCodes`, `commandReasons`, or `PolicyFinding` paths change the next command.
-- Keep `v0.5` Evidence Normalization provisional until self-use identifies a concrete scanner responsibility that should become normalized evidence.
+- Start a `v0.5` implementation slice only when the case is command-changing, fixture-able, and narrow enough to keep `agent_context.md` concise.
+- Keep `v0.5` Evidence and Instruction Alignment provisional until self-use identifies a concrete scanner responsibility that should become normalized evidence or a command-changing instruction-drift check.
 - Avoid turning `NormalizedEvidence` into a broad upfront architecture layer; extract it from one measured command-decision problem at a time.
+- Discount generated context that only repeats `AGENTS.md`; prefer facts that an initial agent would otherwise miss.
+- Treat no-scan success as useful evidence when `AGENTS.md` was already enough and no command mistake followed.
+- Add non-Habitat fixtures or traces before using self-use evidence to justify broad ecosystem priorities.
+- Pull a minimal read-only MCP prototype forward only if file-based consumption becomes the measured blocker; keep command execution, approval, repair, and mutation out of that prototype.
 - Capture new sanitized traces only when they show a new command-decision boundary, a regression, over-constraint, or a failure that can become an artifact improvement.
 - Turn evaluation failures into focused output-contract, fixture, test, or documentation improvements.
 - Prefer high-confidence SwiftPM and secret-bearing search depth over broad coverage unless another ecosystem shows a clear measured command-decision gain.
