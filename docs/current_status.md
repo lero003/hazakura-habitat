@@ -10,7 +10,7 @@ The `v0.4.0 Developer Preview` milestone shipped the first thin `PolicyFinding` 
 
 Treat `v0.5` as provisional Evidence and Instruction Alignment. Do not build a broad `NormalizedEvidence` layer up front, and do not turn Habitat into a prose linter for project instructions. Let `v0.4` self-use show which scanner facts need to become explicit evidence before they feed `PolicyFinding` or rendered output, especially when current repository facts confirm or contradict `AGENTS.md`, roadmap, or development-doc guidance.
 
-The main near-term project risk is no longer concept quality; it is maintainability under more policy growth. As of 2026-05-05, `Scanner.swift` is about 1,850 lines, `PolicyReasonCatalog.swift` is about 860 lines, and `HabitatCoreTests.swift` is about 8,628 lines. Treat those as warning lights before adding broad ecosystems, not as an emergency rewrite.
+The main near-term project risk is no longer concept quality; it is maintainability under more policy growth. As of 2026-05-05, `Scanner.swift` is about 1,548 lines (after extracting `SecretFileDetector`), `PolicyReasonCatalog.swift` is about 860 lines, and the previously monolithic `HabitatCoreTests.swift` (8,628 lines) has been split into 5 test suites across 5 dedicated files: `CoreInfrastructureTests.swift`, `BehaviorEvaluationTests.swift`, `SecretFileDetectionTests.swift`, `ScanComparisonTests.swift`, and `PackageAndCommandPolicyTests.swift`, with shared helpers in `TestHelpers.swift` (201 tests, all pass). Treat `PolicyReasonCatalog.swift` as the next maintainability warning light before adding broad ecosystems, not as an emergency rewrite.
 
 Keep the current cycle focused:
 
@@ -207,7 +207,7 @@ Keep the current cycle focused:
 
 ## Next Useful Improvements
 
-- Before adding more policy families, pay down one maintainability slice: extract a coherent scanner responsibility, split one scenario group from the monolithic test file, or move one catalog family behind a clearer local boundary.
+- Scanner and test-suite decomposition is done (`SecretFileDetector` extracted from `Scanner.swift`; monolithic `HabitatCoreTests.swift` split into 5 scenario-grouped suites). Next maintainability target: `PolicyReasonCatalog.swift` (~860 lines of curated command catalogs) should be given a clearer local boundary before adding more policy families.
 - Keep the next cycle small: use Habitat during real Codex work, observe what changed the next command, then return the finding to policy, evidence fixtures, tests, or docs.
 - Use Nenrin during self-use and automation work to record why agent-facing guidance changed, what behavior was expected, and whether the change should be kept, removed, merged, narrowed, or moved.
 - Use the published `v0.4.0` artifacts during real Codex work and observe which `reasonCodes`, `commandReasons`, or `PolicyFinding` paths change the next command.

@@ -8,8 +8,9 @@
 - Added roadmap guardrails for Scanner/test/catalog maintainability, `v0.5` entry criteria, non-Habitat behavior evidence, read-only MCP timing, Linux feasibility, and release distribution trust.
 - Updated release-install guidance to explain that full `SHA256SUMS` verification expects all generated release assets in the same directory.
 - Extracted `SecretFileDetector` from `Scanner.swift` (~300 lines), leaving Scanner at 1548 lines and giving secret detection a clear module boundary.
-- Split monolithic `HabitatCoreTests.swift` (8628 lines) into scenario-grouped test suites: `BehaviorEvaluationTests`, `SecretFileDetectionTests`, `PackageAndCommandPolicyTests`, and `CoreInfrastructureTests`, with shared helpers in `TestHelpers.swift`.
+- Split monolithic `HabitatCoreTests.swift` (8628 lines) into scenario-grouped test suites: `CoreInfrastructureTests` (28 tests), `BehaviorEvaluationTests` (18), `SecretFileDetectionTests` (39), `ScanComparisonTests` (10), and `PackageAndCommandPolicyTests` (106), with shared helpers in `TestHelpers.swift`. 201 tests pass across 5 suites.
 - Added Nenrin change record for the maintainability split and observation guidance for future decomposition slices.
+- Updated documentation (`README.md`, `docs/roadmap.md`, `docs/current_status.md`, `docs/self_use.md`) to reflect completed decomposition and current codebase state.
 
 ## v0.4.0 Developer Preview - 2026-05-04
 

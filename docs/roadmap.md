@@ -32,11 +32,11 @@ Do not let the narrow product scope hide codebase risk.
 
 Current warning lights:
 
-- `Scanner.swift` owns scanning, policy assembly, and report shaping responsibilities.
-- `PolicyReasonCatalog.swift` still contains large curated command catalogs, even after command-family centralization reduced drift.
-- `HabitatCoreTests.swift` concentrates scenario coverage in one very large file.
+- `Scanner.swift` (1,548 lines, after extracting `SecretFileDetector`) still owns policy assembly and report shaping; the first extraction is done but further decomposition is warranted when new behavior touches scanning.
+- `PolicyReasonCatalog.swift` still contains large curated command catalogs (~860 lines), even after command-family centralization reduced drift. This is the highest-priority maintainability target.
+- The monolithic `HabitatCoreTests.swift` has been split into 5 scenario-grouped test suites: `CoreInfrastructureTests.swift`, `BehaviorEvaluationTests.swift`, `SecretFileDetectionTests.swift`, `ScanComparisonTests.swift`, and `PackageAndCommandPolicyTests.swift`, with shared helpers in `TestHelpers.swift` (201 tests, all pass). `PackageAndCommandPolicyTests.swift` (3,987 lines) is still large and may benefit from further splitting.
 
-Near-term feature work should pay down one of those risks when it adds adjacent behavior. Prefer extraction that preserves generated output over broad rewrites: move one scanner responsibility behind a small type, split one focused test group, or give one command family a clearer catalog boundary. Do not introduce a custom DSL, plugin system, or external rule format until ordering, trust, and prompt-injection risks are understood.
+Near-term feature work should continue paying down remaining maintainability risk when it adds adjacent behavior. The `SecretFileDetector` extraction and test-suite split are done; the next target should be giving `PolicyReasonCatalog`'s command catalogs a clearer module boundary. Do not introduce a custom DSL, plugin system, or external rule format until ordering, trust, and prompt-injection risks are understood.
 
 ## Version Themes
 
@@ -632,8 +632,8 @@ Stable advisory context generation for AI coding agents.
 - behavior evaluation fixtures
 - policy finding model
 - renderer separation
-- targeted Scanner decomposition
-- scenario-based test-file split
+- targeted Scanner decomposition (partial: `SecretFileDetector` extracted; `PolicyReasonCatalog` next)
+- scenario-based test-file split (complete: 5 suites, 201 tests, all pass)
 - lockfile conflict tests
 - missing preferred tool scenarios
 

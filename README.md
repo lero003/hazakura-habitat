@@ -73,14 +73,14 @@ AI agents do not need a beautiful inventory of everything installed on a machine
 4. Secret presence over secret contents.
 5. Short agent context over exhaustive reports.
 
-Hazakura Habitat is developed around output quality, not feature breadth. After the `v0.3` behavior evaluation cycle, high-confidence scenarios matter more than broad coverage.
+Hazakura Habitat is developed around output quality, not feature breadth. After the `v0.4` Policy Finding Foundation release, post-release self-use observation drives priority, and high-confidence scenarios matter more than broad coverage.
 
 The roadmap prioritizes:
 
-1. Policy Finding Foundation
-2. Evidence and instruction alignment
-3. Agent behavior feedback loop
-4. Integration and distribution foundations
+1. Evidence and instruction alignment (v0.5, provisional)
+2. Agent behavior feedback loop (v0.6)
+3. Integration and distribution foundations (v0.7)
+4. Release trust hardening (v0.8)
 
 The goal is not to inspect everything on the machine. The goal is to generate concise, conservative context that changes an AI coding agent's next command choice.
 

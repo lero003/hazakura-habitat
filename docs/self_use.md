@@ -52,7 +52,7 @@ When evaluating self-use output, discount guidance that merely repeats existing 
 
 ## Current Self-Scan Snapshot
 
-Snapshot date: 2026-05-04.
+Snapshot date: 2026-05-05 (post-maintainability split; `SecretFileDetector` extraction and test-suite decomposition preserved generated output, so values are unchanged from 2026-05-04).
 
 Observed output from scanning this repository:
 
