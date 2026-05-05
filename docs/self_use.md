@@ -52,7 +52,7 @@ When evaluating self-use output, discount guidance that merely repeats existing 
 
 ## Current Self-Scan Snapshot
 
-Snapshot date: 2026-05-05 (post-maintainability split; `SecretFileDetector` extraction and test-suite decomposition preserved generated output, so values are unchanged from 2026-05-04).
+Snapshot date: 2026-05-06 (post-maintainability split; `SecretFileDetector` extraction, test-suite decomposition, and no-output-change catalog boundaries preserved generated output, so policy values are unchanged from 2026-05-04).
 
 Observed output from scanning this repository:
 
@@ -81,6 +81,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - Secret-bearing file guidance is indexed and rendered before the long `Allowed`/`Ask First`/`Forbidden` command lists, so broad `rg`, `grep -R`, or `git grep` searches are reviewed for exclusions before an agent scans hundreds of policy lines; `command_policy.md` now gives a concrete `git grep` pathspec-exclusion shape for tracked-file searches.
 - Full `Ask First` and `Forbidden` entries now carry reason code annotations, so long policy lists remain explainable at the point of use.
 - Auth/session and package-manager config forbids now use the `secret_or_credential_access` reason family, so credential-related refusals do not collapse into generic unsafe-command metadata.
+- CLI auth-session and credential-store commands now have their own `PolicyReasonCatalog+CliAuth.swift` boundary, so future `gh auth`, Git credential-helper, or macOS `security` additions update one family without changing generated output shape.
 - When secret-bearing files are detected, `agent_context.md` now gives a concrete broad-search starting shape with exclusion globs, so agents can reshape `rg`/`grep -R`/`git grep` instead of treating all project search as off limits.
 - `command_policy.md` now distinguishes no-secret read-only search from secret-bearing projects: ordinary `rg <pattern>` remains allowed in normal repositories, while secret-bearing repositories steer agents toward targeted inspection and exclusion-aware search.
 - The `agent_context.md` Ask First overflow line now names hidden reason codes in stable catalog order, and when Git/GitHub mutation guards are already summarized it names the other hidden reason families first, so Codex can see remaining dependency, tool, or approval risks before opening the full policy.
