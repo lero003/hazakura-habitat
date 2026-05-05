@@ -211,8 +211,8 @@ public struct ReportWriter {
 
     private func commandPolicy(_ result: ScanResult) -> String {
         let preferredCommands = markdownPreferredCommands(result)
-        let secretBearingFiles = secretValueFiles(result.project)
-        let secretGuidance = secretBearingFileGuidance(files: secretBearingFiles)
+        let secretEvidence = SecretBearingEvidence(project: result.project)
+        let secretGuidance = secretBearingFileGuidance(evidence: secretEvidence)
         let askFirstCommands = prioritizedAskFirstCommands(result)
         let reviewFirst = commandPolicyReviewFirst(result)
         let reasonLegend = commandPolicyReasonLegend(result)
@@ -222,7 +222,7 @@ public struct ReportWriter {
             allowed = ["path existence checks"]
         } else {
             allowed = preferredCommands + [
-                allowedReadOnlyInspectionLine(secretBearingFiles: secretBearingFiles)
+                allowedReadOnlyInspectionLine(secretEvidence: secretEvidence)
             ]
         }
 
@@ -240,7 +240,7 @@ public struct ReportWriter {
             \(bulletList(commandPolicyIndex(
                 reviewFirstCount: reviewFirst.count,
                 reasonCodeCount: reasonLegend.count,
-                secretBearingFileCount: secretBearingFiles.count,
+                secretBearingFileCount: secretEvidence.paths.count,
                 allowedCount: allowed.count,
                 askFirstCount: askFirstCommands.count,
                 forbiddenCount: result.policy.forbiddenCommands.count
@@ -334,8 +334,8 @@ public struct ReportWriter {
         return lines
     }
 
-    private func allowedReadOnlyInspectionLine(secretBearingFiles: [String]) -> String {
-        if secretBearingFiles.isEmpty {
+    private func allowedReadOnlyInspectionLine(secretEvidence: SecretBearingEvidence) -> String {
+        if !secretEvidence.hasPaths {
             return "read-only project inspection, including rg <pattern>"
         }
 
@@ -505,7 +505,8 @@ public struct ReportWriter {
 
     private func agentContextAskFirstLine(for command: String, result: ScanResult) -> String {
         if command == "recursive project search without excluding secret-bearing files" {
-            return "- Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; targeted reads of known non-secret source/test files can proceed; start broad search with `\(broadSearchShape(for: result.project))`\(searchExclusionOverflowSuffix(for: result.project))."
+            let secretEvidence = SecretBearingEvidence(project: result.project)
+            return "- Ask before broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; targeted reads of known non-secret source/test files can proceed; start broad search with `\(broadSearchShape(for: secretEvidence))`\(searchExclusionOverflowSuffix(for: secretEvidence))."
         }
 
         return "- Ask before `\(command)`."
@@ -609,8 +610,8 @@ public struct ReportWriter {
         case "render Docker Compose config when secret environment files exist":
             return "Do not render Docker Compose config while secret environment files may be interpolated."
         case "recursive project search without excluding secret-bearing files":
-            let rgShape = broadSearchShape(for: result.project)
-            return "Do not run broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `\(rgShape)`\(searchExclusionOverflowSuffix(for: result.project))."
+            let secretEvidence = SecretBearingEvidence(project: result.project)
+            return "Do not run broad `rg`/`grep -R`/`git grep` unless detected secret-bearing files are excluded; start with `\(broadSearchShape(for: secretEvidence))`\(searchExclusionOverflowSuffix(for: secretEvidence))."
         case "project copy, sync, or archive without excluding secret-bearing files":
             return "Do not copy, sync, or archive the project without excluding detected secret-bearing files."
         case "read .env values":
@@ -628,22 +629,6 @@ public struct ReportWriter {
         default:
             return "Do not run `\(command)`."
         }
-    }
-
-    private func broadSearchShape(for project: ProjectInfo) -> String {
-        let globs = searchExclusionGlobs(for: secretValueFiles(project))
-        guard !globs.isEmpty else { return "rg <pattern>" }
-        return "rg <pattern> \(globs.joined(separator: " "))"
-    }
-
-    private func searchExclusionOverflowSuffix(for project: ProjectInfo) -> String {
-        searchExclusionOverflowSuffix(for: secretValueFiles(project))
-    }
-
-    private func searchExclusionOverflowSuffix(for files: [String]) -> String {
-        searchExclusionGlobCandidates(for: files).count > searchExclusionGlobLimit
-            ? "; add exclusions for remaining detected paths before broad search"
-            : ""
     }
 
     private func agentRelevantDiagnostics(_ result: ScanResult) -> [String] {
@@ -973,52 +958,27 @@ public struct ReportWriter {
     }
 
     private func hasSecretDotEnvFile(_ project: ProjectInfo) -> Bool {
-        project.detectedFiles.contains { file in
-            file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
-        }
+        SecretBearingEvidence(project: project).hasDotEnvFile
     }
 
     private func hasSecretEnvrcFile(_ project: ProjectInfo) -> Bool {
-        project.detectedFiles.contains { file in
-            file == ".envrc" || (file.hasPrefix(".envrc.") && file != ".envrc.example")
-        }
+        SecretBearingEvidence(project: project).hasEnvrcFile
     }
 
     private func hasPackageManagerAuthConfig(_ project: ProjectInfo) -> Bool {
-        project.detectedFiles.contains { file in
-            file == ".npmrc"
-                || file == ".pnpmrc"
-                || file == ".yarnrc"
-                || file == ".yarnrc.yml"
-                || file == ".pypirc"
-                || file == "pip.conf"
-                || file == ".gem/credentials"
-                || file == ".bundle/config"
-                || file == ".cargo/credentials.toml"
-                || file == ".cargo/credentials"
-                || file == "auth.json"
-                || file == ".composer/auth.json"
-        }
+        SecretBearingEvidence(project: project).hasPackageManagerAuthConfig
     }
 
     private func hasProjectCloudOrContainerCredentialFiles(_ project: ProjectInfo) -> Bool {
-        project.detectedFiles.contains { file in
-            file == ".aws/credentials"
-                || file == ".aws/config"
-                || file == ".config/gcloud/application_default_credentials.json"
-                || file == ".docker/config.json"
-                || file == ".kube/config"
-        }
+        SecretBearingEvidence(project: project).hasCloudOrContainerCredentialFiles
     }
 
     private func hasNetrcFile(_ project: ProjectInfo) -> Bool {
-        project.detectedFiles.contains(".netrc")
+        SecretBearingEvidence(project: project).hasNetrcFile
     }
 
     private func hasSSHPrivateKeyFile(_ project: ProjectInfo) -> Bool {
-        project.detectedFiles.contains { file in
-            isSSHPrivateKeyFilename(file)
-        }
+        SecretBearingEvidence(project: project).hasSSHPrivateKeyFile
     }
 
     private func hasDetectedSecretValueFile(_ project: ProjectInfo) -> Bool {
@@ -1030,28 +990,54 @@ public struct ReportWriter {
             || hasSSHPrivateKeyFile(project)
     }
 
-    private func secretBearingFileGuidance(files: [String]) -> String {
-        guard !files.isEmpty else { return "" }
+    private func secretBearingFileGuidance(evidence: SecretBearingEvidence) -> String {
+        guard evidence.hasPaths else { return "" }
 
         return """
         ## If Secret-Bearing Files Are Detected
-        - Detected secret-bearing paths: \(summarize(files)).
+        - Detected secret-bearing paths: \(summarize(evidence.paths)).
         - Before recursive search, copy, sync, or archive commands, review exclusions for these paths.
         - Named source or test files that are not detected secret-bearing paths can be inspected directly.
-        - For necessary broad search, start with exclusion-aware `rg`: `rg <pattern> \(searchExclusionGlobs(for: files).joined(separator: " "))`\(searchExclusionOverflowSuffix(for: files)).
-        - For necessary Git-tracked search, use pathspec exclusions: `git grep <pattern> -- . \(gitGrepExclusionPathspecs(for: files).joined(separator: " "))`\(searchExclusionOverflowSuffix(for: files)).
+        - For necessary broad search, start with exclusion-aware `rg`: `\(broadSearchShape(for: evidence))`\(searchExclusionOverflowSuffix(for: evidence)).
+        - For necessary Git-tracked search, use pathspec exclusions: `\(gitGrepSearchShape(for: evidence))`\(searchExclusionOverflowSuffix(for: evidence)).
         - Apply equivalent exclusions before broad `grep -R`, `git grep`, copy, sync, or archive commands.
         - Prefer targeted source/test inspection over broad `rg`, `grep -R`, `git grep`, `rsync`, `tar`, `zip`, or `git archive` commands.
         """
     }
 
-    private func searchExclusionGlobs(for files: [String]) -> [String] {
-        searchExclusionGlobCandidates(for: files)
+    private func secretValueFiles(_ project: ProjectInfo) -> [String] {
+        SecretBearingEvidence(project: project).paths
+    }
+
+    private func broadSearchShape(for evidence: SecretBearingEvidence) -> String {
+        let globs = searchExclusionGlobs(for: evidence)
+        guard !globs.isEmpty else { return "rg <pattern>" }
+        return "rg <pattern> \(globs.joined(separator: " "))"
+    }
+
+    private func gitGrepSearchShape(for evidence: SecretBearingEvidence) -> String {
+        "git grep <pattern> -- . \(gitGrepExclusionPathspecs(for: evidence).joined(separator: " "))"
+    }
+
+    private func searchExclusionOverflowSuffix(for evidence: SecretBearingEvidence) -> String {
+        searchExclusionGlobCandidates(for: evidence).count > searchExclusionGlobLimit
+            ? "; add exclusions for remaining detected paths before broad search"
+            : ""
+    }
+
+    private func searchExclusionGlobs(for evidence: SecretBearingEvidence) -> [String] {
+        searchExclusionGlobCandidates(for: evidence)
             .prefix(searchExclusionGlobLimit)
             .map { "--glob '!\($0)'" }
     }
 
-    private func searchExclusionGlobCandidates(for files: [String]) -> [String] {
+    private func gitGrepExclusionPathspecs(for evidence: SecretBearingEvidence) -> [String] {
+        searchExclusionGlobCandidates(for: evidence)
+            .prefix(searchExclusionGlobLimit)
+            .map { "':(exclude)\($0)'" }
+    }
+
+    private func searchExclusionGlobCandidates(for evidence: SecretBearingEvidence) -> [String] {
         var globs: [String] = []
 
         func append(_ glob: String) {
@@ -1059,7 +1045,7 @@ public struct ReportWriter {
             globs.append(glob)
         }
 
-        for file in files {
+        for file in evidence.paths {
             if file == ".env" {
                 append(".env")
                 append(".env.*")
@@ -1074,25 +1060,6 @@ public struct ReportWriter {
         return globs
     }
 
-    private func gitGrepExclusionPathspecs(for files: [String]) -> [String] {
-        searchExclusionGlobCandidates(for: files)
-            .prefix(searchExclusionGlobLimit)
-            .map { "':(exclude)\($0)'" }
-    }
-
-    private func secretValueFiles(_ project: ProjectInfo) -> [String] {
-        project.detectedFiles
-            .filter { file in
-                hasSecretDotEnvFilename(file)
-                    || hasSecretEnvrcFilename(file)
-                    || file == ".netrc"
-                    || isPackageManagerAuthConfigFile(file)
-                    || isProjectCloudOrContainerCredentialFile(file)
-                    || isSSHPrivateKeyFilename(file)
-            }
-            .sorted()
-    }
-
     private func summarize(_ values: [String], limit: Int = 6) -> String {
         guard values.count > limit else {
             return values.joined(separator: ", ")
@@ -1100,48 +1067,6 @@ public struct ReportWriter {
 
         return values.prefix(limit).joined(separator: ", ")
             + ", and \(values.count - limit) more"
-    }
-
-    private func isSSHPrivateKeyFilename(_ file: String) -> Bool {
-        let basename = URL(fileURLWithPath: file).lastPathComponent.lowercased()
-        guard !basename.hasSuffix(".pub") else { return false }
-
-        if ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(basename) {
-            return true
-        }
-
-        return [".pem", ".key", ".p8", ".p12", ".ppk"].contains { basename.hasSuffix($0) }
-    }
-
-    private func hasSecretDotEnvFilename(_ file: String) -> Bool {
-        file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
-    }
-
-    private func hasSecretEnvrcFilename(_ file: String) -> Bool {
-        file == ".envrc" || (file.hasPrefix(".envrc.") && file != ".envrc.example")
-    }
-
-    private func isPackageManagerAuthConfigFile(_ file: String) -> Bool {
-        file == ".npmrc"
-            || file == ".pnpmrc"
-            || file == ".yarnrc"
-            || file == ".yarnrc.yml"
-            || file == ".pypirc"
-            || file == "pip.conf"
-            || file == ".gem/credentials"
-            || file == ".bundle/config"
-            || file == ".cargo/credentials.toml"
-            || file == ".cargo/credentials"
-            || file == "auth.json"
-            || file == ".composer/auth.json"
-    }
-
-    private func isProjectCloudOrContainerCredentialFile(_ file: String) -> Bool {
-        file == ".aws/credentials"
-            || file == ".aws/config"
-            || file == ".config/gcloud/application_default_credentials.json"
-            || file == ".docker/config.json"
-            || file == ".kube/config"
     }
 
     private func agentRelevantCommandNames(_ result: ScanResult) -> Set<String> {

@@ -3,6 +3,10 @@ import Foundation
 public struct SecretFileDetector {
     public init() {}
 
+    public func secretBearingEvidence(_ project: ProjectInfo) -> SecretBearingEvidence {
+        SecretBearingEvidence(project: project)
+    }
+
     public func hasSymlinkedProjectSignals(_ project: ProjectInfo) -> Bool {
         !project.symlinkedFiles.isEmpty
     }
@@ -22,7 +26,7 @@ public struct SecretFileDetector {
     }
 
     public func secretFileAccessForbiddenCommands(_ project: ProjectInfo) -> [String] {
-        secretValueFiles(project).flatMap { file in
+        secretBearingEvidence(project).paths.flatMap { file in
             var commands = [
                 "cat \(file)",
                 "less \(file)",
@@ -114,7 +118,8 @@ public struct SecretFileDetector {
     }
 
     public func secretEnvironmentFileLoadForbiddenCommands(_ project: ProjectInfo) -> [String] {
-        var commands = secretEnvironmentValueFiles(project).flatMap { file in
+        let evidence = secretBearingEvidence(project)
+        var commands = evidence.environmentValuePaths.flatMap { file in
             [
                 "source \(file)",
                 ". \(file)",
@@ -134,7 +139,7 @@ public struct SecretFileDetector {
     }
 
     public func secretEnvironmentRenderForbiddenCommands(_ project: ProjectInfo) -> [String] {
-        let files = secretEnvironmentValueFiles(project)
+        let files = secretBearingEvidence(project).environmentValuePaths
         guard !files.isEmpty else { return [] }
 
         return [
@@ -152,7 +157,7 @@ public struct SecretFileDetector {
     }
 
     public func recursiveSecretSearchAskFirstCommands(_ project: ProjectInfo) -> [String] {
-        guard !secretValueFiles(project).isEmpty else { return [] }
+        guard secretBearingEvidence(project).hasPaths else { return [] }
 
         return [
             "recursive project search without excluding secret-bearing files",
@@ -184,7 +189,7 @@ public struct SecretFileDetector {
     }
 
     public func secretProjectBulkExportForbiddenCommands(_ project: ProjectInfo) -> [String] {
-        guard !secretValueFiles(project).isEmpty else { return [] }
+        guard secretBearingEvidence(project).hasPaths else { return [] }
 
         return [
             "project copy, sync, or archive without excluding secret-bearing files",
@@ -208,28 +213,15 @@ public struct SecretFileDetector {
     }
 
     public func secretEnvironmentValueFiles(_ project: ProjectInfo) -> [String] {
-        project.detectedFiles
-            .filter { file in
-                isSecretDotEnvFile(file) || isSecretEnvrcFile(file)
-            }
-            .sorted()
+        secretBearingEvidence(project).environmentValuePaths
     }
 
     public func secretValueFiles(_ project: ProjectInfo) -> [String] {
-        project.detectedFiles
-            .filter { file in
-                isSecretDotEnvFile(file)
-                    || isSecretEnvrcFile(file)
-                    || file == ".netrc"
-                    || isPackageManagerAuthConfigFile(file)
-                    || isProjectCloudOrContainerCredentialFile(file)
-                    || isSSHPrivateKeyFilename(file)
-            }
-            .sorted()
+        secretBearingEvidence(project).paths
     }
 
     public func isSecretDotEnvFile(_ file: String) -> Bool {
-        file == ".env" || (file.hasPrefix(".env.") && file != ".env.example")
+        SecretBearingEvidence.isSecretDotEnvFilename(file)
     }
 
     public func hasSecretEnvrcFile(_ project: ProjectInfo) -> Bool {
@@ -239,7 +231,7 @@ public struct SecretFileDetector {
     }
 
     public func isSecretEnvrcFile(_ file: String) -> Bool {
-        file == ".envrc" || (file.hasPrefix(".envrc.") && file != ".envrc.example")
+        SecretBearingEvidence.isSecretEnvrcFilename(file)
     }
 
     public func hasPackageManagerAuthConfig(_ project: ProjectInfo) -> Bool {
@@ -247,24 +239,11 @@ public struct SecretFileDetector {
     }
 
     public func packageManagerAuthConfigFiles(_ project: ProjectInfo) -> [String] {
-        project.detectedFiles
-            .filter(isPackageManagerAuthConfigFile)
-            .sorted()
+        secretBearingEvidence(project).packageManagerAuthConfigPaths
     }
 
     public func isPackageManagerAuthConfigFile(_ file: String) -> Bool {
-        file == ".npmrc"
-            || file == ".pnpmrc"
-            || file == ".yarnrc"
-            || file == ".yarnrc.yml"
-            || file == ".pypirc"
-            || file == "pip.conf"
-            || file == ".gem/credentials"
-            || file == ".bundle/config"
-            || file == ".cargo/credentials.toml"
-            || file == ".cargo/credentials"
-            || file == "auth.json"
-            || file == ".composer/auth.json"
+        SecretBearingEvidence.isPackageManagerAuthConfigFile(file)
     }
 
     public func hasProjectCloudOrContainerCredentialFiles(_ project: ProjectInfo) -> Bool {
@@ -272,17 +251,11 @@ public struct SecretFileDetector {
     }
 
     public func projectCloudOrContainerCredentialFiles(_ project: ProjectInfo) -> [String] {
-        project.detectedFiles
-            .filter(isProjectCloudOrContainerCredentialFile)
-            .sorted()
+        secretBearingEvidence(project).cloudOrContainerCredentialPaths
     }
 
     public func isProjectCloudOrContainerCredentialFile(_ file: String) -> Bool {
-        file == ".aws/credentials"
-            || file == ".aws/config"
-            || file == ".config/gcloud/application_default_credentials.json"
-            || file == ".docker/config.json"
-            || file == ".kube/config"
+        SecretBearingEvidence.isProjectCloudOrContainerCredentialFile(file)
     }
 
     public func hasNetrcFile(_ project: ProjectInfo) -> Bool {
@@ -290,19 +263,10 @@ public struct SecretFileDetector {
     }
 
     public func hasSSHPrivateKeyFile(_ project: ProjectInfo) -> Bool {
-        project.detectedFiles.contains { file in
-            isSSHPrivateKeyFilename(file)
-        }
+        secretBearingEvidence(project).hasSSHPrivateKeyFile
     }
 
     public func isSSHPrivateKeyFilename(_ file: String) -> Bool {
-        let basename = URL(fileURLWithPath: file).lastPathComponent.lowercased()
-        guard !basename.hasSuffix(".pub") else { return false }
-
-        if ["id_rsa", "id_dsa", "id_ecdsa", "id_ed25519"].contains(basename) {
-            return true
-        }
-
-        return [".pem", ".key", ".p8", ".p12", ".ppk"].contains { basename.hasSuffix($0) }
+        SecretBearingEvidence.isSSHPrivateKeyFilename(file)
     }
 }

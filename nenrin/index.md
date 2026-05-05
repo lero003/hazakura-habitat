@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 13
+- observing: 14
 - reviewed: 9
 
 ## Active Changes
@@ -20,6 +20,7 @@
 - `swiftpm-dependency-resolution-command-family` - [changes/2026-05-04-swiftpm-dependency-resolution-command-family.md](changes/2026-05-04-swiftpm-dependency-resolution-command-family.md)
 - `maintainability-roadmap-guardrails` - [changes/2026-05-05-maintainability-roadmap-guardrails.md](changes/2026-05-05-maintainability-roadmap-guardrails.md)
 - `maintainability-split` - [changes/2026-05-05-maintainability-split.md](changes/2026-05-05-maintainability-split.md)
+- `secret-bearing-evidence-boundary` - [changes/2026-05-06-secret-bearing-evidence-boundary.md](changes/2026-05-06-secret-bearing-evidence-boundary.md)
 
 ## Review Due
 

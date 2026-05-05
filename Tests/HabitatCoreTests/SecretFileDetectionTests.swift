@@ -3,6 +3,45 @@ import Foundation
 @testable import HabitatCore
 
 struct SecretFileDetectionTests {
+    @Test
+    func secretBearingEvidenceKeepsSearchExclusionsFilenameOnly() throws {
+        let project = ProjectInfo(
+            detectedFiles: [
+                ".env",
+                ".env.example",
+                ".env.local",
+                ".envrc",
+                ".envrc.example",
+                ".netrc",
+                ".npmrc",
+                "README.md",
+                "id_ed25519",
+                "id_ed25519.pub",
+            ],
+            symlinkedFiles: [],
+            unsafeRuntimeHintFiles: [],
+            unsafePackageMetadataFields: [],
+            packageManager: nil,
+            packageManagerVersion: nil,
+            packageManagerVersionSource: nil,
+            packageScripts: [],
+            runtimeHints: RuntimeHints(node: nil, python: nil)
+        )
+
+        let evidence = SecretBearingEvidence(project: project)
+
+        #expect(evidence.paths == [".env", ".env.local", ".envrc", ".netrc", ".npmrc", "id_ed25519"])
+        #expect(evidence.environmentValuePaths == [".env", ".env.local", ".envrc"])
+        #expect(evidence.hasDotEnvFile)
+        #expect(evidence.hasEnvrcFile)
+        #expect(evidence.hasNetrcFile)
+        #expect(evidence.hasPackageManagerAuthConfig)
+        #expect(evidence.hasSSHPrivateKeyFile)
+        #expect(!evidence.paths.contains(".env.example"))
+        #expect(!evidence.paths.contains(".envrc.example"))
+        #expect(!evidence.paths.contains("id_ed25519.pub"))
+    }
+
     func scanDetectsProjectCloudAndContainerCredentialFilesWithoutReadingValues() throws {
         let secretValue = "hh_project_cloud_credential_secret"
         let projectURL = try makeProject(files: [

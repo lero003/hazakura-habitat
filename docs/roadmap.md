@@ -342,7 +342,7 @@ Move from raw project signals toward normalized evidence that can support deeper
 
 This is where the broader `DetectedSignal -> NormalizedEvidence` part of the target flow may become real. Keep it tied to scenarios where `v0.4` self-use shows Habitat changes an agent's next command, instead of adding broad new domains or a generic evidence layer up front.
 
-The first `v0.5` entry slice should be smaller than the full target flow: wrap detected secret-bearing paths in a `SecretBearingEvidence` value and route existing secret-bearing search/copy/archive decisions through it. That slice must preserve the `scan_result.json` shape, public `ReportWriter.write(scanResult:outputURL:)` API, generated Markdown wording, PolicyFinding behavior, reason codes, and command ordering. Do not introduce a generic evidence protocol, normalize all of `ProjectInfo`, or move renderer-specific search-exclusion formatting into the evidence value in this first slice.
+The first `v0.5` entry slice is complete: detected secret-bearing paths are wrapped in a `SecretBearingEvidence` value and existing secret-bearing search/copy/archive decisions consume that value. It preserved the `scan_result.json` shape, public `ReportWriter.write(scanResult:outputURL:)` API, generated Markdown wording, PolicyFinding behavior, reason codes, and command ordering. Keep the pattern narrow: do not introduce a generic evidence protocol, normalize all of `ProjectInfo`, or move renderer-specific wording into evidence values without a measured command-decision need.
 
 Entry criteria for a `v0.5` slice:
 
@@ -635,7 +635,7 @@ Stable advisory context generation for AI coding agents.
 - policy finding model
 - renderer separation
 - targeted Scanner decomposition (partial: `SecretFileDetector` extracted; `PolicyReasonCatalog` in progress - Git/GitHub, ephemeral package execution, package-registry mutation, CLI auth credential-store, package-manager credential/config, cloud/container credential, host-private data, Corepack package-manager activation, SwiftPM dependency-resolution, and JavaScript package-manager dependency-mutation families extracted)
-- scenario-based test-file split (complete: 5 suites, 205 tests, all pass)
+- scenario-based test-file split (complete: 5 suites, 206 tests, all pass)
 - lockfile conflict tests
 - missing preferred tool scenarios
 
