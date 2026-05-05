@@ -2,8 +2,8 @@
 type: nenrin_change
 id: policy-catalog-git-boundary-guidance
 date: 2026-05-05
-status: observing
-impact: unknown
+status: reviewed
+impact: positive
 related_files:
   - CHANGELOG.md
   - docs/current_status.md
@@ -51,4 +51,4 @@ External review agreed that `v0.5` behavior work should not begin by creating a 
 
 ## Result
 
-Unjudged.
+The guidance worked. The Git/GitHub command-family extraction landed as a Swift-only `PolicyReasonCatalog+Git.swift` boundary with focused reason-code contract coverage and full `swift test` verification. A follow-up review restored `ReasonRule` and `ReasonCode` to private scope and synchronized docs to the new 202-test baseline. Keep using this pattern for future catalog slices, but do not redo the completed Git/GitHub extraction.

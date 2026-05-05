@@ -25,12 +25,12 @@ enum PolicyReasonCatalog {
         }
     }
 
-    struct ReasonRule: Sendable {
+    private struct ReasonRule: Sendable {
         let reasonCode: ReasonCode
         let matches: @Sendable (String) -> Bool
     }
 
-    enum ReasonCode: String, CaseIterable, Sendable {
+    private enum ReasonCode: String, CaseIterable, Sendable {
         case projectPathUnverified = "project_path_unverified"
         case missingTool = "missing_tool"
         case toolVerificationFailed = "tool_verification_failed"

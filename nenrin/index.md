@@ -2,8 +2,8 @@
 
 ## Active Summary
 
-- observing: 14
-- reviewed: 8
+- observing: 13
+- reviewed: 9
 
 ## Active Changes
 
@@ -20,7 +20,6 @@
 - `swiftpm-dependency-resolution-command-family` - [changes/2026-05-04-swiftpm-dependency-resolution-command-family.md](changes/2026-05-04-swiftpm-dependency-resolution-command-family.md)
 - `maintainability-roadmap-guardrails` - [changes/2026-05-05-maintainability-roadmap-guardrails.md](changes/2026-05-05-maintainability-roadmap-guardrails.md)
 - `maintainability-split` - [changes/2026-05-05-maintainability-split.md](changes/2026-05-05-maintainability-split.md)
-- `policy-catalog-git-boundary-guidance` - [changes/2026-05-05-policy-catalog-git-boundary-guidance.md](changes/2026-05-05-policy-catalog-git-boundary-guidance.md)
 
 ## Review Due
 

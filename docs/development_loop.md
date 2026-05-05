@@ -48,8 +48,8 @@ Focus on the self-use observation loop:
 - use `v0.4` PolicyFinding, reason-code, and command-reason output to decide whether a future evidence or instruction-alignment slice is actually needed
 - keep `v0.5` Evidence and Instruction Alignment provisional; extract one concrete normalized-evidence or instruction-drift shape from observed command behavior before generalizing
 - when a slice touches scanner, catalog, or test-heavy behavior, include a small local decomposition that preserves generated output
-- before starting a broad v0.5 behavior slice, prefer one no-behavior-change `PolicyReasonCatalog` boundary slice: extract Git/GitHub command families and membership predicates into `PolicyReasonCatalog+Git.swift`
-- keep reason-code rule ordering, dependency-mutation fallback, credential/auth command families, DSLs, plugins, and external rule formats out of that Git/GitHub extraction slice
+- the first `PolicyReasonCatalog` boundary slice (`PolicyReasonCatalog+Git.swift`) is complete; future catalog slices should follow the same no-behavior-change extraction pattern, one cohesive command family at a time
+- keep reason-code rule ordering, dependency-mutation fallback, credential/auth command families, DSLs, plugins, and external rule formats out of catalog extraction slices
 - if a code change affects generated output, update representative examples and tests in the same slice
 
 Avoid broad feature expansion:

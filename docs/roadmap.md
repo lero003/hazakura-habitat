@@ -34,7 +34,7 @@ Current warning lights:
 
 - `Scanner.swift` (1,548 lines, after extracting `SecretFileDetector`) still owns policy assembly and report shaping; the first extraction is done but further decomposition is warranted when new behavior touches scanning.
 - `PolicyReasonCatalog.swift` still contains large curated command catalogs, but the first file-boundary slice now isolates Git/GitHub command families in `PolicyReasonCatalog+Git.swift`. Continue this pattern only when a cohesive family boundary is clear.
-- The monolithic `HabitatCoreTests.swift` has been split into 5 scenario-grouped test suites: `CoreInfrastructureTests.swift`, `BehaviorEvaluationTests.swift`, `SecretFileDetectionTests.swift`, `ScanComparisonTests.swift`, and `PackageAndCommandPolicyTests.swift`, with shared helpers in `TestHelpers.swift` (201 tests, all pass). `PackageAndCommandPolicyTests.swift` (3,987 lines) is still large and may benefit from further splitting.
+- The monolithic `HabitatCoreTests.swift` has been split into 5 scenario-grouped test suites: `CoreInfrastructureTests.swift`, `BehaviorEvaluationTests.swift`, `SecretFileDetectionTests.swift`, `ScanComparisonTests.swift`, and `PackageAndCommandPolicyTests.swift`, with shared helpers in `TestHelpers.swift` (202 tests, all pass). `PackageAndCommandPolicyTests.swift` (4,004 lines) is still large and may benefit from further splitting.
 
 Near-term feature work should continue paying down remaining maintainability risk when it adds adjacent behavior. The `SecretFileDetector` extraction, test-suite split, and first Git/GitHub catalog boundary are done. Future catalog slices should follow the same pattern: preserve command order, reason-code mapping, `commandReasons`, `reviewFirstCommandReasons`, `command_policy.md`, and `scan_result.json` output, and keep dependency-mutation fallback, credential/auth command families, rule ordering, custom DSLs, plugin systems, and external rule formats out of scope.
 
@@ -632,8 +632,8 @@ Stable advisory context generation for AI coding agents.
 - behavior evaluation fixtures
 - policy finding model
 - renderer separation
-- targeted Scanner decomposition (partial: `SecretFileDetector` extracted; `PolicyReasonCatalog` next)
-- scenario-based test-file split (complete: 5 suites, 201 tests, all pass)
+- targeted Scanner decomposition (partial: `SecretFileDetector` extracted; `PolicyReasonCatalog` in progress — Git/GitHub families extracted)
+- scenario-based test-file split (complete: 5 suites, 202 tests, all pass)
 - lockfile conflict tests
 - missing preferred tool scenarios
 
