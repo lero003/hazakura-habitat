@@ -4113,7 +4113,16 @@ struct PackageAndCommandPolicyTests {
         #expect(PolicyReasonCatalog.askFirstReason(for: "gh pr create").code == "remote_repository_action")
         #expect(PolicyReasonCatalog.askFirstReason(for: "gh workflow run").code == "remote_repository_action")
 
-        #expect(PolicyReasonCatalog.askFirstReason(for: "npm install").code == "dependency_mutation")
+        for command in PolicyReasonCatalog.npmDependencyMutationCommands
+            + PolicyReasonCatalog.pnpmDependencyMutationCommands
+            + PolicyReasonCatalog.yarnDependencyMutationCommands
+            + PolicyReasonCatalog.bunDependencyMutationCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_mutation",
+                "Expected \(command) to keep JavaScript dependency-mutation classification"
+            )
+        }
+
         for command in PolicyReasonCatalog.swiftPackageDependencyResolutionCommands {
             #expect(
                 PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_resolution_mutation",

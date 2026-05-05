@@ -5,9 +5,10 @@ date: 2026-05-04
 status: observing
 impact: unknown
 related_files:
+  - Sources/HabitatCore/PolicyReasonCatalog+JavaScriptPackageManager.swift
   - Sources/HabitatCore/PolicyReasonCatalog.swift
   - Sources/HabitatCore/Scanner.swift
-  - Tests/HabitatCoreTests/HabitatCoreTests.swift
+  - Tests/HabitatCoreTests/PackageAndCommandPolicyTests.swift
   - docs/current_status.md
 review_after:
   tasks: 3
@@ -21,6 +22,7 @@ review_after:
 - Centralized npm, pnpm, yarn, and bun dependency-mutation command arrays in `PolicyReasonCatalog`.
 - Made scanner Ask First command generation and selected package-manager review ordering consume those catalog-owned arrays.
 - Added focused coverage that the selected JavaScript review commands classify as `dependency_mutation`, including `yarn up`.
+- Later extracted those JavaScript command families into `PolicyReasonCatalog+JavaScriptPackageManager.swift` without changing generated policy output.
 
 ## Reason
 

@@ -21,6 +21,7 @@
 - Extracted host-private data command families into `PolicyReasonCatalog+HostPrivate.swift` with no intended generated-output behavior change.
 - Extracted Corepack package-manager activation command families into `PolicyReasonCatalog+PackageManagerActivation.swift` with no intended generated-output behavior change.
 - Extracted SwiftPM dependency-resolution command families into `PolicyReasonCatalog+SwiftPM.swift` with no intended generated-output behavior change.
+- Extracted JavaScript package-manager dependency-mutation command families into `PolicyReasonCatalog+JavaScriptPackageManager.swift` with no intended generated-output behavior change.
 - Clarified that the first `v0.5` evidence slice should wrap secret-bearing path signals in a small `SecretBearingEvidence` value without changing `scan_result.json`, public `ReportWriter` API, generated Markdown, PolicyFinding, reason codes, or command ordering.
 
 ## v0.4.0 Developer Preview - 2026-05-04
