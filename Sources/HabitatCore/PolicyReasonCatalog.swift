@@ -111,11 +111,6 @@ enum PolicyReasonCatalog {
     }
 
     private static let orderedReasonCodes: [PolicyReasonCode] = ReasonCode.allCases.map(\.reason)
-    private static let swiftPackageDependencyResolutionCommandFamily = CommandFamily([
-        "swift package update",
-        "swift package resolve",
-    ])
-    static let swiftPackageDependencyResolutionCommands = swiftPackageDependencyResolutionCommandFamily.commands
     private static let npmDependencyMutationCommandFamily = CommandFamily([
         "npm install",
         "npm ci",
@@ -306,7 +301,7 @@ enum PolicyReasonCatalog {
     }
 
     private static func isSwiftPackageDependencyResolutionCommand(_ command: String) -> Bool {
-        swiftPackageDependencyResolutionCommandFamily.contains(command)
+        isSwiftPackageDependencyResolutionMutationCommand(command)
     }
 
     private static func isSecretOrCredentialCommand(_ command: String) -> Bool {

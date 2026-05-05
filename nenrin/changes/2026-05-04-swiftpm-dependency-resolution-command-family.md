@@ -6,7 +6,8 @@ status: observing
 impact: unknown
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog.swift
-  - Tests/HabitatCoreTests/HabitatCoreTests.swift
+  - Sources/HabitatCore/PolicyReasonCatalog+SwiftPM.swift
+  - Tests/HabitatCoreTests/PackageAndCommandPolicyTests.swift
   - docs/current_status.md
 review_after:
   tasks: 3
