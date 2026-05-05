@@ -4132,5 +4132,14 @@ struct PackageAndCommandPolicyTests {
         #expect(PolicyReasonCatalog.forbiddenReason(for: "git credential fill").code == "secret_or_credential_access")
         #expect(PolicyReasonCatalog.forbiddenReason(for: "aws configure export-credentials").code == "secret_or_credential_access")
         #expect(PolicyReasonCatalog.forbiddenReason(for: "kubectl config view --raw").code == "secret_or_credential_access")
+
+        for command in PolicyReasonCatalog.hostPrivateDataCommands {
+            #expect(
+                PolicyReasonCatalog.forbiddenReason(for: command).code == "host_private_data",
+                "Expected \(command) to keep host-private data classification"
+            )
+        }
+        #expect(PolicyReasonCatalog.forbiddenReason(for: "pbpaste").code == "host_private_data")
+        #expect(PolicyReasonCatalog.forbiddenReason(for: "cat ~/.zsh_history").code == "host_private_data")
     }
 }

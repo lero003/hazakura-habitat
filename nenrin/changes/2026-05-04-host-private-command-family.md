@@ -5,9 +5,10 @@ date: 2026-05-04
 status: observing
 impact: unknown
 related_files:
+  - Sources/HabitatCore/PolicyReasonCatalog+HostPrivate.swift
   - Sources/HabitatCore/PolicyReasonCatalog.swift
   - Sources/HabitatCore/Scanner.swift
-  - Tests/HabitatCoreTests/HabitatCoreTests.swift
+  - Tests/HabitatCoreTests/PackageAndCommandPolicyTests.swift
   - docs/current_status.md
 review_after:
   tasks: 3
