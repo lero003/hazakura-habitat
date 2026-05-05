@@ -31,7 +31,7 @@ Post-v0.3 self-use automation for a v0.4 policy-engine hardening slice.
 
 ## Failure Signals Observed
 
-- None in this slice.
+- None observed in this slice.
 
 ## Impact Judgment
 

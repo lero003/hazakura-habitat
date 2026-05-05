@@ -34,7 +34,7 @@ Run a post-v0.4 Habitat self-use observation slice and publish only the resultin
 
 ## Failure Signals Observed
 
-- None in this slice.
+- None observed in this slice.
 
 ## Impact Judgment
 

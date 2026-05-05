@@ -2,8 +2,8 @@
 type: nenrin_change
 id: local-git-workspace-command-family
 date: 2026-05-03
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog.swift
   - Sources/HabitatCore/Scanner.swift
@@ -50,4 +50,4 @@ The v0.3 self-use policy again routed Git/GitHub mutation review through `comman
 
 ## Result
 
-Unjudged.
+Reviewed on 2026-05-05: keep. The evidence shows the local Git command family changed publication behavior from broad staging to explicit policy review, verification, scoped diff inspection, explicit-file staging, commit, and push while preserving the remote repository boundary.

@@ -2,8 +2,8 @@
 type: nenrin_change
 id: policy-finding-command-reasons
 date: 2026-05-04
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - Sources/HabitatCore/Models.swift
   - Sources/HabitatCore/PolicyReasonCatalog.swift
@@ -52,4 +52,4 @@ The re-scoped `v0.4` roadmap needs a visible policy-decision core without forcin
 
 ## Result
 
-Unjudged.
+Reviewed on 2026-05-05: keep. The evidence shows `PolicyFinding`-backed command reasons changed publication decisions without requiring a broad normalized-evidence layer or generated JSON shape change.

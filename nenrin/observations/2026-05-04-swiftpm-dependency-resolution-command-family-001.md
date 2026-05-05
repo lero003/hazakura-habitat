@@ -33,7 +33,7 @@ Run a post-v0.4 Habitat self-use observation slice from the published Policy Fin
 
 ## Failure Signals Observed
 
-- None in this slice.
+- None observed in this slice.
 
 ## Impact Judgment
 

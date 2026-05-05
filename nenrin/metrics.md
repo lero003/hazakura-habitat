@@ -8,13 +8,13 @@
 
 ## Status
 
-- observing: 16
-- reviewed: 5
+- observing: 13
+- reviewed: 8
 
 ## Change Impact
 
-- effective: 5
-- unknown: 16
+- effective: 8
+- unknown: 13
 
 ## Observation Impact Judgment
 

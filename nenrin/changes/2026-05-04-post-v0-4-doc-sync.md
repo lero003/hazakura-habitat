@@ -2,8 +2,8 @@
 type: nenrin_change
 id: post-v0-4-doc-sync
 date: 2026-05-04
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - README.md
   - CHANGELOG.md
@@ -52,4 +52,4 @@ review_after:
 
 ## Result
 
-Unjudged.
+Reviewed on 2026-05-05: keep. The evidence shows the post-`v0.4` sync kept later work on shipped-release observation, bounded read-only inspection, duplicate avoidance, and no-op carry-back when no new command-decision boundary appeared.

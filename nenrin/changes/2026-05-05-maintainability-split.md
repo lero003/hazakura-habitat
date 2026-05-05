@@ -1,3 +1,22 @@
+---
+type: nenrin_change
+id: maintainability-split
+date: 2026-05-05
+status: observing
+impact: unknown
+related_files:
+  - Sources/HabitatCore/Scanner.swift
+  - Sources/HabitatCore/SecretFileDetector.swift
+  - Tests/HabitatCoreTests/TestHelpers.swift
+  - Tests/HabitatCoreTests/CoreInfrastructureTests.swift
+  - Tests/HabitatCoreTests/BehaviorEvaluationTests.swift
+  - Tests/HabitatCoreTests/SecretFileDetectionTests.swift
+  - Tests/HabitatCoreTests/PackageAndCommandPolicyTests.swift
+review_after:
+  tasks: 3
+  days: 7
+---
+
 # Maintainability Split (2026-05-05)
 
 ## Summary

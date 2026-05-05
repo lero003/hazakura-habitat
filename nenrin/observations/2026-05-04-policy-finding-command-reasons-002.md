@@ -33,7 +33,7 @@ Run a post-v0.4 Habitat self-use observation slice, then prepare the resulting d
 
 ## Failure Signals Observed
 
-- None in this slice.
+- None observed in this slice.
 
 ## Impact Judgment
 
