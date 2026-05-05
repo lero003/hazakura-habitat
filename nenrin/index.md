@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 14
+- observing: 15
 - reviewed: 9
 
 ## Active Changes
@@ -21,6 +21,7 @@
 - `maintainability-roadmap-guardrails` - [changes/2026-05-05-maintainability-roadmap-guardrails.md](changes/2026-05-05-maintainability-roadmap-guardrails.md)
 - `maintainability-split` - [changes/2026-05-05-maintainability-split.md](changes/2026-05-05-maintainability-split.md)
 - `secret-bearing-evidence-boundary` - [changes/2026-05-06-secret-bearing-evidence-boundary.md](changes/2026-05-06-secret-bearing-evidence-boundary.md)
+- `speculative-context-annotation-framing` - [changes/2026-05-06-speculative-context-annotation-framing.md](changes/2026-05-06-speculative-context-annotation-framing.md)
 
 ## Review Due
 

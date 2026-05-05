@@ -26,6 +26,15 @@ If not, put it in the parking lot.
 
 Habitat should complement `AGENTS.md`, roadmap, and development docs rather than restate them. Its stronger job is to read repository reality: package-manager signals, runnable scripts, generated-output state, secret-bearing paths, release or CI configuration, and other facts that may confirm or contradict written instructions. If `AGENTS.md` is complete and current enough for a low-risk task, skipping Habitat is acceptable. If generated context mostly repeats existing project guidance, treat that as weak output.
 
+Habitat does not produce plans. It produces short, evidence-backed context annotations drawn from the repository map:
+
+- `Facts`: observed repository state, such as package manager, test command, CI, generated files, entrypoints, or config files.
+- `Hints`: tentative next-command guidance derived from facts, such as which test area is likely relevant.
+- `Warnings`: constraints and risks, such as destructive mutation, secret-bearing paths, external communication, generated-file churn, or Git/GitHub mutation.
+- `Open uncertainty`: what Habitat cannot decide from repository facts alone, such as whether the task is docs alignment, behavior change, release hardening, or product prioritization.
+
+Initial confidence should be coarse (`high`, `medium`, `low`) and used to soften claims, not to create a numerical planning score. The durable loop is `repo fact -> short annotation -> command decision`; Nenrin can later record whether the annotation helped, misled, or should be pruned.
+
 ## Maintenance Guardrails
 
 Do not let the narrow product scope hide codebase risk.
@@ -34,7 +43,7 @@ Current warning lights:
 
 - `Scanner.swift` (1,548 lines, after extracting `SecretFileDetector`) still owns policy assembly and report shaping; the first extraction is done but further decomposition is warranted when new behavior touches scanning.
 - `PolicyReasonCatalog.swift` still contains large curated command catalogs, but file-boundary slices now isolate Git/GitHub command families, ephemeral package execution command families, package-registry mutation command families, CLI auth-session/credential-store command families, package-manager credential/config command families, cloud/container credential command families, host-private data command families, Corepack package-manager activation command families, SwiftPM dependency-resolution command families, and JavaScript package-manager dependency-mutation command families. Continue this pattern only when a cohesive family boundary is clear.
-- The monolithic `HabitatCoreTests.swift` has been split into 5 scenario-grouped test suites: `CoreInfrastructureTests.swift`, `BehaviorEvaluationTests.swift`, `SecretFileDetectionTests.swift`, `ScanComparisonTests.swift`, and `PackageAndCommandPolicyTests.swift`, with shared helpers in `TestHelpers.swift` (205 tests, all pass). `PackageAndCommandPolicyTests.swift` is still large and may benefit from further splitting.
+- The monolithic `HabitatCoreTests.swift` has been split into 5 scenario-grouped test suites: `CoreInfrastructureTests.swift`, `BehaviorEvaluationTests.swift`, `SecretFileDetectionTests.swift`, `ScanComparisonTests.swift`, and `PackageAndCommandPolicyTests.swift`, with shared helpers in `TestHelpers.swift` (206 tests, all pass). `PackageAndCommandPolicyTests.swift` is still large and may benefit from further splitting.
 
 Near-term feature work should continue paying down remaining maintainability risk when it adds adjacent behavior. The `SecretFileDetector` extraction, test-suite split, Git/GitHub catalog boundary, ephemeral package execution catalog boundary, package-registry mutation catalog boundary, CLI auth credential-store catalog boundary, package-manager credential/config catalog boundary, cloud/container credential catalog boundary, host-private data catalog boundary, Corepack package-manager activation catalog boundary, SwiftPM dependency-resolution catalog boundary, and JavaScript package-manager dependency-mutation catalog boundary are done. Future catalog slices should follow the same pattern: preserve command order, reason-code mapping, `commandReasons`, `reviewFirstCommandReasons`, `command_policy.md`, and `scan_result.json` output, and keep dependency-mutation fallback, remaining credential/auth command families, rule ordering, custom DSLs, plugin systems, and external rule formats out of scope.
 
@@ -338,11 +347,13 @@ Release status:
 
 Purpose:
 
-Move from raw project signals toward normalized evidence that can support deeper high-confidence behavior scenarios without making the scanner or renderer own policy interpretation. Start also treating project instructions as advisory claims that can be checked against current repository facts.
+Move from raw project signals toward short, normalized context annotations that can support deeper high-confidence behavior scenarios without making the scanner or renderer own policy interpretation. Start also treating project instructions as advisory claims that can be checked against current repository facts.
 
 This is where the broader `DetectedSignal -> NormalizedEvidence` part of the target flow may become real. Keep it tied to scenarios where `v0.4` self-use shows Habitat changes an agent's next command, instead of adding broad new domains or a generic evidence layer up front.
 
 The first `v0.5` entry slice is complete: detected secret-bearing paths are wrapped in a `SecretBearingEvidence` value and existing secret-bearing search/copy/archive decisions consume that value. It preserved the `scan_result.json` shape, public `ReportWriter.write(scanResult:outputURL:)` API, generated Markdown wording, PolicyFinding behavior, reason codes, and command ordering. Keep the pattern narrow: do not introduce a generic evidence protocol, normalize all of `ProjectInfo`, or move renderer-specific wording into evidence values without a measured command-decision need.
+
+The preferred `v0.5` shape is `repo fact -> short annotation -> command decision`, not automatic planning. Evidence and instruction-alignment work should classify output as `Facts`, `Hints`, `Warnings`, or `Open uncertainty` only when that classification helps an agent choose, verify, ask, or stop. A `Hint` is a hypothesis, a `Warning` is a constraint, a `Fact` is an observation, and `Open uncertainty` is a bounded place where Habitat refuses to guess.
 
 Entry criteria for a `v0.5` slice:
 
@@ -355,6 +366,8 @@ Entry criteria for a `v0.5` slice:
 Focus:
 
 - normalize selected package-manager, runtime, missing-tool, symlink, and secret-bearing-file signals
+- keep annotations short and distinguish `Facts`, `Hints`, `Warnings`, and `Open uncertainty`
+- use coarse confidence labels (`high`, `medium`, `low`) only to reduce overstatement
 - detect small, command-changing mismatches between written project guidance and actual repository state
 - keep normalized evidence value-safe; do not read or emit secrets
 - make policy decisions consume normalized evidence rather than scattered scanner facts where practical

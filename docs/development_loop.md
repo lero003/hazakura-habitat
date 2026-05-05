@@ -47,6 +47,8 @@ Focus on the self-use observation loop:
 - keep evidence sanitized; do not store raw prompts, secrets, shell history, clipboard contents, private local paths, or release credentials
 - use `v0.4` PolicyFinding, reason-code, and command-reason output to decide whether a future evidence or instruction-alignment slice is actually needed
 - keep `v0.5` Evidence and Instruction Alignment provisional; extract one concrete normalized-evidence or instruction-drift shape from observed command behavior before generalizing
+- keep the `v0.5` context direction narrow: `repo fact -> short annotation -> command decision`
+- do not make Habitat produce plans; it may produce `Facts`, `Hints`, `Warnings`, and `Open uncertainty` annotations with coarse confidence such as `high`, `medium`, or `low`
 - when a slice touches scanner, catalog, or test-heavy behavior, include a small local decomposition that preserves generated output
 - the first `PolicyReasonCatalog` boundary slices (`PolicyReasonCatalog+Git.swift`, `PolicyReasonCatalog+EphemeralPackageExecution.swift`, `PolicyReasonCatalog+PackageRegistry.swift`, `PolicyReasonCatalog+CliAuth.swift`, `PolicyReasonCatalog+PackageManagerCredential.swift`, `PolicyReasonCatalog+CloudContainerCredential.swift`, `PolicyReasonCatalog+HostPrivate.swift`, `PolicyReasonCatalog+PackageManagerActivation.swift`, `PolicyReasonCatalog+SwiftPM.swift`, and `PolicyReasonCatalog+JavaScriptPackageManager.swift`) are complete; future catalog slices should follow the same no-behavior-change extraction pattern, one cohesive command family at a time
 - keep reason-code rule ordering, dependency-mutation fallback, remaining credential/auth command families, DSLs, plugins, and external rule formats out of catalog extraction slices
