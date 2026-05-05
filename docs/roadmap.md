@@ -342,6 +342,8 @@ Move from raw project signals toward normalized evidence that can support deeper
 
 This is where the broader `DetectedSignal -> NormalizedEvidence` part of the target flow may become real. Keep it tied to scenarios where `v0.4` self-use shows Habitat changes an agent's next command, instead of adding broad new domains or a generic evidence layer up front.
 
+The first `v0.5` entry slice should be smaller than the full target flow: wrap detected secret-bearing paths in a `SecretBearingEvidence` value and route existing secret-bearing search/copy/archive decisions through it. That slice must preserve the `scan_result.json` shape, public `ReportWriter.write(scanResult:outputURL:)` API, generated Markdown wording, PolicyFinding behavior, reason codes, and command ordering. Do not introduce a generic evidence protocol, normalize all of `ProjectInfo`, or move renderer-specific search-exclusion formatting into the evidence value in this first slice.
+
 Entry criteria for a `v0.5` slice:
 
 - the case changes or constrains the next command

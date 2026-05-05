@@ -213,9 +213,10 @@ Keep the current cycle focused:
 - Keep the next cycle small: use Habitat during real Codex work, observe what changed the next command, then return the finding to policy, evidence fixtures, tests, or docs.
 - Use Nenrin during self-use and automation work to record why agent-facing guidance changed, what behavior was expected, and whether the change should be kept, removed, merged, narrowed, or moved.
 - Use the published `v0.4.0` artifacts during real Codex work and observe which `reasonCodes`, `commandReasons`, or `PolicyFinding` paths change the next command.
-- Start a `v0.5` implementation slice only when the case is command-changing, fixture-able, and narrow enough to keep `agent_context.md` concise.
-- Keep `v0.5` Evidence and Instruction Alignment provisional until self-use identifies a concrete scanner responsibility that should become normalized evidence or a command-changing instruction-drift check.
-- Avoid turning `NormalizedEvidence` into a broad upfront architecture layer; extract it from one measured command-decision problem at a time.
+- Start the first `v0.5` implementation slice from secret-bearing search guidance: wrap detected secret-bearing paths in a small `SecretBearingEvidence` value, route `Scanner` and `ReportWriter` through that value, and keep generated output unchanged.
+- Keep this first evidence slice deliberately local: do not add a broad `NormalizedEvidence` layer, do not store evidence in `ScanResult`, do not change the public `ReportWriter.write(scanResult:outputURL:)` API, and do not move search-exclusion rendering rules into the evidence value yet.
+- Keep `v0.5` Evidence and Instruction Alignment provisional beyond that first slice until self-use identifies another concrete scanner responsibility that should become normalized evidence or a command-changing instruction-drift check.
+- Avoid turning evidence into a broad upfront architecture layer; extract it from one measured command-decision problem at a time.
 - Discount generated context that only repeats `AGENTS.md`; prefer facts that an initial agent would otherwise miss.
 - Treat no-scan success as useful evidence when `AGENTS.md` was already enough and no command mistake followed.
 - Add non-Habitat fixtures or traces before using self-use evidence to justify broad ecosystem priorities.
