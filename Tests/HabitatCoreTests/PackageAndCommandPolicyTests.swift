@@ -4047,6 +4047,12 @@ struct PackageAndCommandPolicyTests {
         }
         #expect(PolicyReasonCatalog.askFirstReason(for: "npx").code == "ephemeral_package_execution")
 
+        for command in PolicyReasonCatalog.packageManagerCredentialAndConfigCommands {
+            #expect(
+                PolicyReasonCatalog.forbiddenReason(for: command).code == "secret_or_credential_access",
+                "Expected \(command) to keep package-manager credential/config classification"
+            )
+        }
         #expect(PolicyReasonCatalog.forbiddenReason(for: "gh auth token").code == "secret_or_credential_access")
         #expect(PolicyReasonCatalog.forbiddenReason(for: "git credential fill").code == "secret_or_credential_access")
     }

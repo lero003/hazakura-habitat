@@ -157,75 +157,6 @@ enum PolicyReasonCatalog {
         "corepack up",
     ])
     static let corepackPackageManagerActivationCommands = corepackPackageManagerActivationCommandFamily.commands
-    private static let packageManagerCredentialAndConfigCommandFamily = CommandFamily([
-        "pip config list",
-        "pip3 config list",
-        "python -m pip config list",
-        "python3 -m pip config list",
-        "pip config get",
-        "pip3 config get",
-        "python -m pip config get",
-        "python3 -m pip config get",
-        "pip config debug",
-        "pip3 config debug",
-        "python -m pip config debug",
-        "python3 -m pip config debug",
-        "pip config set",
-        "pip3 config set",
-        "python -m pip config set",
-        "python3 -m pip config set",
-        "pip config unset",
-        "pip3 config unset",
-        "python -m pip config unset",
-        "python3 -m pip config unset",
-        "pip config edit",
-        "pip3 config edit",
-        "python -m pip config edit",
-        "python3 -m pip config edit",
-        "npm config list",
-        "npm config ls",
-        "npm config get",
-        "npm config set",
-        "npm config delete",
-        "npm config rm",
-        "npm config edit",
-        "pnpm config list",
-        "pnpm config get",
-        "pnpm config set",
-        "pnpm config delete",
-        "yarn config",
-        "yarn config list",
-        "yarn config get",
-        "yarn config set",
-        "yarn config unset",
-        "yarn config delete",
-        "npm token",
-        "npm token create",
-        "npm token list",
-        "npm token revoke",
-        "npm login",
-        "npm logout",
-        "npm adduser",
-        "npm whoami",
-        "pnpm login",
-        "pnpm logout",
-        "pnpm whoami",
-        "yarn npm login",
-        "yarn npm logout",
-        "yarn npm whoami",
-        "gem signin",
-        "gem signout",
-        "bundle config",
-        "bundle config list",
-        "bundle config get",
-        "bundle config set",
-        "bundle config unset",
-        "cargo login",
-        "cargo logout",
-        "pod trunk register",
-        "pod trunk me",
-    ])
-    static let packageManagerCredentialAndConfigCommands = packageManagerCredentialAndConfigCommandFamily.commands
     private static let cloudAndContainerCredentialCommandFamily = CommandFamily([
         "read local cloud and container credential files",
         "cat ~/.aws/credentials",
@@ -608,41 +539,12 @@ enum PolicyReasonCatalog {
         if isCliAuthAndCredentialStoreCommand(command) {
             return true
         }
-        if packageManagerCredentialAndConfigCommandFamily.contains(command) {
+        if isPackageManagerCredentialAndConfigCommand(command) {
             return true
         }
         if cloudAndContainerCredentialCommandFamily.contains(command) {
             return true
         }
-
-        let prefixes = [
-            "npm token",
-            "npm login",
-            "npm logout",
-            "npm adduser",
-            "npm whoami",
-            "npm config ",
-            "pnpm login",
-            "pnpm logout",
-            "pnpm whoami",
-            "pnpm config ",
-            "yarn npm login",
-            "yarn npm logout",
-            "yarn npm whoami",
-            "yarn config",
-            "gem signin",
-            "gem signout",
-            "bundle config",
-            "cargo login",
-            "cargo logout",
-            "pod trunk register",
-            "pod trunk me",
-            "pip config ",
-            "pip3 config ",
-            "python -m pip config ",
-            "python3 -m pip config ",
-        ]
-
-        return prefixes.contains { command.hasPrefix($0) }
+        return false
     }
 }
