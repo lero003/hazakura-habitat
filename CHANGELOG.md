@@ -9,11 +9,12 @@
 - Clarified that the next pre-`v0.5` maintainability slice should extract Git/GitHub command families from `PolicyReasonCatalog` without behavior changes, while leaving rule ordering, fallback behavior, credential/auth families, DSLs, plugins, and external rule formats untouched.
 - Updated release-install guidance to explain that full `SHA256SUMS` verification expects all generated release assets in the same directory.
 - Extracted `SecretFileDetector` from `Scanner.swift` (~300 lines), leaving Scanner at 1548 lines and giving secret detection a clear module boundary.
-- Split monolithic `HabitatCoreTests.swift` (8628 lines) into scenario-grouped test suites: `CoreInfrastructureTests` (28 tests), `BehaviorEvaluationTests` (18), `SecretFileDetectionTests` (39), `ScanComparisonTests` (10), and `PackageAndCommandPolicyTests` (107), with shared helpers in `TestHelpers.swift`. 202 tests pass across 5 suites.
+- Split monolithic `HabitatCoreTests.swift` (8628 lines) into scenario-grouped test suites: `CoreInfrastructureTests` (28 tests), `BehaviorEvaluationTests` (18), `SecretFileDetectionTests` (39), `ScanComparisonTests` (10), and `PackageAndCommandPolicyTests` (108), with shared helpers in `TestHelpers.swift`. 203 tests pass across 5 suites.
 - Added Nenrin change record for the maintainability split and observation guidance for future decomposition slices.
 - Updated documentation (`README.md`, `docs/roadmap.md`, `docs/current_status.md`, `docs/self_use.md`) to reflect completed decomposition and current codebase state.
 - Extracted Git/GitHub command families and membership predicates into `PolicyReasonCatalog+Git.swift` with no intended generated-output behavior change.
 - Extracted ephemeral package execution command families into `PolicyReasonCatalog+EphemeralPackageExecution.swift` with no intended generated-output behavior change.
+- Extracted package-registry mutation command families into `PolicyReasonCatalog+PackageRegistry.swift` with no intended generated-output behavior change.
 
 ## v0.4.0 Developer Preview - 2026-05-04
 

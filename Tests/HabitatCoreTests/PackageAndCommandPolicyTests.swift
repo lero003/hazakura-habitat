@@ -1338,28 +1338,9 @@ struct PackageAndCommandPolicyTests {
         ])
 
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
-        let commands = [
-            "npm publish",
-            "pnpm publish",
-            "yarn publish",
-            "yarn npm publish",
-            "bun publish",
-            "uv publish",
-            "twine upload",
-            "python -m twine upload",
-            "python3 -m twine upload",
-            "gem push",
-            "gem yank",
-            "gem owner",
-            "cargo publish",
-            "cargo yank",
-            "cargo owner",
-            "pod trunk add-owner",
-            "pod trunk remove-owner",
-            "pod trunk push",
-            "pod trunk deprecate",
-            "pod trunk delete",
-        ]
+        let commands = PolicyReasonCatalog.packageRegistryMutationCommands.filter {
+            !$0.hasPrefix("npm ") || $0 == "npm publish"
+        }
 
         for command in commands {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
@@ -1380,6 +1361,44 @@ struct PackageAndCommandPolicyTests {
     }
 
     @Test
+    func packageRegistryMutationCommandsStayCentralizedForPolicyConsumers() {
+        let commands = PolicyReasonCatalog.packageRegistryMutationCommands
+
+        #expect(commands == [
+            "npm publish",
+            "npm unpublish",
+            "npm deprecate",
+            "npm dist-tag",
+            "npm owner",
+            "npm access",
+            "npm team",
+            "pnpm publish",
+            "yarn publish",
+            "yarn npm publish",
+            "bun publish",
+            "uv publish",
+            "twine upload",
+            "python -m twine upload",
+            "python3 -m twine upload",
+            "gem push",
+            "gem yank",
+            "gem owner",
+            "cargo publish",
+            "cargo yank",
+            "cargo owner",
+            "pod trunk add-owner",
+            "pod trunk remove-owner",
+            "pod trunk push",
+            "pod trunk deprecate",
+            "pod trunk delete",
+        ])
+
+        for command in commands {
+            #expect(PolicyReasonCatalog.askFirstReason(for: command).code == "package_registry_mutation")
+        }
+    }
+
+    @Test
     func scanAsksBeforeRegistryMetadataMutationCommands() throws {
         let projectURL = try makeProject(files: [
             "package.json": "{}",
@@ -1387,14 +1406,9 @@ struct PackageAndCommandPolicyTests {
         ])
 
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
-        let commands = [
-            "npm unpublish",
-            "npm deprecate",
-            "npm dist-tag",
-            "npm owner",
-            "npm access",
-            "npm team",
-        ]
+        let commands = PolicyReasonCatalog.packageRegistryMutationCommands.filter {
+            $0.hasPrefix("npm ") && $0 != "npm publish"
+        }
 
         for command in commands {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
