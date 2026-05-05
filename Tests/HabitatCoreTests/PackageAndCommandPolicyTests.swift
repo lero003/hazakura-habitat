@@ -3984,4 +3984,21 @@ struct PackageAndCommandPolicyTests {
         #expect(!policy.contains("`swift test`"))
         #expect(policy.contains("`swift package resolve`"))
     }
+
+    @Test func gitHubFamilyExtractionPreservesClassification() {
+        #expect(PolicyReasonCatalog.askFirstReason(for: "git push").code == "git_mutation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "git commit").code == "git_mutation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "git checkout").code == "git_mutation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "gh pr checkout").code == "git_mutation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "gh repo clone").code == "git_mutation")
+
+        #expect(PolicyReasonCatalog.askFirstReason(for: "gh pr create").code == "remote_repository_action")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "gh workflow run").code == "remote_repository_action")
+
+        #expect(PolicyReasonCatalog.askFirstReason(for: "npm install").code == "dependency_mutation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "npx").code == "ephemeral_package_execution")
+
+        #expect(PolicyReasonCatalog.forbiddenReason(for: "gh auth token").code == "secret_or_credential_access")
+        #expect(PolicyReasonCatalog.forbiddenReason(for: "git credential fill").code == "secret_or_credential_access")
+    }
 }

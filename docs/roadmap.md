@@ -33,10 +33,10 @@ Do not let the narrow product scope hide codebase risk.
 Current warning lights:
 
 - `Scanner.swift` (1,548 lines, after extracting `SecretFileDetector`) still owns policy assembly and report shaping; the first extraction is done but further decomposition is warranted when new behavior touches scanning.
-- `PolicyReasonCatalog.swift` still contains large curated command catalogs (~860 lines), even after command-family centralization reduced drift. This is the highest-priority maintainability target.
+- `PolicyReasonCatalog.swift` still contains large curated command catalogs, but the first file-boundary slice now isolates Git/GitHub command families in `PolicyReasonCatalog+Git.swift`. Continue this pattern only when a cohesive family boundary is clear.
 - The monolithic `HabitatCoreTests.swift` has been split into 5 scenario-grouped test suites: `CoreInfrastructureTests.swift`, `BehaviorEvaluationTests.swift`, `SecretFileDetectionTests.swift`, `ScanComparisonTests.swift`, and `PackageAndCommandPolicyTests.swift`, with shared helpers in `TestHelpers.swift` (201 tests, all pass). `PackageAndCommandPolicyTests.swift` (3,987 lines) is still large and may benefit from further splitting.
 
-Near-term feature work should continue paying down remaining maintainability risk when it adds adjacent behavior. The `SecretFileDetector` extraction and test-suite split are done; the next target should be giving `PolicyReasonCatalog`'s command catalogs a clearer module boundary. The safest first slice is Git/GitHub command-family extraction into a Swift extension such as `PolicyReasonCatalog+Git.swift`, preserving command order, reason-code mapping, `commandReasons`, `reviewFirstCommandReasons`, `command_policy.md`, and `scan_result.json` output. Keep dependency-mutation fallback, credential/auth command families, rule ordering, custom DSLs, plugin systems, and external rule formats out of that slice.
+Near-term feature work should continue paying down remaining maintainability risk when it adds adjacent behavior. The `SecretFileDetector` extraction, test-suite split, and first Git/GitHub catalog boundary are done. Future catalog slices should follow the same pattern: preserve command order, reason-code mapping, `commandReasons`, `reviewFirstCommandReasons`, `command_policy.md`, and `scan_result.json` output, and keep dependency-mutation fallback, credential/auth command families, rule ordering, custom DSLs, plugin systems, and external rule formats out of scope.
 
 ## Version Themes
 

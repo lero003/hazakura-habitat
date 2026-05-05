@@ -12,6 +12,7 @@
 - Split monolithic `HabitatCoreTests.swift` (8628 lines) into scenario-grouped test suites: `CoreInfrastructureTests` (28 tests), `BehaviorEvaluationTests` (18), `SecretFileDetectionTests` (39), `ScanComparisonTests` (10), and `PackageAndCommandPolicyTests` (106), with shared helpers in `TestHelpers.swift`. 201 tests pass across 5 suites.
 - Added Nenrin change record for the maintainability split and observation guidance for future decomposition slices.
 - Updated documentation (`README.md`, `docs/roadmap.md`, `docs/current_status.md`, `docs/self_use.md`) to reflect completed decomposition and current codebase state.
+- Extracted Git/GitHub command families and membership predicates into `PolicyReasonCatalog+Git.swift` with no intended generated-output behavior change.
 
 ## v0.4.0 Developer Preview - 2026-05-04
 
