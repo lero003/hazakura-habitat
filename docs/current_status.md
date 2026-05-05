@@ -208,6 +208,7 @@ Keep the current cycle focused:
 ## Next Useful Improvements
 
 - Scanner and test-suite decomposition is done (`SecretFileDetector` extracted from `Scanner.swift`; monolithic `HabitatCoreTests.swift` split into 5 scenario-grouped suites). Next maintainability target: `PolicyReasonCatalog.swift` (~860 lines of curated command catalogs) should be given a clearer local boundary before adding more policy families.
+- First safe catalog slice: extract Git/GitHub command families and membership predicates into a Swift-only `PolicyReasonCatalog+Git.swift` extension with no generated-output behavior change. Keep reason-code definitions, rule ordering, fallback reasons, dependency-mutation fallback, credential/auth command families, DSLs, plugins, and external rule formats out of that slice.
 - Keep the next cycle small: use Habitat during real Codex work, observe what changed the next command, then return the finding to policy, evidence fixtures, tests, or docs.
 - Use Nenrin during self-use and automation work to record why agent-facing guidance changed, what behavior was expected, and whether the change should be kept, removed, merged, narrowed, or moved.
 - Use the published `v0.4.0` artifacts during real Codex work and observe which `reasonCodes`, `commandReasons`, or `PolicyFinding` paths change the next command.
