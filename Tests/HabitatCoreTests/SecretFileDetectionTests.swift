@@ -42,6 +42,7 @@ struct SecretFileDetectionTests {
         #expect(!evidence.paths.contains("id_ed25519.pub"))
     }
 
+    @Test
     func scanDetectsProjectCloudAndContainerCredentialFilesWithoutReadingValues() throws {
         let secretValue = "hh_project_cloud_credential_secret"
         let projectURL = try makeProject(files: [
