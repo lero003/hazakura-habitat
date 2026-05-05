@@ -6,8 +6,9 @@ status: observing
 impact: unknown
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog.swift
+  - Sources/HabitatCore/PolicyReasonCatalog+CloudContainerCredential.swift
   - Sources/HabitatCore/Scanner.swift
-  - Tests/HabitatCoreTests/HabitatCoreTests.swift
+  - Tests/HabitatCoreTests/PackageAndCommandPolicyTests.swift
   - docs/current_status.md
 review_after:
   tasks: 3
@@ -20,6 +21,7 @@ review_after:
 
 - Centralized cloud/container credential read and auth-session forbidden commands in `PolicyReasonCatalog`.
 - Made scanner command generation and focused tests consume the same command family used by reason classification.
+- Split the command family into `PolicyReasonCatalog+CloudContainerCredential.swift` without changing generated output.
 
 ## Reason
 

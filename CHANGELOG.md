@@ -17,6 +17,7 @@
 - Extracted package-registry mutation command families into `PolicyReasonCatalog+PackageRegistry.swift` with no intended generated-output behavior change.
 - Extracted CLI auth-session and credential-store command families into `PolicyReasonCatalog+CliAuth.swift` with no intended generated-output behavior change.
 - Extracted package-manager credential/session and config command families into `PolicyReasonCatalog+PackageManagerCredential.swift` with no intended generated-output behavior change.
+- Extracted cloud/container credential and auth-session command families into `PolicyReasonCatalog+CloudContainerCredential.swift` with no intended generated-output behavior change.
 
 ## v0.4.0 Developer Preview - 2026-05-04
 
