@@ -19,6 +19,7 @@
 - Extracted package-manager credential/session and config command families into `PolicyReasonCatalog+PackageManagerCredential.swift` with no intended generated-output behavior change.
 - Extracted cloud/container credential and auth-session command families into `PolicyReasonCatalog+CloudContainerCredential.swift` with no intended generated-output behavior change.
 - Extracted host-private data command families into `PolicyReasonCatalog+HostPrivate.swift` with no intended generated-output behavior change.
+- Extracted Corepack package-manager activation command families into `PolicyReasonCatalog+PackageManagerActivation.swift` with no intended generated-output behavior change.
 
 ## v0.4.0 Developer Preview - 2026-05-04
 

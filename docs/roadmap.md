@@ -33,10 +33,10 @@ Do not let the narrow product scope hide codebase risk.
 Current warning lights:
 
 - `Scanner.swift` (1,548 lines, after extracting `SecretFileDetector`) still owns policy assembly and report shaping; the first extraction is done but further decomposition is warranted when new behavior touches scanning.
-- `PolicyReasonCatalog.swift` still contains large curated command catalogs, but file-boundary slices now isolate Git/GitHub command families, ephemeral package execution command families, package-registry mutation command families, CLI auth-session/credential-store command families, package-manager credential/config command families, cloud/container credential command families, and host-private data command families. Continue this pattern only when a cohesive family boundary is clear.
+- `PolicyReasonCatalog.swift` still contains large curated command catalogs, but file-boundary slices now isolate Git/GitHub command families, ephemeral package execution command families, package-registry mutation command families, CLI auth-session/credential-store command families, package-manager credential/config command families, cloud/container credential command families, host-private data command families, and Corepack package-manager activation command families. Continue this pattern only when a cohesive family boundary is clear.
 - The monolithic `HabitatCoreTests.swift` has been split into 5 scenario-grouped test suites: `CoreInfrastructureTests.swift`, `BehaviorEvaluationTests.swift`, `SecretFileDetectionTests.swift`, `ScanComparisonTests.swift`, and `PackageAndCommandPolicyTests.swift`, with shared helpers in `TestHelpers.swift` (205 tests, all pass). `PackageAndCommandPolicyTests.swift` is still large and may benefit from further splitting.
 
-Near-term feature work should continue paying down remaining maintainability risk when it adds adjacent behavior. The `SecretFileDetector` extraction, test-suite split, Git/GitHub catalog boundary, ephemeral package execution catalog boundary, package-registry mutation catalog boundary, CLI auth credential-store catalog boundary, package-manager credential/config catalog boundary, cloud/container credential catalog boundary, and host-private data catalog boundary are done. Future catalog slices should follow the same pattern: preserve command order, reason-code mapping, `commandReasons`, `reviewFirstCommandReasons`, `command_policy.md`, and `scan_result.json` output, and keep dependency-mutation fallback, remaining credential/auth command families, rule ordering, custom DSLs, plugin systems, and external rule formats out of scope.
+Near-term feature work should continue paying down remaining maintainability risk when it adds adjacent behavior. The `SecretFileDetector` extraction, test-suite split, Git/GitHub catalog boundary, ephemeral package execution catalog boundary, package-registry mutation catalog boundary, CLI auth credential-store catalog boundary, package-manager credential/config catalog boundary, cloud/container credential catalog boundary, host-private data catalog boundary, and Corepack package-manager activation catalog boundary are done. Future catalog slices should follow the same pattern: preserve command order, reason-code mapping, `commandReasons`, `reviewFirstCommandReasons`, `command_policy.md`, and `scan_result.json` output, and keep dependency-mutation fallback, remaining credential/auth command families, rule ordering, custom DSLs, plugin systems, and external rule formats out of scope.
 
 ## Version Themes
 
@@ -632,8 +632,8 @@ Stable advisory context generation for AI coding agents.
 - behavior evaluation fixtures
 - policy finding model
 - renderer separation
-- targeted Scanner decomposition (partial: `SecretFileDetector` extracted; `PolicyReasonCatalog` in progress - Git/GitHub, ephemeral package execution, package-registry mutation, CLI auth credential-store, and package-manager credential/config families extracted)
-- scenario-based test-file split (complete: 5 suites, 204 tests, all pass)
+- targeted Scanner decomposition (partial: `SecretFileDetector` extracted; `PolicyReasonCatalog` in progress - Git/GitHub, ephemeral package execution, package-registry mutation, CLI auth credential-store, package-manager credential/config, cloud/container credential, host-private data, and Corepack package-manager activation families extracted)
+- scenario-based test-file split (complete: 5 suites, 205 tests, all pass)
 - lockfile conflict tests
 - missing preferred tool scenarios
 

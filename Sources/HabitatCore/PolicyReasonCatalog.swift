@@ -148,15 +148,6 @@ enum PolicyReasonCatalog {
         "bun remove",
     ])
     static let bunDependencyMutationCommands = bunDependencyMutationCommandFamily.commands
-    private static let corepackPackageManagerActivationCommandFamily = CommandFamily([
-        "corepack enable",
-        "corepack disable",
-        "corepack prepare",
-        "corepack install",
-        "corepack use",
-        "corepack up",
-    ])
-    static let corepackPackageManagerActivationCommands = corepackPackageManagerActivationCommandFamily.commands
     static func packageManagerMutationReviewCommands(for packageManager: String) -> [String] {
         switch packageManager {
         case "npm":
@@ -312,10 +303,6 @@ enum PolicyReasonCatalog {
         ]
         let commandWords = command.split(whereSeparator: \.isWhitespace).map(String.init)
         return commandWords.contains { mutationWords.contains($0) }
-    }
-
-    private static func isPackageManagerActivationCommand(_ command: String) -> Bool {
-        corepackPackageManagerActivationCommandFamily.contains(command)
     }
 
     private static func isSwiftPackageDependencyResolutionCommand(_ command: String) -> Bool {

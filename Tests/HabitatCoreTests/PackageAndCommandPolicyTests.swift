@@ -4114,6 +4114,13 @@ struct PackageAndCommandPolicyTests {
         #expect(PolicyReasonCatalog.askFirstReason(for: "gh workflow run").code == "remote_repository_action")
 
         #expect(PolicyReasonCatalog.askFirstReason(for: "npm install").code == "dependency_mutation")
+        for command in PolicyReasonCatalog.corepackPackageManagerActivationCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "package_manager_activation",
+                "Expected \(command) to keep package-manager activation classification"
+            )
+        }
+
         for command in PolicyReasonCatalog.ephemeralPackageExecutionCommands {
             #expect(
                 PolicyReasonCatalog.askFirstReason(for: command).code == "ephemeral_package_execution",
