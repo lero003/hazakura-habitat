@@ -3985,7 +3985,7 @@ struct PackageAndCommandPolicyTests {
         #expect(policy.contains("`swift package resolve`"))
     }
 
-    @Test func gitHubFamilyExtractionPreservesClassification() {
+    @Test func catalogFamilyExtractionsPreserveClassification() {
         #expect(PolicyReasonCatalog.askFirstReason(for: "git push").code == "git_mutation")
         #expect(PolicyReasonCatalog.askFirstReason(for: "git commit").code == "git_mutation")
         #expect(PolicyReasonCatalog.askFirstReason(for: "git checkout").code == "git_mutation")
@@ -3996,6 +3996,12 @@ struct PackageAndCommandPolicyTests {
         #expect(PolicyReasonCatalog.askFirstReason(for: "gh workflow run").code == "remote_repository_action")
 
         #expect(PolicyReasonCatalog.askFirstReason(for: "npm install").code == "dependency_mutation")
+        for command in PolicyReasonCatalog.ephemeralPackageExecutionCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "ephemeral_package_execution",
+                "Expected \(command) to keep ephemeral package execution classification"
+            )
+        }
         #expect(PolicyReasonCatalog.askFirstReason(for: "npx").code == "ephemeral_package_execution")
 
         #expect(PolicyReasonCatalog.forbiddenReason(for: "gh auth token").code == "secret_or_credential_access")

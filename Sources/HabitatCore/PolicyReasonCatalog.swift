@@ -186,31 +186,6 @@ enum PolicyReasonCatalog {
         "corepack up",
     ])
     static let corepackPackageManagerActivationCommands = corepackPackageManagerActivationCommandFamily.commands
-    static let npmEphemeralPackageExecutionCommands = [
-        "npm exec",
-        "npx",
-    ]
-    static let pnpmEphemeralPackageExecutionCommands = [
-        "pnpm dlx",
-    ]
-    static let yarnEphemeralPackageExecutionCommands = [
-        "yarn dlx",
-    ]
-    static let bunEphemeralPackageExecutionCommands = [
-        "bunx",
-    ]
-    static let pythonEphemeralPackageExecutionCommands = [
-        "uvx",
-        "uv tool run",
-        "pipx run",
-        "pipx runpip",
-    ]
-    static let ephemeralPackageExecutionCommands = npmEphemeralPackageExecutionCommands
-        + pnpmEphemeralPackageExecutionCommands
-        + yarnEphemeralPackageExecutionCommands
-        + bunEphemeralPackageExecutionCommands
-        + pythonEphemeralPackageExecutionCommands
-    private static let ephemeralPackageExecutionCommandFamily = CommandFamily(ephemeralPackageExecutionCommands)
     private static let cliAuthAndCredentialStoreCommandFamily = CommandFamily([
         "gh auth token",
         "gh auth status --show-token",
@@ -605,10 +580,6 @@ enum PolicyReasonCatalog {
         ]
         let commandWords = command.split(whereSeparator: \.isWhitespace).map(String.init)
         return commandWords.contains { mutationWords.contains($0) }
-    }
-
-    private static func isEphemeralPackageExecutionCommand(_ command: String) -> Bool {
-        ephemeralPackageExecutionCommandFamily.contains(command)
     }
 
     private static func isPackageRegistryMutationCommand(_ command: String) -> Bool {
