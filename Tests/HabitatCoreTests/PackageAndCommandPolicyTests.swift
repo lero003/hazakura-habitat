@@ -4223,6 +4223,19 @@ struct PackageAndCommandPolicyTests {
             )
         }
 
+        for command in PolicyReasonCatalog.virtualEnvironmentMutationCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "user_approval_required",
+                "Expected \(command) to keep virtual-environment approval classification"
+            )
+        }
+        for command in PolicyReasonCatalog.versionManagerMutationCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "version_manager_mutation",
+                "Expected \(command) to keep version-manager mutation classification"
+            )
+        }
+
         for command in PolicyReasonCatalog.packageManagerCredentialAndConfigCommands {
             #expect(
                 PolicyReasonCatalog.forbiddenReason(for: command).code == "secret_or_credential_access",

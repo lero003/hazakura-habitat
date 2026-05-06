@@ -157,7 +157,7 @@ enum PolicyReasonCatalog {
         .init(reasonCode: .symlinkTargetReview) { $0 == "following project symlinks before reviewing targets" },
         .init(reasonCode: .secretOrCredentialAccess) { isSecretBearingBroadSearchCommand($0) },
         .init(reasonCode: .dependencyResolutionMutation) { $0 == "modifying lockfiles" },
-        .init(reasonCode: .versionManagerMutation) { $0 == "modifying version manager files" },
+        .init(reasonCode: .versionManagerMutation) { isVersionManagerMutationCommand($0) },
         .init(reasonCode: .dependencyResolutionMutation) { isSwiftPackageDependencyResolutionCommand($0) },
         .init(reasonCode: .remoteRepositoryAction) { isRemoteRepositoryActionCommand($0) },
         .init(reasonCode: .gitMutation) { isGitOrGitHubMutationGuard($0) },

@@ -669,7 +669,7 @@ public struct ReportWriter {
             to: &prioritized
         ) { command in
             command == "modifying lockfiles"
-                || command == "modifying version manager files"
+                || PolicyReasonCatalog.isVersionManagerMutationCommand(command)
         }
 
         appendAskFirstCommands(

@@ -357,15 +357,11 @@ public struct HabitatScanner {
             + PolicyReasonCatalog.goDependencyMutationCommands
             + PolicyReasonCatalog.cargoDependencyMutationCommands
             + PolicyReasonCatalog.cocoapodsDependencyMutationCommands
-            + PolicyReasonCatalog.carthageDependencyMutationCommands + [
-            "python -m venv",
-            "python3 -m venv",
-            "uv venv",
-            "virtualenv",
-            "creating or deleting virtual environments",
+            + PolicyReasonCatalog.carthageDependencyMutationCommands
+            + PolicyReasonCatalog.virtualEnvironmentMutationCommands + [
             "modifying lockfiles",
-            "modifying version manager files",
-        ] + PolicyReasonCatalog.localGitWorkspaceMutationCommands
+        ] + PolicyReasonCatalog.versionManagerMutationCommands
+            + PolicyReasonCatalog.localGitWorkspaceMutationCommands
             + PolicyReasonCatalog.gitHubCliMutationCommands
             + PolicyReasonCatalog.workspaceMutationCommands
 
