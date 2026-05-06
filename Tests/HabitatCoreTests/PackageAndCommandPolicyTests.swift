@@ -4152,6 +4152,19 @@ struct PackageAndCommandPolicyTests {
             )
         }
 
+        for command in PolicyReasonCatalog.goDependencyMutationCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_mutation",
+                "Expected \(command) to keep Go dependency-mutation classification"
+            )
+        }
+        for command in PolicyReasonCatalog.cargoDependencyMutationCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_mutation",
+                "Expected \(command) to keep Cargo dependency-mutation classification"
+            )
+        }
+
         for command in ["brew install", "brew update", "brew bundle install"] {
             #expect(
                 PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_mutation",

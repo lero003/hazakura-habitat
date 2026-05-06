@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 19
+- observing: 20
 - reviewed: 10
 
 ## Active Changes
@@ -15,6 +15,7 @@
 - `host-private-command-family` - [changes/2026-05-04-host-private-command-family.md](changes/2026-05-04-host-private-command-family.md)
 - `host-environment-command-family` - [changes/2026-05-06-host-environment-command-family.md](changes/2026-05-06-host-environment-command-family.md)
 - `homebrew-command-family` - [changes/2026-05-06-homebrew-command-family.md](changes/2026-05-06-homebrew-command-family.md)
+- `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)
 - `instruction-alignment-roadmap` - [changes/2026-05-04-instruction-alignment-roadmap.md](changes/2026-05-04-instruction-alignment-roadmap.md)
 - `javascript-package-manager-mutation-command-families` - [changes/2026-05-04-javascript-package-manager-mutation-command-families.md](changes/2026-05-04-javascript-package-manager-mutation-command-families.md)
 - `package-manager-mutation-review-map` - [changes/2026-05-04-package-manager-mutation-review-map.md](changes/2026-05-04-package-manager-mutation-review-map.md)

@@ -66,13 +66,13 @@ Observed output from scanning this repository:
 
 - Package manager: SwiftPM.
 - Preferred commands: `swift test`, `swift build`.
-- `agent_context.md`: 34 lines in `scan_result.json` artifact metadata.
-- `command_policy.md`: 799 lines in `scan_result.json` artifact metadata.
-- `environment_report.md`: 72 lines in `scan_result.json` artifact metadata.
+- `agent_context.md`: 35 lines in `scan_result.json` artifact metadata.
+- `command_policy.md`: 800 lines in `scan_result.json` artifact metadata.
+- `environment_report.md`: 73 lines in `scan_result.json` artifact metadata.
 - Ask First commands: 262.
 - Forbidden commands: 489.
 - `scan_result.json` `policy.commandCounts`: 2 preferred, 262 Ask First, 6 Review First, 489 Forbidden, 751 with reasons.
-- `scan_result.json` `policy.reasonCodes`: 16 reason families, including `package_manager_activation`, `remote_repository_action`, `ephemeral_package_execution`, and `package_registry_mutation`.
+- `scan_result.json` `policy.reasonCodes`: 15 reason families, including `package_manager_activation`, `remote_repository_action`, `ephemeral_package_execution`, and `package_registry_mutation`.
 - Warnings: none.
 
 Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in machine-readable data, but they did not pollute `agent_context.md` because they were not relevant to the SwiftPM command decision.
@@ -100,6 +100,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - Ruby Bundler package-manager Ask First commands now have their own `PolicyReasonCatalog+RubyPackageManager.swift` boundary, so future `bundle install`, `bundle add`, `bundle update`, `bundle lock`, or `bundle remove` edits update one family without changing generated output shape.
 - Remote-script execution and global environment mutation commands now have their own `PolicyReasonCatalog+HostEnvironment.swift` boundary, so future `curl | sh`, Homebrew host-state, global package install, pipx, uv tool, gem, Go, or Cargo host-mutation edits update one family without changing generated output shape.
 - Homebrew direct Ask First and Bundle review commands now have their own `PolicyReasonCatalog+Homebrew.swift` boundary, so future `brew install`, `brew update`, `brew tap`, or `brew bundle` edits update one family without changing generated output shape.
+- Go and Cargo dependency-mutation commands now have their own `PolicyReasonCatalog+GoCargo.swift` boundary, so future `go get`, `go mod tidy`, `cargo add`, `cargo update`, or `cargo remove` edits update one family without changing generated output shape.
 - Secret-bearing path signals now have a small `SecretBearingEvidence` boundary consumed by secret detection and report generation, so future evidence-alignment work can build from filename-only signals without changing generated output shape or storing raw secret values.
 - When secret-bearing files are detected, `agent_context.md` now gives a concrete broad-search starting shape with exclusion globs, so agents can reshape `rg`/`grep -R`/`git grep` instead of treating all project search as off limits.
 - `command_policy.md` now distinguishes no-secret read-only search from secret-bearing projects: ordinary `rg <pattern>` remains allowed in normal repositories, while secret-bearing repositories steer agents toward targeted inspection and exclusion-aware search.

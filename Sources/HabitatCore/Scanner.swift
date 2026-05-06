@@ -527,11 +527,8 @@ public struct HabitatScanner {
             "xcodebuild build/test/archive before selecting a scheme",
             "xcodebuild -resolvePackageDependencies",
             "xcodebuild -allowProvisioningUpdates",
-            "go get",
-            "go mod tidy",
-            "cargo add",
-            "cargo update",
-            "cargo remove",
+        ] + PolicyReasonCatalog.goDependencyMutationCommands
+            + PolicyReasonCatalog.cargoDependencyMutationCommands + [
             "pod install",
             "pod update",
             "pod repo update",

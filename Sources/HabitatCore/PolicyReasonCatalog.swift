@@ -132,9 +132,9 @@ enum PolicyReasonCatalog {
         case "swiftpm":
             return swiftPackageDependencyResolutionCommands
         case "go":
-            return ["go get", "go mod tidy"]
+            return goDependencyMutationCommands
         case "cargo":
-            return ["cargo add", "cargo update", "cargo remove"]
+            return cargoDependencyMutationCommands
         case "cocoapods":
             return ["pod install", "pod update", "pod repo update", "pod deintegrate"]
         case "carthage":
@@ -252,6 +252,9 @@ enum PolicyReasonCatalog {
             return true
         }
         if isRubyPackageManagerDependencyMutationCommand(command) {
+            return true
+        }
+        if isGoCargoDependencyMutationCommand(command) {
             return true
         }
 
