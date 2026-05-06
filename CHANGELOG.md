@@ -26,6 +26,7 @@
 - Clarified that the first `v0.5` evidence slice should wrap secret-bearing path signals in a small `SecretBearingEvidence` value without changing `scan_result.json`, public `ReportWriter` API, generated Markdown, PolicyFinding, reason codes, or command ordering.
 - Added the first local `v0.5` evidence boundary by wrapping secret-bearing path signals in `SecretBearingEvidence` and routing secret detection/report generation through it without intended generated-output behavior change.
 - Restored cloud/container credential non-emission regression coverage by marking the existing secret-file detection scenario as an executable Swift Testing test.
+- Hardened the behavior-evaluation fixture contract so all behavior evidence rejects local paths, prompt/secret/history field names, and common dummy token markers in one shared sanitization check.
 
 ## v0.4.0 Developer Preview - 2026-05-04
 

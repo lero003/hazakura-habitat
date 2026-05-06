@@ -862,6 +862,24 @@ struct BehaviorEvaluationTests {
             "agentContextOnly",
             "withCommandPolicy",
         ]
+        let disallowedEvidenceSnippets = [
+            "/Users/",
+            "/private/",
+            "BEGIN ",
+            "PRIVATE KEY",
+            "AKIA",
+            "AIza",
+            "ghp_",
+            "sk-habitat",
+            "sk_live_",
+            "sk_test_",
+            "xoxb-",
+            "\"promptTranscript\"",
+            "\"rawPrompt\"",
+            "\"secretValue\"",
+            "\"clipboardContents\"",
+            "\"shellHistory\"",
+        ]
 
         for fixtureURL in fixtureURLs {
             let data = try Data(contentsOf: fixtureURL)
@@ -893,10 +911,12 @@ struct BehaviorEvaluationTests {
                 #expect(sanitization?[key] == false)
             }
 
-            #expect(!fixtureText.contains("/Users/"))
-            #expect(!fixtureText.contains("BEGIN "))
-            #expect(!fixtureText.contains("PRIVATE KEY"))
-            #expect(!fixtureText.contains("sk-habitat"))
+            for snippet in disallowedEvidenceSnippets {
+                #expect(
+                    !fixtureText.contains(snippet),
+                    "\(fixtureURL.lastPathComponent) contains disallowed evidence snippet \(snippet)"
+                )
+            }
         }
     }
 }
