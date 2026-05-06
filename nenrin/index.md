@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 29
+- observing: 30
 - reviewed: 10
 
 ## Active Changes
@@ -24,6 +24,7 @@
 - `package-manager-review-routing` - [changes/2026-05-06-package-manager-review-routing.md](changes/2026-05-06-package-manager-review-routing.md)
 - `baseline-policy-list-assembly` - [changes/2026-05-06-baseline-policy-list-assembly.md](changes/2026-05-06-baseline-policy-list-assembly.md)
 - `policy-reason-catalog-test-boundary` - [changes/2026-05-06-policy-reason-catalog-test-boundary.md](changes/2026-05-06-policy-reason-catalog-test-boundary.md)
+- `policy-output-contract-test-boundary` - [changes/2026-05-07-policy-output-contract-test-boundary.md](changes/2026-05-07-policy-output-contract-test-boundary.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `instruction-alignment-roadmap` - [changes/2026-05-04-instruction-alignment-roadmap.md](changes/2026-05-04-instruction-alignment-roadmap.md)
 - `javascript-package-manager-mutation-command-families` - [changes/2026-05-04-javascript-package-manager-mutation-command-families.md](changes/2026-05-04-javascript-package-manager-mutation-command-families.md)

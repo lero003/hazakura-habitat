@@ -12,6 +12,7 @@
 - Extracted `SecretFileDetector` from `Scanner.swift` (~300 lines), leaving Scanner at 1548 lines and giving secret detection a clear module boundary.
 - Split monolithic `HabitatCoreTests.swift` (8628 lines) into scenario-grouped test suites: `CoreInfrastructureTests`, `BehaviorEvaluationTests`, `SecretFileDetectionTests`, `ScanComparisonTests`, `PackageAndCommandPolicyTests`, and `PolicyReasonCatalogTests`, with shared helpers in `TestHelpers.swift`. 211 tests pass across 6 suites.
 - Split `PolicyReasonCatalogTests.swift` out of `PackageAndCommandPolicyTests.swift` for catalog-family classification contracts with no intended behavior change.
+- Split `PolicyOutputContractTests.swift` out of `PackageAndCommandPolicyTests.swift` for policy metadata, command-reason, older-JSON decoding, and reason-legend ordering contracts with no intended behavior change.
 - Restored three intended Swift Testing scenarios by marking pnpm selection, older scan-result decoding, and unrelated diagnostic filtering functions as executable tests.
 - Moved the static baseline Ask First and Forbidden command lists into `PolicyReasonCatalog`, reducing scanner/catalog drift while preserving generated output behavior.
 - Split the catalog-owned static baseline Ask First and Forbidden policy lists into `PolicyReasonCatalog+BaselinePolicy.swift` with no intended generated-output behavior change.
