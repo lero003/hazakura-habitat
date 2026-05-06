@@ -136,15 +136,11 @@ enum PolicyReasonCatalog {
         case "cargo":
             return cargoDependencyMutationCommands
         case "cocoapods":
-            return ["pod install", "pod update", "pod repo update", "pod deintegrate"]
+            return cocoapodsDependencyMutationCommands
         case "carthage":
-            return ["carthage bootstrap", "carthage update", "carthage checkout", "carthage build"]
+            return carthageDependencyMutationCommands
         case "xcodebuild":
-            return [
-                "xcodebuild build/test/archive before selecting a scheme",
-                "xcodebuild -resolvePackageDependencies",
-                "xcodebuild -allowProvisioningUpdates",
-            ]
+            return xcodebuildProjectMutationCommands
         default:
             return []
         }

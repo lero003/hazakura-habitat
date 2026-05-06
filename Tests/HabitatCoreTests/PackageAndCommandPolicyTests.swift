@@ -4164,6 +4164,19 @@ struct PackageAndCommandPolicyTests {
                 "Expected \(command) to keep Cargo dependency-mutation classification"
             )
         }
+        for command in ["pod install", "pod update", "pod repo update"]
+            + PolicyReasonCatalog.carthageDependencyMutationCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_mutation",
+                "Expected \(command) to keep Apple dependency-mutation classification"
+            )
+        }
+        for command in ["pod deintegrate"] + PolicyReasonCatalog.xcodebuildProjectMutationCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "user_approval_required",
+                "Expected \(command) to keep generic approval classification"
+            )
+        }
 
         for command in ["brew install", "brew update", "brew bundle install"] {
             #expect(

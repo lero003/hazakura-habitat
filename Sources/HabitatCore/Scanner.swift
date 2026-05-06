@@ -523,20 +523,12 @@ public struct HabitatScanner {
         ] + PolicyReasonCatalog.uvDependencyMutationCommands
             + PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands + [
         ] + PolicyReasonCatalog.rubyBundlerDependencyMutationCommands
-            + PolicyReasonCatalog.homebrewBundleReviewCommands + [
-            "xcodebuild build/test/archive before selecting a scheme",
-            "xcodebuild -resolvePackageDependencies",
-            "xcodebuild -allowProvisioningUpdates",
-        ] + PolicyReasonCatalog.goDependencyMutationCommands
-            + PolicyReasonCatalog.cargoDependencyMutationCommands + [
-            "pod install",
-            "pod update",
-            "pod repo update",
-            "pod deintegrate",
-            "carthage bootstrap",
-            "carthage update",
-            "carthage checkout",
-            "carthage build",
+            + PolicyReasonCatalog.homebrewBundleReviewCommands
+            + PolicyReasonCatalog.xcodebuildProjectMutationCommands
+            + PolicyReasonCatalog.goDependencyMutationCommands
+            + PolicyReasonCatalog.cargoDependencyMutationCommands
+            + PolicyReasonCatalog.cocoapodsDependencyMutationCommands
+            + PolicyReasonCatalog.carthageDependencyMutationCommands + [
             "python -m venv",
             "python3 -m venv",
             "uv venv",
