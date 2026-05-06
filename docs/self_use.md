@@ -66,6 +66,7 @@ Snapshot date: 2026-05-07 (post-maintainability split; `SecretFileDetector` extr
 - `PolicyOutputContractTests.swift` now owns policy metadata, command-reason, older-JSON decoding, and reason-legend ordering contracts, so output-contract checks are separate from package-manager scanner fixtures.
 - `SwiftPackagePolicyTests.swift` now owns SwiftPM and Xcode command-selection contracts, so future Swift/Xcode scanner changes can be verified without growing the general package-policy suite.
 - Three intended regression scenarios now have Swift Testing `@Test` annotations again: pnpm lockfile selection, older scan-result decoding, and unrelated diagnostic filtering.
+- `TestCoverageContractTests.swift` now checks scenario functions in test suites for `@Test`, so future suite moves fail fast if executable coverage is accidentally dropped.
 - Static baseline Ask First and Forbidden policy lists now live in `PolicyReasonCatalog+BaselinePolicy.swift`, so Scanner adds project-specific dynamic guards without rebuilding the whole curated catalog inline.
 
 Observed output from scanning this repository:
