@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 25
+- observing: 26
 - reviewed: 10
 
 ## Active Changes
@@ -21,6 +21,7 @@
 - `workspace-mutation-command-family` - [changes/2026-05-06-workspace-mutation-command-family.md](changes/2026-05-06-workspace-mutation-command-family.md)
 - `ssh-private-key-command-family` - [changes/2026-05-06-ssh-private-key-command-family.md](changes/2026-05-06-ssh-private-key-command-family.md)
 - `project-environment-command-family` - [changes/2026-05-06-project-environment-command-family.md](changes/2026-05-06-project-environment-command-family.md)
+- `policy-reason-catalog-test-boundary` - [changes/2026-05-06-policy-reason-catalog-test-boundary.md](changes/2026-05-06-policy-reason-catalog-test-boundary.md)
 - `instruction-alignment-roadmap` - [changes/2026-05-04-instruction-alignment-roadmap.md](changes/2026-05-04-instruction-alignment-roadmap.md)
 - `javascript-package-manager-mutation-command-families` - [changes/2026-05-04-javascript-package-manager-mutation-command-families.md](changes/2026-05-04-javascript-package-manager-mutation-command-families.md)
 - `package-manager-mutation-review-map` - [changes/2026-05-04-package-manager-mutation-review-map.md](changes/2026-05-04-package-manager-mutation-review-map.md)
