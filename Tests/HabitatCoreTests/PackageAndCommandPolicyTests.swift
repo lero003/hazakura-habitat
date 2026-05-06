@@ -4152,6 +4152,19 @@ struct PackageAndCommandPolicyTests {
             )
         }
 
+        for command in ["brew install", "brew update", "brew bundle install"] {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_mutation",
+                "Expected \(command) to keep Homebrew dependency-mutation classification"
+            )
+        }
+        for command in ["brew cleanup", "brew autoremove", "brew tap", "brew tap-new", "brew bundle", "brew bundle cleanup", "brew bundle dump"] {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "user_approval_required",
+                "Expected \(command) to keep generic approval classification"
+            )
+        }
+
         for command in PolicyReasonCatalog.corepackPackageManagerActivationCommands {
             #expect(
                 PolicyReasonCatalog.askFirstReason(for: command).code == "package_manager_activation",

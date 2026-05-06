@@ -128,7 +128,7 @@ enum PolicyReasonCatalog {
         case "bundler":
             return rubyBundlerDependencyMutationCommands
         case "homebrew":
-            return ["brew bundle", "brew bundle install", "brew bundle cleanup", "brew bundle dump", "brew update", "brew cleanup", "brew autoremove", "brew tap", "brew tap-new"]
+            return homebrewPackageManagerReviewCommands
         case "swiftpm":
             return swiftPackageDependencyResolutionCommands
         case "go":

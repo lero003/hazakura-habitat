@@ -508,14 +508,8 @@ public struct HabitatScanner {
     }
 
     private func askFirstCommands(project: ProjectInfo, projectPathIsExistingDirectory: Bool, resolvedPaths: [ResolvedTool], versions: [ToolVersion], commands commandResults: [CommandInfo]) -> [String] {
-        var commands = [
-            "brew install",
-            "brew update",
-            "brew cleanup",
-            "brew autoremove",
-            "brew tap",
-            "brew tap-new",
-        ] + PolicyReasonCatalog.pipAskFirstCommands + [
+        var commands = PolicyReasonCatalog.homebrewDirectAskFirstCommands
+            + PolicyReasonCatalog.pipAskFirstCommands + [
         ] + PolicyReasonCatalog.npmDependencyMutationCommands + [
         ] + PolicyReasonCatalog.npmEphemeralPackageExecutionCommands + [
         ] + PolicyReasonCatalog.pnpmDependencyMutationCommands + [
@@ -528,11 +522,8 @@ public struct HabitatScanner {
             + PolicyReasonCatalog.corepackPackageManagerActivationCommands + [
         ] + PolicyReasonCatalog.uvDependencyMutationCommands
             + PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands + [
-        ] + PolicyReasonCatalog.rubyBundlerDependencyMutationCommands + [
-            "brew bundle",
-            "brew bundle install",
-            "brew bundle cleanup",
-            "brew bundle dump",
+        ] + PolicyReasonCatalog.rubyBundlerDependencyMutationCommands
+            + PolicyReasonCatalog.homebrewBundleReviewCommands + [
             "xcodebuild build/test/archive before selecting a scheme",
             "xcodebuild -resolvePackageDependencies",
             "xcodebuild -allowProvisioningUpdates",
