@@ -144,40 +144,6 @@ struct CoreInfrastructureTests {
     }
 
     @Test
-    func packageManagerMutationReviewCommandsStayCentralizedForPolicyConsumers() throws {
-        #expect(PolicyReasonCatalog.swiftPackageDependencyResolutionCommands == [
-            "swift package update",
-            "swift package resolve",
-        ])
-        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "swiftpm") == PolicyReasonCatalog.swiftPackageDependencyResolutionCommands)
-        for command in PolicyReasonCatalog.swiftPackageDependencyResolutionCommands {
-            #expect(PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_resolution_mutation")
-        }
-        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "npm") == PolicyReasonCatalog.npmDependencyMutationCommands)
-        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "pnpm") == PolicyReasonCatalog.pnpmDependencyMutationCommands)
-        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "yarn") == PolicyReasonCatalog.yarnDependencyMutationCommands)
-        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "bun") == PolicyReasonCatalog.bunDependencyMutationCommands)
-        for command in PolicyReasonCatalog.npmDependencyMutationCommands
-            + PolicyReasonCatalog.pnpmDependencyMutationCommands
-            + PolicyReasonCatalog.yarnDependencyMutationCommands
-            + PolicyReasonCatalog.bunDependencyMutationCommands {
-            #expect(PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_mutation")
-        }
-        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "homebrew") == [
-            "brew bundle",
-            "brew bundle install",
-            "brew bundle cleanup",
-            "brew bundle dump",
-            "brew update",
-            "brew cleanup",
-            "brew autoremove",
-            "brew tap",
-            "brew tap-new",
-        ])
-        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "unknown") == [])
-    }
-
-    @Test
     func pythonUvMissingToolExampleMatchesCurrentGuidanceShape() throws {
         let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
         let context = try String(

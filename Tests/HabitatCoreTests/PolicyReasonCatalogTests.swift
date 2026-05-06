@@ -22,6 +22,10 @@ struct PolicyReasonCatalogTests {
 
     @Test
     func packageManagerReviewRoutingPreservesCatalogFamilies() {
+        #expect(PolicyReasonCatalog.swiftPackageDependencyResolutionCommands == [
+            "swift package update",
+            "swift package resolve",
+        ])
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "npm") == PolicyReasonCatalog.npmDependencyMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "pnpm") == PolicyReasonCatalog.pnpmDependencyMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "yarn") == PolicyReasonCatalog.yarnDependencyMutationCommands)
@@ -36,6 +40,17 @@ struct PolicyReasonCatalogTests {
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "cocoapods") == PolicyReasonCatalog.cocoapodsDependencyMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "carthage") == PolicyReasonCatalog.carthageDependencyMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "xcodebuild") == PolicyReasonCatalog.xcodebuildProjectMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "homebrew") == [
+            "brew bundle",
+            "brew bundle install",
+            "brew bundle cleanup",
+            "brew bundle dump",
+            "brew update",
+            "brew cleanup",
+            "brew autoremove",
+            "brew tap",
+            "brew tap-new",
+        ])
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "unknown") == [])
     }
 
