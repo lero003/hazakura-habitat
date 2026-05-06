@@ -58,9 +58,9 @@ Observed output from scanning this repository:
 
 - Package manager: SwiftPM.
 - Preferred commands: `swift test`, `swift build`.
-- `agent_context.md`: 35 lines in `scan_result.json` artifact metadata.
-- `command_policy.md`: 801 lines in `scan_result.json` artifact metadata.
-- `environment_report.md`: 73 lines in `scan_result.json` artifact metadata.
+- `agent_context.md`: 34 lines in `scan_result.json` artifact metadata.
+- `command_policy.md`: 799 lines in `scan_result.json` artifact metadata.
+- `environment_report.md`: 72 lines in `scan_result.json` artifact metadata.
 - Ask First commands: 262.
 - Forbidden commands: 489.
 - `scan_result.json` `policy.commandCounts`: 2 preferred, 262 Ask First, 6 Review First, 489 Forbidden, 751 with reasons.
@@ -89,6 +89,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - SwiftPM dependency-resolution commands now have their own `PolicyReasonCatalog+SwiftPM.swift` boundary, so future `swift package update` / `swift package resolve` policy changes update one family without changing generated output shape.
 - JavaScript package-manager dependency-mutation commands now have their own `PolicyReasonCatalog+JavaScriptPackageManager.swift` boundary, so future npm, pnpm, yarn, or bun install/update/remove edits update one family without changing generated output shape.
 - Python pip/uv package-manager Ask First commands now have their own `PolicyReasonCatalog+PythonPackageManager.swift` boundary, so future pip install/fetch/cache or uv mutation edits update one family without changing generated output shape.
+- Remote-script execution and global environment mutation commands now have their own `PolicyReasonCatalog+HostEnvironment.swift` boundary, so future `curl | sh`, Homebrew host-state, global package install, pipx, uv tool, gem, Go, or Cargo host-mutation edits update one family without changing generated output shape.
 - Secret-bearing path signals now have a small `SecretBearingEvidence` boundary consumed by secret detection and report generation, so future evidence-alignment work can build from filename-only signals without changing generated output shape or storing raw secret values.
 - When secret-bearing files are detected, `agent_context.md` now gives a concrete broad-search starting shape with exclusion globs, so agents can reshape `rg`/`grep -R`/`git grep` instead of treating all project search as off limits.
 - `command_policy.md` now distinguishes no-secret read-only search from secret-bearing projects: ordinary `rg <pattern>` remains allowed in normal repositories, while secret-bearing repositories steer agents toward targeted inspection and exclusion-aware search.

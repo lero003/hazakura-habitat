@@ -4179,5 +4179,21 @@ struct PackageAndCommandPolicyTests {
         }
         #expect(PolicyReasonCatalog.forbiddenReason(for: "pbpaste").code == "host_private_data")
         #expect(PolicyReasonCatalog.forbiddenReason(for: "cat ~/.zsh_history").code == "host_private_data")
+
+        for command in PolicyReasonCatalog.remoteScriptExecutionCommands {
+            #expect(
+                PolicyReasonCatalog.forbiddenReason(for: command).code == "remote_script_execution",
+                "Expected \(command) to keep remote-script execution classification"
+            )
+        }
+
+        for command in PolicyReasonCatalog.globalEnvironmentMutationCommands {
+            #expect(
+                PolicyReasonCatalog.forbiddenReason(for: command).code == "global_environment_mutation",
+                "Expected \(command) to keep global environment mutation classification"
+            )
+        }
+        #expect(PolicyReasonCatalog.forbiddenReason(for: "brew upgrade").code == "global_environment_mutation")
+        #expect(PolicyReasonCatalog.forbiddenReason(for: "pipx ensurepath").code == "global_environment_mutation")
     }
 }

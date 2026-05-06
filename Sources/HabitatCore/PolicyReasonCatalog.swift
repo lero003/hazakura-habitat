@@ -173,14 +173,7 @@ enum PolicyReasonCatalog {
     private static let forbiddenReasonRules: [ReasonRule] = [
         .init(reasonCode: .privilegedCommand) { $0 == "sudo" },
         .init(reasonCode: .outsideProjectDeletion) { $0 == "destructive file deletion outside the selected project" },
-        .init(reasonCode: .remoteScriptExecution) {
-            $0 == "remote script execution through curl or wget"
-                || $0.contains("| sh")
-                || $0.contains("| bash")
-                || $0.contains("| zsh")
-                || $0.contains("<(curl")
-                || $0.contains("<(wget")
-        },
+        .init(reasonCode: .remoteScriptExecution) { isRemoteScriptExecutionCommand($0) },
         .init(reasonCode: .hostPrivateData) { isHostPrivateDataCommand($0) },
         .init(reasonCode: .secretOrCredentialAccess) { isSecretOrCredentialCommand($0) },
         .init(reasonCode: .globalEnvironmentMutation) { isGlobalEnvironmentMutationCommand($0) },
@@ -287,18 +280,6 @@ enum PolicyReasonCatalog {
             || command.contains("~/.aws")
             || command.contains("~/.docker")
             || command.contains("~/.kube")
-    }
-
-    private static func isGlobalEnvironmentMutationCommand(_ command: String) -> Bool {
-        command.hasPrefix("brew ")
-            || command.contains(" install")
-            || command.contains(" uninstall")
-            || command.contains(" upgrade")
-            || command.contains(" cleanup")
-            || command.contains(" ensurepath")
-            || command.contains(" add -g")
-            || command.contains(" --global")
-            || command.contains(" -g")
     }
 
     private static func isSecretBearingBroadSearchCommand(_ command: String) -> Bool {
