@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 34
+- observing: 35
 - reviewed: 10
 
 ## Active Changes
@@ -42,6 +42,7 @@
 - `secret-bearing-evidence-boundary` - [changes/2026-05-06-secret-bearing-evidence-boundary.md](changes/2026-05-06-secret-bearing-evidence-boundary.md)
 - `self-use-trigger-and-report-freshness` - [changes/2026-05-06-self-use-trigger-and-report-freshness.md](changes/2026-05-06-self-use-trigger-and-report-freshness.md)
 - `speculative-context-annotation-framing` - [changes/2026-05-06-speculative-context-annotation-framing.md](changes/2026-05-06-speculative-context-annotation-framing.md)
+- `roadmap-feedback-during-work` - [changes/2026-05-07-roadmap-feedback-during-work.md](changes/2026-05-07-roadmap-feedback-during-work.md)
 
 ## Review Due
 

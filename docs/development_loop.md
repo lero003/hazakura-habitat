@@ -31,6 +31,21 @@ Keep the slice focused enough to review and revert. Avoid broad scanner expansio
 
 If a useful improvement is larger than one hour, split it at an artifact boundary: scan data first, generated guidance second, broader fixtures or ADRs third.
 
+## Roadmap Feedback During Work
+
+If a development slice shows that the roadmap is stale, over-broad, or missing a
+small decision boundary, update the relevant roadmap or status document before
+closing the slice.
+
+Keep the correction narrow:
+
+- tie it to an observed repository fact, self-use behavior, or verification result
+- distinguish what changed now from what remains a later decision
+- avoid reordering phases unless the new evidence changes the next useful work
+- pair agent-facing workflow changes with a lightweight Nenrin record
+
+This is part of finishing the work, not a separate planning project.
+
 ## Post-v0.4 Observation Handoff
 
 Use this handoff when starting automated work after the public `v0.4.0 Developer Preview`:

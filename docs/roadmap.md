@@ -24,6 +24,12 @@ Every item should pass this question:
 
 If not, put it in the parking lot.
 
+When real implementation or self-use work exposes that the roadmap itself is
+slightly wrong, update the roadmap in the same slice. Keep that update tied to
+the observed fact, the changed command-decision risk, or the newly clarified
+boundary. Do not use this as permission for a broad rewrite; record the smallest
+roadmap correction that would help the next agent choose the right work.
+
 Habitat should complement `AGENTS.md`, roadmap, and development docs rather than restate them. Its stronger job is to read repository reality: package-manager signals, runnable scripts, generated-output state, secret-bearing paths, release or CI configuration, and other facts that may confirm or contradict written instructions. If `AGENTS.md` is complete and current enough for a low-risk task, skipping Habitat is acceptable. If generated context mostly repeats existing project guidance, treat that as weak output.
 
 Habitat does not produce plans. It produces short, evidence-backed context annotations drawn from the repository map:
