@@ -5,6 +5,7 @@ date: 2026-05-06
 status: observing
 impact: unknown
 related_files:
+  - Sources/HabitatCore/PolicyReasonCatalog+BaselinePolicy.swift
   - Sources/HabitatCore/PolicyReasonCatalog.swift
   - Sources/HabitatCore/Scanner.swift
   - Tests/HabitatCoreTests/PolicyReasonCatalogTests.swift
@@ -21,6 +22,7 @@ review_after:
 ## Changed
 
 - Moved the static baseline Ask First and Forbidden command-list assembly into `PolicyReasonCatalog`.
+- Split the catalog-owned static baseline Ask First and Forbidden command-list assembly into `PolicyReasonCatalog+BaselinePolicy.swift`.
 - Left project-specific dynamic guards in `Scanner`.
 - Added catalog test coverage for the new baseline list ownership.
 
@@ -31,7 +33,7 @@ Scanner was still rebuilding the broad curated policy lists inline even after ma
 ## Expected Behavior
 
 - Generated command counts, ordering, Markdown, and `scan_result.json` stay stable.
-- Future broad policy-list edits start in `PolicyReasonCatalog` instead of scanner assembly code.
+- Future broad policy-list edits start in `PolicyReasonCatalog+BaselinePolicy.swift` instead of scanner assembly code.
 - Scanner remains focused on current project facts and dynamic guards.
 
 ## Review After
@@ -41,7 +43,7 @@ Scanner was still rebuilding the broad curated policy lists inline even after ma
 
 ## Success Signals
 
-- Later command-family edits do not need to touch scanner baseline list assembly.
+- Later command-family edits do not need to touch scanner baseline list assembly or the reason-rule core file.
 - Self-scan keeps the same command counts and short-context guidance.
 
 ## Failure Signals

@@ -112,55 +112,6 @@ enum PolicyReasonCatalog {
 
     private static let orderedReasonCodes: [PolicyReasonCode] = ReasonCode.allCases.map(\.reason)
 
-    static let baselineAskFirstCommands = homebrewDirectAskFirstCommands
-        + pipAskFirstCommands
-        + npmDependencyMutationCommands
-        + npmEphemeralPackageExecutionCommands
-        + pnpmDependencyMutationCommands
-        + pnpmEphemeralPackageExecutionCommands
-        + yarnDependencyMutationCommands
-        + yarnEphemeralPackageExecutionCommands
-        + bunDependencyMutationCommands
-        + bunEphemeralPackageExecutionCommands
-        + packageRegistryMutationCommands
-        + corepackPackageManagerActivationCommands
-        + uvDependencyMutationCommands
-        + pythonEphemeralPackageExecutionCommands
-        + rubyBundlerDependencyMutationCommands
-        + homebrewBundleReviewCommands
-        + xcodebuildProjectMutationCommands
-        + goDependencyMutationCommands
-        + cargoDependencyMutationCommands
-        + cocoapodsDependencyMutationCommands
-        + carthageDependencyMutationCommands
-        + virtualEnvironmentMutationCommands
-        + [
-            "modifying lockfiles",
-        ]
-        + versionManagerMutationCommands
-        + localGitWorkspaceMutationCommands
-        + gitHubCliMutationCommands
-        + workspaceMutationCommands
-
-    static let baselineForbiddenCommands = [
-        "sudo",
-        "destructive file deletion outside the selected project",
-    ] + remoteScriptExecutionCommands
-        + globalEnvironmentMutationCommands
-        + packageManagerCredentialAndConfigCommands
-        + cliAuthAndCredentialStoreCommands
-        + cloudAndContainerCredentialCommands
-        + hostPrivateDataCommands
-        + sshPrivateKeyCommands
-        + [
-            "load secret environment files",
-            "read .env values",
-            "read .envrc values",
-            "read .netrc values",
-            "read package manager auth config values",
-            "read private keys",
-        ]
-
     private static let askFirstReasonRules: [ReasonRule] = [
         .init(reasonCode: .projectPathUnverified) { $0 == "running project commands before project path is verified" },
         .init(reasonCode: .missingTool) { $0.hasPrefix("running ") && $0.contains("is available") },

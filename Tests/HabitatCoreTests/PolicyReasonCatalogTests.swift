@@ -7,10 +7,12 @@ struct PolicyReasonCatalogTests {
         #expect(PolicyReasonCatalog.baselineAskFirstCommands.first == "brew install")
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "swiftpm").contains("swift package update"))
         #expect(PolicyReasonCatalog.baselineAskFirstCommands.contains("modifying lockfiles"))
+        #expect(PolicyReasonCatalog.baselineAskFirstCommands.contains("modifying version manager files"))
         #expect(PolicyReasonCatalog.baselineAskFirstCommands.contains("git push"))
         #expect(PolicyReasonCatalog.baselineAskFirstCommands.contains("rm -rf"))
 
         #expect(PolicyReasonCatalog.baselineForbiddenCommands.first == "sudo")
+        #expect(PolicyReasonCatalog.baselineForbiddenCommands.contains("destructive file deletion outside the selected project"))
         #expect(PolicyReasonCatalog.baselineForbiddenCommands.contains("curl | sh"))
         #expect(PolicyReasonCatalog.baselineForbiddenCommands.contains("env"))
         #expect(PolicyReasonCatalog.baselineForbiddenCommands.contains("gh auth token"))

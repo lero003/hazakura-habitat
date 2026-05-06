@@ -14,6 +14,7 @@
 - Split `PolicyReasonCatalogTests.swift` out of `PackageAndCommandPolicyTests.swift` for catalog-family classification contracts with no intended behavior change.
 - Restored three intended Swift Testing scenarios by marking pnpm selection, older scan-result decoding, and unrelated diagnostic filtering functions as executable tests.
 - Moved the static baseline Ask First and Forbidden command lists into `PolicyReasonCatalog`, reducing scanner/catalog drift while preserving generated output behavior.
+- Split the catalog-owned static baseline Ask First and Forbidden policy lists into `PolicyReasonCatalog+BaselinePolicy.swift` with no intended generated-output behavior change.
 - Added Nenrin change record for the maintainability split and observation guidance for future decomposition slices.
 - Updated documentation (`README.md`, `docs/roadmap.md`, `docs/current_status.md`, `docs/self_use.md`) to reflect completed decomposition and current codebase state.
 - Extracted Git/GitHub command families and membership predicates into `PolicyReasonCatalog+Git.swift` with no intended generated-output behavior change.
