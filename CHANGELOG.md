@@ -14,6 +14,7 @@
 - Split `PolicyReasonCatalogTests.swift` out of `PackageAndCommandPolicyTests.swift` for catalog-family classification contracts with no intended behavior change.
 - Split `PolicyOutputContractTests.swift` out of `PackageAndCommandPolicyTests.swift` for policy metadata, command-reason, older-JSON decoding, and reason-legend ordering contracts with no intended behavior change.
 - Split `SwiftPackagePolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for SwiftPM and Xcode command-selection contracts with no intended behavior change.
+- Split `WorkspaceMutationPolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for Git/workspace mutation, permission, copy/archive, and project-outside deletion policy contracts with no intended behavior change.
 - Moved the remaining package-manager review routing contract out of `HabitatCoreTests.swift` and into `PolicyReasonCatalogTests.swift`, keeping catalog ownership checks in one suite with no intended behavior change.
 - Restored three intended Swift Testing scenarios by marking pnpm selection, older scan-result decoding, and unrelated diagnostic filtering functions as executable tests.
 - Added `TestCoverageContractTests.swift` to fail fast when scenario functions in test suites are missing Swift Testing `@Test` annotations.
