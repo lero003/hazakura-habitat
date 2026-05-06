@@ -2,8 +2,8 @@
 type: nenrin_change
 id: maintainability-split
 date: 2026-05-05
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - Sources/HabitatCore/Scanner.swift
   - Sources/HabitatCore/SecretFileDetector.swift
