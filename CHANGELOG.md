@@ -36,6 +36,7 @@
 - Extracted workspace mutation command families into `PolicyReasonCatalog+WorkspaceMutation.swift` with no intended generated-output behavior change.
 - Extracted SSH private-key command families into `PolicyReasonCatalog+SshPrivateKey.swift` with no intended generated-output behavior change.
 - Extracted virtual-environment and version-manager Ask First command families into `PolicyReasonCatalog+ProjectEnvironment.swift` with no intended generated-output behavior change.
+- Extracted selected package-manager review routing into `PolicyReasonCatalog+PackageManagerReview.swift` with no intended generated-output behavior change.
 - Clarified that the first `v0.5` evidence slice should wrap secret-bearing path signals in a small `SecretBearingEvidence` value without changing `scan_result.json`, public `ReportWriter` API, generated Markdown, PolicyFinding, reason codes, or command ordering.
 - Added the first local `v0.5` evidence boundary by wrapping secret-bearing path signals in `SecretBearingEvidence` and routing secret detection/report generation through it without intended generated-output behavior change.
 - Restored cloud/container credential non-emission regression coverage by marking the existing secret-file detection scenario as an executable Swift Testing test.

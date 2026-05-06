@@ -19,6 +19,25 @@ struct PolicyReasonCatalogTests {
     }
 
     @Test
+    func packageManagerReviewRoutingPreservesCatalogFamilies() {
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "npm") == PolicyReasonCatalog.npmDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "pnpm") == PolicyReasonCatalog.pnpmDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "yarn") == PolicyReasonCatalog.yarnDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "bun") == PolicyReasonCatalog.bunDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "uv") == PolicyReasonCatalog.uvDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "python") == PolicyReasonCatalog.pipDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "bundler") == PolicyReasonCatalog.rubyBundlerDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "homebrew") == PolicyReasonCatalog.homebrewPackageManagerReviewCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "swiftpm") == PolicyReasonCatalog.swiftPackageDependencyResolutionCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "go") == PolicyReasonCatalog.goDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "cargo") == PolicyReasonCatalog.cargoDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "cocoapods") == PolicyReasonCatalog.cocoapodsDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "carthage") == PolicyReasonCatalog.carthageDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "xcodebuild") == PolicyReasonCatalog.xcodebuildProjectMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "unknown") == [])
+    }
+
+    @Test
     func catalogFamilyExtractionsPreserveClassification() {
         #expect(PolicyReasonCatalog.askFirstReason(for: "git push").code == "git_mutation")
         #expect(PolicyReasonCatalog.askFirstReason(for: "git commit").code == "git_mutation")
