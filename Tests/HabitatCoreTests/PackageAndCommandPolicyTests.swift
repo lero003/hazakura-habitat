@@ -3,6 +3,7 @@ import Foundation
 @testable import HabitatCore
 
 struct PackageAndCommandPolicyTests {
+    @Test
     func scanPrefersPnpmWhenLockfileExists() throws {
         let projectURL = try makeProject(files: [
             "pnpm-lock.yaml": "lockfile",

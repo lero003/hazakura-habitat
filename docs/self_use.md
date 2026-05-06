@@ -63,6 +63,7 @@ When evaluating self-use output, discount guidance that merely repeats existing 
 Snapshot date: 2026-05-06 (post-maintainability split; `SecretFileDetector` extraction, test-suite decomposition, and no-output-change catalog boundaries preserved generated output, so policy values are unchanged from 2026-05-04).
 
 - `PolicyReasonCatalogTests.swift` now owns catalog-family classification contracts, so future command-family slices can verify reason-code preservation without growing `PackageAndCommandPolicyTests.swift`.
+- Three intended regression scenarios now have Swift Testing `@Test` annotations again: pnpm lockfile selection, older scan-result decoding, and unrelated diagnostic filtering.
 
 Observed output from scanning this repository:
 

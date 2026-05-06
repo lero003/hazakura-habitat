@@ -893,6 +893,7 @@ struct CoreInfrastructureTests {
         #expect(!context.contains("Ask before `git add`."))
     }
 
+    @Test
     func scanResultDecodesOlderJsonWithoutChanges() throws {
         let result = markdownSnapshotScanResult()
         let data = try JSONEncoder().encode(result)
@@ -975,6 +976,7 @@ struct CoreInfrastructureTests {
         #expect(loadedFromDirectory.scannedAt == loadedFromFile.scannedAt)
     }
 
+    @Test
     func agentContextOmitsUnrelatedCommandDiagnostics() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(
