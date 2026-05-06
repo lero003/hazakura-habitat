@@ -294,6 +294,9 @@ enum PolicyReasonCatalog {
         if isCloudAndContainerCredentialCommand(command) {
             return true
         }
+        if isSshPrivateKeyCommand(command) {
+            return true
+        }
         return false
     }
 }

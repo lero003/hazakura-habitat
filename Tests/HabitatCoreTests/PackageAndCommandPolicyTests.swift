@@ -4233,6 +4233,12 @@ struct PackageAndCommandPolicyTests {
         #expect(PolicyReasonCatalog.forbiddenReason(for: "git credential fill").code == "secret_or_credential_access")
         #expect(PolicyReasonCatalog.forbiddenReason(for: "aws configure export-credentials").code == "secret_or_credential_access")
         #expect(PolicyReasonCatalog.forbiddenReason(for: "kubectl config view --raw").code == "secret_or_credential_access")
+        for command in PolicyReasonCatalog.sshPrivateKeyCommands {
+            #expect(
+                PolicyReasonCatalog.forbiddenReason(for: command).code == "secret_or_credential_access",
+                "Expected \(command) to keep SSH private-key command classification"
+            )
+        }
 
         for command in PolicyReasonCatalog.hostPrivateDataCommands {
             #expect(

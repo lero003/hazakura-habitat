@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 23
+- observing: 24
 - reviewed: 10
 
 ## Active Changes
@@ -19,6 +19,7 @@
 - `apple-package-manager-command-family` - [changes/2026-05-06-apple-package-manager-command-family.md](changes/2026-05-06-apple-package-manager-command-family.md)
 - `secret-search-command-family` - [changes/2026-05-06-secret-search-command-family.md](changes/2026-05-06-secret-search-command-family.md)
 - `workspace-mutation-command-family` - [changes/2026-05-06-workspace-mutation-command-family.md](changes/2026-05-06-workspace-mutation-command-family.md)
+- `ssh-private-key-command-family` - [changes/2026-05-06-ssh-private-key-command-family.md](changes/2026-05-06-ssh-private-key-command-family.md)
 - `instruction-alignment-roadmap` - [changes/2026-05-04-instruction-alignment-roadmap.md](changes/2026-05-04-instruction-alignment-roadmap.md)
 - `javascript-package-manager-mutation-command-families` - [changes/2026-05-04-javascript-package-manager-mutation-command-families.md](changes/2026-05-04-javascript-package-manager-mutation-command-families.md)
 - `package-manager-mutation-review-map` - [changes/2026-05-04-package-manager-mutation-review-map.md](changes/2026-05-04-package-manager-mutation-review-map.md)
