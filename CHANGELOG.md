@@ -29,6 +29,7 @@
 - Extracted Homebrew direct and Bundle Ask First command families into `PolicyReasonCatalog+Homebrew.swift` with no intended generated-output behavior change.
 - Extracted Go and Cargo dependency-mutation command families into `PolicyReasonCatalog+GoCargo.swift` with no intended generated-output behavior change.
 - Extracted CocoaPods, Carthage, and Xcodebuild command families into `PolicyReasonCatalog+ApplePackageManager.swift` with no intended generated-output behavior change.
+- Extracted secret-bearing broad-search command families into `PolicyReasonCatalog+SecretSearch.swift` with no intended generated-output behavior change.
 - Clarified that the first `v0.5` evidence slice should wrap secret-bearing path signals in a small `SecretBearingEvidence` value without changing `scan_result.json`, public `ReportWriter` API, generated Markdown, PolicyFinding, reason codes, or command ordering.
 - Added the first local `v0.5` evidence boundary by wrapping secret-bearing path signals in `SecretBearingEvidence` and routing secret detection/report generation through it without intended generated-output behavior change.
 - Restored cloud/container credential non-emission regression coverage by marking the existing secret-file detection scenario as an executable Swift Testing test.

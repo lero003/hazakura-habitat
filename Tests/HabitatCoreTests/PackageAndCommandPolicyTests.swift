@@ -4206,6 +4206,13 @@ struct PackageAndCommandPolicyTests {
         }
         #expect(PolicyReasonCatalog.askFirstReason(for: "npx").code == "ephemeral_package_execution")
 
+        for command in PolicyReasonCatalog.secretBearingBroadSearchCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "secret_or_credential_access",
+                "Expected \(command) to keep secret-bearing broad-search classification"
+            )
+        }
+
         for command in PolicyReasonCatalog.packageManagerCredentialAndConfigCommands {
             #expect(
                 PolicyReasonCatalog.forbiddenReason(for: command).code == "secret_or_credential_access",
