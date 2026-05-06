@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 32
+- observing: 33
 - reviewed: 10
 
 ## Active Changes
@@ -27,6 +27,7 @@
 - `policy-output-contract-test-boundary` - [changes/2026-05-07-policy-output-contract-test-boundary.md](changes/2026-05-07-policy-output-contract-test-boundary.md)
 - `swift-package-policy-test-boundary` - [changes/2026-05-07-swift-package-policy-test-boundary.md](changes/2026-05-07-swift-package-policy-test-boundary.md)
 - `workspace-mutation-policy-test-boundary` - [changes/2026-05-07-workspace-mutation-policy-test-boundary.md](changes/2026-05-07-workspace-mutation-policy-test-boundary.md)
+- `go-cargo-policy-test-boundary` - [changes/2026-05-07-go-cargo-policy-test-boundary.md](changes/2026-05-07-go-cargo-policy-test-boundary.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `test-coverage-contract` - [changes/2026-05-07-test-coverage-contract.md](changes/2026-05-07-test-coverage-contract.md)
 - `instruction-alignment-roadmap` - [changes/2026-05-04-instruction-alignment-roadmap.md](changes/2026-05-04-instruction-alignment-roadmap.md)
