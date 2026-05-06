@@ -122,9 +122,9 @@ enum PolicyReasonCatalog {
         case "bun":
             return bunDependencyMutationCommands
         case "uv":
-            return ["uv sync", "uv add", "uv remove", "uv pip install", "uv pip uninstall", "uv pip sync", "uv pip compile"]
+            return uvDependencyMutationCommands
         case "python":
-            return ["pip install", "pip3 install", "python -m pip install", "python3 -m pip install", "pip uninstall", "pip3 uninstall", "python -m pip uninstall", "python3 -m pip uninstall"]
+            return pipDependencyMutationCommands
         case "bundler":
             return ["bundle install", "bundle add", "bundle update", "bundle lock", "bundle remove"]
         case "homebrew":
@@ -253,6 +253,9 @@ enum PolicyReasonCatalog {
 
     private static func isDependencyMutationCommand(_ command: String) -> Bool {
         if isJavaScriptPackageManagerDependencyMutationCommand(command) {
+            return true
+        }
+        if isPythonPackageManagerDependencyMutationCommand(command) {
             return true
         }
 

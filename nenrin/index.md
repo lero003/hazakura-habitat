@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 14
+- observing: 15
 - reviewed: 10
 
 ## Active Changes
@@ -19,6 +19,7 @@
 - `roadmap-policy-finding-foundation` - [changes/2026-05-04-roadmap-policy-finding-foundation.md](changes/2026-05-04-roadmap-policy-finding-foundation.md)
 - `swiftpm-dependency-resolution-command-family` - [changes/2026-05-04-swiftpm-dependency-resolution-command-family.md](changes/2026-05-04-swiftpm-dependency-resolution-command-family.md)
 - `maintainability-roadmap-guardrails` - [changes/2026-05-05-maintainability-roadmap-guardrails.md](changes/2026-05-05-maintainability-roadmap-guardrails.md)
+- `python-package-manager-command-family` - [changes/2026-05-06-python-package-manager-command-family.md](changes/2026-05-06-python-package-manager-command-family.md)
 - `secret-bearing-evidence-boundary` - [changes/2026-05-06-secret-bearing-evidence-boundary.md](changes/2026-05-06-secret-bearing-evidence-boundary.md)
 - `speculative-context-annotation-framing` - [changes/2026-05-06-speculative-context-annotation-framing.md](changes/2026-05-06-speculative-context-annotation-framing.md)
 

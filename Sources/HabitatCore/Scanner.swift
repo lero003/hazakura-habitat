@@ -596,38 +596,7 @@ public struct HabitatScanner {
             "brew autoremove",
             "brew tap",
             "brew tap-new",
-            "pip install",
-            "pip3 install",
-            "python -m pip install",
-            "python3 -m pip install",
-            "pip uninstall",
-            "pip3 uninstall",
-            "python -m pip uninstall",
-            "python3 -m pip uninstall",
-            "pip download",
-            "pip3 download",
-            "python -m pip download",
-            "python3 -m pip download",
-            "pip wheel",
-            "pip3 wheel",
-            "python -m pip wheel",
-            "python3 -m pip wheel",
-            "pip index",
-            "pip3 index",
-            "python -m pip index",
-            "python3 -m pip index",
-            "pip search",
-            "pip3 search",
-            "python -m pip search",
-            "python3 -m pip search",
-            "pip cache purge",
-            "pip3 cache purge",
-            "python -m pip cache purge",
-            "python3 -m pip cache purge",
-            "pip cache remove",
-            "pip3 cache remove",
-            "python -m pip cache remove",
-            "python3 -m pip cache remove",
+        ] + PolicyReasonCatalog.pipAskFirstCommands + [
         ] + PolicyReasonCatalog.npmDependencyMutationCommands + [
         ] + PolicyReasonCatalog.npmEphemeralPackageExecutionCommands + [
         ] + PolicyReasonCatalog.pnpmDependencyMutationCommands + [
@@ -638,14 +607,8 @@ public struct HabitatScanner {
         ] + PolicyReasonCatalog.bunEphemeralPackageExecutionCommands
             + PolicyReasonCatalog.packageRegistryMutationCommands
             + PolicyReasonCatalog.corepackPackageManagerActivationCommands + [
-            "uv sync",
-            "uv add",
-            "uv remove",
-            "uv pip install",
-            "uv pip uninstall",
-            "uv pip sync",
-            "uv pip compile",
-        ] + PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands + [
+        ] + PolicyReasonCatalog.uvDependencyMutationCommands
+            + PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands + [
             "bundle install",
             "bundle add",
             "bundle update",
