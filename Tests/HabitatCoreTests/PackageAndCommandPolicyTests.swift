@@ -4145,6 +4145,13 @@ struct PackageAndCommandPolicyTests {
             )
         }
 
+        for command in PolicyReasonCatalog.rubyBundlerDependencyMutationCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_mutation",
+                "Expected \(command) to keep Ruby Bundler dependency-mutation classification"
+            )
+        }
+
         for command in PolicyReasonCatalog.corepackPackageManagerActivationCommands {
             #expect(
                 PolicyReasonCatalog.askFirstReason(for: command).code == "package_manager_activation",

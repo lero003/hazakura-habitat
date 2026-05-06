@@ -528,11 +528,7 @@ public struct HabitatScanner {
             + PolicyReasonCatalog.corepackPackageManagerActivationCommands + [
         ] + PolicyReasonCatalog.uvDependencyMutationCommands
             + PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands + [
-            "bundle install",
-            "bundle add",
-            "bundle update",
-            "bundle lock",
-            "bundle remove",
+        ] + PolicyReasonCatalog.rubyBundlerDependencyMutationCommands + [
             "brew bundle",
             "brew bundle install",
             "brew bundle cleanup",

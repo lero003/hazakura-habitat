@@ -126,7 +126,7 @@ enum PolicyReasonCatalog {
         case "python":
             return pipDependencyMutationCommands
         case "bundler":
-            return ["bundle install", "bundle add", "bundle update", "bundle lock", "bundle remove"]
+            return rubyBundlerDependencyMutationCommands
         case "homebrew":
             return ["brew bundle", "brew bundle install", "brew bundle cleanup", "brew bundle dump", "brew update", "brew cleanup", "brew autoremove", "brew tap", "brew tap-new"]
         case "swiftpm":
@@ -249,6 +249,9 @@ enum PolicyReasonCatalog {
             return true
         }
         if isPythonPackageManagerDependencyMutationCommand(command) {
+            return true
+        }
+        if isRubyPackageManagerDependencyMutationCommand(command) {
             return true
         }
 
