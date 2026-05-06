@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 18
+- observing: 19
 - reviewed: 10
 
 ## Active Changes
@@ -24,6 +24,7 @@
 - `python-package-manager-command-family` - [changes/2026-05-06-python-package-manager-command-family.md](changes/2026-05-06-python-package-manager-command-family.md)
 - `ruby-bundler-command-family` - [changes/2026-05-06-ruby-bundler-command-family.md](changes/2026-05-06-ruby-bundler-command-family.md)
 - `secret-bearing-evidence-boundary` - [changes/2026-05-06-secret-bearing-evidence-boundary.md](changes/2026-05-06-secret-bearing-evidence-boundary.md)
+- `self-use-trigger-and-report-freshness` - [changes/2026-05-06-self-use-trigger-and-report-freshness.md](changes/2026-05-06-self-use-trigger-and-report-freshness.md)
 - `speculative-context-annotation-framing` - [changes/2026-05-06-speculative-context-annotation-framing.md](changes/2026-05-06-speculative-context-annotation-framing.md)
 
 ## Review Due

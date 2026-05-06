@@ -6,6 +6,12 @@ This is not a marketing demo. It is a product feedback loop: if the generated co
 
 Do not treat the self-scan as a requirement for every small edit. It should earn its cost by catching current repository facts, risky command boundaries, or instruction drift that an agent would not get from `AGENTS.md`, roadmap, or development docs alone. When those docs are complete, current, and enough for a low-risk task, not running Habitat is a valid outcome.
 
+Use the scan before work that can change the agent's command choice or safety boundary:
+
+- yes: new or unfamiliar repository work, dependency or package-manager changes, release or Git/GitHub mutation, secret-adjacent inspection, generated-output contract changes, automation prompt changes, or project guidance changes
+- usually no: small copy edits, focused test expectation updates, single-file refactors that do not touch scanner behavior, or follow-up verification where the current report and docs already answer the command question
+- decide from risk: bundled skill edits, new cron or automation setup, and package metadata edits should scan when they affect future agent behavior, command policy, credentials, release flow, or dependency choice
+
 ## Workflow
 
 For recurring agent work, prefer the bundled skill at `skills/hazakura-habitat`. It lets Codex decide when to scan before substantial work instead of waiting for a human to remember the step.
@@ -45,6 +51,8 @@ Read the generated files before continuing:
 - `habitat-report/environment_report.md` only when audit or debug detail is needed.
 
 Do not commit `habitat-report/`. Convert useful findings into docs, fixtures, tests, examples, or roadmap items.
+
+Treat `habitat-report/` as a working snapshot. Regenerate it when repository facts or project guidance changed, when the previous report came from a different public baseline, or when a risky command decision depends on current package-manager, secret, Git/GitHub, release, or generated-output state. If an old report is no longer the active context, delete it locally or ignore it; do not make cleanup its own product feature until stale reports cause a measured agent mistake.
 
 Use `nenrin/` as the companion observation ledger for changes to the self-use environment itself. When self-use changes Habitat docs, bundled skills, roadmap, release guidance, QA criteria, or automation prompts, create or update a Nenrin change record. After a later related task, add an observation describing whether the change affected the agent's next command or cleanup decision.
 

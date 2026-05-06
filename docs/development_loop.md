@@ -93,6 +93,14 @@ Before substantial self-use, automation, release-prep, or docs workflow changes,
 
 Keep this loop lightweight. Nenrin is for the retrospective question: did this improvement help enough to keep, remove, merge, narrow, or move it?
 
+The common handoff pattern is:
+
+```text
+Habitat scan finds or confirms a command-changing fact -> the slice changes docs, tests, examples, policy wording, or generated output -> Nenrin records why that agent-facing change should affect later behavior -> a later observation decides whether to keep, narrow, merge, or remove it.
+```
+
+Do not record raw scan output in Nenrin. Record the decision impact: what the agent would do differently, what risk was reduced, and what future evidence should confirm or reject the change.
+
 The post-v0.4 acceptance question is:
 
 > Did this self-use slice show that a specific scanner fact should become normalized evidence before it feeds `PolicyFinding`, rendered policy, tests, or docs?

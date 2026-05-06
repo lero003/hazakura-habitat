@@ -19,6 +19,7 @@ Keep the current cycle focused:
 - keep README expectations and non-goals current
 - keep advisory policy language clear, with no enforcement claims
 - keep privacy, dummy-secret, and prompt-injection guidance visible
+- keep self-use scan triggers and report freshness guidance concrete enough that agents know when to regenerate `habitat-report/`
 - add representative examples only when self-use evidence shows a new command-decision boundary
 - refine issue and contribution guidance when real feedback exposes a misunderstanding
 - harden output contract and behavior evaluation
