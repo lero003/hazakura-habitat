@@ -4113,6 +4113,16 @@ struct PackageAndCommandPolicyTests {
         #expect(PolicyReasonCatalog.askFirstReason(for: "gh pr create").code == "remote_repository_action")
         #expect(PolicyReasonCatalog.askFirstReason(for: "gh workflow run").code == "remote_repository_action")
 
+        for command in PolicyReasonCatalog.workspaceMutationCommands {
+            let expectedReasonCode = ["xargs rm", "rm", "rm -r", "rm -rf"].contains(command)
+                ? "dependency_mutation"
+                : "user_approval_required"
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == expectedReasonCode,
+                "Expected \(command) to keep existing workspace-mutation approval classification"
+            )
+        }
+
         for command in PolicyReasonCatalog.npmDependencyMutationCommands
             + PolicyReasonCatalog.pnpmDependencyMutationCommands
             + PolicyReasonCatalog.yarnDependencyMutationCommands

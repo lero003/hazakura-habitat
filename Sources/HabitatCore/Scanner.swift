@@ -537,30 +537,8 @@ public struct HabitatScanner {
             "modifying lockfiles",
             "modifying version manager files",
         ] + PolicyReasonCatalog.localGitWorkspaceMutationCommands
-            + PolicyReasonCatalog.gitHubCliMutationCommands + [
-            "chmod",
-            "chown",
-            "chgrp",
-            "sed -i",
-            "perl -pi",
-            "find -delete",
-            "xargs rm",
-            "cp",
-            "cp -R",
-            "cp -r",
-            "mv",
-            "rsync",
-            "rsync --delete",
-            "ditto",
-            "tar -xf",
-            "tar -xzf",
-            "tar -xJf",
-            "unzip",
-            "truncate",
-            "rm",
-            "rm -r",
-            "rm -rf"
-        ]
+            + PolicyReasonCatalog.gitHubCliMutationCommands
+            + PolicyReasonCatalog.workspaceMutationCommands
 
         if !projectPathIsExistingDirectory {
             commands.insert("running project commands before project path is verified", at: 0)
