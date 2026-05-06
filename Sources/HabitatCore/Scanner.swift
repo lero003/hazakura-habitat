@@ -72,23 +72,9 @@ public struct HabitatScanner {
             resolvedPaths: resolvedPaths,
             versions: versions
         )
-        let forbiddenCommands = orderedUnique([
-            "sudo",
-            "destructive file deletion outside the selected project",
-            ] + PolicyReasonCatalog.remoteScriptExecutionCommands + [
-            ] + PolicyReasonCatalog.globalEnvironmentMutationCommands + [
-            ] + PolicyReasonCatalog.packageManagerCredentialAndConfigCommands + [
-            ] + PolicyReasonCatalog.cliAuthAndCredentialStoreCommands + [
-            ] + PolicyReasonCatalog.cloudAndContainerCredentialCommands + [
-            ] + PolicyReasonCatalog.hostPrivateDataCommands
-            + PolicyReasonCatalog.sshPrivateKeyCommands + [
-                "load secret environment files",
-                "read .env values",
-                "read .envrc values",
-                "read .netrc values",
-                "read package manager auth config values",
-                "read private keys"
-            ] + secretDetector.secretFileAccessForbiddenCommands(project)
+        let forbiddenCommands = orderedUnique(
+            PolicyReasonCatalog.baselineForbiddenCommands
+            + secretDetector.secretFileAccessForbiddenCommands(project)
             + secretDetector.secretEnvironmentFileLoadForbiddenCommands(project)
             + secretDetector.secretEnvironmentRenderForbiddenCommands(project)
             + secretDetector.secretProjectBulkExportForbiddenCommands(project)
@@ -337,33 +323,7 @@ public struct HabitatScanner {
     }
 
     private func askFirstCommands(project: ProjectInfo, projectPathIsExistingDirectory: Bool, resolvedPaths: [ResolvedTool], versions: [ToolVersion], commands commandResults: [CommandInfo]) -> [String] {
-        var commands = PolicyReasonCatalog.homebrewDirectAskFirstCommands
-            + PolicyReasonCatalog.pipAskFirstCommands + [
-        ] + PolicyReasonCatalog.npmDependencyMutationCommands + [
-        ] + PolicyReasonCatalog.npmEphemeralPackageExecutionCommands + [
-        ] + PolicyReasonCatalog.pnpmDependencyMutationCommands + [
-        ] + PolicyReasonCatalog.pnpmEphemeralPackageExecutionCommands + [
-        ] + PolicyReasonCatalog.yarnDependencyMutationCommands + [
-        ] + PolicyReasonCatalog.yarnEphemeralPackageExecutionCommands + [
-        ] + PolicyReasonCatalog.bunDependencyMutationCommands + [
-        ] + PolicyReasonCatalog.bunEphemeralPackageExecutionCommands
-            + PolicyReasonCatalog.packageRegistryMutationCommands
-            + PolicyReasonCatalog.corepackPackageManagerActivationCommands + [
-        ] + PolicyReasonCatalog.uvDependencyMutationCommands
-            + PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands + [
-        ] + PolicyReasonCatalog.rubyBundlerDependencyMutationCommands
-            + PolicyReasonCatalog.homebrewBundleReviewCommands
-            + PolicyReasonCatalog.xcodebuildProjectMutationCommands
-            + PolicyReasonCatalog.goDependencyMutationCommands
-            + PolicyReasonCatalog.cargoDependencyMutationCommands
-            + PolicyReasonCatalog.cocoapodsDependencyMutationCommands
-            + PolicyReasonCatalog.carthageDependencyMutationCommands
-            + PolicyReasonCatalog.virtualEnvironmentMutationCommands + [
-            "modifying lockfiles",
-        ] + PolicyReasonCatalog.versionManagerMutationCommands
-            + PolicyReasonCatalog.localGitWorkspaceMutationCommands
-            + PolicyReasonCatalog.gitHubCliMutationCommands
-            + PolicyReasonCatalog.workspaceMutationCommands
+        var commands = PolicyReasonCatalog.baselineAskFirstCommands
 
         if !projectPathIsExistingDirectory {
             commands.insert("running project commands before project path is verified", at: 0)

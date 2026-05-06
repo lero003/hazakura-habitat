@@ -64,6 +64,7 @@ Snapshot date: 2026-05-06 (post-maintainability split; `SecretFileDetector` extr
 
 - `PolicyReasonCatalogTests.swift` now owns catalog-family classification contracts, so future command-family slices can verify reason-code preservation without growing `PackageAndCommandPolicyTests.swift`.
 - Three intended regression scenarios now have Swift Testing `@Test` annotations again: pnpm lockfile selection, older scan-result decoding, and unrelated diagnostic filtering.
+- Static baseline Ask First and Forbidden policy lists now live in `PolicyReasonCatalog`, so Scanner adds project-specific dynamic guards without rebuilding the whole curated catalog inline.
 
 Observed output from scanning this repository:
 
@@ -109,6 +110,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - Workspace mutation commands now have their own `PolicyReasonCatalog+WorkspaceMutation.swift` boundary, so future permission, rewrite, copy/move/sync/archive, or destructive cleanup edits update one family without changing generated output shape.
 - SSH private-key commands now have their own `PolicyReasonCatalog+SshPrivateKey.swift` boundary, so future `~/.ssh/id_*` read, copy, upload, archive, or keychain-load edits update one family without changing generated output shape.
 - Virtual-environment and version-manager Ask First commands now have their own `PolicyReasonCatalog+ProjectEnvironment.swift` boundary, so future `python -m venv`, `uv venv`, `virtualenv`, or version-manager file edits update one family without changing generated output shape.
+- The static baseline Ask First and Forbidden command lists now have a catalog-owned boundary, so future broad policy-list edits start in `PolicyReasonCatalog` while Scanner remains focused on current project facts.
 - Secret-bearing path signals now have a small `SecretBearingEvidence` boundary consumed by secret detection and report generation, so future evidence-alignment work can build from filename-only signals without changing generated output shape or storing raw secret values.
 - When secret-bearing files are detected, `agent_context.md` now gives a concrete broad-search starting shape with exclusion globs, so agents can reshape `rg`/`grep -R`/`git grep` instead of treating all project search as off limits.
 - `command_policy.md` now distinguishes no-secret read-only search from secret-bearing projects: ordinary `rg <pattern>` remains allowed in normal repositories, while secret-bearing repositories steer agents toward targeted inspection and exclusion-aware search.

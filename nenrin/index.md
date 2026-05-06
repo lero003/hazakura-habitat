@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 27
+- observing: 28
 - reviewed: 10
 
 ## Active Changes
@@ -21,6 +21,7 @@
 - `workspace-mutation-command-family` - [changes/2026-05-06-workspace-mutation-command-family.md](changes/2026-05-06-workspace-mutation-command-family.md)
 - `ssh-private-key-command-family` - [changes/2026-05-06-ssh-private-key-command-family.md](changes/2026-05-06-ssh-private-key-command-family.md)
 - `project-environment-command-family` - [changes/2026-05-06-project-environment-command-family.md](changes/2026-05-06-project-environment-command-family.md)
+- `baseline-policy-list-assembly` - [changes/2026-05-06-baseline-policy-list-assembly.md](changes/2026-05-06-baseline-policy-list-assembly.md)
 - `policy-reason-catalog-test-boundary` - [changes/2026-05-06-policy-reason-catalog-test-boundary.md](changes/2026-05-06-policy-reason-catalog-test-boundary.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `instruction-alignment-roadmap` - [changes/2026-05-04-instruction-alignment-roadmap.md](changes/2026-05-04-instruction-alignment-roadmap.md)

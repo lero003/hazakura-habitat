@@ -3,6 +3,22 @@ import Testing
 
 struct PolicyReasonCatalogTests {
     @Test
+    func baselineCommandCatalogOwnsStaticPolicyLists() {
+        #expect(PolicyReasonCatalog.baselineAskFirstCommands.first == "brew install")
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "swiftpm").contains("swift package update"))
+        #expect(PolicyReasonCatalog.baselineAskFirstCommands.contains("modifying lockfiles"))
+        #expect(PolicyReasonCatalog.baselineAskFirstCommands.contains("git push"))
+        #expect(PolicyReasonCatalog.baselineAskFirstCommands.contains("rm -rf"))
+
+        #expect(PolicyReasonCatalog.baselineForbiddenCommands.first == "sudo")
+        #expect(PolicyReasonCatalog.baselineForbiddenCommands.contains("curl | sh"))
+        #expect(PolicyReasonCatalog.baselineForbiddenCommands.contains("env"))
+        #expect(PolicyReasonCatalog.baselineForbiddenCommands.contains("gh auth token"))
+        #expect(PolicyReasonCatalog.baselineForbiddenCommands.contains("cat ~/.ssh/id_rsa"))
+        #expect(PolicyReasonCatalog.baselineForbiddenCommands.contains("read private keys"))
+    }
+
+    @Test
     func catalogFamilyExtractionsPreserveClassification() {
         #expect(PolicyReasonCatalog.askFirstReason(for: "git push").code == "git_mutation")
         #expect(PolicyReasonCatalog.askFirstReason(for: "git commit").code == "git_mutation")
