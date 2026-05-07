@@ -68,6 +68,7 @@ Snapshot date: 2026-05-07 (post-maintainability split; `SecretFileDetector` extr
 - `WorkspaceMutationPolicyTests.swift` now owns Git/workspace mutation, permission, copy/archive, and project-outside deletion policy contracts, so destructive-command safety checks stay separate from package-manager scanner fixtures.
 - `GoCargoPolicyTests.swift` now owns Go/Cargo missing-tool, version-check, and Review First ordering contracts, so future Go/Cargo scanner changes can be verified without growing the general package-policy suite.
 - `RubyBundlerPolicyTests.swift` now owns Bundler signal, mutation, config, version-check, and Ruby version-hint contracts, so future Ruby scanner changes can be verified without growing the general package-policy suite.
+- `HomebrewApplePolicyTests.swift` now owns Homebrew Bundle, Homebrew host-state, CocoaPods, and Carthage scanner policy contracts, so future Apple package-manager changes can be verified without growing the general package-policy suite.
 - Three intended regression scenarios now have Swift Testing `@Test` annotations again: pnpm lockfile selection, older scan-result decoding, and unrelated diagnostic filtering.
 - `TestCoverageContractTests.swift` now checks scenario functions in test suites for `@Test`, so future suite moves fail fast if executable coverage is accidentally dropped.
 - Static baseline Ask First and Forbidden policy lists now live in `PolicyReasonCatalog+BaselinePolicy.swift`, so Scanner adds project-specific dynamic guards without rebuilding the whole curated catalog inline.
