@@ -26,6 +26,7 @@
 - Split `BaselineCommandPolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for lockfile/version-manager mutation, remote-script execution, language global package mutation, and GitHub CLI mutation contracts with no intended behavior change.
 - Renamed the remaining `PackageAndCommandPolicyTests.swift` suite to `JavaScriptMetadataPolicyTests.swift` for JavaScript script, package-manager metadata, runtime hint, and version-check contracts with no intended behavior change.
 - Split `HostPrivateDataPolicyTests.swift` out of `SecretFileDetectionTests.swift` for environment dump, clipboard, shell history, browser/mail data, and home SSH private-key policy contracts with no intended behavior change.
+- Split `SecretFilePolicyTests.swift` out of `SecretFileDetectionTests.swift` for detected secret-bearing file avoidance, recursive-search review, and bulk-export policy contracts with no intended behavior change.
 - Moved the remaining package-manager review routing contract out of `HabitatCoreTests.swift` and into `PolicyReasonCatalogTests.swift`, keeping catalog ownership checks in one suite with no intended behavior change.
 - Restored three intended Swift Testing scenarios by marking pnpm selection, older scan-result decoding, and unrelated diagnostic filtering functions as executable tests.
 - Added `TestCoverageContractTests.swift` to fail fast when scenario functions in test suites are missing Swift Testing `@Test` annotations.
