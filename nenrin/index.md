@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 41
+- observing: 42
 - reviewed: 10
 
 ## Active Changes
@@ -21,6 +21,7 @@
 - `swiftpm-dependency-resolution-command-family` - [changes/2026-05-04-swiftpm-dependency-resolution-command-family.md](changes/2026-05-04-swiftpm-dependency-resolution-command-family.md)
 - `maintainability-roadmap-guardrails` - [changes/2026-05-05-maintainability-roadmap-guardrails.md](changes/2026-05-05-maintainability-roadmap-guardrails.md)
 - `apple-package-manager-command-family` - [changes/2026-05-06-apple-package-manager-command-family.md](changes/2026-05-06-apple-package-manager-command-family.md)
+- `baseline-command-policy-test-boundary` - [changes/2026-05-07-baseline-command-policy-test-boundary.md](changes/2026-05-07-baseline-command-policy-test-boundary.md)
 - `baseline-policy-list-assembly` - [changes/2026-05-06-baseline-policy-list-assembly.md](changes/2026-05-06-baseline-policy-list-assembly.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)
