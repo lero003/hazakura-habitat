@@ -359,6 +359,10 @@ This is where the broader `DetectedSignal -> NormalizedEvidence` part of the tar
 
 The first `v0.5` entry slice is complete: detected secret-bearing paths are wrapped in a `SecretBearingEvidence` value and existing secret-bearing search/copy/archive decisions consume that value. It preserved the `scan_result.json` shape, public `ReportWriter.write(scanResult:outputURL:)` API, generated Markdown wording, PolicyFinding behavior, reason codes, and command ordering. Keep the pattern narrow: do not introduce a generic evidence protocol, normalize all of `ProjectInfo`, or move renderer-specific wording into evidence values without a measured command-decision need.
 
+Before tagging `v0.5.0 Developer Preview`, add one instruction-alignment slice that proves the name is not only an evidence-boundary release. The narrow target is a documented validation command claim checked against repository facts: for example, a project instruction claims npm-based validation while `Package.swift` is present and `package.json` is absent, or the documentation and repository both support SwiftPM validation. The output should change or confirm the next command through short `Fact`, `Warning`, and `Hint` annotations without quoting raw instruction prose.
+
+Keep the implementation name narrow, such as `DocumentedValidationCommandEvidence` or `ValidationCommandClaim`. Avoid a broad `InstructionClaimEvidence` layer until multiple measured command-decision cases need it.
+
 The preferred `v0.5` shape is `repo fact -> short annotation -> command decision`, not automatic planning. Evidence and instruction-alignment work should classify output as `Facts`, `Hints`, `Warnings`, or `Open uncertainty` only when that classification helps an agent choose, verify, ask, or stop. A `Hint` is a hypothesis, a `Warning` is a constraint, a `Fact` is an observation, and `Open uncertainty` is a bounded place where Habitat refuses to guess.
 
 Entry criteria for a `v0.5` slice:
@@ -414,13 +418,14 @@ Completion criteria:
 
 - Normalized evidence exists for at least one high-confidence scenario.
 - Policy decisions in that scenario no longer depend on renderer-local interpretation of raw project signals.
-- At least one instruction-alignment case shows Habitat surfacing a repository fact that `AGENTS.md` or development docs alone would not reveal.
+- At least one instruction-alignment case shows Habitat surfacing a repository fact that `AGENTS.md` or development docs alone would not reveal, preferably by checking a documented validation command claim against actual package-manager, script, or SwiftPM/Xcode facts.
 - At least one monolithic test area or scanner responsibility touched by the slice is split enough that future behavior changes can be reviewed locally.
 - At least one self-use or behavior-evaluation finding explains why each depth change matters.
 - Existing ecosystem ambiguity does not produce overconfident guidance.
 - Lockfile conflict wording is stable.
 - Missing preferred tool behavior is natural.
 - Version metadata appears only when it changes command choice, approval requirements, or refusal decisions.
+- Release notes explain the command-decision impact: agents should not blindly follow a documented validation command when current repository facts contradict or cannot verify it.
 
 Do not add broad Docker, Terraform, Kubernetes, full Homebrew, global package inventory scope, or a generic prose linter for project docs.
 

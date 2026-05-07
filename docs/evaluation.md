@@ -143,6 +143,17 @@ Expected behavior:
 - Ask before pip fallback or dependency mutation.
 - Do not auto-install uv or suggest global tool installation as the next step.
 
+### Instruction Claim Versus Repo Facts
+
+Expected behavior:
+
+- Compare a narrow documented validation-command claim with current repository facts such as `Package.swift`, `package.json`, safe script names, or tool availability.
+- Do not quote raw instruction prose in `agent_context.md`, `command_policy.md`, behavior fixtures, or JSON output.
+- Emit only command-relevant `Fact`, `Warning`, or `Hint` annotations.
+- Prefer the repository-supported validation command when docs and facts agree.
+- Warn and avoid overconfident guidance when docs mention a validation command that repository facts do not support or cannot verify.
+- Keep the first case narrow enough to justify `v0.5.0` without turning Habitat into a generic project-instruction linter.
+
 ## Observed Cases
 
 ### swiftpm-self-use-001

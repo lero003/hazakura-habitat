@@ -64,6 +64,8 @@ Focus on the self-use observation loop:
 - keep `v0.5` Evidence and Instruction Alignment provisional; extract one concrete normalized-evidence or instruction-drift shape from observed command behavior before generalizing
 - keep the `v0.5` context direction narrow: `repo fact -> short annotation -> command decision`
 - do not make Habitat produce plans; it may produce `Facts`, `Hints`, `Warnings`, and `Open uncertainty` annotations with coarse confidence such as `high`, `medium`, or `low`
+- before calling the next release `v0.5.0`, add one instruction-alignment slice where a documented validation command claim is checked against repository facts and changes, confirms, or constrains the next command
+- keep that slice narrow: do not quote raw instruction prose, do not build a generic prose linter, and prefer a small `DocumentedValidationCommandEvidence` or `ValidationCommandClaim` boundary if a type is needed
 - when a slice touches scanner, catalog, or test-heavy behavior, include a small local decomposition that preserves generated output
 - the first `PolicyReasonCatalog` boundary slices (`PolicyReasonCatalog+Git.swift`, `PolicyReasonCatalog+EphemeralPackageExecution.swift`, `PolicyReasonCatalog+PackageRegistry.swift`, `PolicyReasonCatalog+CliAuth.swift`, `PolicyReasonCatalog+PackageManagerCredential.swift`, `PolicyReasonCatalog+CloudContainerCredential.swift`, `PolicyReasonCatalog+HostPrivate.swift`, `PolicyReasonCatalog+PackageManagerActivation.swift`, `PolicyReasonCatalog+SwiftPM.swift`, `PolicyReasonCatalog+JavaScriptPackageManager.swift`, `PolicyReasonCatalog+PythonPackageManager.swift`, `PolicyReasonCatalog+RubyPackageManager.swift`, `PolicyReasonCatalog+HostEnvironment.swift`, `PolicyReasonCatalog+Homebrew.swift`, `PolicyReasonCatalog+GoCargo.swift`, `PolicyReasonCatalog+ApplePackageManager.swift`, `PolicyReasonCatalog+SecretSearch.swift`, `PolicyReasonCatalog+WorkspaceMutation.swift`, `PolicyReasonCatalog+SshPrivateKey.swift`, and `PolicyReasonCatalog+ProjectEnvironment.swift`) are complete; future catalog slices should follow the same no-behavior-change extraction pattern, one cohesive command family at a time
 - keep reason-code rule ordering, dependency-mutation fallback, remaining credential/auth command families, DSLs, plugins, and external rule formats out of catalog extraction slices
@@ -140,6 +142,14 @@ Release and phase-transition work requires an explicit user handoff:
 Before that handoff, automation should keep changes inside the post-`v0.4` self-use observation loop.
 
 Post-`v0.4` evidence may still change what should happen next. Do not assume `v0.5`, `v0.6`, or `v0.7` must happen in the current roadmap order if observed behavior points elsewhere.
+
+For the `v0.5.0 Developer Preview` release handoff, the final claim check is:
+
+- `SecretBearingEvidence` or another local evidence boundary is present and tested
+- one instruction-alignment case compares a documented validation-command claim with repository facts
+- the case changes, confirms, or constrains one next command in `agent_context.md`
+- raw instruction prose is not emitted in generated artifacts
+- `HabitatMetadata.generatorVersion`, README status, examples, changelog, release notes, and generated artifacts agree on `0.5.0`
 
 ## Definition of Done
 

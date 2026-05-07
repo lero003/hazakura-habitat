@@ -7,6 +7,7 @@
 - Clarified post-`v0.4.0` documentation so the next cycle observes published PolicyFinding behavior before starting broad evidence or instruction-alignment work.
 - Added roadmap guardrails for Scanner/test/catalog maintainability, `v0.5` entry criteria, non-Habitat behavior evidence, read-only MCP timing, Linux feasibility, and release distribution trust.
 - Clarified the `v0.5` direction as short, evidence-backed context annotations (`Facts`, `Hints`, `Warnings`, and `Open uncertainty`) rather than plan generation or a broad upfront `NormalizedEvidence` layer.
+- Clarified the final `v0.5.0` release gate: add one instruction-alignment slice that checks a documented validation-command claim against repository facts and changes, confirms, or constrains the next command without quoting raw project prose.
 - Clarified the initial pre-`v0.5` maintainability slice for extracting Git/GitHub command families from `PolicyReasonCatalog` without behavior changes, while leaving rule ordering, fallback behavior, remaining credential/auth families, DSLs, plugins, and external rule formats untouched.
 - Updated release-install guidance to explain that full `SHA256SUMS` verification expects all generated release assets in the same directory.
 - Extracted `SecretFileDetector` from `Scanner.swift` (~300 lines), leaving Scanner at 1548 lines and giving secret detection a clear module boundary.
