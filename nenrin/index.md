@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 49
+- observing: 50
 - reviewed: 10
 
 ## Active Changes
@@ -53,6 +53,7 @@
 - `representative-example-test-boundary` - [changes/2026-05-07-representative-example-test-boundary.md](changes/2026-05-07-representative-example-test-boundary.md)
 - `roadmap-feedback-during-work` - [changes/2026-05-07-roadmap-feedback-during-work.md](changes/2026-05-07-roadmap-feedback-during-work.md)
 - `ruby-bundler-policy-test-boundary` - [changes/2026-05-07-ruby-bundler-policy-test-boundary.md](changes/2026-05-07-ruby-bundler-policy-test-boundary.md)
+- `scan-execution-infrastructure-test-boundary` - [changes/2026-05-07-scan-execution-infrastructure-test-boundary.md](changes/2026-05-07-scan-execution-infrastructure-test-boundary.md)
 - `swift-package-policy-test-boundary` - [changes/2026-05-07-swift-package-policy-test-boundary.md](changes/2026-05-07-swift-package-policy-test-boundary.md)
 - `test-coverage-contract` - [changes/2026-05-07-test-coverage-contract.md](changes/2026-05-07-test-coverage-contract.md)
 - `workspace-mutation-policy-test-boundary` - [changes/2026-05-07-workspace-mutation-policy-test-boundary.md](changes/2026-05-07-workspace-mutation-policy-test-boundary.md)
