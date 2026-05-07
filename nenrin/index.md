@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 55
+- observing: 56
 - reviewed: 10
 
 ## Active Changes
@@ -24,6 +24,7 @@
 - `baseline-policy-catalog-dedup-contract` - [changes/2026-05-08-baseline-policy-catalog-dedup-contract.md](changes/2026-05-08-baseline-policy-catalog-dedup-contract.md)
 - `command-reason-coverage-contract` - [changes/2026-05-08-command-reason-coverage-contract.md](changes/2026-05-08-command-reason-coverage-contract.md)
 - `command-reason-order-contract` - [changes/2026-05-08-command-reason-order-contract.md](changes/2026-05-08-command-reason-order-contract.md)
+- `review-first-reason-subset-contract` - [changes/2026-05-08-review-first-reason-subset-contract.md](changes/2026-05-08-review-first-reason-subset-contract.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)
 - `homebrew-command-family` - [changes/2026-05-06-homebrew-command-family.md](changes/2026-05-06-homebrew-command-family.md)

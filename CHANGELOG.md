@@ -39,6 +39,7 @@
 - Added a `PolicyReasonCatalogTests` contract that fails if baseline Ask First or Forbidden policy catalogs duplicate rendered entries or overlap classifications.
 - Added a `PolicyOutputContractTests` contract that verifies `scan_result.json` command-reason metadata mirrors generated Ask First and Forbidden command order.
 - Added a `PolicyOutputContractTests` contract that verifies `scan_result.json` command-reason metadata stays one-to-one with generated Ask First and Forbidden commands.
+- Added a `PolicyOutputContractTests` contract that verifies `scan_result.json` Review First reason metadata stays within Ask First command reasons.
 - Moved the static baseline Ask First and Forbidden command lists into `PolicyReasonCatalog`, reducing scanner/catalog drift while preserving generated output behavior.
 - Split the catalog-owned static baseline Ask First and Forbidden policy lists into `PolicyReasonCatalog+BaselinePolicy.swift` with no intended generated-output behavior change.
 - Added Nenrin change record for the maintainability split and observation guidance for future decomposition slices.

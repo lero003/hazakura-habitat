@@ -119,6 +119,48 @@ struct PolicyOutputContractTests {
     }
 
     @Test
+    func scanResultReviewFirstReasonsStayWithinAskFirstCommandReasons() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            "package.json": #"{"scripts":{"build":"swift build"}}"#,
+            "pnpm-lock.yaml": "",
+        ])
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let data = try Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        let decoded = try JSONDecoder().decode(ScanResult.self, from: data)
+        let reviewFirstReasons = decoded.policy.reviewFirstCommandReasons
+        let askFirstReasonKeys = Set(decoded.policy.commandReasons.filter {
+            $0.classification == PolicyCommandReason.askFirstClassification
+        }.map(policyCommandReasonKey))
+        let reviewFirstReasonKeys = reviewFirstReasons.map(policyCommandReasonKey)
+
+        #expect(!reviewFirstReasons.isEmpty)
+        #expect(reviewFirstReasons.count <= 6)
+        #expect(reviewFirstReasons.allSatisfy {
+            $0.classification == PolicyCommandReason.askFirstClassification
+        })
+        #expect(reviewFirstReasons.allSatisfy {
+            decoded.policy.askFirstCommands.contains($0.command)
+        })
+        #expect(reviewFirstReasonKeys.allSatisfy { askFirstReasonKeys.contains($0) })
+        #expect(Set(reviewFirstReasonKeys).count == reviewFirstReasonKeys.count)
+        #expect(decoded.policy.commandCounts.reviewFirst == reviewFirstReasons.count)
+    }
+
+    private func policyCommandReasonKey(_ reason: PolicyCommandReason) -> String {
+        [
+            reason.classification,
+            reason.command,
+            reason.reasonCode,
+            reason.reason,
+        ].joined(separator: "\u{0}")
+    }
+
+    @Test
     func policySummaryDecodesOlderJsonWithoutCommandCounts() throws {
         let json = """
         {

@@ -63,7 +63,7 @@ When evaluating self-use output, discount guidance that merely repeats existing 
 Snapshot date: 2026-05-08 (post-maintainability split; `SecretFileDetector` extraction, test-suite decomposition, and no-output-change catalog boundaries preserved generated output, so policy values are unchanged from 2026-05-04).
 
 - `PolicyReasonCatalogTests.swift` now owns catalog-family classification contracts, so future command-family slices can verify reason-code preservation without growing `PackageAndCommandPolicyTests.swift`.
-- `PolicyOutputContractTests.swift` now owns policy metadata, command-reason ordering, one-to-one command-reason coverage, older-JSON decoding, and reason-legend ordering contracts, so output-contract checks are separate from package-manager scanner fixtures.
+- `PolicyOutputContractTests.swift` now owns policy metadata, command-reason ordering, one-to-one command-reason coverage, Review First reason subset coverage, older-JSON decoding, and reason-legend ordering contracts, so output-contract checks are separate from package-manager scanner fixtures.
 - `SwiftPackagePolicyTests.swift` now owns SwiftPM and Xcode command-selection contracts, so future Swift/Xcode scanner changes can be verified without growing the general package-policy suite.
 - `WorkspaceMutationPolicyTests.swift` now owns Git/workspace mutation, permission, copy/archive, and project-outside deletion policy contracts, so destructive-command safety checks stay separate from package-manager scanner fixtures.
 - `GoCargoPolicyTests.swift` now owns Go/Cargo missing-tool, version-check, and Review First ordering contracts, so future Go/Cargo scanner changes can be verified without growing the general package-policy suite.
