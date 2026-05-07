@@ -6,6 +6,7 @@
 
 - Recorded post-`v0.5.0` review guidance in automation-facing docs: no rollback, hotfix, or release-note edit is needed for `v0.5.0`, and future instruction-alignment work should stay in narrow `v0.5.x` / `v0.6` slices.
 - Clarified future release workflow guidance so release artifact builds are verified before public version tags when practical, while published releases and tags remain immutable.
+- Added a `PolicyOutputContractTests` contract that verifies `scan_result.json` reason-code legend metadata covers every serialized command-reason and Review First reason code.
 
 ## v0.5.0 Developer Preview - 2026-05-08
 
