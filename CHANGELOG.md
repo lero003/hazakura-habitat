@@ -33,6 +33,7 @@
 - Split `AgentContextOutputContractTests.swift` out of `HabitatCoreTests.swift` for short-context overflow, prioritization, hidden Git guard summary, and line-budget contracts with no intended behavior change.
 - Split `ScanExecutionInfrastructureTests.swift` out of `HabitatCoreTests.swift` for scan argument parsing, command-runner missing-tool behavior, bundled skill helper selection, missing-project guards, and missing-command continuation with no intended behavior change.
 - Moved the remaining package-manager review routing contract out of `HabitatCoreTests.swift` and into `PolicyReasonCatalogTests.swift`, keeping catalog ownership checks in one suite with no intended behavior change.
+- Renamed the remaining `HabitatCoreTests.swift` file to `CoreInfrastructureTests.swift`, matching the suite ownership after the test-boundary split with no intended behavior change.
 - Restored three intended Swift Testing scenarios by marking pnpm selection, older scan-result decoding, and unrelated diagnostic filtering functions as executable tests.
 - Added `TestCoverageContractTests.swift` to fail fast when scenario functions in test suites are missing Swift Testing `@Test` annotations.
 - Moved the static baseline Ask First and Forbidden command lists into `PolicyReasonCatalog`, reducing scanner/catalog drift while preserving generated output behavior.

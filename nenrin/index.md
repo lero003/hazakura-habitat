@@ -2,17 +2,14 @@
 
 ## Active Summary
 
-- observing: 51
+- observing: 52
 - reviewed: 10
 
 ## Active Changes
 
 - `cli-auth-credential-command-family` - [changes/2026-05-03-cli-auth-credential-command-family.md](changes/2026-05-03-cli-auth-credential-command-family.md)
-- `agent-context-output-contract-test-boundary` - [changes/2026-05-07-agent-context-output-contract-test-boundary.md](changes/2026-05-07-agent-context-output-contract-test-boundary.md)
-- `credential-policy-test-boundary` - [changes/2026-05-07-credential-policy-test-boundary.md](changes/2026-05-07-credential-policy-test-boundary.md)
 - `cloud-container-credential-command-family` - [changes/2026-05-03-cloud-container-credential-command-family.md](changes/2026-05-03-cloud-container-credential-command-family.md)
 - `package-manager-credential-command-family` - [changes/2026-05-03-package-manager-credential-command-family.md](changes/2026-05-03-package-manager-credential-command-family.md)
-- `package-auth-config-policy-test-boundary` - [changes/2026-05-08-package-auth-config-policy-test-boundary.md](changes/2026-05-08-package-auth-config-policy-test-boundary.md)
 - `package-registry-reason-code` - [changes/2026-05-03-package-registry-reason-code.md](changes/2026-05-03-package-registry-reason-code.md)
 - `corepack-package-manager-activation-reason` - [changes/2026-05-04-corepack-package-manager-activation-reason.md](changes/2026-05-04-corepack-package-manager-activation-reason.md)
 - `host-private-command-family` - [changes/2026-05-04-host-private-command-family.md](changes/2026-05-04-host-private-command-family.md)
@@ -23,41 +20,45 @@
 - `swiftpm-dependency-resolution-command-family` - [changes/2026-05-04-swiftpm-dependency-resolution-command-family.md](changes/2026-05-04-swiftpm-dependency-resolution-command-family.md)
 - `maintainability-roadmap-guardrails` - [changes/2026-05-05-maintainability-roadmap-guardrails.md](changes/2026-05-05-maintainability-roadmap-guardrails.md)
 - `apple-package-manager-command-family` - [changes/2026-05-06-apple-package-manager-command-family.md](changes/2026-05-06-apple-package-manager-command-family.md)
-- `baseline-command-policy-test-boundary` - [changes/2026-05-07-baseline-command-policy-test-boundary.md](changes/2026-05-07-baseline-command-policy-test-boundary.md)
 - `baseline-policy-list-assembly` - [changes/2026-05-06-baseline-policy-list-assembly.md](changes/2026-05-06-baseline-policy-list-assembly.md)
-- `behavior-evidence-sanitization-test-boundary` - [changes/2026-05-07-behavior-evidence-sanitization-test-boundary.md](changes/2026-05-07-behavior-evidence-sanitization-test-boundary.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)
 - `homebrew-command-family` - [changes/2026-05-06-homebrew-command-family.md](changes/2026-05-06-homebrew-command-family.md)
-- `host-private-data-policy-test-boundary` - [changes/2026-05-07-host-private-data-policy-test-boundary.md](changes/2026-05-07-host-private-data-policy-test-boundary.md)
 - `host-environment-command-family` - [changes/2026-05-06-host-environment-command-family.md](changes/2026-05-06-host-environment-command-family.md)
 - `policy-reason-catalog-test-boundary` - [changes/2026-05-06-policy-reason-catalog-test-boundary.md](changes/2026-05-06-policy-reason-catalog-test-boundary.md)
 - `project-environment-command-family` - [changes/2026-05-06-project-environment-command-family.md](changes/2026-05-06-project-environment-command-family.md)
 - `python-package-manager-command-family` - [changes/2026-05-06-python-package-manager-command-family.md](changes/2026-05-06-python-package-manager-command-family.md)
 - `ruby-bundler-command-family` - [changes/2026-05-06-ruby-bundler-command-family.md](changes/2026-05-06-ruby-bundler-command-family.md)
 - `secret-bearing-evidence-boundary` - [changes/2026-05-06-secret-bearing-evidence-boundary.md](changes/2026-05-06-secret-bearing-evidence-boundary.md)
-- `secret-file-policy-test-boundary` - [changes/2026-05-07-secret-file-policy-test-boundary.md](changes/2026-05-07-secret-file-policy-test-boundary.md)
 - `secret-search-command-family` - [changes/2026-05-06-secret-search-command-family.md](changes/2026-05-06-secret-search-command-family.md)
 - `self-use-trigger-and-report-freshness` - [changes/2026-05-06-self-use-trigger-and-report-freshness.md](changes/2026-05-06-self-use-trigger-and-report-freshness.md)
 - `speculative-context-annotation-framing` - [changes/2026-05-06-speculative-context-annotation-framing.md](changes/2026-05-06-speculative-context-annotation-framing.md)
 - `ssh-private-key-command-family` - [changes/2026-05-06-ssh-private-key-command-family.md](changes/2026-05-06-ssh-private-key-command-family.md)
 - `workspace-mutation-command-family` - [changes/2026-05-06-workspace-mutation-command-family.md](changes/2026-05-06-workspace-mutation-command-family.md)
+- `agent-context-output-contract-test-boundary` - [changes/2026-05-07-agent-context-output-contract-test-boundary.md](changes/2026-05-07-agent-context-output-contract-test-boundary.md)
+- `baseline-command-policy-test-boundary` - [changes/2026-05-07-baseline-command-policy-test-boundary.md](changes/2026-05-07-baseline-command-policy-test-boundary.md)
+- `behavior-evidence-sanitization-test-boundary` - [changes/2026-05-07-behavior-evidence-sanitization-test-boundary.md](changes/2026-05-07-behavior-evidence-sanitization-test-boundary.md)
+- `credential-policy-test-boundary` - [changes/2026-05-07-credential-policy-test-boundary.md](changes/2026-05-07-credential-policy-test-boundary.md)
 - `go-cargo-policy-test-boundary` - [changes/2026-05-07-go-cargo-policy-test-boundary.md](changes/2026-05-07-go-cargo-policy-test-boundary.md)
 - `homebrew-apple-policy-test-boundary` - [changes/2026-05-07-homebrew-apple-policy-test-boundary.md](changes/2026-05-07-homebrew-apple-policy-test-boundary.md)
+- `host-private-data-policy-test-boundary` - [changes/2026-05-07-host-private-data-policy-test-boundary.md](changes/2026-05-07-host-private-data-policy-test-boundary.md)
 - `javascript-command-policy-test-boundary` - [changes/2026-05-07-javascript-command-policy-test-boundary.md](changes/2026-05-07-javascript-command-policy-test-boundary.md)
 - `javascript-metadata-policy-test-boundary` - [changes/2026-05-07-javascript-metadata-policy-test-boundary.md](changes/2026-05-07-javascript-metadata-policy-test-boundary.md)
 - `javascript-package-policy-test-boundary` - [changes/2026-05-07-javascript-package-policy-test-boundary.md](changes/2026-05-07-javascript-package-policy-test-boundary.md)
 - `package-registry-policy-test-boundary` - [changes/2026-05-07-package-registry-policy-test-boundary.md](changes/2026-05-07-package-registry-policy-test-boundary.md)
-- `python-package-policy-test-boundary` - [changes/2026-05-07-python-package-policy-test-boundary.md](changes/2026-05-07-python-package-policy-test-boundary.md)
 - `policy-output-contract-test-boundary` - [changes/2026-05-07-policy-output-contract-test-boundary.md](changes/2026-05-07-policy-output-contract-test-boundary.md)
 - `project-symlink-safety-test-boundary` - [changes/2026-05-07-project-symlink-safety-test-boundary.md](changes/2026-05-07-project-symlink-safety-test-boundary.md)
+- `python-package-policy-test-boundary` - [changes/2026-05-07-python-package-policy-test-boundary.md](changes/2026-05-07-python-package-policy-test-boundary.md)
 - `representative-example-test-boundary` - [changes/2026-05-07-representative-example-test-boundary.md](changes/2026-05-07-representative-example-test-boundary.md)
 - `roadmap-feedback-during-work` - [changes/2026-05-07-roadmap-feedback-during-work.md](changes/2026-05-07-roadmap-feedback-during-work.md)
 - `ruby-bundler-policy-test-boundary` - [changes/2026-05-07-ruby-bundler-policy-test-boundary.md](changes/2026-05-07-ruby-bundler-policy-test-boundary.md)
 - `scan-execution-infrastructure-test-boundary` - [changes/2026-05-07-scan-execution-infrastructure-test-boundary.md](changes/2026-05-07-scan-execution-infrastructure-test-boundary.md)
+- `secret-file-policy-test-boundary` - [changes/2026-05-07-secret-file-policy-test-boundary.md](changes/2026-05-07-secret-file-policy-test-boundary.md)
 - `swift-package-policy-test-boundary` - [changes/2026-05-07-swift-package-policy-test-boundary.md](changes/2026-05-07-swift-package-policy-test-boundary.md)
 - `test-coverage-contract` - [changes/2026-05-07-test-coverage-contract.md](changes/2026-05-07-test-coverage-contract.md)
 - `workspace-mutation-policy-test-boundary` - [changes/2026-05-07-workspace-mutation-policy-test-boundary.md](changes/2026-05-07-workspace-mutation-policy-test-boundary.md)
+- `core-infrastructure-test-file-boundary` - [changes/2026-05-08-core-infrastructure-test-file-boundary.md](changes/2026-05-08-core-infrastructure-test-file-boundary.md)
+- `package-auth-config-policy-test-boundary` - [changes/2026-05-08-package-auth-config-policy-test-boundary.md](changes/2026-05-08-package-auth-config-policy-test-boundary.md)
 
 ## Review Due
 
