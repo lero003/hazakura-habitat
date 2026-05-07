@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 40
+- observing: 41
 - reviewed: 10
 
 ## Active Changes
@@ -38,6 +38,7 @@
 - `workspace-mutation-command-family` - [changes/2026-05-06-workspace-mutation-command-family.md](changes/2026-05-06-workspace-mutation-command-family.md)
 - `go-cargo-policy-test-boundary` - [changes/2026-05-07-go-cargo-policy-test-boundary.md](changes/2026-05-07-go-cargo-policy-test-boundary.md)
 - `homebrew-apple-policy-test-boundary` - [changes/2026-05-07-homebrew-apple-policy-test-boundary.md](changes/2026-05-07-homebrew-apple-policy-test-boundary.md)
+- `javascript-command-policy-test-boundary` - [changes/2026-05-07-javascript-command-policy-test-boundary.md](changes/2026-05-07-javascript-command-policy-test-boundary.md)
 - `javascript-package-policy-test-boundary` - [changes/2026-05-07-javascript-package-policy-test-boundary.md](changes/2026-05-07-javascript-package-policy-test-boundary.md)
 - `package-registry-policy-test-boundary` - [changes/2026-05-07-package-registry-policy-test-boundary.md](changes/2026-05-07-package-registry-policy-test-boundary.md)
 - `python-package-policy-test-boundary` - [changes/2026-05-07-python-package-policy-test-boundary.md](changes/2026-05-07-python-package-policy-test-boundary.md)

@@ -20,6 +20,7 @@
 - Split `HomebrewApplePolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for Homebrew Bundle, Homebrew host-state, CocoaPods, and Carthage scanner policy contracts with no intended behavior change.
 - Split `PythonPackagePolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for Python, pip, uv, virtual-environment, and Python runtime-hint scanner policy contracts with no intended behavior change.
 - Split `JavaScriptPackagePolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for JavaScript package-manager selection, Node/runtime guard, lockfile conflict, workspace, and package-manager field scanner policy contracts with no intended behavior change.
+- Split `JavaScriptCommandPolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for JavaScript missing-tool, dependency-mutation, global-install, and Corepack command-safety contracts with no intended behavior change.
 - Split `PackageRegistryPolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for ephemeral package execution and package-registry mutation scanner policy contracts with no intended behavior change.
 - Split `CredentialPolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for package-manager auth/config, CLI credential-store, and cloud/container credential scanner policy contracts with no intended behavior change.
 - Moved the remaining package-manager review routing contract out of `HabitatCoreTests.swift` and into `PolicyReasonCatalogTests.swift`, keeping catalog ownership checks in one suite with no intended behavior change.
