@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 48
+- observing: 49
 - reviewed: 10
 
 ## Active Changes
@@ -24,6 +24,7 @@
 - `apple-package-manager-command-family` - [changes/2026-05-06-apple-package-manager-command-family.md](changes/2026-05-06-apple-package-manager-command-family.md)
 - `baseline-command-policy-test-boundary` - [changes/2026-05-07-baseline-command-policy-test-boundary.md](changes/2026-05-07-baseline-command-policy-test-boundary.md)
 - `baseline-policy-list-assembly` - [changes/2026-05-06-baseline-policy-list-assembly.md](changes/2026-05-06-baseline-policy-list-assembly.md)
+- `behavior-evidence-sanitization-test-boundary` - [changes/2026-05-07-behavior-evidence-sanitization-test-boundary.md](changes/2026-05-07-behavior-evidence-sanitization-test-boundary.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)
 - `homebrew-command-family` - [changes/2026-05-06-homebrew-command-family.md](changes/2026-05-06-homebrew-command-family.md)

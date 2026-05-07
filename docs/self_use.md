@@ -81,6 +81,7 @@ Snapshot date: 2026-05-07 (post-maintainability split; `SecretFileDetector` extr
 - `ProjectSymlinkSafetyTests.swift` now owns symlinked project metadata, workflow, SSH directory, package-auth directory, and previous-scan symlink delta contracts, so future symlink-safety edits can be verified without growing secret-file detection fixtures.
 - `RepresentativeExampleTests.swift` now owns generated example drift and artifact metadata contracts, so future example-output changes can be verified without growing the core infrastructure suite.
 - `AgentContextOutputContractTests.swift` now owns short-context overflow, prioritization, hidden Git guard summary, and line-budget contracts, so future `agent_context.md` behavior changes can be reviewed without growing core infrastructure tests.
+- `BehaviorEvidenceSanitizationTests.swift` now owns behavior-evidence schema and sanitization contracts, so future fixture additions can be verified without growing individual behavior-decision cases.
 - Three intended regression scenarios now have Swift Testing `@Test` annotations again: pnpm lockfile selection, older scan-result decoding, and unrelated diagnostic filtering.
 - `TestCoverageContractTests.swift` now checks scenario functions in test suites for `@Test`, so future suite moves fail fast if executable coverage is accidentally dropped.
 - Static baseline Ask First and Forbidden policy lists now live in `PolicyReasonCatalog+BaselinePolicy.swift`, so Scanner adds project-specific dynamic guards without rebuilding the whole curated catalog inline.

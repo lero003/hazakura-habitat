@@ -62,6 +62,7 @@
 - Added the first local `v0.5` evidence boundary by wrapping secret-bearing path signals in `SecretBearingEvidence` and routing secret detection/report generation through it without intended generated-output behavior change.
 - Restored cloud/container credential non-emission regression coverage by marking the existing secret-file detection scenario as an executable Swift Testing test.
 - Hardened the behavior-evaluation fixture contract so all behavior evidence rejects local paths, prompt/secret/history field names, and common dummy token markers in one shared sanitization check.
+- Split `BehaviorEvidenceSanitizationTests.swift` out of `BehaviorEvaluationTests.swift` for behavior-evidence schema and sanitization contracts with no intended behavior change.
 
 ## v0.4.0 Developer Preview - 2026-05-04
 
