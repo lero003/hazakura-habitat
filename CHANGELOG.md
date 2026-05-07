@@ -16,6 +16,7 @@ Evidence and Instruction Alignment release.
 ### Changed
 
 - Updated generated artifact metadata to report generator version `0.5.0`.
+- Split the baseline Forbidden command list into smaller typed components so release builds type-check reliably on GitHub Actions without changing generated policy behavior.
 - Clarified post-`v0.4.0` documentation so the next cycle observes published PolicyFinding behavior before starting broad evidence or instruction-alignment work.
 - Added roadmap guardrails for Scanner/test/catalog maintainability, `v0.5` entry criteria, non-Habitat behavior evidence, read-only MCP timing, Linux feasibility, and release distribution trust.
 - Clarified the `v0.5` direction as short, evidence-backed context annotations (`Facts`, `Hints`, `Warnings`, and `Open uncertainty`) rather than plan generation or a broad upfront `NormalizedEvidence` layer.
