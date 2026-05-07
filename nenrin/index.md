@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 50
+- observing: 51
 - reviewed: 10
 
 ## Active Changes
@@ -12,6 +12,7 @@
 - `credential-policy-test-boundary` - [changes/2026-05-07-credential-policy-test-boundary.md](changes/2026-05-07-credential-policy-test-boundary.md)
 - `cloud-container-credential-command-family` - [changes/2026-05-03-cloud-container-credential-command-family.md](changes/2026-05-03-cloud-container-credential-command-family.md)
 - `package-manager-credential-command-family` - [changes/2026-05-03-package-manager-credential-command-family.md](changes/2026-05-03-package-manager-credential-command-family.md)
+- `package-auth-config-policy-test-boundary` - [changes/2026-05-08-package-auth-config-policy-test-boundary.md](changes/2026-05-08-package-auth-config-policy-test-boundary.md)
 - `package-registry-reason-code` - [changes/2026-05-03-package-registry-reason-code.md](changes/2026-05-03-package-registry-reason-code.md)
 - `corepack-package-manager-activation-reason` - [changes/2026-05-04-corepack-package-manager-activation-reason.md](changes/2026-05-04-corepack-package-manager-activation-reason.md)
 - `host-private-command-family` - [changes/2026-05-04-host-private-command-family.md](changes/2026-05-04-host-private-command-family.md)

@@ -60,7 +60,7 @@ When evaluating self-use output, discount guidance that merely repeats existing 
 
 ## Current Self-Scan Snapshot
 
-Snapshot date: 2026-05-07 (post-maintainability split; `SecretFileDetector` extraction, test-suite decomposition, and no-output-change catalog boundaries preserved generated output, so policy values are unchanged from 2026-05-04).
+Snapshot date: 2026-05-08 (post-maintainability split; `SecretFileDetector` extraction, test-suite decomposition, and no-output-change catalog boundaries preserved generated output, so policy values are unchanged from 2026-05-04).
 
 - `PolicyReasonCatalogTests.swift` now owns catalog-family classification contracts, so future command-family slices can verify reason-code preservation without growing `PackageAndCommandPolicyTests.swift`.
 - `PolicyOutputContractTests.swift` now owns policy metadata, command-reason, older-JSON decoding, and reason-legend ordering contracts, so output-contract checks are separate from package-manager scanner fixtures.
@@ -79,6 +79,7 @@ Snapshot date: 2026-05-07 (post-maintainability split; `SecretFileDetector` extr
 - `HostPrivateDataPolicyTests.swift` now owns environment dump, clipboard, shell history, browser/mail data, and home SSH private-key contracts, so future host-private command-safety edits can be verified without growing project secret-file detection tests.
 - `SecretFilePolicyTests.swift` now owns detected secret-bearing file avoidance, recursive-search review, and project bulk-export contracts, so future search-shape or export-safety edits can be verified without growing secret-file detection fixtures.
 - `ProjectSymlinkSafetyTests.swift` now owns symlinked project metadata, workflow, SSH directory, package-auth directory, and previous-scan symlink delta contracts, so future symlink-safety edits can be verified without growing secret-file detection fixtures.
+- `PackageAuthConfigPolicyTests.swift` now owns npm, Python, Ruby, Cargo, and Composer package-auth config non-emission contracts, so future package credential config edits can be verified without growing general secret-file detection fixtures.
 - `RepresentativeExampleTests.swift` now owns generated example drift and artifact metadata contracts, so future example-output changes can be verified without growing the core infrastructure suite.
 - `AgentContextOutputContractTests.swift` now owns short-context overflow, prioritization, hidden Git guard summary, and line-budget contracts, so future `agent_context.md` behavior changes can be reviewed without growing core infrastructure tests.
 - `ScanExecutionInfrastructureTests.swift` now owns scan argument parsing, command-runner missing-tool behavior, bundled skill helper selection, missing-project guards, and missing-command continuation, so future scan-entrypoint or preflight-safety edits can be verified without growing generated-output contract tests.
