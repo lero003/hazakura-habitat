@@ -29,6 +29,7 @@
 - Split `SecretFilePolicyTests.swift` out of `SecretFileDetectionTests.swift` for detected secret-bearing file avoidance, recursive-search review, and bulk-export policy contracts with no intended behavior change.
 - Split `ProjectSymlinkSafetyTests.swift` out of `SecretFileDetectionTests.swift` for symlinked project metadata, workflow, SSH directory, package-auth directory, and previous-scan symlink delta contracts with no intended behavior change.
 - Split `RepresentativeExampleTests.swift` out of `HabitatCoreTests.swift` for representative generated example drift checks and artifact metadata contracts with no intended behavior change.
+- Split `AgentContextOutputContractTests.swift` out of `HabitatCoreTests.swift` for short-context overflow, prioritization, hidden Git guard summary, and line-budget contracts with no intended behavior change.
 - Moved the remaining package-manager review routing contract out of `HabitatCoreTests.swift` and into `PolicyReasonCatalogTests.swift`, keeping catalog ownership checks in one suite with no intended behavior change.
 - Restored three intended Swift Testing scenarios by marking pnpm selection, older scan-result decoding, and unrelated diagnostic filtering functions as executable tests.
 - Added `TestCoverageContractTests.swift` to fail fast when scenario functions in test suites are missing Swift Testing `@Test` annotations.

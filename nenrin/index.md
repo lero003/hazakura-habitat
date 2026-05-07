@@ -2,12 +2,13 @@
 
 ## Active Summary
 
-- observing: 47
+- observing: 48
 - reviewed: 10
 
 ## Active Changes
 
 - `cli-auth-credential-command-family` - [changes/2026-05-03-cli-auth-credential-command-family.md](changes/2026-05-03-cli-auth-credential-command-family.md)
+- `agent-context-output-contract-test-boundary` - [changes/2026-05-07-agent-context-output-contract-test-boundary.md](changes/2026-05-07-agent-context-output-contract-test-boundary.md)
 - `credential-policy-test-boundary` - [changes/2026-05-07-credential-policy-test-boundary.md](changes/2026-05-07-credential-policy-test-boundary.md)
 - `cloud-container-credential-command-family` - [changes/2026-05-03-cloud-container-credential-command-family.md](changes/2026-05-03-cloud-container-credential-command-family.md)
 - `package-manager-credential-command-family` - [changes/2026-05-03-package-manager-credential-command-family.md](changes/2026-05-03-package-manager-credential-command-family.md)
