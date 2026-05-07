@@ -7,7 +7,7 @@
 - Clarified post-`v0.4.0` documentation so the next cycle observes published PolicyFinding behavior before starting broad evidence or instruction-alignment work.
 - Added roadmap guardrails for Scanner/test/catalog maintainability, `v0.5` entry criteria, non-Habitat behavior evidence, read-only MCP timing, Linux feasibility, and release distribution trust.
 - Clarified the `v0.5` direction as short, evidence-backed context annotations (`Facts`, `Hints`, `Warnings`, and `Open uncertainty`) rather than plan generation or a broad upfront `NormalizedEvidence` layer.
-- Clarified that the next pre-`v0.5` maintainability slice should extract Git/GitHub command families from `PolicyReasonCatalog` without behavior changes, while leaving rule ordering, fallback behavior, remaining credential/auth families, DSLs, plugins, and external rule formats untouched.
+- Clarified the initial pre-`v0.5` maintainability slice for extracting Git/GitHub command families from `PolicyReasonCatalog` without behavior changes, while leaving rule ordering, fallback behavior, remaining credential/auth families, DSLs, plugins, and external rule formats untouched.
 - Updated release-install guidance to explain that full `SHA256SUMS` verification expects all generated release assets in the same directory.
 - Extracted `SecretFileDetector` from `Scanner.swift` (~300 lines), leaving Scanner at 1548 lines and giving secret detection a clear module boundary.
 - Split monolithic `HabitatCoreTests.swift` (8628 lines) into scenario-grouped test suites: `CoreInfrastructureTests`, `BehaviorEvaluationTests`, `SecretFileDetectionTests`, `ScanComparisonTests`, `JavaScriptMetadataPolicyTests`, `PolicyReasonCatalogTests`, `PolicyOutputContractTests`, and `SwiftPackagePolicyTests`, with shared helpers in `TestHelpers.swift`. 211 tests pass across 8 suites.
@@ -36,6 +36,7 @@
 - Renamed the remaining `HabitatCoreTests.swift` file to `CoreInfrastructureTests.swift`, matching the suite ownership after the test-boundary split with no intended behavior change.
 - Restored three intended Swift Testing scenarios by marking pnpm selection, older scan-result decoding, and unrelated diagnostic filtering functions as executable tests.
 - Added `TestCoverageContractTests.swift` to fail fast when scenario functions in test suites are missing Swift Testing `@Test` annotations.
+- Added a `PolicyReasonCatalogTests` contract that fails if baseline Ask First or Forbidden policy catalogs duplicate rendered entries or overlap classifications.
 - Moved the static baseline Ask First and Forbidden command lists into `PolicyReasonCatalog`, reducing scanner/catalog drift while preserving generated output behavior.
 - Split the catalog-owned static baseline Ask First and Forbidden policy lists into `PolicyReasonCatalog+BaselinePolicy.swift` with no intended generated-output behavior change.
 - Added Nenrin change record for the maintainability split and observation guidance for future decomposition slices.

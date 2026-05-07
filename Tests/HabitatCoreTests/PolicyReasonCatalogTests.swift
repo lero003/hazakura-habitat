@@ -21,6 +21,16 @@ struct PolicyReasonCatalogTests {
     }
 
     @Test
+    func baselineCommandCatalogDoesNotDuplicateRenderedPolicyEntries() {
+        let askFirstCommands = PolicyReasonCatalog.baselineAskFirstCommands
+        let forbiddenCommands = PolicyReasonCatalog.baselineForbiddenCommands
+
+        #expect(Set(askFirstCommands).count == askFirstCommands.count)
+        #expect(Set(forbiddenCommands).count == forbiddenCommands.count)
+        #expect(Set(askFirstCommands).isDisjoint(with: Set(forbiddenCommands)))
+    }
+
+    @Test
     func packageManagerReviewRoutingPreservesCatalogFamilies() {
         #expect(PolicyReasonCatalog.swiftPackageDependencyResolutionCommands == [
             "swift package update",
