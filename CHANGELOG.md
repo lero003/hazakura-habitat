@@ -19,6 +19,7 @@
 - Split `RubyBundlerPolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for Bundler signal, mutation, config, version-check, and Ruby version-hint contracts with no intended behavior change.
 - Split `HomebrewApplePolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for Homebrew Bundle, Homebrew host-state, CocoaPods, and Carthage scanner policy contracts with no intended behavior change.
 - Split `PythonPackagePolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for Python, pip, uv, virtual-environment, and Python runtime-hint scanner policy contracts with no intended behavior change.
+- Split `JavaScriptPackagePolicyTests.swift` out of `PackageAndCommandPolicyTests.swift` for JavaScript package-manager selection, Node/runtime guard, lockfile conflict, workspace, and package-manager field scanner policy contracts with no intended behavior change.
 - Moved the remaining package-manager review routing contract out of `HabitatCoreTests.swift` and into `PolicyReasonCatalogTests.swift`, keeping catalog ownership checks in one suite with no intended behavior change.
 - Restored three intended Swift Testing scenarios by marking pnpm selection, older scan-result decoding, and unrelated diagnostic filtering functions as executable tests.
 - Added `TestCoverageContractTests.swift` to fail fast when scenario functions in test suites are missing Swift Testing `@Test` annotations.
