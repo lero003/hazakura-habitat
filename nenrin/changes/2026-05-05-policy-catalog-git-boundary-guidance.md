@@ -3,7 +3,7 @@ type: nenrin_change
 id: policy-catalog-git-boundary-guidance
 date: 2026-05-05
 status: reviewed
-impact: positive
+impact: effective
 related_files:
   - CHANGELOG.md
   - docs/current_status.md
