@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 45
+- observing: 46
 - reviewed: 10
 
 ## Active Changes
@@ -47,6 +47,7 @@
 - `package-registry-policy-test-boundary` - [changes/2026-05-07-package-registry-policy-test-boundary.md](changes/2026-05-07-package-registry-policy-test-boundary.md)
 - `python-package-policy-test-boundary` - [changes/2026-05-07-python-package-policy-test-boundary.md](changes/2026-05-07-python-package-policy-test-boundary.md)
 - `policy-output-contract-test-boundary` - [changes/2026-05-07-policy-output-contract-test-boundary.md](changes/2026-05-07-policy-output-contract-test-boundary.md)
+- `project-symlink-safety-test-boundary` - [changes/2026-05-07-project-symlink-safety-test-boundary.md](changes/2026-05-07-project-symlink-safety-test-boundary.md)
 - `roadmap-feedback-during-work` - [changes/2026-05-07-roadmap-feedback-during-work.md](changes/2026-05-07-roadmap-feedback-during-work.md)
 - `ruby-bundler-policy-test-boundary` - [changes/2026-05-07-ruby-bundler-policy-test-boundary.md](changes/2026-05-07-ruby-bundler-policy-test-boundary.md)
 - `swift-package-policy-test-boundary` - [changes/2026-05-07-swift-package-policy-test-boundary.md](changes/2026-05-07-swift-package-policy-test-boundary.md)
