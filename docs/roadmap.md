@@ -457,6 +457,8 @@ Focus:
 - preserve the risk-aware verdict scale without turning it into a broad benchmark
 - measure whether first-time agents make fewer initial command mistakes than they would from `AGENTS.md` alone
 - distinguish useful no-scan cases from missed preflight cases, especially when `AGENTS.md` already gives enough current context
+- treat scan freshness as a behavior question: add a stale-report warning, `check --stale`, exit code, or JSON signal only when an old report causes a wrong or risky command decision that documentation cannot prevent
+- evaluate whether generic baseline `Do Not` guidance crowds out project-specific risk; prefer project-specific constraints first and keep broad host-safety reminders terse
 - surface previous-scan deltas only when they are command-changing
 - keep `agent_context.md` limited to the next-command decision
 
