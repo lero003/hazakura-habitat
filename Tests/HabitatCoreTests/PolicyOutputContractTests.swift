@@ -97,6 +97,28 @@ struct PolicyOutputContractTests {
     }
 
     @Test
+    func scanResultCommandReasonsStayOneToOneWithClassifiedCommands() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            ".env": "",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let classifiedCommands = result.policy.askFirstCommands.map {
+            PolicyCommandReason.askFirstClassification + "\u{0}" + $0
+        } + result.policy.forbiddenCommands.map {
+            PolicyCommandReason.forbiddenClassification + "\u{0}" + $0
+        }
+        let reasonCommands = result.policy.commandReasons.map {
+            $0.classification + "\u{0}" + $0.command
+        }
+
+        #expect(Set(result.policy.askFirstCommands).isDisjoint(with: Set(result.policy.forbiddenCommands)))
+        #expect(reasonCommands == classifiedCommands)
+        #expect(Set(reasonCommands).count == reasonCommands.count)
+    }
+
+    @Test
     func policySummaryDecodesOlderJsonWithoutCommandCounts() throws {
         let json = """
         {
