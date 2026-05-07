@@ -367,6 +367,13 @@ The first instruction-alignment slice is also complete: allowlisted instruction 
 
 Keep this implementation boundary narrow. Avoid a broad `InstructionClaimEvidence` layer until multiple measured command-decision cases need it.
 
+Post-release review did not identify a `v0.5.0` blocker. The useful follow-ups are candidates for `v0.5.x` or `v0.6`, not reasons to patch the published release:
+
+- multiple documented validation claims: either make `claims.first` priority explicit as the contract, or emit `Open uncertainty` when high-priority instruction files disagree
+- documented command with no repository-supported workflow: prefer bounded `Open uncertainty` over a confident mismatch warning
+- negated or obsolete command text: avoid treating `do not`, `avoid`, `obsolete`, `deprecated`, or example-only command mentions as positive validation claims
+- Xcode validation: add a narrow `xcodebuild test` claim case only when it changes or confirms a real command decision
+
 The preferred `v0.5` shape is `repo fact -> short annotation -> command decision`, not automatic planning. Evidence and instruction-alignment work should classify output as `Facts`, `Hints`, `Warnings`, or `Open uncertainty` only when that classification helps an agent choose, verify, ask, or stop. A `Hint` is a hypothesis, a `Warning` is a constraint, a `Fact` is an observation, and `Open uncertainty` is a bounded place where Habitat refuses to guess.
 
 Entry criteria for a `v0.5` slice:

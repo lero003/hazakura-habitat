@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 58
+- observing: 59
 - reviewed: 10
 
 ## Active Changes
@@ -63,6 +63,7 @@
 - `core-infrastructure-test-file-boundary` - [changes/2026-05-08-core-infrastructure-test-file-boundary.md](changes/2026-05-08-core-infrastructure-test-file-boundary.md)
 - `documented-validation-command-evidence` - [changes/2026-05-08-documented-validation-command-evidence.md](changes/2026-05-08-documented-validation-command-evidence.md)
 - `package-auth-config-policy-test-boundary` - [changes/2026-05-08-package-auth-config-policy-test-boundary.md](changes/2026-05-08-package-auth-config-policy-test-boundary.md)
+- `post-v0-5-review-automation-guidance` - [changes/2026-05-08-post-v0-5-review-automation-guidance.md](changes/2026-05-08-post-v0-5-review-automation-guidance.md)
 - `review-first-reason-subset-contract` - [changes/2026-05-08-review-first-reason-subset-contract.md](changes/2026-05-08-review-first-reason-subset-contract.md)
 - `v0-5-instruction-alignment-release-gate` - [changes/2026-05-08-v0-5-instruction-alignment-release-gate.md](changes/2026-05-08-v0-5-instruction-alignment-release-gate.md)
 

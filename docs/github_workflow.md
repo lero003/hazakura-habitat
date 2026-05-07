@@ -63,6 +63,23 @@ The release artifact workflow can be run manually from GitHub Actions.
 
 It also runs when a tag matching `v*` is pushed.
 
+Before pushing a public version tag, prefer a release-candidate check:
+
+1. Run the local release checks:
+
+   ```bash
+   swift test
+   git diff --check
+   ./scripts/build_release_artifacts.sh
+   ./dist/habitat-scan --version
+   cd dist && shasum -c SHA256SUMS
+   ```
+
+2. Run the Release Artifacts workflow manually with `workflow_dispatch`, or use a disposable release-candidate tag if the tagged path itself needs to be exercised.
+3. Only after those checks pass, push the public `v*` tag.
+
+If the tag-triggered workflow fails before any GitHub Release is created, fix `main` and restart the tag path. After a GitHub Release is public, keep the tag and assets immutable and use a patch release for material corrections.
+
 Today it packages:
 
 - `dist/habitat-scan`
@@ -82,4 +99,3 @@ Artifacts are available from:
 ```
 
 Generated files are written to `dist/`, which is ignored by git.
-

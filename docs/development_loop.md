@@ -54,6 +54,7 @@ Use this handoff when starting automated work after the public `v0.5.0 Developer
 Start post-v0.5 work from the current public v0.5.0 Developer Preview. Keep released tags immutable.
 
 Focus on the self-use observation loop:
+- treat v0.5.0 as accepted after post-release review; do not spend automation time on rollback, hotfix, or release-note edits unless the published artifact, checksum, install instructions, or release wording is materially misleading
 - use Habitat during real Codex work on this repository
 - observe what changed the next command, where the policy over-constrained useful work, and where the agent misunderstood guidance
 - keep each automation slice small, verifiable, and commit/push oriented
@@ -65,6 +66,8 @@ Focus on the self-use observation loop:
 - keep the context direction narrow: `repo fact -> short annotation -> command decision`
 - do not make Habitat produce plans; it may produce `Facts`, `Hints`, `Warnings`, and `Open uncertainty` annotations with coarse confidence such as `high`, `medium`, or `low`
 - the first documented-validation-command slice is shipped; keep any next instruction-alignment slice similarly narrow, with no raw instruction prose, no generic prose linter, and a command decision that changes, confirms, or constrains the next action
+- if choosing an instruction-alignment follow-up, prefer one small case: multiple documented validation claims, unknown repository workflow, negated or obsolete validation command text, or `xcodebuild test` validation claims
+- for unknown repository workflow, prefer `Open uncertainty` over a confident `Warning`; for multiple claims, either document the current `claims.first` priority or emit bounded uncertainty
 - when a slice touches scanner, catalog, or test-heavy behavior, include a small local decomposition that preserves generated output
 - the first `PolicyReasonCatalog` boundary slices (`PolicyReasonCatalog+Git.swift`, `PolicyReasonCatalog+EphemeralPackageExecution.swift`, `PolicyReasonCatalog+PackageRegistry.swift`, `PolicyReasonCatalog+CliAuth.swift`, `PolicyReasonCatalog+PackageManagerCredential.swift`, `PolicyReasonCatalog+CloudContainerCredential.swift`, `PolicyReasonCatalog+HostPrivate.swift`, `PolicyReasonCatalog+PackageManagerActivation.swift`, `PolicyReasonCatalog+SwiftPM.swift`, `PolicyReasonCatalog+JavaScriptPackageManager.swift`, `PolicyReasonCatalog+PythonPackageManager.swift`, `PolicyReasonCatalog+RubyPackageManager.swift`, `PolicyReasonCatalog+HostEnvironment.swift`, `PolicyReasonCatalog+Homebrew.swift`, `PolicyReasonCatalog+GoCargo.swift`, `PolicyReasonCatalog+ApplePackageManager.swift`, `PolicyReasonCatalog+SecretSearch.swift`, `PolicyReasonCatalog+WorkspaceMutation.swift`, `PolicyReasonCatalog+SshPrivateKey.swift`, and `PolicyReasonCatalog+ProjectEnvironment.swift`) are complete; future catalog slices should follow the same no-behavior-change extraction pattern, one cohesive command family at a time
 - keep reason-code rule ordering, dependency-mutation fallback, remaining credential/auth command families, DSLs, plugins, and external rule formats out of catalog extraction slices
@@ -80,6 +83,17 @@ Avoid broad feature expansion:
 - no release tags, GitHub Releases, or release asset changes without an explicit release handoff
 
 When versioned output behavior changes after a public release, do not move existing tags; use a transparent patch release only when the published artifact would otherwise mislead users.
+
+For future release handoffs, verify artifacts before pushing the public version tag when practical:
+
+- run `swift test`
+- run `git diff --check`
+- run `./scripts/build_release_artifacts.sh`
+- run `./dist/habitat-scan --version`
+- run `cd dist && shasum -c SHA256SUMS`
+- run the Release Artifacts workflow manually with `workflow_dispatch`, or use a disposable release-candidate tag if the manual workflow cannot exercise the tagged path
+
+If a tag workflow fails before any GitHub Release exists, fixing main and replacing the unpublished tag target is acceptable but should be treated as a release-process recovery, not the normal path. Once a public GitHub Release exists, keep the tag and assets immutable; publish a patch release for material corrections.
 ```
 
 ## Self-Use Before Substantial Work

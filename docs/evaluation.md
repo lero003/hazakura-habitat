@@ -154,6 +154,13 @@ Expected behavior:
 - Warn and avoid overconfident guidance when docs mention a validation command that repository facts do not support or cannot verify.
 - Keep the first case narrow enough to justify `v0.5.0` without turning Habitat into a generic project-instruction linter.
 
+Post-`v0.5.0` follow-up candidates:
+
+- Multiple validation-command claims disagree; expected behavior should either preserve a documented priority rule or emit bounded `Open uncertainty`.
+- A documented validation command is present but repository facts cannot identify the workflow; expected behavior should avoid confident mismatch wording.
+- A command is mentioned only in negated, obsolete, deprecated, avoid, or example-only wording; expected behavior should not treat it as a positive claim.
+- Xcode validation is documented with `xcodebuild test`; expected behavior should stay narrow and command-changing before adding it.
+
 ## Observed Cases
 
 ### instruction-claim-validation-001

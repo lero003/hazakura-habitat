@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Changed
+
+- Recorded post-`v0.5.0` review guidance in automation-facing docs: no rollback, hotfix, or release-note edit is needed for `v0.5.0`, and future instruction-alignment work should stay in narrow `v0.5.x` / `v0.6` slices.
+- Clarified future release workflow guidance so release artifact builds are verified before public version tags when practical, while published releases and tags remain immutable.
+
 ## v0.5.0 Developer Preview - 2026-05-08
 
 Evidence and Instruction Alignment release.
