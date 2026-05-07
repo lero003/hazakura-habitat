@@ -2,7 +2,7 @@ import Testing
 import Foundation
 @testable import HabitatCore
 
-struct PackageAndCommandPolicyTests {
+struct JavaScriptMetadataPolicyTests {
     @Test
     func scanUsesPackageJsonScriptNamesForJavaScriptPreferredCommands() throws {
         let projectURL = try makeProject(files: [

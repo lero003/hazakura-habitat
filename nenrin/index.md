@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 42
+- observing: 43
 - reviewed: 10
 
 ## Active Changes
@@ -40,6 +40,7 @@
 - `go-cargo-policy-test-boundary` - [changes/2026-05-07-go-cargo-policy-test-boundary.md](changes/2026-05-07-go-cargo-policy-test-boundary.md)
 - `homebrew-apple-policy-test-boundary` - [changes/2026-05-07-homebrew-apple-policy-test-boundary.md](changes/2026-05-07-homebrew-apple-policy-test-boundary.md)
 - `javascript-command-policy-test-boundary` - [changes/2026-05-07-javascript-command-policy-test-boundary.md](changes/2026-05-07-javascript-command-policy-test-boundary.md)
+- `javascript-metadata-policy-test-boundary` - [changes/2026-05-07-javascript-metadata-policy-test-boundary.md](changes/2026-05-07-javascript-metadata-policy-test-boundary.md)
 - `javascript-package-policy-test-boundary` - [changes/2026-05-07-javascript-package-policy-test-boundary.md](changes/2026-05-07-javascript-package-policy-test-boundary.md)
 - `package-registry-policy-test-boundary` - [changes/2026-05-07-package-registry-policy-test-boundary.md](changes/2026-05-07-package-registry-policy-test-boundary.md)
 - `python-package-policy-test-boundary` - [changes/2026-05-07-python-package-policy-test-boundary.md](changes/2026-05-07-python-package-policy-test-boundary.md)
