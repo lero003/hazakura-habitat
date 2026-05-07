@@ -46,12 +46,12 @@ Keep the correction narrow:
 
 This is part of finishing the work, not a separate planning project.
 
-## Post-v0.4 Observation Handoff
+## Post-v0.5 Observation Handoff
 
-Use this handoff when starting automated work after the public `v0.4.0 Developer Preview`:
+Use this handoff when starting automated work after the public `v0.5.0 Developer Preview`:
 
 ```text
-Start post-v0.4 work from the current public v0.4.0 Developer Preview. Keep released tags immutable.
+Start post-v0.5 work from the current public v0.5.0 Developer Preview. Keep released tags immutable.
 
 Focus on the self-use observation loop:
 - use Habitat during real Codex work on this repository
@@ -60,12 +60,11 @@ Focus on the self-use observation loop:
 - feed findings back into policy wording, reason-code structure, behavior evidence, tests, or docs
 - record behavior-level evidence only when it adds a new command-decision boundary, regression, over-constraint, or concrete artifact improvement
 - keep evidence sanitized; do not store raw prompts, secrets, shell history, clipboard contents, private local paths, or release credentials
-- use `v0.4` PolicyFinding, reason-code, and command-reason output to decide whether a future evidence or instruction-alignment slice is actually needed
-- keep `v0.5` Evidence and Instruction Alignment provisional; extract one concrete normalized-evidence or instruction-drift shape from observed command behavior before generalizing
-- keep the `v0.5` context direction narrow: `repo fact -> short annotation -> command decision`
+- use `v0.5` PolicyFinding, reason-code, command-reason, secret-bearing evidence, and documented-validation-command output to decide whether a future evidence or instruction-alignment slice is actually needed
+- keep post-`v0.5` Evidence and Instruction Alignment provisional; extract one concrete normalized-evidence or instruction-drift shape from observed command behavior before generalizing
+- keep the context direction narrow: `repo fact -> short annotation -> command decision`
 - do not make Habitat produce plans; it may produce `Facts`, `Hints`, `Warnings`, and `Open uncertainty` annotations with coarse confidence such as `high`, `medium`, or `low`
-- before calling the next release `v0.5.0`, add one instruction-alignment slice where a documented validation command claim is checked against repository facts and changes, confirms, or constrains the next command
-- keep that slice narrow: do not quote raw instruction prose, do not build a generic prose linter, and prefer a small `DocumentedValidationCommandEvidence` or `ValidationCommandClaim` boundary if a type is needed
+- the first documented-validation-command slice is shipped; keep any next instruction-alignment slice similarly narrow, with no raw instruction prose, no generic prose linter, and a command decision that changes, confirms, or constrains the next action
 - when a slice touches scanner, catalog, or test-heavy behavior, include a small local decomposition that preserves generated output
 - the first `PolicyReasonCatalog` boundary slices (`PolicyReasonCatalog+Git.swift`, `PolicyReasonCatalog+EphemeralPackageExecution.swift`, `PolicyReasonCatalog+PackageRegistry.swift`, `PolicyReasonCatalog+CliAuth.swift`, `PolicyReasonCatalog+PackageManagerCredential.swift`, `PolicyReasonCatalog+CloudContainerCredential.swift`, `PolicyReasonCatalog+HostPrivate.swift`, `PolicyReasonCatalog+PackageManagerActivation.swift`, `PolicyReasonCatalog+SwiftPM.swift`, `PolicyReasonCatalog+JavaScriptPackageManager.swift`, `PolicyReasonCatalog+PythonPackageManager.swift`, `PolicyReasonCatalog+RubyPackageManager.swift`, `PolicyReasonCatalog+HostEnvironment.swift`, `PolicyReasonCatalog+Homebrew.swift`, `PolicyReasonCatalog+GoCargo.swift`, `PolicyReasonCatalog+ApplePackageManager.swift`, `PolicyReasonCatalog+SecretSearch.swift`, `PolicyReasonCatalog+WorkspaceMutation.swift`, `PolicyReasonCatalog+SshPrivateKey.swift`, and `PolicyReasonCatalog+ProjectEnvironment.swift`) are complete; future catalog slices should follow the same no-behavior-change extraction pattern, one cohesive command family at a time
 - keep reason-code rule ordering, dependency-mutation fallback, remaining credential/auth command families, DSLs, plugins, and external rule formats out of catalog extraction slices
@@ -118,7 +117,7 @@ Habitat scan finds or confirms a command-changing fact -> the slice changes docs
 
 Do not record raw scan output in Nenrin. Record the decision impact: what the agent would do differently, what risk was reduced, and what future evidence should confirm or reject the change.
 
-The post-v0.4 acceptance question is:
+The post-v0.5 acceptance question is:
 
 > Did this self-use slice show that a specific scanner fact should become normalized evidence before it feeds `PolicyFinding`, rendered policy, tests, or docs?
 
@@ -137,11 +136,11 @@ Release and phase-transition work requires an explicit user handoff:
 - cut or tag any release
 - write GitHub Release notes
 - upload or verify release artifacts
-- expand or re-scope `v0.5` beyond observed evidence, instruction-alignment, or maintainability needs
+- expand or re-scope post-`v0.5` evidence, instruction-alignment, or maintainability work beyond observed needs
 
-Before that handoff, automation should keep changes inside the post-`v0.4` self-use observation loop.
+Before that handoff, automation should keep changes inside the post-`v0.5` self-use observation loop.
 
-Post-`v0.4` evidence may still change what should happen next. Do not assume `v0.5`, `v0.6`, or `v0.7` must happen in the current roadmap order if observed behavior points elsewhere.
+Post-`v0.5` evidence may still change what should happen next. Do not assume `v0.6`, `v0.7`, or `v0.8` must happen in the current roadmap order if observed behavior points elsewhere.
 
 For the `v0.5.0 Developer Preview` release handoff, the final claim check is:
 

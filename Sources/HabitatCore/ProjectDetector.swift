@@ -68,6 +68,7 @@ public struct ProjectDetector {
         ".envrc.local",
         ".envrc.example",
         ".netrc",
+        "AGENTS.md",
         "id_rsa",
         "id_dsa",
         "id_ecdsa",
@@ -115,6 +116,7 @@ public struct ProjectDetector {
             packageManagerVersion: packageManagerVersion.version,
             packageManagerVersionSource: packageManagerVersion.source,
             packageScripts: packageJSON.scripts,
+            validationCommandClaims: validationCommandClaims(projectURL: projectURL, symlinkedFiles: symlinkedFiles),
             runtimeHints: RuntimeHints(
                 node: firstAvailableLineIfSafe(
                     projectURL.appendingPathComponent(".nvmrc"),
@@ -322,6 +324,92 @@ public struct ProjectDetector {
             packageManagerVersions: volta.packageManagerVersions,
             unsafeMetadataFields: orderedUnique(unsafeMetadataFields)
         )
+    }
+
+    private func validationCommandClaims(projectURL: URL, symlinkedFiles: [String]) -> [ValidationCommandClaim] {
+        let symlinked = Set(symlinkedFiles)
+        return instructionClaimFiles.flatMap { source -> [ValidationCommandClaim] in
+            guard !symlinked.contains(source),
+                  let content = safeInstructionFileContent(projectURL.appendingPathComponent(source))
+            else {
+                return []
+            }
+
+            return validationCommands(in: content).map {
+                ValidationCommandClaim(source: source, command: $0)
+            }
+        }
+        .reduce(into: [ValidationCommandClaim]()) { claims, claim in
+            if !claims.contains(claim) {
+                claims.append(claim)
+            }
+        }
+    }
+
+    private var instructionClaimFiles: [String] {
+        ["AGENTS.md", "README.md"]
+    }
+
+    private func safeInstructionFileContent(_ url: URL) -> String? {
+        guard FileManager.default.fileExists(atPath: url.path) else { return nil }
+        guard !isSymbolicLink(url) else { return nil }
+        guard fileSize(at: url) <= 64 * 1024 else { return nil }
+        return try? String(contentsOf: url, encoding: .utf8)
+    }
+
+    private func validationCommands(in content: String) -> [String] {
+        let lines = content
+            .lowercased()
+            .split(whereSeparator: \.isNewline)
+            .map(String.init)
+        let candidates = [
+            "swift test",
+            "swift build",
+            "npm test",
+            "npm run test",
+            "npm run build",
+            "pnpm test",
+            "pnpm run test",
+            "pnpm run build",
+            "yarn test",
+            "yarn run test",
+            "yarn run build",
+            "bun test",
+            "bun run test",
+            "bun run build",
+            "python3 -m pytest",
+            "python -m pytest",
+            "uv run pytest",
+            "go test ./...",
+            "cargo test",
+            "bundle exec"
+        ]
+
+        return candidates.filter { candidate in
+            lines.contains { line in
+                line.contains(candidate) && lineLooksLikeValidationClaim(line, command: candidate)
+            }
+        }
+    }
+
+    private func lineLooksLikeValidationClaim(_ line: String, command: String) -> Bool {
+        if command.contains("test") || command.contains("pytest") {
+            return true
+        }
+
+        let markers = [
+            "validat",
+            "verify",
+            "check",
+            "before commit",
+            "before committing",
+            "ci",
+            "quality"
+        ]
+
+        return markers.contains {
+            line.contains($0)
+        }
     }
 
     private func packageManagerVersion(packageManager: String?, packageJSON: PackageJSONMetadata, toolVersions: ToolVersionsMetadata, miseToml: ToolVersionsMetadata, miseTomlSource: String?) -> PackageManagerVersionInfo {

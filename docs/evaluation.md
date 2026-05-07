@@ -156,6 +156,23 @@ Expected behavior:
 
 ## Observed Cases
 
+### instruction-claim-validation-001
+
+Fixture:
+
+- `examples/behavior-evaluation/instruction-claim-validation-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: `agent_context.md` plus `scan_result.json`.
+- Observation: Habitat compared a sanitized documented validation-command claim with repository facts, warned when the documented npm command did not match the SwiftPM project, and changed the next validation command to `swift test` without quoting raw instruction prose.
+
+Follow-up:
+
+- Keep post-`v0.5` instruction-alignment work narrow; add another case only when a real self-use or fixture trace changes, confirms, or constrains a command decision.
+
 ### swiftpm-self-use-001
 
 Fixture:

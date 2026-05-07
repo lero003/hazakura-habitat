@@ -56,6 +56,7 @@ Guidelines:
 - Do not list concrete preferred commands in `Use` when their required executable is missing; keep the missing-tool guard in `Ask First` instead.
 - Do not tell agents to use a selected project tool when its executable is missing; tell them to verify the executable before running that tool's commands.
 - Do not tell agents to use a selected project tool when its version check failed; tell them to verify the executable before running that tool's commands.
+- When allowlisted project instruction files mention validation commands, `agent_context.md` may emit short `Fact`, `Warning`, and `Hint` annotations comparing those sanitized command claims with repository facts. Do not quote raw instruction prose.
 - For JavaScript projects, if both `node` and the selected package manager are missing or unverifiable, mention both in the first `Use` verification line.
 - When the selected project workflow has an internal package-manager label, name the concrete executable in `Use`, such as SwiftPM (`swift`) or Bundler (`bundle`), so agents do not infer a non-existent command.
 - A detected project-local executable path such as `.venv/bin/python` may remain in `Use` / `Allowed` when the selected package-manager executable is missing, but only when the path is executable and the concrete project-local command can run without the missing tool.
@@ -668,7 +669,7 @@ Top-level shape:
 ```json
 {
   "schemaVersion": "0.1",
-  "generatorVersion": "0.4.0",
+  "generatorVersion": "0.5.0",
   "artifacts": [
     {
       "name": "agent_context.md",
@@ -842,6 +843,7 @@ Compatibility:
 - `project.symlinkedFiles` records detected project signals or safety-relevant directories that are symbolic links. Symlinked metadata files should not be read for runtime or package-manager hints, symlinked workflow files should not select the package manager or concrete preferred commands, and `.ssh` symlink targets should not be traversed for private-key filenames.
 - `project.unsafeRuntimeHintFiles` records runtime hint files whose values were not emitted because they were oversized or not simple version-like strings, including direct runtime files, `.tool-versions`, `mise.toml`, and `.mise.toml`.
 - `project.unsafePackageMetadataFields` records package-manager version metadata fields whose values were not emitted because they were oversized or not simple version-like strings, including `package.json`, `.tool-versions`, `mise.toml`, and `.mise.toml` package-manager pins. Values must not appear in JSON or Markdown artifacts.
+- `project.validationCommandClaims` records sanitized validation-command claims from allowlisted instruction files, currently as source filename plus normalized command. It must not store raw instruction prose.
 - `runtimeHints` may come from direct version files such as `.nvmrc` and `.python-version`, or safe project metadata such as `.tool-versions`, `mise.toml`, `.mise.toml`, `package.json` Volta pins, and `package.json` `engines.node`.
 - `packageManagerVersion` may come from `package.json` `packageManager`, package-manager Volta pins, `.tool-versions` entries, or `[tools]` entries in `mise.toml` / `.mise.toml` for `npm`, `pnpm`, `yarn`, or `bun`; `packageManagerVersionSource` records that safe metadata source when known.
 - `agent_context.md` should mention the known package-manager version source in `Use`, so agents know which safe metadata file backs the recommended `npm` / `pnpm` / `yarn` / `bun` version.

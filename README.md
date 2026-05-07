@@ -6,7 +6,7 @@ Run it before an agent starts work. It generates short, advisory project context
 
 It does not execute, approve, block, or sandbox commands.
 
-Status: `v0.4.0 Developer Preview` - advisory only - no command enforcement - macOS-first.
+Status: `v0.5.0 Developer Preview` - advisory only - no command enforcement - macOS-first.
 
 The MVP is not a human dashboard. It is a pre-work contract for AI agents: a map before the agent walks, not a fence around the agent.
 
@@ -73,14 +73,14 @@ AI agents do not need a beautiful inventory of everything installed on a machine
 4. Secret presence over secret contents.
 5. Short agent context over exhaustive reports.
 
-Hazakura Habitat is developed around output quality, not feature breadth. After the `v0.4` Policy Finding Foundation release, post-release self-use observation drives priority, and high-confidence scenarios matter more than broad coverage.
+Hazakura Habitat is developed around output quality, not feature breadth. After the `v0.5` Evidence and Instruction Alignment release, post-release self-use observation drives priority, and high-confidence scenarios matter more than broad coverage.
 
 The roadmap prioritizes:
 
-1. Evidence and instruction alignment (v0.5, provisional)
-2. Agent behavior feedback loop (v0.6)
-3. Integration and distribution foundations (v0.7)
-4. Release trust hardening (v0.8)
+1. Post-v0.5 self-use observation and agent behavior feedback loop (v0.6)
+2. Integration and distribution foundations (v0.7)
+3. Release trust hardening (v0.8)
+4. Pre-1.0 stability boundaries (v0.9)
 
 The goal is not to inspect everything on the machine. The goal is to generate concise, conservative context that changes an AI coding agent's next command choice.
 
@@ -151,7 +151,7 @@ Runtime version hints from `.nvmrc`, `.node-version`, `.python-version`, `.ruby-
 
 ## Current Status
 
-The repository contains the `v0.4.0 Developer Preview` implementation of the AI-first CLI. See [Current Status](docs/current_status.md) for what is implemented and what should come next.
+The repository contains the `v0.5.0 Developer Preview` implementation of the AI-first CLI. See [Current Status](docs/current_status.md) for what is implemented and what should come next.
 
 See [Public Readiness](docs/public_readiness.md) for the completed `v0.1.0` publication checklist and scope boundaries.
 

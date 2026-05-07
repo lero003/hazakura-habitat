@@ -130,6 +130,10 @@ public struct ReportWriter {
 
     private func agentContext(_ result: ScanResult) -> String {
         let preferredCommands = markdownPreferredCommands(result)
+        let validationEvidence = DocumentedValidationCommandEvidence(
+            project: result.project,
+            preferredCommands: preferredCommands
+        )
         let useLines: [String]
         let preferLines: [String]
 
@@ -170,6 +174,11 @@ public struct ReportWriter {
         let mismatchLines = result.warnings.isEmpty
             ? ["- Mismatches: none detected."]
             : limitedBulletLines(result.warnings.map { "Mismatch: \($0)" }, limit: 10, overflowLabel: "warnings")
+        let validationLines = limitedBulletLines(
+            validationEvidence.agentContextAnnotations,
+            limit: 4,
+            overflowLabel: "instruction-alignment annotations"
+        )
         let changeLines = limitedBulletLines(
             result.changes.map { "\($0.summary) \($0.impact)" },
             limit: 6,
@@ -183,6 +192,7 @@ public struct ReportWriter {
         let noteLines = (changeLines + diagnosticLines).isEmpty
             ? ["- Scan completed without relevant command diagnostics."]
             : changeLines + diagnosticLines
+        let noteAnnotationLines = validationLines + mismatchLines + noteLines
 
         return """
         # Agent Context
@@ -204,8 +214,7 @@ public struct ReportWriter {
         - Project: \(result.projectPath)
         - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
         - Scope: short working context; full approval detail is in `command_policy.md`.
-        \(mismatchLines.joined(separator: "\n"))
-        \(noteLines.joined(separator: "\n"))
+        \(noteAnnotationLines.joined(separator: "\n"))
         """
     }
 

@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 57
+- observing: 58
 - reviewed: 10
 
 ## Active Changes
@@ -14,7 +14,6 @@
 - `corepack-package-manager-activation-reason` - [changes/2026-05-04-corepack-package-manager-activation-reason.md](changes/2026-05-04-corepack-package-manager-activation-reason.md)
 - `host-private-command-family` - [changes/2026-05-04-host-private-command-family.md](changes/2026-05-04-host-private-command-family.md)
 - `instruction-alignment-roadmap` - [changes/2026-05-04-instruction-alignment-roadmap.md](changes/2026-05-04-instruction-alignment-roadmap.md)
-- `v0-5-instruction-alignment-release-gate` - [changes/2026-05-08-v0-5-instruction-alignment-release-gate.md](changes/2026-05-08-v0-5-instruction-alignment-release-gate.md)
 - `javascript-package-manager-mutation-command-families` - [changes/2026-05-04-javascript-package-manager-mutation-command-families.md](changes/2026-05-04-javascript-package-manager-mutation-command-families.md)
 - `package-manager-mutation-review-map` - [changes/2026-05-04-package-manager-mutation-review-map.md](changes/2026-05-04-package-manager-mutation-review-map.md)
 - `roadmap-policy-finding-foundation` - [changes/2026-05-04-roadmap-policy-finding-foundation.md](changes/2026-05-04-roadmap-policy-finding-foundation.md)
@@ -22,10 +21,6 @@
 - `maintainability-roadmap-guardrails` - [changes/2026-05-05-maintainability-roadmap-guardrails.md](changes/2026-05-05-maintainability-roadmap-guardrails.md)
 - `apple-package-manager-command-family` - [changes/2026-05-06-apple-package-manager-command-family.md](changes/2026-05-06-apple-package-manager-command-family.md)
 - `baseline-policy-list-assembly` - [changes/2026-05-06-baseline-policy-list-assembly.md](changes/2026-05-06-baseline-policy-list-assembly.md)
-- `baseline-policy-catalog-dedup-contract` - [changes/2026-05-08-baseline-policy-catalog-dedup-contract.md](changes/2026-05-08-baseline-policy-catalog-dedup-contract.md)
-- `command-reason-coverage-contract` - [changes/2026-05-08-command-reason-coverage-contract.md](changes/2026-05-08-command-reason-coverage-contract.md)
-- `command-reason-order-contract` - [changes/2026-05-08-command-reason-order-contract.md](changes/2026-05-08-command-reason-order-contract.md)
-- `review-first-reason-subset-contract` - [changes/2026-05-08-review-first-reason-subset-contract.md](changes/2026-05-08-review-first-reason-subset-contract.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)
 - `homebrew-command-family` - [changes/2026-05-06-homebrew-command-family.md](changes/2026-05-06-homebrew-command-family.md)
@@ -62,8 +57,14 @@
 - `swift-package-policy-test-boundary` - [changes/2026-05-07-swift-package-policy-test-boundary.md](changes/2026-05-07-swift-package-policy-test-boundary.md)
 - `test-coverage-contract` - [changes/2026-05-07-test-coverage-contract.md](changes/2026-05-07-test-coverage-contract.md)
 - `workspace-mutation-policy-test-boundary` - [changes/2026-05-07-workspace-mutation-policy-test-boundary.md](changes/2026-05-07-workspace-mutation-policy-test-boundary.md)
+- `baseline-policy-catalog-dedup-contract` - [changes/2026-05-08-baseline-policy-catalog-dedup-contract.md](changes/2026-05-08-baseline-policy-catalog-dedup-contract.md)
+- `command-reason-coverage-contract` - [changes/2026-05-08-command-reason-coverage-contract.md](changes/2026-05-08-command-reason-coverage-contract.md)
+- `command-reason-order-contract` - [changes/2026-05-08-command-reason-order-contract.md](changes/2026-05-08-command-reason-order-contract.md)
 - `core-infrastructure-test-file-boundary` - [changes/2026-05-08-core-infrastructure-test-file-boundary.md](changes/2026-05-08-core-infrastructure-test-file-boundary.md)
+- `documented-validation-command-evidence` - [changes/2026-05-08-documented-validation-command-evidence.md](changes/2026-05-08-documented-validation-command-evidence.md)
 - `package-auth-config-policy-test-boundary` - [changes/2026-05-08-package-auth-config-policy-test-boundary.md](changes/2026-05-08-package-auth-config-policy-test-boundary.md)
+- `review-first-reason-subset-contract` - [changes/2026-05-08-review-first-reason-subset-contract.md](changes/2026-05-08-review-first-reason-subset-contract.md)
+- `v0-5-instruction-alignment-release-gate` - [changes/2026-05-08-v0-5-instruction-alignment-release-gate.md](changes/2026-05-08-v0-5-instruction-alignment-release-gate.md)
 
 ## Review Due
 

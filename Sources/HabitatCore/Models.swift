@@ -251,6 +251,7 @@ public struct ProjectInfo: Codable {
     public let packageManagerVersion: String?
     public let packageManagerVersionSource: String?
     public let packageScripts: [String]
+    public let validationCommandClaims: [ValidationCommandClaim]
     public let runtimeHints: RuntimeHints
     public let declaredPackageManager: String?
     public let declaredPackageManagerVersion: String?
@@ -264,6 +265,7 @@ public struct ProjectInfo: Codable {
         packageManagerVersion: String?,
         packageManagerVersionSource: String? = nil,
         packageScripts: [String],
+        validationCommandClaims: [ValidationCommandClaim] = [],
         runtimeHints: RuntimeHints,
         declaredPackageManager: String? = nil,
         declaredPackageManagerVersion: String? = nil
@@ -276,6 +278,7 @@ public struct ProjectInfo: Codable {
         self.packageManagerVersion = packageManagerVersion
         self.packageManagerVersionSource = packageManagerVersionSource
         self.packageScripts = packageScripts
+        self.validationCommandClaims = validationCommandClaims
         self.runtimeHints = runtimeHints
         self.declaredPackageManager = declaredPackageManager
         self.declaredPackageManagerVersion = declaredPackageManagerVersion
@@ -290,6 +293,7 @@ public struct ProjectInfo: Codable {
         case packageManagerVersion
         case packageManagerVersionSource
         case packageScripts
+        case validationCommandClaims
         case runtimeHints
         case declaredPackageManager
         case declaredPackageManagerVersion
@@ -305,6 +309,7 @@ public struct ProjectInfo: Codable {
         packageManagerVersion = try container.decodeIfPresent(String.self, forKey: .packageManagerVersion)
         packageManagerVersionSource = try container.decodeIfPresent(String.self, forKey: .packageManagerVersionSource)
         packageScripts = try container.decode([String].self, forKey: .packageScripts)
+        validationCommandClaims = try container.decodeIfPresent([ValidationCommandClaim].self, forKey: .validationCommandClaims) ?? []
         runtimeHints = try container.decode(RuntimeHints.self, forKey: .runtimeHints)
         declaredPackageManager = try container.decodeIfPresent(String.self, forKey: .declaredPackageManager)
         declaredPackageManagerVersion = try container.decodeIfPresent(String.self, forKey: .declaredPackageManagerVersion)
@@ -320,9 +325,20 @@ public struct ProjectInfo: Codable {
         try container.encodeIfPresent(packageManagerVersion, forKey: .packageManagerVersion)
         try container.encodeIfPresent(packageManagerVersionSource, forKey: .packageManagerVersionSource)
         try container.encode(packageScripts, forKey: .packageScripts)
+        try container.encode(validationCommandClaims, forKey: .validationCommandClaims)
         try container.encode(runtimeHints, forKey: .runtimeHints)
         try container.encodeIfPresent(declaredPackageManager, forKey: .declaredPackageManager)
         try container.encodeIfPresent(declaredPackageManagerVersion, forKey: .declaredPackageManagerVersion)
+    }
+}
+
+public struct ValidationCommandClaim: Codable, Equatable {
+    public let source: String
+    public let command: String
+
+    public init(source: String, command: String) {
+        self.source = source
+        self.command = command
     }
 }
 

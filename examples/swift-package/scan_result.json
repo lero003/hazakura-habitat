@@ -1,6 +1,6 @@
 {
   "schemaVersion": "0.1",
-  "generatorVersion": "0.4.0",
+  "generatorVersion": "0.5.0",
   "artifacts": [
     {
       "name": "agent_context.md",
@@ -195,6 +195,7 @@
     "packageManager": "swiftpm",
     "packageManagerVersion": null,
     "packageScripts": [],
+    "validationCommandClaims": [],
     "runtimeHints": {
       "node": null,
       "python": null,

@@ -2,8 +2,20 @@
 
 ## Unreleased
 
+## v0.5.0 Developer Preview - 2026-05-08
+
+Evidence and Instruction Alignment release.
+
+### Added
+
+- Added `ValidationCommandClaim` scan data for sanitized validation-command claims from allowlisted instruction files, storing only source filename and normalized command.
+- Added `DocumentedValidationCommandEvidence` to compare documented validation-command claims with repository facts and render short `Fact`, `Warning`, and `Hint` annotations in `agent_context.md`.
+- Added `InstructionAlignmentPolicyTests.swift` coverage for conflicting and matching documented validation-command claims, raw-prose non-emission, and avoiding build-command false positives without validation context.
+- Added `examples/behavior-evaluation/instruction-claim-validation-001.json` as the first observed instruction-claim versus repository-facts fixture.
+
 ### Changed
 
+- Updated generated artifact metadata to report generator version `0.5.0`.
 - Clarified post-`v0.4.0` documentation so the next cycle observes published PolicyFinding behavior before starting broad evidence or instruction-alignment work.
 - Added roadmap guardrails for Scanner/test/catalog maintainability, `v0.5` entry criteria, non-Habitat behavior evidence, read-only MCP timing, Linux feasibility, and release distribution trust.
 - Clarified the `v0.5` direction as short, evidence-backed context annotations (`Facts`, `Hints`, `Warnings`, and `Open uncertainty`) rather than plan generation or a broad upfront `NormalizedEvidence` layer.

@@ -60,7 +60,7 @@ When evaluating self-use output, discount guidance that merely repeats existing 
 
 ## Current Self-Scan Snapshot
 
-Snapshot date: 2026-05-08 (post-maintainability split; `SecretFileDetector` extraction, test-suite decomposition, and no-output-change catalog boundaries preserved generated output, so policy values are unchanged from 2026-05-04).
+Snapshot date: 2026-05-08 (v0.5 release slice; `SecretFileDetector` extraction, test-suite decomposition, no-output-change catalog boundaries, secret-bearing evidence, and documented-validation-command evidence are present).
 
 - `PolicyReasonCatalogTests.swift` now owns catalog-family classification contracts, so future command-family slices can verify reason-code preservation without growing `PackageAndCommandPolicyTests.swift`.
 - `PolicyOutputContractTests.swift` now owns policy metadata, command-reason ordering, one-to-one command-reason coverage, Review First reason subset coverage, older-JSON decoding, and reason-legend ordering contracts, so output-contract checks are separate from package-manager scanner fixtures.
@@ -88,6 +88,7 @@ Snapshot date: 2026-05-08 (post-maintainability split; `SecretFileDetector` extr
 - Three intended regression scenarios now have Swift Testing `@Test` annotations again: pnpm lockfile selection, older scan-result decoding, and unrelated diagnostic filtering.
 - `TestCoverageContractTests.swift` now checks scenario functions in test suites for `@Test`, so future suite moves fail fast if executable coverage is accidentally dropped.
 - Static baseline Ask First and Forbidden policy lists now live in `PolicyReasonCatalog+BaselinePolicy.swift`, so Scanner adds project-specific dynamic guards without rebuilding the whole curated catalog inline.
+- `InstructionAlignmentPolicyTests.swift` now owns the documented validation-command claim cases, so instruction-alignment output can be checked without growing broad scanner or renderer tests.
 
 Observed output from scanning this repository:
 
@@ -100,6 +101,7 @@ Observed output from scanning this repository:
 - Forbidden commands: 489.
 - `scan_result.json` `policy.commandCounts`: 2 preferred, 262 Ask First, 6 Review First, 489 Forbidden, 751 with reasons.
 - `scan_result.json` `policy.reasonCodes`: 15 reason families, including `package_manager_activation`, `remote_repository_action`, `ephemeral_package_execution`, and `package_registry_mutation`.
+- `scan_result.json` `project.validationCommandClaims`: none in the current self-scan; README build examples are not treated as validation-command claims without validation context.
 - Warnings: none.
 
 Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in machine-readable data, but they did not pollute `agent_context.md` because they were not relevant to the SwiftPM command decision.
