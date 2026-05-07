@@ -37,6 +37,7 @@
 - Restored three intended Swift Testing scenarios by marking pnpm selection, older scan-result decoding, and unrelated diagnostic filtering functions as executable tests.
 - Added `TestCoverageContractTests.swift` to fail fast when scenario functions in test suites are missing Swift Testing `@Test` annotations.
 - Added a `PolicyReasonCatalogTests` contract that fails if baseline Ask First or Forbidden policy catalogs duplicate rendered entries or overlap classifications.
+- Added a `PolicyOutputContractTests` contract that verifies `scan_result.json` command-reason metadata mirrors generated Ask First and Forbidden command order.
 - Moved the static baseline Ask First and Forbidden command lists into `PolicyReasonCatalog`, reducing scanner/catalog drift while preserving generated output behavior.
 - Split the catalog-owned static baseline Ask First and Forbidden policy lists into `PolicyReasonCatalog+BaselinePolicy.swift` with no intended generated-output behavior change.
 - Added Nenrin change record for the maintainability split and observation guidance for future decomposition slices.

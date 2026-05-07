@@ -78,6 +78,25 @@ struct PolicyOutputContractTests {
     }
 
     @Test
+    func scanResultCommandReasonsMirrorPolicyCommandOrder() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+        ])
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let data = try Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        let decoded = try JSONDecoder().decode(ScanResult.self, from: data)
+        let expectedReasons = result.policy.askFirstCommands.map(PolicyReasonCatalog.askFirstCommandReason)
+            + result.policy.forbiddenCommands.map(PolicyReasonCatalog.forbiddenCommandReason)
+
+        #expect(decoded.policy.commandReasons == expectedReasons)
+        #expect(decoded.policy.commandCounts.withReasons == expectedReasons.count)
+    }
+
+    @Test
     func policySummaryDecodesOlderJsonWithoutCommandCounts() throws {
         let json = """
         {
