@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 43
+- observing: 44
 - reviewed: 10
 
 ## Active Changes
@@ -26,6 +26,7 @@
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)
 - `homebrew-command-family` - [changes/2026-05-06-homebrew-command-family.md](changes/2026-05-06-homebrew-command-family.md)
+- `host-private-data-policy-test-boundary` - [changes/2026-05-07-host-private-data-policy-test-boundary.md](changes/2026-05-07-host-private-data-policy-test-boundary.md)
 - `host-environment-command-family` - [changes/2026-05-06-host-environment-command-family.md](changes/2026-05-06-host-environment-command-family.md)
 - `policy-reason-catalog-test-boundary` - [changes/2026-05-06-policy-reason-catalog-test-boundary.md](changes/2026-05-06-policy-reason-catalog-test-boundary.md)
 - `project-environment-command-family` - [changes/2026-05-06-project-environment-command-family.md](changes/2026-05-06-project-environment-command-family.md)
