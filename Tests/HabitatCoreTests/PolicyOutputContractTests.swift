@@ -176,6 +176,32 @@ struct PolicyOutputContractTests {
         #expect(Set(decoded.policy.reasonCodes.map(\.code)).count == decoded.policy.reasonCodes.count)
     }
 
+    @Test
+    func scanResultCommandReasonTextMatchesReasonLegend() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            "package.json": #"{"scripts":{"build":"swift build"}}"#,
+            "pnpm-lock.yaml": "",
+            ".env": "",
+        ])
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let data = try Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        let decoded = try JSONDecoder().decode(ScanResult.self, from: data)
+        let reasonTextByCode = Dictionary(
+            uniqueKeysWithValues: decoded.policy.reasonCodes.map { ($0.code, $0.text) }
+        )
+        let allReasons = decoded.policy.commandReasons + decoded.policy.reviewFirstCommandReasons
+
+        #expect(!allReasons.isEmpty)
+        #expect(allReasons.allSatisfy { reason in
+            reasonTextByCode[reason.reasonCode] == reason.reason
+        })
+    }
+
     private func policyCommandReasonKey(_ reason: PolicyCommandReason) -> String {
         [
             reason.classification,

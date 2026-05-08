@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 60
+- observing: 61
 - reviewed: 10
 
 ## Active Changes
@@ -65,6 +65,7 @@
 - `package-auth-config-policy-test-boundary` - [changes/2026-05-08-package-auth-config-policy-test-boundary.md](changes/2026-05-08-package-auth-config-policy-test-boundary.md)
 - `post-v0-5-review-automation-guidance` - [changes/2026-05-08-post-v0-5-review-automation-guidance.md](changes/2026-05-08-post-v0-5-review-automation-guidance.md)
 - `reason-legend-coverage-contract` - [changes/2026-05-08-reason-legend-coverage-contract.md](changes/2026-05-08-reason-legend-coverage-contract.md)
+- `reason-legend-text-contract` - [changes/2026-05-08-reason-legend-text-contract.md](changes/2026-05-08-reason-legend-text-contract.md)
 - `review-first-reason-subset-contract` - [changes/2026-05-08-review-first-reason-subset-contract.md](changes/2026-05-08-review-first-reason-subset-contract.md)
 - `v0-5-instruction-alignment-release-gate` - [changes/2026-05-08-v0-5-instruction-alignment-release-gate.md](changes/2026-05-08-v0-5-instruction-alignment-release-gate.md)
 
