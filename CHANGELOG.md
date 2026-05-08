@@ -10,6 +10,7 @@
 - Added a `PolicyOutputContractTests` contract that verifies `scan_result.json` reason-code legend metadata covers every serialized command-reason and Review First reason code.
 - Added a `PolicyOutputContractTests` contract that verifies serialized command-reason text matches the matching `policy.reasonCodes` legend text.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Reason Codes` lines stay in sync with serialized `policy.reasonCodes` metadata.
+- Added a `PolicyOutputContractTests` contract that keeps generic Ask First and Forbidden fallback reason codes present in `policy.reasonCodes`.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Review First` lines stay in sync with serialized `policy.reviewFirstCommandReasons` metadata.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Policy Index` counts stay in sync with generated policy metadata and section contents.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Policy Index` omits absent conditional sections instead of pointing agents at empty headings.

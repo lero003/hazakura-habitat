@@ -354,6 +354,43 @@ struct PolicyOutputContractTests {
         })
     }
 
+    @Test
+    func policyReasonLegendIncludesFallbackReasonCodes() throws {
+        let fallbackReasons = PolicyReasonCatalog.legend(
+            askFirstCommands: ["custom project mutation"],
+            forbiddenCommands: ["custom unsafe command"]
+        )
+        let commandReasons = PolicyReasonCatalog.commandReasons(
+            askFirstCommands: ["custom project mutation"],
+            forbiddenCommands: ["custom unsafe command"]
+        )
+
+        #expect(fallbackReasons == [
+            PolicyReasonCode(
+                code: "user_approval_required",
+                text: "Requires user approval before execution."
+            ),
+            PolicyReasonCode(
+                code: "unsafe_or_sensitive_command",
+                text: "Generated policy marks this command as unsafe or sensitive."
+            ),
+        ])
+        #expect(commandReasons == [
+            PolicyCommandReason(
+                command: "custom project mutation",
+                classification: PolicyCommandReason.askFirstClassification,
+                reasonCode: "user_approval_required",
+                reason: "Requires user approval before execution."
+            ),
+            PolicyCommandReason(
+                command: "custom unsafe command",
+                classification: PolicyCommandReason.forbiddenClassification,
+                reasonCode: "unsafe_or_sensitive_command",
+                reason: "Generated policy marks this command as unsafe or sensitive."
+            ),
+        ])
+    }
+
     private func policyCommandReasonKey(_ reason: PolicyCommandReason) -> String {
         [
             reason.classification,

@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 81
+- observing: 82
 - reviewed: 10
 
 ## Active Changes
@@ -86,6 +86,7 @@
 - `agent-context-git-overflow-dedup` - [changes/2026-05-09-agent-context-git-overflow-dedup.md](changes/2026-05-09-agent-context-git-overflow-dedup.md)
 - `dependency-mutation-fallback-order-contract` - [changes/2026-05-09-dependency-mutation-fallback-order-contract.md](changes/2026-05-09-dependency-mutation-fallback-order-contract.md)
 - `dependency-shaped-specific-order-contract` - [changes/2026-05-09-dependency-shaped-specific-order-contract.md](changes/2026-05-09-dependency-shaped-specific-order-contract.md)
+- `fallback-reason-legend-contract` - [changes/2026-05-09-fallback-reason-legend-contract.md](changes/2026-05-09-fallback-reason-legend-contract.md)
 - `forbidden-fallback-order-contract` - [changes/2026-05-09-forbidden-fallback-order-contract.md](changes/2026-05-09-forbidden-fallback-order-contract.md)
 - `package-manager-review-baseline-contract` - [changes/2026-05-09-package-manager-review-baseline-contract.md](changes/2026-05-09-package-manager-review-baseline-contract.md)
 
