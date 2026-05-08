@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 83
+- observing: 84
 - reviewed: 10
 
 ## Active Changes
@@ -90,6 +90,7 @@
 - `fallback-reason-legend-contract` - [changes/2026-05-09-fallback-reason-legend-contract.md](changes/2026-05-09-fallback-reason-legend-contract.md)
 - `forbidden-fallback-order-contract` - [changes/2026-05-09-forbidden-fallback-order-contract.md](changes/2026-05-09-forbidden-fallback-order-contract.md)
 - `package-manager-review-baseline-contract` - [changes/2026-05-09-package-manager-review-baseline-contract.md](changes/2026-05-09-package-manager-review-baseline-contract.md)
+- `cross-project-habitat-observation` - [changes/2026-05-09-cross-project-habitat-observation.md](changes/2026-05-09-cross-project-habitat-observation.md)
 
 ## Review Due
 

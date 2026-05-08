@@ -30,6 +30,7 @@
 - Changed documented validation-command extraction so negated, obsolete, or example-only command mentions are not recorded as positive validation claims.
 - Changed documented validation-command alignment so a documented workflow with no repository-supported workflow emits bounded `Open uncertainty` instead of a confident mismatch warning.
 - Changed documented Xcode validation alignment so `xcodebuild test` claims are constrained to `xcodebuild -list` scheme discovery before following the documented test command.
+- Documented a cross-project observation boundary for using another local project's `habitat-report/` as self-use input without turning Habitat into a planner or a second workstream for that project.
 
 ## v0.5.0 Developer Preview - 2026-05-08
 

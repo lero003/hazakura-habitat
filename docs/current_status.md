@@ -23,6 +23,7 @@ Keep the current cycle focused:
 - add representative examples only when self-use evidence shows a new command-decision boundary
 - refine issue and contribution guidance when real feedback exposes a misunderstanding
 - harden output contract and behavior evaluation
+- use cross-project Habitat reports only as observation input for Habitat itself; the first `hazakura-ai-mobile` report shows a useful weak signal by detecting no primary package manager and keeping agents on read-only inspection until Android or Gradle facts exist
 
 ## Implemented
 

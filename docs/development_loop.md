@@ -95,6 +95,20 @@ For future release handoffs, verify artifacts before pushing the public version 
 If a tag workflow fails before any GitHub Release exists, fixing main and replacing the unpublished tag target is acceptable but should be treated as a release-process recovery, not the normal path. Once a public GitHub Release exists, keep the tag and assets immutable; publish a patch release for material corrections.
 ```
 
+## Cross-Project Observation
+
+Habitat may also be used to watch another local project when that project is an active self-use source for AI-led development.
+
+Keep this observational:
+
+- read the other project's generated `habitat-report/agent_context.md` first
+- compare it with the other project's visible repository facts when the report looks stale, weak, or over-broad
+- look for command-changing signals: package-manager detection, missing preferred tools, validation-command uncertainty, secret-bearing paths, Git/GitHub risk, or stale report behavior
+- feed only durable Habitat lessons back into this repository as docs, fixtures, tests, examples, or roadmap notes
+- do not turn the watched project into a second Habitat workstream, do not copy raw report output into Nenrin, and do not make Habitat produce a plan for that project
+
+The current Android-first `hazakura-ai-mobile` observation is a good example: its report is useful as a weak signal because it currently detects only `AGENTS.md` and `README.md`, emits no primary package-manager guidance, and therefore keeps agents on read-only inspection until real Android or Gradle project facts appear. If a later report starts detecting Gradle, Kotlin, Android build files, or validation commands, use that as evidence for one narrow Habitat command-decision improvement rather than broad ecosystem expansion.
+
 ## Self-Use Before Substantial Work
 
 Before larger Habitat changes, use the bundled `hazakura-habitat` skill or run Habitat on this repository and read the generated agent context:
