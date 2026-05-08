@@ -202,6 +202,30 @@ struct PolicyOutputContractTests {
         })
     }
 
+    @Test
+    func commandPolicyReasonLegendMatchesScanResultMetadata() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            "package.json": #"{"scripts":{"build":"swift build"}}"#,
+            "pnpm-lock.yaml": "",
+            ".env": "",
+        ])
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let data = try Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        let decoded = try JSONDecoder().decode(ScanResult.self, from: data)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let reasonCodeLines = markdownBulletLines(in: "Reason Codes", markdown: policy)
+
+        #expect(!decoded.policy.reasonCodes.isEmpty)
+        #expect(reasonCodeLines == decoded.policy.reasonCodes.map {
+            "- `\($0.code)` - \($0.text)"
+        })
+    }
+
     private func policyCommandReasonKey(_ reason: PolicyCommandReason) -> String {
         [
             reason.classification,
@@ -209,6 +233,17 @@ struct PolicyOutputContractTests {
             reason.reasonCode,
             reason.reason,
         ].joined(separator: "\u{0}")
+    }
+
+    private func markdownBulletLines(in section: String, markdown: String) -> [String] {
+        let lines = markdown.split(separator: "\n", omittingEmptySubsequences: false).map(String.init)
+        guard let sectionIndex = lines.firstIndex(of: "## \(section)") else {
+            return []
+        }
+
+        let followingLines = lines[(sectionIndex + 1)...]
+        let nextSectionOffset = followingLines.firstIndex { $0.hasPrefix("## ") } ?? lines.endIndex
+        return followingLines[..<nextSectionOffset].filter { $0.hasPrefix("- ") }
     }
 
     @Test

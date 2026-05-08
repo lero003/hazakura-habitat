@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 61
+- observing: 62
 - reviewed: 10
 
 ## Active Changes
@@ -62,6 +62,7 @@
 - `command-reason-order-contract` - [changes/2026-05-08-command-reason-order-contract.md](changes/2026-05-08-command-reason-order-contract.md)
 - `core-infrastructure-test-file-boundary` - [changes/2026-05-08-core-infrastructure-test-file-boundary.md](changes/2026-05-08-core-infrastructure-test-file-boundary.md)
 - `documented-validation-command-evidence` - [changes/2026-05-08-documented-validation-command-evidence.md](changes/2026-05-08-documented-validation-command-evidence.md)
+- `markdown-reason-legend-contract` - [changes/2026-05-08-markdown-reason-legend-contract.md](changes/2026-05-08-markdown-reason-legend-contract.md)
 - `package-auth-config-policy-test-boundary` - [changes/2026-05-08-package-auth-config-policy-test-boundary.md](changes/2026-05-08-package-auth-config-policy-test-boundary.md)
 - `post-v0-5-review-automation-guidance` - [changes/2026-05-08-post-v0-5-review-automation-guidance.md](changes/2026-05-08-post-v0-5-review-automation-guidance.md)
 - `reason-legend-coverage-contract` - [changes/2026-05-08-reason-legend-coverage-contract.md](changes/2026-05-08-reason-legend-coverage-contract.md)
