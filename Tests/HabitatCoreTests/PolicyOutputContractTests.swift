@@ -204,6 +204,47 @@ struct PolicyOutputContractTests {
     }
 
     @Test
+    func commandPolicyIndexOmitsAbsentConditionalSections() throws {
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let result = ScanResult(
+            scannedAt: "2026-05-08T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(
+                operatingSystemVersion: "macOS",
+                architecture: "arm64",
+                shell: "/bin/zsh",
+                path: ["/usr/bin"]
+            ),
+            commands: [],
+            project: .init(
+                detectedFiles: [],
+                packageManager: nil,
+                packageManagerVersion: nil,
+                packageScripts: [],
+                runtimeHints: .init(node: nil, python: nil)
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["read-only inspection"],
+                askFirstCommands: [],
+                forbiddenCommands: []
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let indexTitles = markdownBulletLines(in: "Policy Index", markdown: policy).compactMap(policyIndexTitle)
+
+        #expect(indexTitles == ["Allowed", "Ask First", "Forbidden"])
+        #expect(!policy.contains("## Review First"))
+        #expect(!policy.contains("## Reason Codes"))
+        #expect(!policy.contains("## If Secret-Bearing Files Are Detected"))
+    }
+
+    @Test
     func commandPolicyCommandReasonCodesMatchScanResultMetadata() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift-tools-version: 6.0\n",
@@ -349,6 +390,15 @@ struct PolicyOutputContractTests {
         }
 
         return (parts[1], count)
+    }
+
+    private func policyIndexTitle(_ line: String) -> String? {
+        let parts = line.split(separator: "`", maxSplits: 2).map(String.init)
+        guard parts.count == 3 else {
+            return nil
+        }
+
+        return parts[1]
     }
 
     private func policyCommandLineReason(_ line: String, classification: String) -> PolicyCommandReason? {

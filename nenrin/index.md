@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 72
+- observing: 73
 - reviewed: 10
 
 ## Active Changes
@@ -71,6 +71,7 @@
 - `negated-validation-claim-filter` - [changes/2026-05-08-negated-validation-claim-filter.md](changes/2026-05-08-negated-validation-claim-filter.md)
 - `package-auth-config-policy-test-boundary` - [changes/2026-05-08-package-auth-config-policy-test-boundary.md](changes/2026-05-08-package-auth-config-policy-test-boundary.md)
 - `policy-index-count-sync-contract` - [changes/2026-05-08-policy-index-count-sync-contract.md](changes/2026-05-08-policy-index-count-sync-contract.md)
+- `policy-index-conditional-section-contract` - [changes/2026-05-08-policy-index-conditional-section-contract.md](changes/2026-05-08-policy-index-conditional-section-contract.md)
 - `post-v0-5-review-automation-guidance` - [changes/2026-05-08-post-v0-5-review-automation-guidance.md](changes/2026-05-08-post-v0-5-review-automation-guidance.md)
 - `reason-legend-coverage-contract` - [changes/2026-05-08-reason-legend-coverage-contract.md](changes/2026-05-08-reason-legend-coverage-contract.md)
 - `reason-legend-text-contract` - [changes/2026-05-08-reason-legend-text-contract.md](changes/2026-05-08-reason-legend-text-contract.md)
