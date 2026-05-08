@@ -78,6 +78,7 @@ public struct ProjectDetector {
         ".ssh/id_ecdsa",
         ".ssh/id_ed25519",
         "README.md",
+        ".pre-commit-config.yaml",
     ]
 
     public func detect(projectURL: URL) -> ProjectInfo {

@@ -198,7 +198,14 @@ public struct ReportWriter {
         } else {
             ciUncertaintyLines = []
         }
-        let noteAnnotationLines = validationLines + ciUncertaintyLines + mismatchLines + noteLines
+        let preCommitWarningLines: [String]
+        if result.project.detectedFiles.contains(".pre-commit-config.yaml"),
+           !result.project.symlinkedFiles.contains(".pre-commit-config.yaml") {
+            preCommitWarningLines = ["Warning: Pre-commit configuration detected. Check git status after commit hooks run."]
+        } else {
+            preCommitWarningLines = []
+        }
+        let noteAnnotationLines = validationLines + ciUncertaintyLines + preCommitWarningLines + mismatchLines + noteLines
 
         return """
         # Agent Context
