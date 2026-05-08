@@ -175,6 +175,35 @@ struct PolicyOutputContractTests {
     }
 
     @Test
+    func commandPolicyIndexCountsMatchGeneratedPolicyMetadata() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            "package.json": #"{"scripts":{"build":"swift build"}}"#,
+            "pnpm-lock.yaml": "",
+            ".env": "",
+        ])
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let data = try Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        let decoded = try JSONDecoder().decode(ScanResult.self, from: data)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let indexCounts = Dictionary(
+            uniqueKeysWithValues: markdownBulletLines(in: "Policy Index", markdown: policy).compactMap(policyIndexCount)
+        )
+
+        #expect(indexCounts.count == 6)
+        #expect(indexCounts["Review First"] == decoded.policy.commandCounts.reviewFirst)
+        #expect(indexCounts["Reason Codes"] == decoded.policy.reasonCodes.count)
+        #expect(indexCounts["If Secret-Bearing Files Are Detected"] == SecretBearingEvidence(project: decoded.project).paths.count)
+        #expect(indexCounts["Allowed"] == markdownBulletLines(in: "Allowed", markdown: policy).count)
+        #expect(indexCounts["Ask First"] == decoded.policy.commandCounts.askFirst)
+        #expect(indexCounts["Forbidden"] == decoded.policy.commandCounts.forbidden)
+    }
+
+    @Test
     func scanResultReasonLegendCoversAllCommandReasonCodes() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift-tools-version: 6.0\n",
@@ -267,6 +296,24 @@ struct PolicyOutputContractTests {
         let followingLines = lines[(sectionIndex + 1)...]
         let nextSectionOffset = followingLines.firstIndex { $0.hasPrefix("## ") } ?? lines.endIndex
         return followingLines[..<nextSectionOffset].filter { $0.hasPrefix("- ") }
+    }
+
+    private func policyIndexCount(_ line: String) -> (String, Int)? {
+        let parts = line.split(separator: "`", maxSplits: 2).map(String.init)
+        guard parts.count == 3 else {
+            return nil
+        }
+
+        let countText = parts[2]
+            .trimmingCharacters(in: .whitespaces)
+            .dropFirst(2)
+            .split(separator: " ")
+            .first
+        guard let countText, let count = Int(countText) else {
+            return nil
+        }
+
+        return (parts[1], count)
     }
 
     @Test

@@ -10,6 +10,7 @@
 - Added a `PolicyOutputContractTests` contract that verifies serialized command-reason text matches the matching `policy.reasonCodes` legend text.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Reason Codes` lines stay in sync with serialized `policy.reasonCodes` metadata.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Review First` lines stay in sync with serialized `policy.reviewFirstCommandReasons` metadata.
+- Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Policy Index` counts stay in sync with generated policy metadata and section contents.
 - Added an `AgentContextOutputContractTests` contract that keeps hidden Ask First overflow summaries bounded to the first three structured reason codes plus `more`.
 - Added CI workflow presence to scan data and `agent_context.md` uncertainty when CI exists but repository facts do not identify a local verification command.
 - Changed documented validation-command alignment so multiple instruction files that point to different validation workflows emit bounded `Open uncertainty` instead of silently trusting the first claim.
