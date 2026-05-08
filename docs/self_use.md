@@ -88,7 +88,7 @@ Snapshot date: 2026-05-08 (v0.5 release slice; `SecretFileDetector` extraction, 
 - Three intended regression scenarios now have Swift Testing `@Test` annotations again: pnpm lockfile selection, older scan-result decoding, and unrelated diagnostic filtering.
 - `TestCoverageContractTests.swift` now checks scenario functions in test suites for `@Test`, so future suite moves fail fast if executable coverage is accidentally dropped.
 - Static baseline Ask First and Forbidden policy lists now live in `PolicyReasonCatalog+BaselinePolicy.swift`, so Scanner adds project-specific dynamic guards without rebuilding the whole curated catalog inline.
-- `InstructionAlignmentPolicyTests.swift` now owns the documented validation-command claim cases, including conflicting multiple validation workflows, unsupported documented workflows, and negated command mentions, so instruction-alignment output can be checked without growing broad scanner or renderer tests.
+- `InstructionAlignmentPolicyTests.swift` now owns the documented validation-command claim cases, including conflicting multiple validation workflows, unsupported documented workflows, negated command mentions, and the Xcode `xcodebuild test` claim that must start from scheme discovery, so instruction-alignment output can be checked without growing broad scanner or renderer tests.
 
 Observed output from scanning this repository:
 

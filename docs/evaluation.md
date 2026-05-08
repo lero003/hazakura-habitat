@@ -152,17 +152,19 @@ Expected behavior:
 - Emit only command-relevant `Fact`, `Warning`, or `Hint` annotations.
 - Prefer the repository-supported validation command when docs and facts agree.
 - Warn and avoid overconfident guidance when docs mention a validation command that repository facts do not support or cannot verify.
+- For Xcode projects, treat a documented `xcodebuild test` claim as support for Xcode validation, but prefer scheme discovery before running scheme-dependent validation.
 - Keep the first case narrow enough to justify `v0.5.0` without turning Habitat into a generic project-instruction linter.
 
 Post-`v0.5.0` follow-up candidates:
 
-- Xcode validation is documented with `xcodebuild test`; expected behavior should stay narrow and command-changing before adding it.
+- None currently promoted; add another case only when a self-use or fixture trace changes, confirms, or constrains a real command decision.
 
 Covered follow-ups:
 
 - Multiple validation-command claims disagree; expected behavior emits bounded `Open uncertainty` rather than silently following the first claim.
 - A command mentioned only in negated, obsolete, deprecated, avoid, or example-only wording is not treated as a positive validation claim.
 - A documented validation command is present but repository facts cannot identify the workflow; expected behavior emits bounded `Open uncertainty` rather than a confident mismatch warning.
+- Xcode validation is documented with `xcodebuild test`; expected behavior records the claim but starts with `xcodebuild -list` before scheme-dependent validation.
 
 ## Observed Cases
 
@@ -182,6 +184,23 @@ Summary:
 Follow-up:
 
 - Keep post-`v0.5` instruction-alignment work narrow; add another case only when a real self-use or fixture trace changes, confirms, or constrains a command decision.
+
+### instruction-claim-xcodebuild-001
+
+Fixture:
+
+- `examples/behavior-evaluation/instruction-claim-xcodebuild-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: `agent_context.md` plus `scan_result.json`.
+- Observation: Habitat recognized a sanitized `xcodebuild test` claim and Xcode project facts, but constrained the first command to `xcodebuild -list` before scheme-dependent validation.
+
+Follow-up:
+
+- Do not broaden Xcode instruction parsing until a later self-use case shows another command-changing gap.
 
 ### swiftpm-self-use-001
 

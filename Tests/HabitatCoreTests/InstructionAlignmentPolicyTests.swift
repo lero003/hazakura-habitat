@@ -183,4 +183,35 @@ struct InstructionAlignmentPolicyTests {
         #expect(result.project.validationCommandClaims.isEmpty)
         #expect(!context.contains("Project instructions and repository files both support SwiftPM validation."))
     }
+
+    @Test
+    func scanConstrainsDocumentedXcodebuildTestClaimToSchemeDiscovery() throws {
+        let projectURL = try makeProject(files: [
+            "Demo App.xcodeproj/project.pbxproj": "// synthetic project marker",
+            "AGENTS.md": "Use xcodebuild test for local validation."
+        ])
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a xcodebuild": .init(name: "/usr/bin/which", args: ["-a", "xcodebuild"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/xcodebuild", stderr: ""),
+            "/usr/bin/env xcodebuild -version": .init(name: "/usr/bin/env", args: ["xcodebuild", "-version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Xcode 16.3\nBuild version 16E140", stderr: ""),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: "")
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let scanJSON = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+
+        assertAgentContextContract(context)
+        #expect(result.project.validationCommandClaims == [
+            ValidationCommandClaim(source: "AGENTS.md", command: "xcodebuild test")
+        ])
+        #expect(result.project.packageManager == "xcodebuild")
+        #expect(context.contains("Fact: Project instructions and repository files both support Xcode validation."))
+        #expect(context.contains("Hint: Start with `xcodebuild -list -project 'Demo App.xcodeproj'` before following documented `xcodebuild test` validation."))
+        #expect(context.contains("Ask before `xcodebuild build/test/archive before selecting a scheme`."))
+        #expect(!context.contains("Use xcodebuild test for local validation."))
+        #expect(scanJSON.contains("\"command\" : \"xcodebuild test\""))
+        #expect(!scanJSON.contains("Use xcodebuild test for local validation."))
+    }
 }

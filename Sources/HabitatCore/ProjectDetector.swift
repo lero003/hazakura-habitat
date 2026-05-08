@@ -382,7 +382,8 @@ public struct ProjectDetector {
             "uv run pytest",
             "go test ./...",
             "cargo test",
-            "bundle exec"
+            "bundle exec",
+            "xcodebuild test"
         ]
 
         return candidates.filter { candidate in

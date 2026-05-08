@@ -55,6 +55,20 @@ public struct DocumentedValidationCommandEvidence {
 
     private func alignedAnnotations(claim: ValidationCommandClaim) -> [String] {
         let workflow = workflowName(project.packageManager)
+        if project.packageManager == "xcodebuild" {
+            if let preferred = preferredCommands.first {
+                return [
+                    "Fact: Project instructions and repository files both support Xcode validation.",
+                    "Hint: Start with `\(preferred)` before following documented `\(claim.command)` validation."
+                ]
+            }
+
+            return [
+                "Fact: Project instructions mention Xcode validation and repository files include an Xcode project.",
+                "Open uncertainty: Verify Xcode tooling and scheme selection before following documented `\(claim.command)` validation."
+            ]
+        }
+
         let preferred = preferredValidationCommand ?? claim.command
         return [
             "Fact: Project instructions and repository files both support \(workflow) validation.",
@@ -129,6 +143,7 @@ public struct DocumentedValidationCommandEvidence {
         if command.hasPrefix("go ") { return "go" }
         if command.hasPrefix("cargo ") { return "cargo" }
         if command.hasPrefix("bundle ") { return "bundler" }
+        if command.hasPrefix("xcodebuild ") { return "xcodebuild" }
         return nil
     }
 
