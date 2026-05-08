@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 77
+- observing: 78
 - reviewed: 10
 
 ## Active Changes
@@ -84,6 +84,7 @@
 - `workspace-mutation-reason-routing` - [changes/2026-05-08-workspace-mutation-reason-routing.md](changes/2026-05-08-workspace-mutation-reason-routing.md)
 - `xcodebuild-validation-claim-scheme-discovery` - [changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md](changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md)
 - `agent-context-git-overflow-dedup` - [changes/2026-05-09-agent-context-git-overflow-dedup.md](changes/2026-05-09-agent-context-git-overflow-dedup.md)
+- `dependency-mutation-fallback-order-contract` - [changes/2026-05-09-dependency-mutation-fallback-order-contract.md](changes/2026-05-09-dependency-mutation-fallback-order-contract.md)
 
 ## Review Due
 

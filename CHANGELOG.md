@@ -16,6 +16,7 @@
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Ask First` and `Forbidden` reason-code annotations stay in sync with serialized `policy.commandReasons` metadata.
 - Added an `AgentContextOutputContractTests` contract that keeps hidden Ask First overflow summaries bounded to the first three structured reason codes plus `more`.
 - Changed `agent_context.md` Ask First overflow counts so Git/GitHub guards summarized by the dedicated mutation reminder are not counted again in the additional hidden-command line.
+- Added a `PolicyReasonCatalogTests` contract that keeps generic dependency-mutation fallback behind specific command-family rules.
 - Added a pre-commit configuration warning in `agent_context.md` and `PreCommitPolicyTests` coverage so agents check `git status` after commit hooks may mutate the workspace.
 - Added a `PolicyReasonCatalogTests` contract that keeps GitHub CLI local workspace commands under `git_mutation` while remote GitHub actions stay under `remote_repository_action`.
 - Changed workspace mutation reason-code routing so `rm`, `rm -r`, `rm -rf`, and `xargs rm` use `user_approval_required` instead of falling through to dependency-mutation reasoning.

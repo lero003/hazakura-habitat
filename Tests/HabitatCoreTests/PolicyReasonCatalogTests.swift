@@ -92,6 +92,17 @@ struct PolicyReasonCatalogTests {
     }
 
     @Test
+    func dependencyMutationFallbackStaysBehindSpecificCatalogRules() {
+        #expect(PolicyReasonCatalog.askFirstReason(for: "swift package update").code == "dependency_resolution_mutation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "modifying version manager files").code == "version_manager_mutation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "rm -rf").code == "user_approval_required")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "npm install").code == "dependency_mutation")
+
+        #expect(PolicyReasonCatalog.askFirstReason(for: "make install").code == "dependency_mutation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "tool bootstrap").code == "dependency_mutation")
+    }
+
+    @Test
     func catalogFamilyExtractionsPreserveClassification() {
         #expect(PolicyReasonCatalog.askFirstReason(for: "git push").code == "git_mutation")
         #expect(PolicyReasonCatalog.askFirstReason(for: "git commit").code == "git_mutation")
