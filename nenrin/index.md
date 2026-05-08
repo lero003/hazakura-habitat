@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 74
+- observing: 75
 - reviewed: 10
 
 ## Active Changes
@@ -65,6 +65,7 @@
 - `command-reason-order-contract` - [changes/2026-05-08-command-reason-order-contract.md](changes/2026-05-08-command-reason-order-contract.md)
 - `core-infrastructure-test-file-boundary` - [changes/2026-05-08-core-infrastructure-test-file-boundary.md](changes/2026-05-08-core-infrastructure-test-file-boundary.md)
 - `documented-validation-command-evidence` - [changes/2026-05-08-documented-validation-command-evidence.md](changes/2026-05-08-documented-validation-command-evidence.md)
+- `github-cli-local-remote-contract` - [changes/2026-05-08-github-cli-local-remote-contract.md](changes/2026-05-08-github-cli-local-remote-contract.md)
 - `markdown-reason-legend-contract` - [changes/2026-05-08-markdown-reason-legend-contract.md](changes/2026-05-08-markdown-reason-legend-contract.md)
 - `multiple-validation-claim-uncertainty` - [changes/2026-05-08-multiple-validation-claim-uncertainty.md](changes/2026-05-08-multiple-validation-claim-uncertainty.md)
 - `negated-validation-claim-filter` - [changes/2026-05-08-negated-validation-claim-filter.md](changes/2026-05-08-negated-validation-claim-filter.md)

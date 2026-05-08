@@ -65,6 +65,33 @@ struct PolicyReasonCatalogTests {
     }
 
     @Test
+    func githubCliCatalogSeparatesLocalWorkspaceFromRemoteRepositoryActions() {
+        let localWorkspaceCommands = [
+            "gh pr checkout",
+            "gh repo clone",
+        ]
+        let remoteRepositoryCommands = PolicyReasonCatalog.gitHubCliMutationCommands.filter {
+            !localWorkspaceCommands.contains($0)
+        }
+
+        #expect(!remoteRepositoryCommands.isEmpty)
+
+        for command in localWorkspaceCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "git_mutation",
+                "Expected \(command) to remain a local workspace mutation"
+            )
+        }
+
+        for command in remoteRepositoryCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "remote_repository_action",
+                "Expected \(command) to remain a remote repository action"
+            )
+        }
+    }
+
+    @Test
     func catalogFamilyExtractionsPreserveClassification() {
         #expect(PolicyReasonCatalog.askFirstReason(for: "git push").code == "git_mutation")
         #expect(PolicyReasonCatalog.askFirstReason(for: "git commit").code == "git_mutation")
