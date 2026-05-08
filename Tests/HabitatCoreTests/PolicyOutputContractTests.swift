@@ -152,6 +152,29 @@ struct PolicyOutputContractTests {
     }
 
     @Test
+    func commandPolicyReviewFirstMatchesScanResultMetadata() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            "package.json": #"{"scripts":{"build":"swift build"}}"#,
+            "pnpm-lock.yaml": "",
+        ])
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let data = try Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        let decoded = try JSONDecoder().decode(ScanResult.self, from: data)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let reviewFirstLines = markdownBulletLines(in: "Review First", markdown: policy)
+
+        #expect(!decoded.policy.reviewFirstCommandReasons.isEmpty)
+        #expect(reviewFirstLines == decoded.policy.reviewFirstCommandReasons.map {
+            "- `\($0.command)` (`\($0.reasonCode)`) - \($0.reason)"
+        })
+    }
+
+    @Test
     func scanResultReasonLegendCoversAllCommandReasonCodes() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift-tools-version: 6.0\n",
