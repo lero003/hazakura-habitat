@@ -65,6 +65,50 @@ struct PolicyReasonCatalogTests {
     }
 
     @Test
+    func packageManagerReviewRoutingKeepsBaselineAndSwiftPMBoundariesExplicit() {
+        let baselineAskFirstCommands = Set(PolicyReasonCatalog.baselineAskFirstCommands)
+        let selectedSwiftPMCommands = Set(PolicyReasonCatalog.swiftPackageDependencyResolutionCommands)
+        let packageManagers = [
+            "npm",
+            "pnpm",
+            "yarn",
+            "bun",
+            "uv",
+            "python",
+            "bundler",
+            "homebrew",
+            "swiftpm",
+            "go",
+            "cargo",
+            "cocoapods",
+            "carthage",
+            "xcodebuild",
+        ]
+
+        for packageManager in packageManagers {
+            let reviewCommands = PolicyReasonCatalog.packageManagerMutationReviewCommands(for: packageManager)
+
+            #expect(!reviewCommands.isEmpty, "Expected \(packageManager) to have Review First routing commands")
+            #expect(Set(reviewCommands).count == reviewCommands.count, "Expected \(packageManager) Review First commands to avoid duplicates")
+
+            for command in reviewCommands {
+                if packageManager == "swiftpm" {
+                    #expect(
+                        selectedSwiftPMCommands.contains(command),
+                        "Expected SwiftPM Review First command \(command) to stay in the explicit selected-workflow command family"
+                    )
+                    continue
+                }
+
+                #expect(
+                    baselineAskFirstCommands.contains(command),
+                    "Expected \(packageManager) Review First command \(command) to be promoted from the baseline Ask First catalog"
+                )
+            }
+        }
+    }
+
+    @Test
     func githubCliCatalogSeparatesLocalWorkspaceFromRemoteRepositoryActions() {
         let localWorkspaceCommands = [
             "gh pr checkout",
