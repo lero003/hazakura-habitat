@@ -156,7 +156,7 @@ Expected behavior:
 
 Post-`v0.5.0` follow-up candidates:
 
-- Multiple validation-command claims disagree; expected behavior should either preserve a documented priority rule or emit bounded `Open uncertainty`.
+- Multiple validation-command claims disagree; expected behavior should emit bounded `Open uncertainty` rather than silently following the first claim.
 - A documented validation command is present but repository facts cannot identify the workflow; expected behavior should avoid confident mismatch wording.
 - A command is mentioned only in negated, obsolete, deprecated, avoid, or example-only wording; expected behavior should not treat it as a positive claim.
 - Xcode validation is documented with `xcodebuild test`; expected behavior should stay narrow and command-changing before adding it.

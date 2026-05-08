@@ -15,6 +15,10 @@ public struct DocumentedValidationCommandEvidence {
 
     public var agentContextAnnotations: [String] {
         guard let firstClaim = claims.first else { return [] }
+        if let uncertainAnnotations = multipleClaimUncertaintyAnnotations {
+            return uncertainAnnotations
+        }
+
         let claimedWorkflow = workflow(for: firstClaim.command)
         let actualWorkflow = project.packageManager
 
@@ -27,6 +31,22 @@ public struct DocumentedValidationCommandEvidence {
         }
 
         return []
+    }
+
+    private var multipleClaimUncertaintyAnnotations: [String]? {
+        let workflows = uniqueWorkflows(for: claims)
+        guard workflows.count > 1 else { return nil }
+
+        var lines = [
+            "Fact: Project instructions mention multiple validation workflows: \(workflows.map(workflowName).joined(separator: ", ")).",
+            "Open uncertainty: Instruction files disagree on local validation; verify the intended command before following one documented claim."
+        ]
+
+        if let preferred = preferredValidationCommand {
+            lines.append("Hint: Prefer `\(preferred)` only for ordinary local validation when repository facts still support it.")
+        }
+
+        return lines
     }
 
     private func alignedAnnotations(claim: ValidationCommandClaim) -> [String] {
@@ -75,6 +95,15 @@ public struct DocumentedValidationCommandEvidence {
                 || command.contains("build")
                 || command.contains("pytest")
         } ?? preferredCommands.first
+    }
+
+    private func uniqueWorkflows(for claims: [ValidationCommandClaim]) -> [String] {
+        claims.compactMap { workflow(for: $0.command) }
+            .reduce(into: [String]()) { workflows, workflow in
+                if !workflows.contains(workflow) {
+                    workflows.append(workflow)
+                }
+            }
     }
 
     private func workflow(for command: String) -> String? {

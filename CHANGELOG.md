@@ -9,6 +9,7 @@
 - Added a `PolicyOutputContractTests` contract that verifies `scan_result.json` reason-code legend metadata covers every serialized command-reason and Review First reason code.
 - Added a `PolicyOutputContractTests` contract that verifies serialized command-reason text matches the matching `policy.reasonCodes` legend text.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Reason Codes` lines stay in sync with serialized `policy.reasonCodes` metadata.
+- Changed documented validation-command alignment so multiple instruction files that point to different validation workflows emit bounded `Open uncertainty` instead of silently trusting the first claim.
 
 ## v0.5.0 Developer Preview - 2026-05-08
 
