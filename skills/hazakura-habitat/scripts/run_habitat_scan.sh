@@ -25,6 +25,14 @@ find_binary() {
       return 0
     fi
 
+    local cache_dir
+    cache_dir="${TMPDIR:-/tmp}/hazakura-habitat/module-cache"
+    mkdir -p "$cache_dir"
+    if CLANG_MODULE_CACHE_PATH="$cache_dir" swift build --package-path "$PROJECT_ABS" --disable-sandbox >/dev/null; then
+      printf '%s\n' "$PROJECT_ABS/.build/debug/habitat-scan"
+      return 0
+    fi
+
     return 1
   fi
 

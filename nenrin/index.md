@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 70
+- observing: 71
 - reviewed: 10
 
 ## Active Changes
@@ -32,6 +32,7 @@
 - `secret-bearing-evidence-boundary` - [changes/2026-05-06-secret-bearing-evidence-boundary.md](changes/2026-05-06-secret-bearing-evidence-boundary.md)
 - `secret-search-command-family` - [changes/2026-05-06-secret-search-command-family.md](changes/2026-05-06-secret-search-command-family.md)
 - `self-use-trigger-and-report-freshness` - [changes/2026-05-06-self-use-trigger-and-report-freshness.md](changes/2026-05-06-self-use-trigger-and-report-freshness.md)
+- `skill-helper-sandbox-fallback` - [changes/2026-05-08-skill-helper-sandbox-fallback.md](changes/2026-05-08-skill-helper-sandbox-fallback.md)
 - `speculative-context-annotation-framing` - [changes/2026-05-06-speculative-context-annotation-framing.md](changes/2026-05-06-speculative-context-annotation-framing.md)
 - `ssh-private-key-command-family` - [changes/2026-05-06-ssh-private-key-command-family.md](changes/2026-05-06-ssh-private-key-command-family.md)
 - `workspace-mutation-command-family` - [changes/2026-05-06-workspace-mutation-command-family.md](changes/2026-05-06-workspace-mutation-command-family.md)

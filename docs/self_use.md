@@ -83,7 +83,7 @@ Snapshot date: 2026-05-08 (v0.5 release slice; `SecretFileDetector` extraction, 
 - `CoreInfrastructureTests.swift` now owns report writing, generated artifact metadata, snapshots, older JSON decoding, previous-scan loading, and diagnostic filtering, so future core output-contract edits start from the named suite instead of a generic module-name file.
 - `RepresentativeExampleTests.swift` now owns generated example drift and artifact metadata contracts, so future example-output changes can be verified without growing the core infrastructure suite.
 - `AgentContextOutputContractTests.swift` now owns short-context overflow, prioritization, hidden Git guard summary, bounded hidden reason-code summaries, and line-budget contracts, so future `agent_context.md` behavior changes can be reviewed without growing core infrastructure tests.
-- `ScanExecutionInfrastructureTests.swift` now owns scan argument parsing, command-runner missing-tool behavior, bundled skill helper selection, missing-project guards, and missing-command continuation, so future scan-entrypoint or preflight-safety edits can be verified without growing generated-output contract tests.
+- `ScanExecutionInfrastructureTests.swift` now owns scan argument parsing, command-runner missing-tool behavior, bundled skill helper selection, restricted-sandbox source-build retry behavior, missing-project guards, and missing-command continuation, so future scan-entrypoint or preflight-safety edits can be verified without growing generated-output contract tests.
 - `BehaviorEvidenceSanitizationTests.swift` now owns behavior-evidence schema and sanitization contracts, so future fixture additions can be verified without growing individual behavior-decision cases.
 - Three intended regression scenarios now have Swift Testing `@Test` annotations again: pnpm lockfile selection, older scan-result decoding, and unrelated diagnostic filtering.
 - `TestCoverageContractTests.swift` now checks scenario functions in test suites for `@Test`, so future suite moves fail fast if executable coverage is accidentally dropped.
@@ -153,7 +153,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - `scan_result.json` now records `policy.commandCounts`, so agents can see policy size, short approval-checklist size, and reason coverage before deciding whether to inspect the full `command_policy.md`.
 - `scan_result.json` now records `policy.reviewFirstCommandReasons`, so agents and tools can read the highest-priority approval checklist with reasons without parsing `command_policy.md`; `PolicyOutputContractTests` now verifies those JSON entries match the generated `Review First` Markdown lines exactly.
 - The bundled helper must use the current source checkout for self-scans instead of silently falling back to `dist/`, otherwise a stale local release artifact can hide new output-contract sections.
-- In restricted automation sandboxes, the useful command decision is still SwiftPM verification; a writable process-local compiler cache and `--disable-sandbox` can unblock `swift build` or `swift test` without changing dependency resolution or global caches.
+- In restricted automation sandboxes, the useful command decision is still SwiftPM verification; a writable process-local compiler cache and `--disable-sandbox` can unblock `swift build` or `swift test` without changing dependency resolution or global caches. The bundled skill helper now applies the same fallback when rebuilding the current Habitat source checkout for self-scans.
 
 ## v0.2 Findings
 

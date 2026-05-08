@@ -59,6 +59,8 @@ Choose the least surprising setup path that fits the user's existing authorizati
 
 The bundled helper treats a Hazakura Habitat source checkout specially: unless `HABITAT_SCAN` explicitly selects another binary, it uses or rebuilds that checkout's `./.build/debug/habitat-scan` instead of falling back to packaged or installed binaries, so self-scans reflect the current generator contract.
 
+When plain SwiftPM build fails before project code runs because host caches or the SwiftPM sandbox are not writable, the helper retries the source-checkout build with a process-local `CLANG_MODULE_CACHE_PATH` and `--disable-sandbox`. Keep that fallback scoped to building Habitat itself; do not turn it into dependency resolution, package installation, global cache cleanup, or release/GitHub mutation.
+
 If Habitat cannot be run, continue conservatively and mention that the scan was unavailable.
 
 ## Read And Apply Output
@@ -88,5 +90,7 @@ After acting, convert useful scan findings into durable project improvements:
 - fixtures or examples when generated output changed
 - tests when an output contract should not regress
 - roadmap notes when the finding belongs to a future phase
+
+For post-`v0.5` / `v0.6` work, also preserve the observation loop: if a `Fact`, `Hint`, `Warning`, or `Open uncertainty` changed the next command, verification order, or cleanup behavior, record the behavior-level effect in the project workflow where appropriate and feed it back into policy wording, tests, fixtures, examples, or docs. Do not treat Habitat as a planner; keep the loop at `repo fact -> short annotation -> command decision -> observed effect`.
 
 Do not commit generated scan reports unless they are intentional fixtures or representative examples.

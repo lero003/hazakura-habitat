@@ -115,6 +115,73 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func habitatSkillHelperRetriesSourceBuildWithWritableCacheAndNoSandbox() throws {
+        let fileManager = FileManager.default
+        let projectURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let outputURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let binDirURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let markerURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: binDirURL, withIntermediateDirectories: true)
+        try "not a valid manifest".write(
+            to: projectURL.appendingPathComponent("Package.swift"),
+            atomically: true,
+            encoding: .utf8
+        )
+        try fileManager.createDirectory(
+            at: projectURL.appendingPathComponent("Sources/habitat-scan"),
+            withIntermediateDirectories: true
+        )
+        try "".write(
+            to: projectURL.appendingPathComponent("Sources/habitat-scan/main.swift"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        try writeExecutableScript(
+            binDirURL.appendingPathComponent("swift"),
+            contents: """
+            #!/usr/bin/env bash
+            if [[ "$*" == *"--disable-sandbox"* && -n "${CLANG_MODULE_CACHE_PATH:-}" ]]; then
+              project=""
+              while [[ "$#" -gt 0 ]]; do
+                if [[ "$1" == "--package-path" ]]; then
+                  project="$2"
+                  shift 2
+                else
+                  shift
+                fi
+              done
+              mkdir -p "$project/.build/debug"
+              cat > "$project/.build/debug/habitat-scan" <<'EOF'
+            #!/usr/bin/env bash
+            printf 'fallback\\n' > "$HABITAT_HELPER_MARKER"
+            EOF
+              chmod +x "$project/.build/debug/habitat-scan"
+              exit 0
+            fi
+            exit 1
+            """
+        )
+
+        let scriptURL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
+            .appendingPathComponent("skills/hazakura-habitat/scripts/run_habitat_scan.sh")
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [scriptURL.path, projectURL.path, outputURL.path]
+        process.environment = ProcessInfo.processInfo.environment.merging([
+            "HABITAT_HELPER_MARKER": markerURL.path,
+            "PATH": "\(binDirURL.path):/usr/bin:/bin:/usr/sbin:/sbin",
+        ]) { _, new in new }
+
+        try process.run()
+        process.waitUntilExit()
+
+        #expect(process.terminationStatus == 0)
+        #expect(try String(contentsOf: markerURL, encoding: .utf8) == "fallback\n")
+    }
+
+    @Test
     func scanGuardsMissingProjectPathBeforeProjectCommands() throws {
         let projectURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
 

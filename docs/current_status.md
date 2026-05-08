@@ -36,7 +36,7 @@ Keep the current cycle focused:
   - `command_policy.md`
   - `environment_report.md`
 - Bundled distributable agent skill at `skills/hazakura-habitat` so AI agents can run Habitat as a preflight step before substantial work, dependency changes, Git/GitHub mutations, and secret-adjacent operations.
-- The bundled skill helper uses or rebuilds the current Hazakura Habitat source checkout during self-scans instead of silently falling back to packaged or installed binaries, so generated context reflects the current output contract instead of a stale local `dist/` artifact.
+- The bundled skill helper uses or rebuilds the current Hazakura Habitat source checkout during self-scans instead of silently falling back to packaged or installed binaries, and retries with a writable module cache plus `--disable-sandbox` when plain SwiftPM build fails before project code runs, so generated context reflects the current output contract instead of a stale local `dist/` artifact.
 - Project-local `nenrin/` improvement observation ledger for tracking whether changes to Habitat's agent-facing docs, skills, roadmap, release guidance, QA criteria, and automation prompts actually improve later agent behavior.
 - `scan_result.json` includes `schemaVersion`, `generatorVersion`, generated Markdown `artifacts` metadata, and `policy.reasonCodes`, and previous-scan comparison surfaces generator-version changes so agents do not mistake policy-generator differences for environment drift.
 - `scan_result.json` records sanitized `project.validationCommandClaims` from allowlisted instruction files as source filename plus normalized command, without storing raw instruction prose.
