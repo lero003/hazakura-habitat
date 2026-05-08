@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 75
+- observing: 76
 - reviewed: 10
 
 ## Active Changes
@@ -81,6 +81,7 @@
 - `skill-helper-sandbox-fallback` - [changes/2026-05-08-skill-helper-sandbox-fallback.md](changes/2026-05-08-skill-helper-sandbox-fallback.md)
 - `unsupported-validation-workflow-uncertainty` - [changes/2026-05-08-unsupported-validation-workflow-uncertainty.md](changes/2026-05-08-unsupported-validation-workflow-uncertainty.md)
 - `v0-5-instruction-alignment-release-gate` - [changes/2026-05-08-v0-5-instruction-alignment-release-gate.md](changes/2026-05-08-v0-5-instruction-alignment-release-gate.md)
+- `workspace-mutation-reason-routing` - [changes/2026-05-08-workspace-mutation-reason-routing.md](changes/2026-05-08-workspace-mutation-reason-routing.md)
 - `xcodebuild-validation-claim-scheme-discovery` - [changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md](changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md)
 
 ## Review Due

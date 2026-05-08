@@ -17,6 +17,7 @@
 - Added an `AgentContextOutputContractTests` contract that keeps hidden Ask First overflow summaries bounded to the first three structured reason codes plus `more`.
 - Added a pre-commit configuration warning in `agent_context.md` and `PreCommitPolicyTests` coverage so agents check `git status` after commit hooks may mutate the workspace.
 - Added a `PolicyReasonCatalogTests` contract that keeps GitHub CLI local workspace commands under `git_mutation` while remote GitHub actions stay under `remote_repository_action`.
+- Changed workspace mutation reason-code routing so `rm`, `rm -r`, `rm -rf`, and `xargs rm` use `user_approval_required` instead of falling through to dependency-mutation reasoning.
 - Added CI workflow presence to scan data and `agent_context.md` uncertainty when CI exists but repository facts do not identify a local verification command.
 - Changed documented validation-command alignment so multiple instruction files that point to different validation workflows emit bounded `Open uncertainty` instead of silently trusting the first claim.
 - Changed documented validation-command extraction so negated, obsolete, or example-only command mentions are not recorded as positive validation claims.

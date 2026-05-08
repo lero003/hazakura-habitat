@@ -24,4 +24,8 @@ extension PolicyReasonCatalog {
         "rm -rf",
     ])
     static let workspaceMutationCommands = workspaceMutationCommandFamily.commands
+
+    static func isWorkspaceMutationCommand(_ command: String) -> Bool {
+        workspaceMutationCommandFamily.contains(command)
+    }
 }

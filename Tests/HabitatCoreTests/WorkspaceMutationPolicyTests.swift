@@ -82,6 +82,10 @@ struct WorkspaceMutationPolicyTests {
         for command in commands {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
         }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        for command in ["rm", "rm -r", "rm -rf"] {
+            #expect(commandReasonCodes[command] == "user_approval_required", "Expected \(command) to explain workspace mutation risk without dependency-mutation fallback")
+        }
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
@@ -90,6 +94,7 @@ struct WorkspaceMutationPolicyTests {
         for command in commands {
             #expect(policy.contains("`\(command)`"), "Expected command_policy.md to include \(command)")
         }
+        #expect(policy.contains("`rm -rf` (`user_approval_required`)"))
     }
 
     @Test
@@ -162,6 +167,9 @@ struct WorkspaceMutationPolicyTests {
         for command in commands {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
         }
+        let commandReasonCodes = Dictionary(uniqueKeysWithValues: result.policy.commandReasons.map { ($0.command, $0.reasonCode) })
+        #expect(commandReasonCodes["xargs rm"] == "user_approval_required", "Expected xargs rm to explain workspace mutation risk without dependency-mutation fallback")
+        #expect(commandReasonCodes["find -delete"] == "user_approval_required", "Expected find -delete to explain workspace mutation risk")
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
