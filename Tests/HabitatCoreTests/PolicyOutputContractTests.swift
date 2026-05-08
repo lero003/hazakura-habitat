@@ -355,6 +355,26 @@ struct PolicyOutputContractTests {
     }
 
     @Test
+    func commandPolicyFullApprovalDetailStaysWithinPreviewBudget() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            "package.json": #"{"scripts":{"build":"swift build"}}"#,
+            "pnpm-lock.yaml": "",
+            ".env": "",
+        ])
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let data = try Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        let decoded = try JSONDecoder().decode(ScanResult.self, from: data)
+        let commandPolicyArtifact = try #require(decoded.artifacts.first { $0.name == "command_policy.md" })
+
+        #expect(commandPolicyArtifact.lineCount <= 950)
+    }
+
+    @Test
     func policyReasonLegendIncludesFallbackReasonCodes() throws {
         let fallbackReasons = PolicyReasonCatalog.legend(
             askFirstCommands: ["custom project mutation"],
