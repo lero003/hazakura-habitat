@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 73
+- observing: 74
 - reviewed: 10
 
 ## Active Changes
@@ -32,7 +32,6 @@
 - `secret-bearing-evidence-boundary` - [changes/2026-05-06-secret-bearing-evidence-boundary.md](changes/2026-05-06-secret-bearing-evidence-boundary.md)
 - `secret-search-command-family` - [changes/2026-05-06-secret-search-command-family.md](changes/2026-05-06-secret-search-command-family.md)
 - `self-use-trigger-and-report-freshness` - [changes/2026-05-06-self-use-trigger-and-report-freshness.md](changes/2026-05-06-self-use-trigger-and-report-freshness.md)
-- `skill-helper-sandbox-fallback` - [changes/2026-05-08-skill-helper-sandbox-fallback.md](changes/2026-05-08-skill-helper-sandbox-fallback.md)
 - `speculative-context-annotation-framing` - [changes/2026-05-06-speculative-context-annotation-framing.md](changes/2026-05-06-speculative-context-annotation-framing.md)
 - `ssh-private-key-command-family` - [changes/2026-05-06-ssh-private-key-command-family.md](changes/2026-05-06-ssh-private-key-command-family.md)
 - `workspace-mutation-command-family` - [changes/2026-05-06-workspace-mutation-command-family.md](changes/2026-05-06-workspace-mutation-command-family.md)
@@ -61,22 +60,24 @@
 - `agent-context-hidden-reason-overflow-contract` - [changes/2026-05-08-agent-context-hidden-reason-overflow-contract.md](changes/2026-05-08-agent-context-hidden-reason-overflow-contract.md)
 - `baseline-policy-catalog-dedup-contract` - [changes/2026-05-08-baseline-policy-catalog-dedup-contract.md](changes/2026-05-08-baseline-policy-catalog-dedup-contract.md)
 - `ci-workflow-local-validation-uncertainty` - [changes/2026-05-08-ci-workflow-local-validation-uncertainty.md](changes/2026-05-08-ci-workflow-local-validation-uncertainty.md)
+- `command-policy-reason-line-sync-contract` - [changes/2026-05-08-command-policy-reason-line-sync-contract.md](changes/2026-05-08-command-policy-reason-line-sync-contract.md)
 - `command-reason-coverage-contract` - [changes/2026-05-08-command-reason-coverage-contract.md](changes/2026-05-08-command-reason-coverage-contract.md)
 - `command-reason-order-contract` - [changes/2026-05-08-command-reason-order-contract.md](changes/2026-05-08-command-reason-order-contract.md)
-- `command-policy-reason-line-sync-contract` - [changes/2026-05-08-command-policy-reason-line-sync-contract.md](changes/2026-05-08-command-policy-reason-line-sync-contract.md)
 - `core-infrastructure-test-file-boundary` - [changes/2026-05-08-core-infrastructure-test-file-boundary.md](changes/2026-05-08-core-infrastructure-test-file-boundary.md)
 - `documented-validation-command-evidence` - [changes/2026-05-08-documented-validation-command-evidence.md](changes/2026-05-08-documented-validation-command-evidence.md)
 - `markdown-reason-legend-contract` - [changes/2026-05-08-markdown-reason-legend-contract.md](changes/2026-05-08-markdown-reason-legend-contract.md)
 - `multiple-validation-claim-uncertainty` - [changes/2026-05-08-multiple-validation-claim-uncertainty.md](changes/2026-05-08-multiple-validation-claim-uncertainty.md)
 - `negated-validation-claim-filter` - [changes/2026-05-08-negated-validation-claim-filter.md](changes/2026-05-08-negated-validation-claim-filter.md)
 - `package-auth-config-policy-test-boundary` - [changes/2026-05-08-package-auth-config-policy-test-boundary.md](changes/2026-05-08-package-auth-config-policy-test-boundary.md)
-- `policy-index-count-sync-contract` - [changes/2026-05-08-policy-index-count-sync-contract.md](changes/2026-05-08-policy-index-count-sync-contract.md)
 - `policy-index-conditional-section-contract` - [changes/2026-05-08-policy-index-conditional-section-contract.md](changes/2026-05-08-policy-index-conditional-section-contract.md)
+- `policy-index-count-sync-contract` - [changes/2026-05-08-policy-index-count-sync-contract.md](changes/2026-05-08-policy-index-count-sync-contract.md)
 - `post-v0-5-review-automation-guidance` - [changes/2026-05-08-post-v0-5-review-automation-guidance.md](changes/2026-05-08-post-v0-5-review-automation-guidance.md)
+- `pre-commit-warning-doc-sync` - [changes/2026-05-08-pre-commit-warning-doc-sync.md](changes/2026-05-08-pre-commit-warning-doc-sync.md)
 - `reason-legend-coverage-contract` - [changes/2026-05-08-reason-legend-coverage-contract.md](changes/2026-05-08-reason-legend-coverage-contract.md)
 - `reason-legend-text-contract` - [changes/2026-05-08-reason-legend-text-contract.md](changes/2026-05-08-reason-legend-text-contract.md)
 - `review-first-markdown-sync-contract` - [changes/2026-05-08-review-first-markdown-sync-contract.md](changes/2026-05-08-review-first-markdown-sync-contract.md)
 - `review-first-reason-subset-contract` - [changes/2026-05-08-review-first-reason-subset-contract.md](changes/2026-05-08-review-first-reason-subset-contract.md)
+- `skill-helper-sandbox-fallback` - [changes/2026-05-08-skill-helper-sandbox-fallback.md](changes/2026-05-08-skill-helper-sandbox-fallback.md)
 - `unsupported-validation-workflow-uncertainty` - [changes/2026-05-08-unsupported-validation-workflow-uncertainty.md](changes/2026-05-08-unsupported-validation-workflow-uncertainty.md)
 - `v0-5-instruction-alignment-release-gate` - [changes/2026-05-08-v0-5-instruction-alignment-release-gate.md](changes/2026-05-08-v0-5-instruction-alignment-release-gate.md)
 - `xcodebuild-validation-claim-scheme-discovery` - [changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md](changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md)

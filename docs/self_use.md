@@ -90,6 +90,7 @@ Snapshot date: 2026-05-08 (v0.5 release slice; `SecretFileDetector` extraction, 
 - Static baseline Ask First and Forbidden policy lists now live in `PolicyReasonCatalog+BaselinePolicy.swift`, so Scanner adds project-specific dynamic guards without rebuilding the whole curated catalog inline.
 - `InstructionAlignmentPolicyTests.swift` now owns the documented validation-command claim cases, including conflicting multiple validation workflows, unsupported documented workflows, negated command mentions, and the Xcode `xcodebuild test` claim that must start from scheme discovery, so instruction-alignment output can be checked without growing broad scanner or renderer tests.
 - `CiPresencePolicyTests.swift` now owns CI workflow filename and local-verification uncertainty contracts, so future CI signal changes can be verified without growing instruction-alignment tests.
+- `PreCommitPolicyTests.swift` now owns the `.pre-commit-config.yaml` warning contract, so hook-related workspace-mutation guidance stays separate from broad Git mutation policy and symlink-safety fixtures.
 
 Observed output from scanning this repository:
 

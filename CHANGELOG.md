@@ -15,6 +15,7 @@
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Policy Index` omits absent conditional sections instead of pointing agents at empty headings.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Ask First` and `Forbidden` reason-code annotations stay in sync with serialized `policy.commandReasons` metadata.
 - Added an `AgentContextOutputContractTests` contract that keeps hidden Ask First overflow summaries bounded to the first three structured reason codes plus `more`.
+- Added a pre-commit configuration warning in `agent_context.md` and `PreCommitPolicyTests` coverage so agents check `git status` after commit hooks may mutate the workspace.
 - Added CI workflow presence to scan data and `agent_context.md` uncertainty when CI exists but repository facts do not identify a local verification command.
 - Changed documented validation-command alignment so multiple instruction files that point to different validation workflows emit bounded `Open uncertainty` instead of silently trusting the first claim.
 - Changed documented validation-command extraction so negated, obsolete, or example-only command mentions are not recorded as positive validation claims.
