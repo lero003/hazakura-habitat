@@ -206,6 +206,36 @@ struct PolicyOutputContractTests {
     }
 
     @Test
+    func commandPolicyIndexOrderMatchesRenderedPolicySections() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            "package.json": #"{"scripts":{"build":"swift build"}}"#,
+            "pnpm-lock.yaml": "",
+            ".env": "",
+        ])
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let indexTitles = markdownBulletLines(in: "Policy Index", markdown: policy).compactMap(policyIndexTitle)
+        let indexedPolicySectionTitles = markdownSectionTitles(in: policy).filter {
+            indexTitles.contains($0)
+        }
+
+        #expect(indexTitles == [
+            "Review First",
+            "Reason Codes",
+            "If Secret-Bearing Files Are Detected",
+            "Allowed",
+            "Ask First",
+            "Forbidden",
+        ])
+        #expect(indexTitles == indexedPolicySectionTitles)
+    }
+
+    @Test
     func commandPolicyIndexOmitsAbsentConditionalSections() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(
@@ -458,6 +488,16 @@ struct PolicyOutputContractTests {
         }
 
         return parts[1]
+    }
+
+    private func markdownSectionTitles(in markdown: String) -> [String] {
+        markdown.split(separator: "\n", omittingEmptySubsequences: false).compactMap { line in
+            guard line.hasPrefix("## ") else {
+                return nil
+            }
+
+            return String(line.dropFirst(3))
+        }
     }
 
     private func policyCommandLineReason(_ line: String, classification: String) -> PolicyCommandReason? {

@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 84
+- observing: 85
 - reviewed: 10
 
 ## Active Changes
@@ -85,12 +85,13 @@
 - `xcodebuild-validation-claim-scheme-discovery` - [changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md](changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md)
 - `agent-context-git-overflow-dedup` - [changes/2026-05-09-agent-context-git-overflow-dedup.md](changes/2026-05-09-agent-context-git-overflow-dedup.md)
 - `command-policy-size-budget` - [changes/2026-05-09-command-policy-size-budget.md](changes/2026-05-09-command-policy-size-budget.md)
+- `cross-project-habitat-observation` - [changes/2026-05-09-cross-project-habitat-observation.md](changes/2026-05-09-cross-project-habitat-observation.md)
 - `dependency-mutation-fallback-order-contract` - [changes/2026-05-09-dependency-mutation-fallback-order-contract.md](changes/2026-05-09-dependency-mutation-fallback-order-contract.md)
 - `dependency-shaped-specific-order-contract` - [changes/2026-05-09-dependency-shaped-specific-order-contract.md](changes/2026-05-09-dependency-shaped-specific-order-contract.md)
 - `fallback-reason-legend-contract` - [changes/2026-05-09-fallback-reason-legend-contract.md](changes/2026-05-09-fallback-reason-legend-contract.md)
 - `forbidden-fallback-order-contract` - [changes/2026-05-09-forbidden-fallback-order-contract.md](changes/2026-05-09-forbidden-fallback-order-contract.md)
 - `package-manager-review-baseline-contract` - [changes/2026-05-09-package-manager-review-baseline-contract.md](changes/2026-05-09-package-manager-review-baseline-contract.md)
-- `cross-project-habitat-observation` - [changes/2026-05-09-cross-project-habitat-observation.md](changes/2026-05-09-cross-project-habitat-observation.md)
+- `policy-index-order-contract` - [changes/2026-05-09-policy-index-order-contract.md](changes/2026-05-09-policy-index-order-contract.md)
 
 ## Review Due
 

@@ -14,6 +14,7 @@
 - Added a `PolicyOutputContractTests` budget contract that keeps full `command_policy.md` approval detail from growing past the preview readability threshold without an explicit test update.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Review First` lines stay in sync with serialized `policy.reviewFirstCommandReasons` metadata.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Policy Index` counts stay in sync with generated policy metadata and section contents.
+- Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Policy Index` ordering follows the rendered policy section order.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Policy Index` omits absent conditional sections instead of pointing agents at empty headings.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Ask First` and `Forbidden` reason-code annotations stay in sync with serialized `policy.commandReasons` metadata.
 - Added an `AgentContextOutputContractTests` contract that keeps hidden Ask First overflow summaries bounded to the first three structured reason codes plus `more`.
