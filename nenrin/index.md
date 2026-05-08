@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 71
+- observing: 72
 - reviewed: 10
 
 ## Active Changes
@@ -63,6 +63,7 @@
 - `ci-workflow-local-validation-uncertainty` - [changes/2026-05-08-ci-workflow-local-validation-uncertainty.md](changes/2026-05-08-ci-workflow-local-validation-uncertainty.md)
 - `command-reason-coverage-contract` - [changes/2026-05-08-command-reason-coverage-contract.md](changes/2026-05-08-command-reason-coverage-contract.md)
 - `command-reason-order-contract` - [changes/2026-05-08-command-reason-order-contract.md](changes/2026-05-08-command-reason-order-contract.md)
+- `command-policy-reason-line-sync-contract` - [changes/2026-05-08-command-policy-reason-line-sync-contract.md](changes/2026-05-08-command-policy-reason-line-sync-contract.md)
 - `core-infrastructure-test-file-boundary` - [changes/2026-05-08-core-infrastructure-test-file-boundary.md](changes/2026-05-08-core-infrastructure-test-file-boundary.md)
 - `documented-validation-command-evidence` - [changes/2026-05-08-documented-validation-command-evidence.md](changes/2026-05-08-documented-validation-command-evidence.md)
 - `markdown-reason-legend-contract` - [changes/2026-05-08-markdown-reason-legend-contract.md](changes/2026-05-08-markdown-reason-legend-contract.md)

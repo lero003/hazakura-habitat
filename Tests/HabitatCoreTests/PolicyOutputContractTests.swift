@@ -204,6 +204,41 @@ struct PolicyOutputContractTests {
     }
 
     @Test
+    func commandPolicyCommandReasonCodesMatchScanResultMetadata() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            "package.json": #"{"scripts":{"build":"swift build"}}"#,
+            "pnpm-lock.yaml": "",
+            ".env": "",
+        ])
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let data = try Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        let decoded = try JSONDecoder().decode(ScanResult.self, from: data)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let renderedReasons = markdownBulletLines(in: "Ask First", markdown: policy).compactMap {
+            policyCommandLineReason($0, classification: PolicyCommandReason.askFirstClassification)
+        } + markdownBulletLines(in: "Forbidden", markdown: policy).compactMap {
+            policyCommandLineReason($0, classification: PolicyCommandReason.forbiddenClassification)
+        }
+        let renderedReasonKeys = renderedReasons.map(policyCommandReasonKey)
+        let metadataReasonKeys = decoded.policy.commandReasons.map {
+            policyCommandReasonKey(PolicyCommandReason(
+                command: $0.command,
+                classification: $0.classification,
+                reasonCode: $0.reasonCode,
+                reason: ""
+            ))
+        }
+
+        #expect(renderedReasons.count == decoded.policy.commandReasons.count)
+        #expect(Set(renderedReasonKeys) == Set(metadataReasonKeys))
+    }
+
+    @Test
     func scanResultReasonLegendCoversAllCommandReasonCodes() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift-tools-version: 6.0\n",
@@ -314,6 +349,26 @@ struct PolicyOutputContractTests {
         }
 
         return (parts[1], count)
+    }
+
+    private func policyCommandLineReason(_ line: String, classification: String) -> PolicyCommandReason? {
+        let parts = line.split(separator: "`", maxSplits: 4).map(String.init)
+        guard parts.count >= 4 else {
+            return nil
+        }
+
+        let command = parts[1]
+        if !line.hasPrefix("- `\(command)` (`") {
+            return nil
+        }
+
+        let reasonCode = parts[3]
+        return PolicyCommandReason(
+            command: command,
+            classification: classification,
+            reasonCode: reasonCode,
+            reason: ""
+        )
     }
 
     @Test
