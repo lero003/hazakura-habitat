@@ -200,7 +200,9 @@ struct PolicyOutputContractTests {
         #expect(indexCounts["If Secret-Bearing Files Are Detected"] == SecretBearingEvidence(project: decoded.project).paths.count)
         #expect(indexCounts["Allowed"] == markdownBulletLines(in: "Allowed", markdown: policy).count)
         #expect(indexCounts["Ask First"] == decoded.policy.commandCounts.askFirst)
+        #expect(indexCounts["Ask First"] == markdownBulletLines(in: "Ask First", markdown: policy).count)
         #expect(indexCounts["Forbidden"] == decoded.policy.commandCounts.forbidden)
+        #expect(indexCounts["Forbidden"] == markdownBulletLines(in: "Forbidden", markdown: policy).count)
     }
 
     @Test
