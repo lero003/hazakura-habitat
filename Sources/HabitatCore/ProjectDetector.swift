@@ -393,6 +393,10 @@ public struct ProjectDetector {
     }
 
     private func lineLooksLikeValidationClaim(_ line: String, command: String) -> Bool {
+        if lineTreatsCommandAsNonClaim(line, command: command) {
+            return false
+        }
+
         if command.contains("test") || command.contains("pytest") {
             return true
         }
@@ -410,6 +414,55 @@ public struct ProjectDetector {
         return markers.contains {
             line.contains($0)
         }
+    }
+
+    private func lineTreatsCommandAsNonClaim(_ line: String, command: String) -> Bool {
+        guard let range = line.range(of: command) else { return false }
+
+        let prefix = String(line[..<range.lowerBound])
+        let suffix = String(line[range.upperBound...])
+        let localPrefix = String(prefix.suffix(48))
+        let localSuffix = String(suffix.prefix(64))
+        let trimmedPrefix = prefix.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        let negatedBeforeMarkers = [
+            "do not run",
+            "do not use",
+            "don't run",
+            "don't use",
+            "never run",
+            "never use",
+            "avoid",
+            "instead of"
+        ]
+        for marker in negatedBeforeMarkers {
+            guard let markerRange = localPrefix.range(of: marker, options: .backwards) else { continue }
+            let betweenMarkerAndCommand = String(localPrefix[markerRange.upperBound...])
+            let hasClauseBoundary = betweenMarkerAndCommand.contains(";")
+                || betweenMarkerAndCommand.contains(".")
+                || betweenMarkerAndCommand.contains(", use ")
+                || betweenMarkerAndCommand.contains(" but ")
+            if !hasClauseBoundary {
+                return true
+            }
+        }
+
+        let obsoleteAfterMarkers = [
+            "is obsolete",
+            "is deprecated",
+            "is no longer",
+            "should not be used",
+            "should not run"
+        ]
+        if obsoleteAfterMarkers.contains(where: { localSuffix.contains($0) }) {
+            return true
+        }
+
+        if trimmedPrefix.hasSuffix("example:") || trimmedPrefix.hasSuffix("for example,") {
+            return true
+        }
+
+        return line.contains("example only") || line.contains("obsolete example")
     }
 
     private func packageManagerVersion(packageManager: String?, packageJSON: PackageJSONMetadata, toolVersions: ToolVersionsMetadata, miseToml: ToolVersionsMetadata, miseTomlSource: String?) -> PackageManagerVersionInfo {
