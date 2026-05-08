@@ -121,6 +121,49 @@ struct CiPresencePolicyTests {
     }
 
     @Test
+    func symlinkedCiWorkflowsAreIgnored() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}"
+        ])
+        let externalURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try FileManager.default.createDirectory(at: externalURL, withIntermediateDirectories: true)
+        try "# external CI\n".write(
+            to: externalURL.appendingPathComponent("external.yml"),
+            atomically: true,
+            encoding: .utf8
+        )
+        let githubURL = projectURL.appendingPathComponent(".github")
+        try FileManager.default.createDirectory(at: githubURL, withIntermediateDirectories: true)
+        try FileManager.default.createSymbolicLink(
+            at: githubURL.appendingPathComponent("workflows"),
+            withDestinationURL: externalURL
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.ciWorkflowFiles.isEmpty)
+    }
+
+    @Test
+    func symlinkedCiWorkflowFilesAreIgnored() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{}"
+        ])
+        let externalURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try "# external CI\n".write(to: externalURL, atomically: true, encoding: .utf8)
+        let workflowsURL = projectURL.appendingPathComponent(".github/workflows")
+        try FileManager.default.createDirectory(at: workflowsURL, withIntermediateDirectories: true)
+        try FileManager.default.createSymbolicLink(
+            at: workflowsURL.appendingPathComponent("ci.yml"),
+            withDestinationURL: externalURL
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.ciWorkflowFiles.isEmpty)
+    }
+
+    @Test
     func noCiDoesNotEmitOpenUncertainty() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": """
