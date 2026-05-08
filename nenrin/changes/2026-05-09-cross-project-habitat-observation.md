@@ -50,3 +50,7 @@ The user started Android-first app development in `hazakura-ai-mobile` and asked
 ## Result
 
 Unjudged.
+
+## Observations
+
+- 2026-05-09: A later `hazakura-ai-mobile` check found the initial weak signal was now incomplete: the project has `gradlew`, `settings.gradle.kts`, Kotlin build files, and documented Gradle smoke checks, but a fresh Habitat scan still emitted no primary package-manager or validation guidance. This changes the Habitat follow-up from generic stale-report concern to a narrow Gradle project-fact or validation-command gap, while keeping Android ecosystem coverage out of scope.

@@ -23,7 +23,7 @@ Keep the current cycle focused:
 - add representative examples only when self-use evidence shows a new command-decision boundary
 - refine issue and contribution guidance when real feedback exposes a misunderstanding
 - harden output contract and behavior evaluation
-- use cross-project Habitat reports only as observation input for Habitat itself; the first `hazakura-ai-mobile` report shows a useful weak signal by detecting no primary package manager and keeping agents on read-only inspection until Android or Gradle facts exist
+- use cross-project Habitat reports only as observation input for Habitat itself; the `hazakura-ai-mobile` report remains a useful weak signal, but read-only comparison now shows Gradle wrapper and Kotlin build files that current Habitat still does not turn into package-manager or validation guidance
 
 ## Implemented
 
@@ -234,6 +234,7 @@ Keep the current cycle focused:
 - Use Nenrin during self-use and automation work to record why agent-facing guidance changed, what behavior was expected, and whether the change should be kept, removed, merged, narrowed, or moved.
 - Use the published `v0.5.0` artifacts during real Codex work and observe whether `SecretBearingEvidence`, `DocumentedValidationCommandEvidence`, `reasonCodes`, `commandReasons`, or `PolicyFinding` paths change the next command.
 - The 2026-05-08 paired Habitat/Nenrin use report reinforced two post-`v0.5` observation candidates: stale scan reports may need a small machine-readable freshness check if they cause mistaken commands, and generic baseline `Do Not` guidance should not hide project-specific risk when the short context is crowded. Treat both as behavior evidence questions, not immediate feature expansion.
+- The 2026-05-09 `hazakura-ai-mobile` observation found a narrower command-decision gap: even a fresh Habitat scan reports no primary package manager when the watched project has `gradlew`, `settings.gradle.kts`, and Kotlin build files plus documented Gradle smoke checks. The next slice, if chosen, should be a bounded Gradle project-fact or validation-command case that changes the next command from generic read-only inspection to guarded Gradle verification; do not expand into Android environment auditing.
 - The two `v0.5` implementation slices are complete: detected secret-bearing paths are wrapped in a small `SecretBearingEvidence` value, and allowlisted documented validation commands are recorded as sanitized `ValidationCommandClaim` values consumed by `DocumentedValidationCommandEvidence`.
 - Keep the next evidence or instruction-alignment slice deliberately local: do not add a broad `NormalizedEvidence` layer, do not store raw prose in `ScanResult`, do not change the public `ReportWriter.write(scanResult:outputURL:)` API unless a measured behavior problem requires it, and keep renderer-specific wording and search-exclusion formatting in the renderer unless a measured behavior problem requires moving it.
 - The narrow `xcodebuild test` validation-claim case is now covered: when repository facts select Xcode, Habitat records the sanitized claim but hints agents to start with `xcodebuild -list` before following scheme-dependent documented validation. Multiple documented validation workflows, unsupported documented workflows, and negated or obsolete validation-command mentions are also covered by bounded tests.

@@ -107,7 +107,7 @@ Keep this observational:
 - feed only durable Habitat lessons back into this repository as docs, fixtures, tests, examples, or roadmap notes
 - do not turn the watched project into a second Habitat workstream, do not copy raw report output into Nenrin, and do not make Habitat produce a plan for that project
 
-The current Android-first `hazakura-ai-mobile` observation is a good example: its report is useful as a weak signal because it currently detects only `AGENTS.md` and `README.md`, emits no primary package-manager guidance, and therefore keeps agents on read-only inspection until real Android or Gradle project facts appear. If a later report starts detecting Gradle, Kotlin, Android build files, or validation commands, use that as evidence for one narrow Habitat command-decision improvement rather than broad ecosystem expansion.
+The current Android-first `hazakura-ai-mobile` observation is a good example: its report is useful as a weak signal because it currently detects only `AGENTS.md` and `README.md`, emits no primary package-manager guidance, and therefore keeps agents on read-only inspection. A later read-only comparison found real Gradle wrapper and Kotlin build files in that project while a fresh Habitat scan still emitted the same no-primary-package-manager guidance. Treat that as a measured command-decision gap for a narrow future Gradle project-fact or validation-command slice, not as permission for broad Android ecosystem coverage.
 
 ## Self-Use Before Substantial Work
 
