@@ -259,4 +259,76 @@ struct AgentContextOutputContractTests {
         #expect(context.contains("5 additional Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_mutation`, `ephemeral_package_execution`, `user_approval_required`)."))
         #expect(!context.contains("additional Ask First commands or command families in `command_policy.md` (reason codes: `git_mutation`"))
     }
+
+    @Test
+    func agentContextOverflowReasonCodesStayBoundedWhenManyFamiliesAreHidden() throws {
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let askFirstCommands = [
+            "shown-1",
+            "shown-2",
+            "shown-3",
+            "shown-4",
+            "hidden-package-manager-activation",
+            "hidden-dependency-mutation",
+            "hidden-package-registry-mutation",
+            "hidden-ephemeral-package-execution",
+            "hidden-user-approval-required",
+        ]
+        let reasonCodes: [PolicyReasonCode] = [
+            .init(code: "visible_reason", text: "Visible commands use structured metadata."),
+            .init(code: "package_manager_activation", text: "Package-manager activation can change shims, fetch package-manager versions, or mutate project metadata."),
+            .init(code: "dependency_mutation", text: "Dependency install, update, or removal can mutate project state."),
+            .init(code: "package_registry_mutation", text: "Package registry publication or metadata changes affect external package state."),
+            .init(code: "ephemeral_package_execution", text: "Ephemeral package execution can fetch or run unpinned code outside the selected workflow."),
+            .init(code: "user_approval_required", text: "Requires user approval before execution."),
+        ]
+        let commandReasons = askFirstCommands.prefix(4).map {
+            PolicyCommandReason(
+                command: $0,
+                classification: PolicyCommandReason.askFirstClassification,
+                reasonCode: "visible_reason",
+                reason: "Visible commands use structured metadata."
+            )
+        } + zip(askFirstCommands.dropFirst(4), reasonCodes.dropFirst()).map {
+            PolicyCommandReason(
+                command: $0.0,
+                classification: PolicyCommandReason.askFirstClassification,
+                reasonCode: $0.1.code,
+                reason: $0.1.text
+            )
+        }
+        let result = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [.init(name: "swift", paths: ["/usr/bin/swift"])], versions: [.init(name: "swift", version: "Swift version 6.1", available: true)]),
+            policy: .init(
+                preferredCommands: ["swift test"],
+                askFirstCommands: askFirstCommands,
+                forbiddenCommands: ["sudo"],
+                reasonCodes: reasonCodes,
+                commandReasons: commandReasons + [
+                    .init(
+                        command: "sudo",
+                        classification: PolicyCommandReason.forbiddenClassification,
+                        reasonCode: "privileged_command",
+                        reason: "Privileged commands can mutate the host outside the project."
+                    )
+                ]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        assertAgentContextContract(context)
+        #expect(context.contains("5 additional Ask First commands or command families in `command_policy.md` (reason codes: `package_manager_activation`, `dependency_mutation`, `package_registry_mutation`, more)."))
+        #expect(!context.contains("ephemeral_package_execution"))
+        #expect(!context.contains("user_approval_required"))
+    }
 }

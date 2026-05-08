@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 66
+- observing: 67
 - reviewed: 10
 
 ## Active Changes
@@ -57,6 +57,7 @@
 - `swift-package-policy-test-boundary` - [changes/2026-05-07-swift-package-policy-test-boundary.md](changes/2026-05-07-swift-package-policy-test-boundary.md)
 - `test-coverage-contract` - [changes/2026-05-07-test-coverage-contract.md](changes/2026-05-07-test-coverage-contract.md)
 - `workspace-mutation-policy-test-boundary` - [changes/2026-05-07-workspace-mutation-policy-test-boundary.md](changes/2026-05-07-workspace-mutation-policy-test-boundary.md)
+- `agent-context-hidden-reason-overflow-contract` - [changes/2026-05-08-agent-context-hidden-reason-overflow-contract.md](changes/2026-05-08-agent-context-hidden-reason-overflow-contract.md)
 - `baseline-policy-catalog-dedup-contract` - [changes/2026-05-08-baseline-policy-catalog-dedup-contract.md](changes/2026-05-08-baseline-policy-catalog-dedup-contract.md)
 - `command-reason-coverage-contract` - [changes/2026-05-08-command-reason-coverage-contract.md](changes/2026-05-08-command-reason-coverage-contract.md)
 - `command-reason-order-contract` - [changes/2026-05-08-command-reason-order-contract.md](changes/2026-05-08-command-reason-order-contract.md)
