@@ -104,6 +104,28 @@ struct InstructionAlignmentPolicyTests {
     }
 
     @Test
+    func scanEmitsOpenUncertaintyWhenDocumentedValidationWorkflowIsUnsupportedByRepositoryFacts() throws {
+        let projectURL = try makeProject(files: [
+            "AGENTS.md": "Run npm test before committing changes."
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        assertAgentContextContract(context)
+        #expect(result.project.validationCommandClaims == [
+            ValidationCommandClaim(source: "AGENTS.md", command: "npm test")
+        ])
+        #expect(context.contains("Fact: Repository files do not identify a primary validation workflow."))
+        #expect(context.contains("Open uncertainty: Project instructions mention `npm test`, but repository facts do not confirm that validation workflow."))
+        #expect(context.contains("Hint: Verify the documented command before using it for local validation."))
+        #expect(!context.contains("Warning: Project instructions mention `npm test`"))
+        #expect(!context.contains("Run npm test before committing changes."))
+    }
+
+    @Test
     func scanIgnoresNegatedDocumentedValidationCommandClaims() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": """

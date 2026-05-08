@@ -26,6 +26,10 @@ public struct DocumentedValidationCommandEvidence {
             return alignedAnnotations(claim: firstClaim)
         }
 
+        if claimedWorkflow != nil, actualWorkflow == nil {
+            return unknownRepositoryWorkflowAnnotations(claim: firstClaim)
+        }
+
         if claimedWorkflow != nil {
             return conflictingAnnotations(claim: firstClaim)
         }
@@ -71,6 +75,14 @@ public struct DocumentedValidationCommandEvidence {
         }
 
         return lines
+    }
+
+    private func unknownRepositoryWorkflowAnnotations(claim: ValidationCommandClaim) -> [String] {
+        [
+            repositoryFactLine,
+            "Open uncertainty: Project instructions mention `\(claim.command)`, but repository facts do not confirm that validation workflow.",
+            "Hint: Verify the documented command before using it for local validation."
+        ]
     }
 
     private var repositoryFactLine: String {

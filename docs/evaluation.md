@@ -156,13 +156,13 @@ Expected behavior:
 
 Post-`v0.5.0` follow-up candidates:
 
-- A documented validation command is present but repository facts cannot identify the workflow; expected behavior should avoid confident mismatch wording.
 - Xcode validation is documented with `xcodebuild test`; expected behavior should stay narrow and command-changing before adding it.
 
 Covered follow-ups:
 
 - Multiple validation-command claims disagree; expected behavior emits bounded `Open uncertainty` rather than silently following the first claim.
 - A command mentioned only in negated, obsolete, deprecated, avoid, or example-only wording is not treated as a positive validation claim.
+- A documented validation command is present but repository facts cannot identify the workflow; expected behavior emits bounded `Open uncertainty` rather than a confident mismatch warning.
 
 ## Observed Cases
 

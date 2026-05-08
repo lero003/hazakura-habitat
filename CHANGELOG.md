@@ -11,6 +11,7 @@
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Reason Codes` lines stay in sync with serialized `policy.reasonCodes` metadata.
 - Changed documented validation-command alignment so multiple instruction files that point to different validation workflows emit bounded `Open uncertainty` instead of silently trusting the first claim.
 - Changed documented validation-command extraction so negated, obsolete, or example-only command mentions are not recorded as positive validation claims.
+- Changed documented validation-command alignment so a documented workflow with no repository-supported workflow emits bounded `Open uncertainty` instead of a confident mismatch warning.
 
 ## v0.5.0 Developer Preview - 2026-05-08
 
