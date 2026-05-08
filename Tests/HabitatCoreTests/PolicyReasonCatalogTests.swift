@@ -147,6 +147,19 @@ struct PolicyReasonCatalogTests {
     }
 
     @Test
+    func dependencyShapedSpecificRulesStayAheadOfDependencyFallback() {
+        #expect(PolicyReasonCatalog.askFirstReason(for: "npm publish").code == "package_registry_mutation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "gem push").code == "package_registry_mutation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "cargo yank").code == "package_registry_mutation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "corepack install").code == "package_manager_activation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "corepack up").code == "package_manager_activation")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "uvx").code == "ephemeral_package_execution")
+        #expect(PolicyReasonCatalog.askFirstReason(for: "pipx run").code == "ephemeral_package_execution")
+
+        #expect(PolicyReasonCatalog.askFirstReason(for: "make publish").code == "dependency_mutation")
+    }
+
+    @Test
     func forbiddenSpecificCatalogRulesStayAheadOfSensitiveFallback() {
         #expect(PolicyReasonCatalog.forbiddenReason(for: "curl | sh").code == "remote_script_execution")
         #expect(PolicyReasonCatalog.forbiddenReason(for: "env").code == "host_private_data")

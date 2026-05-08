@@ -17,6 +17,7 @@
 - Added an `AgentContextOutputContractTests` contract that keeps hidden Ask First overflow summaries bounded to the first three structured reason codes plus `more`.
 - Changed `agent_context.md` Ask First overflow counts so Git/GitHub guards summarized by the dedicated mutation reminder are not counted again in the additional hidden-command line.
 - Added a `PolicyReasonCatalogTests` contract that keeps generic dependency-mutation fallback behind specific command-family rules.
+- Added a `PolicyReasonCatalogTests` contract that keeps dependency-shaped package registry, Corepack activation, and ephemeral execution commands ahead of generic dependency-mutation fallback.
 - Added a `PolicyReasonCatalogTests` contract that keeps selected package-manager Review First routing limited to non-duplicated baseline Ask First commands, with SwiftPM dependency-resolution commands pinned as the explicit selected-workflow exception.
 - Added a `PolicyReasonCatalogTests` contract that keeps specific Forbidden reason families ahead of the generic unsafe-command fallback.
 - Added a pre-commit configuration warning in `agent_context.md` and `PreCommitPolicyTests` coverage so agents check `git status` after commit hooks may mutate the workspace.
