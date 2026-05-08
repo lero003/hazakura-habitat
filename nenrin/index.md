@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 79
+- observing: 80
 - reviewed: 10
 
 ## Active Changes
@@ -85,6 +85,7 @@
 - `xcodebuild-validation-claim-scheme-discovery` - [changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md](changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md)
 - `agent-context-git-overflow-dedup` - [changes/2026-05-09-agent-context-git-overflow-dedup.md](changes/2026-05-09-agent-context-git-overflow-dedup.md)
 - `dependency-mutation-fallback-order-contract` - [changes/2026-05-09-dependency-mutation-fallback-order-contract.md](changes/2026-05-09-dependency-mutation-fallback-order-contract.md)
+- `forbidden-fallback-order-contract` - [changes/2026-05-09-forbidden-fallback-order-contract.md](changes/2026-05-09-forbidden-fallback-order-contract.md)
 - `package-manager-review-baseline-contract` - [changes/2026-05-09-package-manager-review-baseline-contract.md](changes/2026-05-09-package-manager-review-baseline-contract.md)
 
 ## Review Due
