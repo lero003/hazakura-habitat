@@ -536,13 +536,18 @@ public struct ReportWriter {
 
         if commands.count > limit {
             let hiddenCommands = Array(commands.dropFirst(limit))
-            let hiddenCount = commands.count - limit
+            let overflowCommands = hiddenGitGuardsSummarized
+                ? hiddenCommands.filter { !PolicyReasonCatalog.isGitOrGitHubPolicyGuard($0) }
+                : hiddenCommands
+            guard !overflowCommands.isEmpty else {
+                return lines
+            }
             let reasonSuffix = hiddenAskFirstReasonSuffix(
-                for: hiddenCommands,
+                for: overflowCommands,
                 result: result,
                 gitGuardsSummarized: hiddenGitGuardsSummarized
             )
-            lines.append("- \(hiddenCount) additional Ask First commands or command families in `command_policy.md`\(reasonSuffix).")
+            lines.append("- \(overflowCommands.count) additional Ask First commands or command families in `command_policy.md`\(reasonSuffix).")
         }
 
         return lines

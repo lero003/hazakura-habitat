@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 76
+- observing: 77
 - reviewed: 10
 
 ## Active Changes
@@ -83,6 +83,7 @@
 - `v0-5-instruction-alignment-release-gate` - [changes/2026-05-08-v0-5-instruction-alignment-release-gate.md](changes/2026-05-08-v0-5-instruction-alignment-release-gate.md)
 - `workspace-mutation-reason-routing` - [changes/2026-05-08-workspace-mutation-reason-routing.md](changes/2026-05-08-workspace-mutation-reason-routing.md)
 - `xcodebuild-validation-claim-scheme-discovery` - [changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md](changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md)
+- `agent-context-git-overflow-dedup` - [changes/2026-05-09-agent-context-git-overflow-dedup.md](changes/2026-05-09-agent-context-git-overflow-dedup.md)
 
 ## Review Due
 
