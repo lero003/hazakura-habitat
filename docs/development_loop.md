@@ -103,6 +103,7 @@ Keep this observational:
 
 - read the other project's generated `habitat-report/agent_context.md` first
 - compare it with the other project's visible repository facts when the report looks stale, weak, or over-broad
+- treat the report's `Scanned at` timestamp as part of the evidence: if key project files changed after that timestamp, phrase the result as bounded stale-context uncertainty and regenerate before trusting package-manager or validation guidance
 - look for command-changing signals: package-manager detection, missing preferred tools, validation-command uncertainty, secret-bearing paths, Git/GitHub risk, or stale report behavior
 - feed only durable Habitat lessons back into this repository as docs, fixtures, tests, examples, or roadmap notes
 - do not turn the watched project into a second Habitat workstream, do not copy raw report output into Nenrin, and do not make Habitat produce a plan for that project

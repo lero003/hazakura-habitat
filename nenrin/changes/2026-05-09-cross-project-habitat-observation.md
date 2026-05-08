@@ -54,3 +54,4 @@ Unjudged.
 ## Observations
 
 - 2026-05-09: A later `hazakura-ai-mobile` check found the initial weak signal was now incomplete: the project has `gradlew`, `settings.gradle.kts`, Kotlin build files, and documented Gradle smoke checks, but a fresh Habitat scan still emitted no primary package-manager or validation guidance. This changes the Habitat follow-up from generic stale-report concern to a narrow Gradle project-fact or validation-command gap, while keeping Android ecosystem coverage out of scope.
+- 2026-05-09: The user called out the broader pattern that project state changes over time. Docs now say to treat `Scanned at` as command-decision evidence: if key facts changed after the report timestamp, downgrade guidance to bounded stale-context uncertainty and regenerate before trusting package-manager or validation guidance.
