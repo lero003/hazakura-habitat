@@ -4,6 +4,7 @@ public struct HabitatScanner {
     private let runner: CommandRunning
     private let detector: ProjectDetector
     private let secretDetector = SecretFileDetector()
+    private let ciDetector = CiPresenceDetector()
 
     public init(runner: CommandRunning = ProcessCommandRunner(), detector: ProjectDetector = ProjectDetector()) {
         self.runner = runner
@@ -11,7 +12,7 @@ public struct HabitatScanner {
     }
 
     public func scan(projectURL: URL) -> ScanResult {
-        let project = detector.detect(projectURL: projectURL)
+        let project = detector.detect(projectURL: projectURL).withCiWorkflowFiles(ciDetector.detect(projectURL: projectURL))
         let projectPathIsExistingDirectory = projectPathIsExistingDirectory(projectURL)
         let pathEntries = (ProcessInfo.processInfo.environment["PATH"] ?? "")
             .split(separator: ":")

@@ -196,6 +196,7 @@
     "packageManagerVersion": null,
     "packageScripts": [],
     "validationCommandClaims": [],
+    "ciWorkflowFiles": [],
     "runtimeHints": {
       "node": null,
       "python": null,

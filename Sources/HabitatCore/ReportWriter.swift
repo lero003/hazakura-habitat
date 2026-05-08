@@ -192,7 +192,13 @@ public struct ReportWriter {
         let noteLines = (changeLines + diagnosticLines).isEmpty
             ? ["- Scan completed without relevant command diagnostics."]
             : changeLines + diagnosticLines
-        let noteAnnotationLines = validationLines + mismatchLines + noteLines
+        let ciUncertaintyLines: [String]
+        if !result.project.ciWorkflowFiles.isEmpty && !hasConcreteLocalValidationCommand(preferredCommands) {
+            ciUncertaintyLines = ["Open uncertainty: CI configuration detected but no local verification command found."]
+        } else {
+            ciUncertaintyLines = []
+        }
+        let noteAnnotationLines = validationLines + ciUncertaintyLines + mismatchLines + noteLines
 
         return """
         # Agent Context
@@ -216,6 +222,29 @@ public struct ReportWriter {
         - Scope: short working context; full approval detail is in `command_policy.md`.
         \(noteAnnotationLines.joined(separator: "\n"))
         """
+    }
+
+    private func hasConcreteLocalValidationCommand(_ commands: [String]) -> Bool {
+        let bareCommands: Set<String> = ["npm run", "pnpm run", "yarn run", "bun run", "npm", "pnpm", "yarn", "bun"]
+        let validationWords: Set<String> = ["test", "build", "lint", "typecheck", "check"]
+
+        for command in commands {
+            let trimmed = command.trimmingCharacters(in: .whitespaces)
+            if trimmed.isEmpty || bareCommands.contains(trimmed) { continue }
+
+            if trimmed.hasPrefix("swift test") || trimmed.hasPrefix("swift build") { return true }
+            if trimmed.hasPrefix("go test") || trimmed.hasPrefix("go build") { return true }
+            if trimmed.hasPrefix("cargo test") || trimmed.hasPrefix("cargo build") { return true }
+            if trimmed.hasPrefix("xcodebuild -list") { return true }
+            if trimmed.contains("-m pytest") { return true }
+            if trimmed.hasSuffix("check") { return true }
+
+            let words = trimmed.split(separator: " ").map(String.init)
+            if let last = words.last, validationWords.contains(last) {
+                return true
+            }
+        }
+        return false
     }
 
     private func commandPolicy(_ result: ScanResult) -> String {

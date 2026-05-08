@@ -255,6 +255,7 @@ public struct ProjectInfo: Codable {
     public let runtimeHints: RuntimeHints
     public let declaredPackageManager: String?
     public let declaredPackageManagerVersion: String?
+    public let ciWorkflowFiles: [String]
 
     public init(
         detectedFiles: [String],
@@ -268,7 +269,8 @@ public struct ProjectInfo: Codable {
         validationCommandClaims: [ValidationCommandClaim] = [],
         runtimeHints: RuntimeHints,
         declaredPackageManager: String? = nil,
-        declaredPackageManagerVersion: String? = nil
+        declaredPackageManagerVersion: String? = nil,
+        ciWorkflowFiles: [String] = []
     ) {
         self.detectedFiles = detectedFiles
         self.symlinkedFiles = symlinkedFiles
@@ -282,6 +284,7 @@ public struct ProjectInfo: Codable {
         self.runtimeHints = runtimeHints
         self.declaredPackageManager = declaredPackageManager
         self.declaredPackageManagerVersion = declaredPackageManagerVersion
+        self.ciWorkflowFiles = ciWorkflowFiles
     }
 
     private enum CodingKeys: String, CodingKey {
@@ -297,6 +300,7 @@ public struct ProjectInfo: Codable {
         case runtimeHints
         case declaredPackageManager
         case declaredPackageManagerVersion
+        case ciWorkflowFiles
     }
 
     public init(from decoder: Decoder) throws {
@@ -313,6 +317,7 @@ public struct ProjectInfo: Codable {
         runtimeHints = try container.decode(RuntimeHints.self, forKey: .runtimeHints)
         declaredPackageManager = try container.decodeIfPresent(String.self, forKey: .declaredPackageManager)
         declaredPackageManagerVersion = try container.decodeIfPresent(String.self, forKey: .declaredPackageManagerVersion)
+        ciWorkflowFiles = try container.decodeIfPresent([String].self, forKey: .ciWorkflowFiles) ?? []
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -329,6 +334,25 @@ public struct ProjectInfo: Codable {
         try container.encode(runtimeHints, forKey: .runtimeHints)
         try container.encodeIfPresent(declaredPackageManager, forKey: .declaredPackageManager)
         try container.encodeIfPresent(declaredPackageManagerVersion, forKey: .declaredPackageManagerVersion)
+        try container.encode(ciWorkflowFiles, forKey: .ciWorkflowFiles)
+    }
+
+    public func withCiWorkflowFiles(_ files: [String]) -> ProjectInfo {
+        ProjectInfo(
+            detectedFiles: detectedFiles,
+            symlinkedFiles: symlinkedFiles,
+            unsafeRuntimeHintFiles: unsafeRuntimeHintFiles,
+            unsafePackageMetadataFields: unsafePackageMetadataFields,
+            packageManager: packageManager,
+            packageManagerVersion: packageManagerVersion,
+            packageManagerVersionSource: packageManagerVersionSource,
+            packageScripts: packageScripts,
+            validationCommandClaims: validationCommandClaims,
+            runtimeHints: runtimeHints,
+            declaredPackageManager: declaredPackageManager,
+            declaredPackageManagerVersion: declaredPackageManagerVersion,
+            ciWorkflowFiles: files
+        )
     }
 }
 

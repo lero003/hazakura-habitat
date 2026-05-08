@@ -89,6 +89,7 @@ Snapshot date: 2026-05-08 (v0.5 release slice; `SecretFileDetector` extraction, 
 - `TestCoverageContractTests.swift` now checks scenario functions in test suites for `@Test`, so future suite moves fail fast if executable coverage is accidentally dropped.
 - Static baseline Ask First and Forbidden policy lists now live in `PolicyReasonCatalog+BaselinePolicy.swift`, so Scanner adds project-specific dynamic guards without rebuilding the whole curated catalog inline.
 - `InstructionAlignmentPolicyTests.swift` now owns the documented validation-command claim cases, including conflicting multiple validation workflows, unsupported documented workflows, negated command mentions, and the Xcode `xcodebuild test` claim that must start from scheme discovery, so instruction-alignment output can be checked without growing broad scanner or renderer tests.
+- `CiPresencePolicyTests.swift` now owns CI workflow filename and local-verification uncertainty contracts, so future CI signal changes can be verified without growing instruction-alignment tests.
 
 Observed output from scanning this repository:
 
@@ -102,6 +103,7 @@ Observed output from scanning this repository:
 - `scan_result.json` `policy.commandCounts`: 2 preferred, 262 Ask First, 6 Review First, 489 Forbidden, 751 with reasons.
 - `scan_result.json` `policy.reasonCodes`: 15 reason families, including `package_manager_activation`, `remote_repository_action`, `ephemeral_package_execution`, and `package_registry_mutation`.
 - `scan_result.json` `project.validationCommandClaims`: none in the current self-scan; README build examples are not treated as validation-command claims without validation context.
+- `scan_result.json` `project.ciWorkflowFiles`: `.github/workflows/ci.yml` and `.github/workflows/release-artifacts.yml`; no CI uncertainty appears because SwiftPM local verification is already selected.
 - Warnings: none.
 
 Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in machine-readable data, but they did not pollute `agent_context.md` because they were not relevant to the SwiftPM command decision.
