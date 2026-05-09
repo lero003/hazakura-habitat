@@ -175,6 +175,33 @@ struct PolicyOutputContractTests {
     }
 
     @Test
+    func commandPolicyReviewFirstMatchesAskFirstPrefix() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            "package.json": #"{"scripts":{"build":"swift build"}}"#,
+            "pnpm-lock.yaml": "",
+            ".env": "",
+        ])
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let reviewFirstReasons = markdownBulletLines(in: "Review First", markdown: policy).compactMap {
+            policyCommandLineReason($0, classification: PolicyCommandReason.askFirstClassification)
+        }
+        let askFirstPrefixReasons = markdownBulletLines(in: "Ask First", markdown: policy)
+            .prefix(reviewFirstReasons.count)
+            .compactMap {
+                policyCommandLineReason($0, classification: PolicyCommandReason.askFirstClassification)
+            }
+
+        #expect(!reviewFirstReasons.isEmpty)
+        #expect(reviewFirstReasons == askFirstPrefixReasons)
+    }
+
+    @Test
     func commandPolicyIndexCountsMatchGeneratedPolicyMetadata() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift-tools-version: 6.0\n",

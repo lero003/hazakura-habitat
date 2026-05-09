@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 87
+- observing: 88
 - reviewed: 10
 
 ## Active Changes
@@ -94,6 +94,7 @@
 - `forbidden-fallback-order-contract` - [changes/2026-05-09-forbidden-fallback-order-contract.md](changes/2026-05-09-forbidden-fallback-order-contract.md)
 - `package-manager-review-baseline-contract` - [changes/2026-05-09-package-manager-review-baseline-contract.md](changes/2026-05-09-package-manager-review-baseline-contract.md)
 - `policy-index-order-contract` - [changes/2026-05-09-policy-index-order-contract.md](changes/2026-05-09-policy-index-order-contract.md)
+- `review-first-ask-first-prefix-contract` - [changes/2026-05-09-review-first-ask-first-prefix-contract.md](changes/2026-05-09-review-first-ask-first-prefix-contract.md)
 
 ## Review Due
 
