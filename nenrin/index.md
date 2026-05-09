@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 98
+- observing: 99
 - reviewed: 10
 
 ## Active Changes
@@ -105,6 +105,7 @@
 - `policy-index-order-contract` - [changes/2026-05-09-policy-index-order-contract.md](changes/2026-05-09-policy-index-order-contract.md)
 - `review-first-ask-first-prefix-contract` - [changes/2026-05-09-review-first-ask-first-prefix-contract.md](changes/2026-05-09-review-first-ask-first-prefix-contract.md)
 - `secret-search-shell-quoting` - [changes/2026-05-09-secret-search-shell-quoting.md](changes/2026-05-09-secret-search-shell-quoting.md)
+- `reason-code-catalog-boundary` - [changes/2026-05-09-reason-code-catalog-boundary.md](changes/2026-05-09-reason-code-catalog-boundary.md)
 
 ## Review Due
 
