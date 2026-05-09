@@ -20,6 +20,7 @@
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Ask First` ordering keeps secret-bearing search, missing-tool, selected package-manager, lockfile, and Git risks in priority order.
 - Added an `AgentContextOutputContractTests` contract that keeps hidden Ask First overflow summaries bounded to the first three structured reason codes plus `more`.
 - Changed `agent_context.md` Ask First overflow counts so Git/GitHub guards summarized by the dedicated mutation reminder are not counted again in the additional hidden-command line.
+- Added an `AgentContextOutputContractTests` contract that keeps summarized Git/GitHub mutation guards discoverable as concrete `Review First` entries in `command_policy.md`.
 - Added a `PolicyReasonCatalogTests` contract that keeps generic dependency-mutation fallback behind specific command-family rules.
 - Added a `PolicyReasonCatalogTests` contract that keeps dependency-shaped package registry, Corepack activation, and ephemeral execution commands ahead of generic dependency-mutation fallback.
 - Added a `PolicyReasonCatalogTests` contract that keeps selected package-manager Review First routing limited to non-duplicated baseline Ask First commands, with SwiftPM dependency-resolution commands pinned as the explicit selected-workflow exception.

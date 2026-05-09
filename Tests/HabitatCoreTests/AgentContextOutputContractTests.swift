@@ -171,6 +171,45 @@ struct AgentContextOutputContractTests {
     }
 
     @Test
+    func hiddenGitMutationSummaryKeepsConcreteReviewFirstEntriesInCommandPolicy() throws {
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let result = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [.init(name: "swift", paths: ["/usr/bin/swift"])], versions: [.init(name: "swift", version: "Swift version 6.1", available: true)]),
+            policy: .init(
+                preferredCommands: ["swift test", "swift build"],
+                askFirstCommands: [
+                    "swift package update",
+                    "swift package resolve",
+                    "modifying lockfiles",
+                    "modifying version manager files",
+                    "git clean",
+                    "git reset --hard",
+                    "git push",
+                ],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains("Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`."))
+        #expect(!context.contains("Ask before `git clean`."))
+        #expect(!context.contains("Ask before `git reset --hard`."))
+        #expect(policy.contains("- `git clean` (`git_mutation`) - Git mutation can change workspace, history, branches, or remotes."))
+        #expect(policy.contains("- `git reset --hard` (`git_mutation`) - Git mutation can change workspace, history, branches, or remotes."))
+    }
+
+    @Test
     func agentContextCapsActionableBullets() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let warnings = (1...12).map { "Warning \($0)" }
