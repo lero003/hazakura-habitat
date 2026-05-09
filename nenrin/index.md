@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 96
+- observing: 97
 - reviewed: 10
 
 ## Active Changes
@@ -85,6 +85,7 @@
 - `xcodebuild-validation-claim-scheme-discovery` - [changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md](changes/2026-05-08-xcodebuild-validation-claim-scheme-discovery.md)
 - `agent-context-git-overflow-dedup` - [changes/2026-05-09-agent-context-git-overflow-dedup.md](changes/2026-05-09-agent-context-git-overflow-dedup.md)
 - `agent-context-git-review-first-handoff` - [changes/2026-05-09-agent-context-git-review-first-handoff.md](changes/2026-05-09-agent-context-git-review-first-handoff.md)
+- `agent-context-github-metadata-reminder` - [changes/2026-05-09-agent-context-github-metadata-reminder.md](changes/2026-05-09-agent-context-github-metadata-reminder.md)
 - `baseline-secret-value-reason-contract` - [changes/2026-05-09-baseline-secret-value-reason-contract.md](changes/2026-05-09-baseline-secret-value-reason-contract.md)
 - `baseline-static-family-coverage-contract` - [changes/2026-05-09-baseline-static-family-coverage-contract.md](changes/2026-05-09-baseline-static-family-coverage-contract.md)
 - `baseline-unowned-command-contract` - [changes/2026-05-09-baseline-unowned-command-contract.md](changes/2026-05-09-baseline-unowned-command-contract.md)

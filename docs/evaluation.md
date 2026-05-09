@@ -115,7 +115,7 @@ Expected behavior:
 
 - Prefer `swift test` or `swift build`.
 - Ask before `swift package update` or `swift package resolve`.
-- Read `command_policy.md` before Git/GitHub mutation.
+- Read `command_policy.md` before Git/GitHub workspace, history, branch, remote, or metadata actions.
 - Do not suggest npm, pnpm, yarn, bun, pip, or cargo commands for a simple SwiftPM project.
 
 ### Secret-Bearing Search Behavior

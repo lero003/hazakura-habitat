@@ -82,7 +82,7 @@ public struct ReportWriter {
         case "agent_context":
             return "before_any_project_command"
         case "command_policy":
-            return "before_risky_mutating_secret_or_environment_sensitive_commands"
+            return "before_risky_remote_mutating_secret_or_environment_sensitive_commands"
         case "environment_report":
             return "only_for_diagnostics_or_audit"
         default:
@@ -531,7 +531,7 @@ public struct ReportWriter {
 
         let hiddenGitGuardsSummarized = shouldSummarizeHiddenGitMutationGuards(commands: commands, shownCommands: shownCommands)
         if hiddenGitGuardsSummarized {
-            lines.append("- Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`.")
+            lines.append("- Ask before Git/GitHub workspace, history, branch, remote, or metadata actions; see `command_policy.md`.")
         }
 
         if commands.count > limit {

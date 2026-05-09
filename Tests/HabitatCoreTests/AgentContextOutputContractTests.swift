@@ -117,7 +117,7 @@ struct AgentContextOutputContractTests {
         #expect(context.contains("Ask before `modifying lockfiles`."))
         #expect(context.contains("Ask before `modifying version manager files`."))
         #expect(!context.contains("Ask before `brew install`."))
-        #expect(context.contains("Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`."))
+        #expect(context.contains("Ask before Git/GitHub workspace, history, branch, remote, or metadata actions; see `command_policy.md`."))
         #expect(context.contains("2 additional Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_mutation`)."))
         let swiftPackageUpdateIndex = try #require(policy.range(of: "`swift package update`")?.lowerBound)
         let modifyingLockfilesIndex = try #require(policy.range(of: "`modifying lockfiles`")?.lowerBound)
@@ -129,7 +129,7 @@ struct AgentContextOutputContractTests {
     }
 
     @Test
-    func agentContextSummarizesHiddenGitMutationGuards() throws {
+    func agentContextSummarizesHiddenGitHubRemoteMetadataGuards() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(
             schemaVersion: "0.1",
@@ -152,7 +152,8 @@ struct AgentContextOutputContractTests {
                     "git add",
                     "git commit",
                     "git push",
-                    "gh pr create"
+                    "gh secret list",
+                    "gh variable get"
                 ],
                 forbiddenCommands: ["sudo"]
             ),
@@ -165,9 +166,10 @@ struct AgentContextOutputContractTests {
 
         #expect(context.contains("Ask before `swift package update`."))
         #expect(context.contains("Ask before `modifying version manager files`."))
-        #expect(context.contains("Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`."))
+        #expect(context.contains("Ask before Git/GitHub workspace, history, branch, remote, or metadata actions; see `command_policy.md`."))
         #expect(!context.contains("additional Ask First commands or command families in `command_policy.md`"))
         #expect(!context.contains("Ask before `git add`."))
+        #expect(!context.contains("Ask before `gh secret list`."))
     }
 
     @Test
@@ -202,7 +204,7 @@ struct AgentContextOutputContractTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`."))
+        #expect(context.contains("Ask before Git/GitHub workspace, history, branch, remote, or metadata actions; see `command_policy.md`."))
         #expect(!context.contains("Ask before `git clean`."))
         #expect(!context.contains("Ask before `git reset --hard`."))
         #expect(policy.contains("- `git clean` (`git_mutation`) - Git mutation can change workspace, history, branches, or remotes."))
@@ -294,7 +296,7 @@ struct AgentContextOutputContractTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         assertAgentContextContract(context)
-        #expect(context.contains("Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`."))
+        #expect(context.contains("Ask before Git/GitHub workspace, history, branch, remote, or metadata actions; see `command_policy.md`."))
         #expect(context.contains("3 additional Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_mutation`, `ephemeral_package_execution`, `user_approval_required`)."))
         #expect(!context.contains("additional Ask First commands or command families in `command_policy.md` (reason codes: `git_mutation`"))
     }

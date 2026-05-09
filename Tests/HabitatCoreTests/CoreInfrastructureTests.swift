@@ -55,7 +55,7 @@ struct CoreInfrastructureTests {
         ])
         #expect(decoded.artifacts.map(\.readTrigger) == [
             "before_any_project_command",
-            "before_risky_mutating_secret_or_environment_sensitive_commands",
+            "before_risky_remote_mutating_secret_or_environment_sensitive_commands",
             "only_for_diagnostics_or_audit"
         ])
         #expect(decoded.artifacts.map(\.readOrder) == [1, 2, 3])

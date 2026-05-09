@@ -47,7 +47,7 @@
         }
       ],
       "lineCount": 31,
-      "characterCount": 986,
+      "characterCount": 994,
       "lineLimit": 120,
       "withinLineLimit": true
     },
@@ -57,7 +57,7 @@
       "role": "command_policy",
       "format": "markdown",
       "agentUse": "consult_before_risky_commands",
-      "readTrigger": "before_risky_mutating_secret_or_environment_sensitive_commands",
+      "readTrigger": "before_risky_remote_mutating_secret_or_environment_sensitive_commands",
       "readOrder": 2,
       "entrySection": "Review First",
       "entryLine": 12,

@@ -11,7 +11,7 @@
 - Ask before `uv sync`.
 - Ask before `uv add`.
 - Ask before `uv remove`.
-- Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`.
+- Ask before Git/GitHub workspace, history, branch, remote, or metadata actions; see `command_policy.md`.
 - 157 additional Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_resolution_mutation`, `version_manager_mutation`, `dependency_mutation`, more).
 
 ## Do Not

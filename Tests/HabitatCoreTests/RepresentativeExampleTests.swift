@@ -131,7 +131,7 @@ struct RepresentativeExampleTests {
             ]
             let expectedReadTrigger = [
                 "agent_context.md": "before_any_project_command",
-                "command_policy.md": "before_risky_mutating_secret_or_environment_sensitive_commands",
+                "command_policy.md": "before_risky_remote_mutating_secret_or_environment_sensitive_commands",
                 "environment_report.md": "only_for_diagnostics_or_audit",
             ]
             let expectedEntrySection = [

@@ -11,7 +11,7 @@
 - Ask before `swift package update`.
 - Ask before `swift package resolve`.
 - Ask before `modifying lockfiles`.
-- Ask before Git/GitHub workspace, history, branch, or remote mutations; see `command_policy.md`.
+- Ask before Git/GitHub workspace, history, branch, remote, or metadata actions; see `command_policy.md`.
 
 ## Do Not
 - Do not run `sudo`.
