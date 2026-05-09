@@ -25,6 +25,16 @@ enum PolicyReasonCatalog {
         }
     }
 
+    struct CommandFamilyManifestEntry: Sendable {
+        let name: String
+        let commands: [String]
+
+        init(_ name: String, _ commands: [String]) {
+            self.name = name
+            self.commands = commands
+        }
+    }
+
     static func legend(askFirstCommands: [String], forbiddenCommands: [String]) -> [PolicyReasonCode] {
         let usedCodes = Set(
             askFirstCommands.map { askFirstReason(for: $0).code }
