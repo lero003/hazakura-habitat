@@ -23,6 +23,7 @@
 - `baseline-policy-list-assembly` - [changes/2026-05-06-baseline-policy-list-assembly.md](changes/2026-05-06-baseline-policy-list-assembly.md)
 - `baseline-command-catalog-test-boundary` - [changes/2026-05-10-baseline-command-catalog-test-boundary.md](changes/2026-05-10-baseline-command-catalog-test-boundary.md)
 - `baseline-command-family-list-boundary` - [changes/2026-05-10-baseline-command-family-list-boundary.md](changes/2026-05-10-baseline-command-family-list-boundary.md)
+- `catalog-command-family-manifest` - [changes/2026-05-10-catalog-command-family-manifest.md](changes/2026-05-10-catalog-command-family-manifest.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)
 - `homebrew-command-family` - [changes/2026-05-06-homebrew-command-family.md](changes/2026-05-06-homebrew-command-family.md)

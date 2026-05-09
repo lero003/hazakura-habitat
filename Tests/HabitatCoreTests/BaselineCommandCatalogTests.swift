@@ -62,49 +62,25 @@ struct BaselineCommandCatalogTests {
 
     @Test
     func catalogCommandFamiliesDoNotDuplicateCommands() {
-        let commandFamilies: [(name: String, commands: [String])] = [
-            ("baselineAskFirstCommands", PolicyReasonCatalog.baselineAskFirstCommands),
-            ("baselineForbiddenCommands", PolicyReasonCatalog.baselineForbiddenCommands),
-            ("homebrewPackageManagerReviewCommands", PolicyReasonCatalog.homebrewPackageManagerReviewCommands),
-            ("pipDependencyMutationCommands", PolicyReasonCatalog.pipDependencyMutationCommands),
-            ("pipPackageFetchAndCacheCommands", PolicyReasonCatalog.pipPackageFetchAndCacheCommands),
-            ("pipCacheMutationCommands", PolicyReasonCatalog.pipCacheMutationCommands),
-            ("pipAskFirstCommands", PolicyReasonCatalog.pipAskFirstCommands),
-            ("uvDependencyMutationCommands", PolicyReasonCatalog.uvDependencyMutationCommands),
-            ("npmDependencyMutationCommands", PolicyReasonCatalog.npmDependencyMutationCommands),
-            ("pnpmDependencyMutationCommands", PolicyReasonCatalog.pnpmDependencyMutationCommands),
-            ("yarnDependencyMutationCommands", PolicyReasonCatalog.yarnDependencyMutationCommands),
-            ("bunDependencyMutationCommands", PolicyReasonCatalog.bunDependencyMutationCommands),
-            ("npmEphemeralPackageExecutionCommands", PolicyReasonCatalog.npmEphemeralPackageExecutionCommands),
-            ("pnpmEphemeralPackageExecutionCommands", PolicyReasonCatalog.pnpmEphemeralPackageExecutionCommands),
-            ("yarnEphemeralPackageExecutionCommands", PolicyReasonCatalog.yarnEphemeralPackageExecutionCommands),
-            ("bunEphemeralPackageExecutionCommands", PolicyReasonCatalog.bunEphemeralPackageExecutionCommands),
-            ("pythonEphemeralPackageExecutionCommands", PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands),
-            ("ephemeralPackageExecutionCommands", PolicyReasonCatalog.ephemeralPackageExecutionCommands),
-            ("packageRegistryMutationCommands", PolicyReasonCatalog.packageRegistryMutationCommands),
-            ("corepackPackageManagerActivationCommands", PolicyReasonCatalog.corepackPackageManagerActivationCommands),
-            ("rubyBundlerDependencyMutationCommands", PolicyReasonCatalog.rubyBundlerDependencyMutationCommands),
-            ("swiftPackageDependencyResolutionCommands", PolicyReasonCatalog.swiftPackageDependencyResolutionCommands),
-            ("goDependencyMutationCommands", PolicyReasonCatalog.goDependencyMutationCommands),
-            ("cargoDependencyMutationCommands", PolicyReasonCatalog.cargoDependencyMutationCommands),
-            ("cocoapodsDependencyMutationCommands", PolicyReasonCatalog.cocoapodsDependencyMutationCommands),
-            ("carthageDependencyMutationCommands", PolicyReasonCatalog.carthageDependencyMutationCommands),
-            ("xcodebuildProjectMutationCommands", PolicyReasonCatalog.xcodebuildProjectMutationCommands),
-            ("virtualEnvironmentMutationCommands", PolicyReasonCatalog.virtualEnvironmentMutationCommands),
-            ("baselineLockfileMutationCommands", PolicyReasonCatalog.baselineLockfileMutationCommands),
-            ("versionManagerMutationCommands", PolicyReasonCatalog.versionManagerMutationCommands),
-            ("localGitWorkspaceMutationCommands", PolicyReasonCatalog.localGitWorkspaceMutationCommands),
-            ("gitHubCliMutationCommands", PolicyReasonCatalog.gitHubCliMutationCommands),
-            ("workspaceMutationCommands", PolicyReasonCatalog.workspaceMutationCommands),
-            ("secretBearingBroadSearchCommands", PolicyReasonCatalog.secretBearingBroadSearchCommands),
-        ] + PolicyReasonCatalog.baselineAskFirstCommandFamilies
-            + PolicyReasonCatalog.baselineForbiddenCommandFamilies
-
-        for family in commandFamilies {
+        for family in PolicyReasonCatalog.catalogCommandFamilies {
             #expect(
                 Set(family.commands).count == family.commands.count,
                 "Expected \(family.name) to avoid duplicate policy entries"
             )
         }
+    }
+
+    @Test
+    func catalogCommandFamilyManifestIncludesBaselineFamilies() {
+        let manifestNames = Set(PolicyReasonCatalog.catalogCommandFamilies.map(\.name))
+        let baselineFamilyNames = Set(
+            (PolicyReasonCatalog.baselineAskFirstCommandFamilies + PolicyReasonCatalog.baselineForbiddenCommandFamilies)
+                .map(\.name)
+        )
+
+        #expect(
+            baselineFamilyNames.isSubset(of: manifestNames),
+            "Expected the catalog-owned family manifest to include every baseline command family"
+        )
     }
 }
