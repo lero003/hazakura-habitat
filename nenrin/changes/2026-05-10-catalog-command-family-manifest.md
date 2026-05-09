@@ -21,6 +21,7 @@ review_after:
 - Added a catalog-owned command-family manifest in `PolicyReasonCatalog+CommandFamilies.swift`.
 - Pointed the duplicate-entry contract in `BaselineCommandCatalogTests` at that manifest instead of keeping a long hand-maintained test-side list.
 - Added a manifest inclusion check for baseline Ask First and Forbidden family names.
+- Removed silent manifest-name deduplication, so duplicate family names remain visible to the duplicate-name contract instead of being filtered before tests inspect them.
 
 ## Reason
 
@@ -30,6 +31,7 @@ The previous duplicate-entry test already prevented command-family duplication, 
 
 - Generated policy output, command order, reason codes, Markdown, and JSON stay unchanged.
 - Future command-family additions update the catalog manifest as part of the policy boundary, and the baseline catalog test catches omissions.
+- Future duplicate family names fail loudly instead of being silently dropped from the manifest.
 
 ## Review After
 
