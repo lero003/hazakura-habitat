@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 99
+- observing: 100
 - reviewed: 10
 
 ## Active Changes
@@ -106,6 +106,7 @@
 - `review-first-ask-first-prefix-contract` - [changes/2026-05-09-review-first-ask-first-prefix-contract.md](changes/2026-05-09-review-first-ask-first-prefix-contract.md)
 - `secret-search-shell-quoting` - [changes/2026-05-09-secret-search-shell-quoting.md](changes/2026-05-09-secret-search-shell-quoting.md)
 - `reason-code-catalog-boundary` - [changes/2026-05-09-reason-code-catalog-boundary.md](changes/2026-05-09-reason-code-catalog-boundary.md)
+- `reason-rule-catalog-boundary` - [changes/2026-05-10-reason-rule-catalog-boundary.md](changes/2026-05-10-reason-rule-catalog-boundary.md)
 
 ## Review Due
 
