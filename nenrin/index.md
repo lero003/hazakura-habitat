@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 105
+- observing: 106
 - reviewed: 10
 
 ## Active Changes
@@ -25,6 +25,7 @@
 - `baseline-command-family-list-boundary` - [changes/2026-05-10-baseline-command-family-list-boundary.md](changes/2026-05-10-baseline-command-family-list-boundary.md)
 - `catalog-command-family-manifest` - [changes/2026-05-10-catalog-command-family-manifest.md](changes/2026-05-10-catalog-command-family-manifest.md)
 - `catalog-command-family-nonempty-contract` - [changes/2026-05-10-catalog-command-family-nonempty-contract.md](changes/2026-05-10-catalog-command-family-nonempty-contract.md)
+- `catalog-command-family-leaf-manifest` - [changes/2026-05-10-catalog-command-family-leaf-manifest.md](changes/2026-05-10-catalog-command-family-leaf-manifest.md)
 - `typed-command-family-manifest-entry` - [changes/2026-05-10-typed-command-family-manifest-entry.md](changes/2026-05-10-typed-command-family-manifest-entry.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)

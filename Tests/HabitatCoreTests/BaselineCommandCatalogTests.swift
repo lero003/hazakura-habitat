@@ -91,6 +91,20 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func catalogCommandFamilyManifestDoesNotIncludeRenderedBaselineAggregates() {
+        let familyNames = Set(PolicyReasonCatalog.catalogCommandFamilies.map(\.name))
+
+        #expect(
+            !familyNames.contains("baselineAskFirstCommands"),
+            "Expected the manifest to list leaf command families, not the rendered Ask First aggregate"
+        )
+        #expect(
+            !familyNames.contains("baselineForbiddenCommands"),
+            "Expected the manifest to list leaf command families, not the rendered Forbidden aggregate"
+        )
+    }
+
+    @Test
     func baselineCommandFamilyManifestsDoNotDuplicateNames() {
         let askFirstFamilyNames = PolicyReasonCatalog.baselineAskFirstCommandFamilies.map(\.name)
         let forbiddenFamilyNames = PolicyReasonCatalog.baselineForbiddenCommandFamilies.map(\.name)
