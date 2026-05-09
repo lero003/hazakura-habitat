@@ -76,6 +76,69 @@ struct PolicyReasonCatalogTests {
     }
 
     @Test
+    func baselineCommandCatalogHasNoUnownedStaticCommands() {
+        let baselineAskFirstCommands = Set(PolicyReasonCatalog.baselineAskFirstCommands)
+        let baselineForbiddenCommands = Set(PolicyReasonCatalog.baselineForbiddenCommands)
+        let ownedAskFirstCommands = Set(
+            PolicyReasonCatalog.homebrewDirectAskFirstCommands
+                + PolicyReasonCatalog.pipAskFirstCommands
+                + PolicyReasonCatalog.npmDependencyMutationCommands
+                + PolicyReasonCatalog.npmEphemeralPackageExecutionCommands
+                + PolicyReasonCatalog.pnpmDependencyMutationCommands
+                + PolicyReasonCatalog.pnpmEphemeralPackageExecutionCommands
+                + PolicyReasonCatalog.yarnDependencyMutationCommands
+                + PolicyReasonCatalog.yarnEphemeralPackageExecutionCommands
+                + PolicyReasonCatalog.bunDependencyMutationCommands
+                + PolicyReasonCatalog.bunEphemeralPackageExecutionCommands
+                + PolicyReasonCatalog.packageRegistryMutationCommands
+                + PolicyReasonCatalog.corepackPackageManagerActivationCommands
+                + PolicyReasonCatalog.uvDependencyMutationCommands
+                + PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands
+                + PolicyReasonCatalog.rubyBundlerDependencyMutationCommands
+                + PolicyReasonCatalog.homebrewBundleReviewCommands
+                + PolicyReasonCatalog.xcodebuildProjectMutationCommands
+                + PolicyReasonCatalog.goDependencyMutationCommands
+                + PolicyReasonCatalog.cargoDependencyMutationCommands
+                + PolicyReasonCatalog.cocoapodsDependencyMutationCommands
+                + PolicyReasonCatalog.carthageDependencyMutationCommands
+                + PolicyReasonCatalog.virtualEnvironmentMutationCommands
+                + ["modifying lockfiles"]
+                + PolicyReasonCatalog.versionManagerMutationCommands
+                + PolicyReasonCatalog.localGitWorkspaceMutationCommands
+                + PolicyReasonCatalog.gitHubCliMutationCommands
+                + PolicyReasonCatalog.workspaceMutationCommands
+        )
+        let ownedForbiddenCommands = Set(
+            [
+                "sudo",
+                "destructive file deletion outside the selected project",
+                "load secret environment files",
+                "read .env values",
+                "read .envrc values",
+                "read .netrc values",
+                "read package manager auth config values",
+                "read private keys",
+            ]
+                + PolicyReasonCatalog.remoteScriptExecutionCommands
+                + PolicyReasonCatalog.globalEnvironmentMutationCommands
+                + PolicyReasonCatalog.packageManagerCredentialAndConfigCommands
+                + PolicyReasonCatalog.cliAuthAndCredentialStoreCommands
+                + PolicyReasonCatalog.cloudAndContainerCredentialCommands
+                + PolicyReasonCatalog.hostPrivateDataCommands
+                + PolicyReasonCatalog.sshPrivateKeyCommands
+        )
+
+        #expect(
+            baselineAskFirstCommands == ownedAskFirstCommands,
+            "Expected every baseline Ask First command to belong to a named catalog family or explicit static guard"
+        )
+        #expect(
+            baselineForbiddenCommands == ownedForbiddenCommands,
+            "Expected every baseline Forbidden command to belong to a named catalog family or explicit static guard"
+        )
+    }
+
+    @Test
     func catalogCommandFamiliesDoNotDuplicateCommands() {
         let commandFamilies: [(name: String, commands: [String])] = [
             ("baselineAskFirstCommands", PolicyReasonCatalog.baselineAskFirstCommands),

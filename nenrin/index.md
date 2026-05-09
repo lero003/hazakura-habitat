@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 95
+- observing: 96
 - reviewed: 10
 
 ## Active Changes
@@ -87,6 +87,7 @@
 - `agent-context-git-review-first-handoff` - [changes/2026-05-09-agent-context-git-review-first-handoff.md](changes/2026-05-09-agent-context-git-review-first-handoff.md)
 - `baseline-secret-value-reason-contract` - [changes/2026-05-09-baseline-secret-value-reason-contract.md](changes/2026-05-09-baseline-secret-value-reason-contract.md)
 - `baseline-static-family-coverage-contract` - [changes/2026-05-09-baseline-static-family-coverage-contract.md](changes/2026-05-09-baseline-static-family-coverage-contract.md)
+- `baseline-unowned-command-contract` - [changes/2026-05-09-baseline-unowned-command-contract.md](changes/2026-05-09-baseline-unowned-command-contract.md)
 - `catalog-family-dedup-contract` - [changes/2026-05-09-catalog-family-dedup-contract.md](changes/2026-05-09-catalog-family-dedup-contract.md)
 - `command-policy-allowed-index-wording` - [changes/2026-05-09-command-policy-allowed-index-wording.md](changes/2026-05-09-command-policy-allowed-index-wording.md)
 - `command-policy-ask-first-priority-order` - [changes/2026-05-09-command-policy-ask-first-priority-order.md](changes/2026-05-09-command-policy-ask-first-priority-order.md)
