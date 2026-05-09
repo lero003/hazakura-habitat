@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 94
+- observing: 95
 - reviewed: 10
 
 ## Active Changes
@@ -96,6 +96,7 @@
 - `dependency-shaped-specific-order-contract` - [changes/2026-05-09-dependency-shaped-specific-order-contract.md](changes/2026-05-09-dependency-shaped-specific-order-contract.md)
 - `fallback-reason-legend-contract` - [changes/2026-05-09-fallback-reason-legend-contract.md](changes/2026-05-09-fallback-reason-legend-contract.md)
 - `forbidden-fallback-order-contract` - [changes/2026-05-09-forbidden-fallback-order-contract.md](changes/2026-05-09-forbidden-fallback-order-contract.md)
+- `gradle-wrapper-validation-guidance` - [changes/2026-05-09-gradle-wrapper-validation-guidance.md](changes/2026-05-09-gradle-wrapper-validation-guidance.md)
 - `package-manager-review-baseline-contract` - [changes/2026-05-09-package-manager-review-baseline-contract.md](changes/2026-05-09-package-manager-review-baseline-contract.md)
 - `package-registry-family-classification-contract` - [changes/2026-05-09-package-registry-family-classification-contract.md](changes/2026-05-09-package-registry-family-classification-contract.md)
 - `policy-index-order-contract` - [changes/2026-05-09-policy-index-order-contract.md](changes/2026-05-09-policy-index-order-contract.md)

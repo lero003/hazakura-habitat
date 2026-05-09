@@ -193,6 +193,8 @@ public struct HabitatScanner {
             return ["go test ./...", "go build ./..."]
         case "cargo":
             return ["cargo test", "cargo build"]
+        case "gradle":
+            return ["./gradlew test", "./gradlew build"]
         case "cocoapods":
             return ["pod --version"]
         case "carthage":

@@ -594,6 +594,23 @@ Follow-up:
 
 - Keep this as behavior evidence unless repeated preflight failures show generated SwiftPM guidance should mention the restricted-environment retry shape directly.
 
+### gradle-wrapper-validation-001
+
+Fixture:
+
+- `examples/behavior-evaluation/gradle-wrapper-validation-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: `agent_context.md` plus `scan_result.json`.
+- Observation: A repository with executable `gradlew`, Gradle build files, and a documented `./gradlew test` claim now changes the next command from generic read-only inspection into project-local Gradle wrapper validation guidance.
+
+Follow-up:
+
+- Keep this as a bounded Gradle wrapper project-fact slice. Add deeper Gradle or Android-specific evidence only if repeated observations need wrapper-version, task-list, or Android command constraints.
+
 ## Acceptance Criteria
 
 - `docs/evaluation.md` defines the evidence policy and verdict scale.

@@ -24,6 +24,11 @@ public struct ProjectDetector {
         "Gemfile.lock",
         "go.mod",
         "Cargo.toml",
+        "gradlew",
+        "settings.gradle",
+        "settings.gradle.kts",
+        "build.gradle",
+        "build.gradle.kts",
         "Package.swift",
         "Package.resolved",
         "Podfile",
@@ -139,7 +144,7 @@ public struct ProjectDetector {
             }
 
             let path = projectURL.appendingPathComponent($0).path
-            if $0 == ".venv/bin/python" {
+            if $0 == ".venv/bin/python" || $0 == "gradlew" {
                 return manager.isExecutableFile(atPath: path)
             }
 
@@ -171,6 +176,7 @@ public struct ProjectDetector {
         if files.contains("Podfile") || files.contains("Podfile.lock") { return "cocoapods" }
         if files.contains("Cartfile") || files.contains("Cartfile.resolved") { return "carthage" }
         if hasXcodeProjectContainer(files) { return "xcodebuild" }
+        if files.contains("gradlew") { return "gradle" }
         if files.contains("Package.swift") || files.contains("Package.resolved") { return "swiftpm" }
         if files.contains("go.mod") { return "go" }
         if files.contains("Cargo.toml") { return "cargo" }
@@ -212,6 +218,7 @@ public struct ProjectDetector {
              "Gemfile.lock",
              "go.mod",
              "Cargo.toml",
+             "gradlew",
              "Package.swift",
              "Package.resolved",
              "Podfile",
@@ -383,6 +390,8 @@ public struct ProjectDetector {
             "uv run pytest",
             "go test ./...",
             "cargo test",
+            "./gradlew test",
+            "./gradlew build",
             "bundle exec",
             "xcodebuild test"
         ]

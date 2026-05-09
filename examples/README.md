@@ -42,3 +42,4 @@ The purpose is to make the product value visible:
 - `behavior-evaluation/secret-bearing-search-008.json`: sanitized observed behavior fixture proving dense secret-bearing projects keep targeted source inspection.
 - `behavior-evaluation/secret-bearing-search-009.json`: sanitized observed behavior fixture for policy-context over-constraining of targeted source inspection.
 - `behavior-evaluation/secret-bearing-search-010.json`: sanitized observed behavior fixture for clarified policy preserving direct non-secret source inspection.
+- `behavior-evaluation/gradle-wrapper-validation-001.json`: sanitized behavior fixture for executable Gradle wrapper validation guidance.

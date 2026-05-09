@@ -142,6 +142,7 @@ public struct DocumentedValidationCommandEvidence {
         if command.hasPrefix("uv ") { return "uv" }
         if command.hasPrefix("go ") { return "go" }
         if command.hasPrefix("cargo ") { return "cargo" }
+        if command.hasPrefix("./gradlew ") { return "gradle" }
         if command.hasPrefix("bundle ") { return "bundler" }
         if command.hasPrefix("xcodebuild ") { return "xcodebuild" }
         return nil
@@ -167,6 +168,8 @@ public struct DocumentedValidationCommandEvidence {
             return "Go"
         case "cargo":
             return "Cargo"
+        case "gradle":
+            return "Gradle"
         case "bundler":
             return "Bundler"
         case "xcodebuild":

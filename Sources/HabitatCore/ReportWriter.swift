@@ -850,6 +850,8 @@ public struct ReportWriter {
             return "SwiftPM (`swift`)"
         case "bundler":
             return "Bundler (`bundle`)"
+        case "gradle":
+            return "Gradle wrapper (`./gradlew`)"
         case "homebrew":
             return "Homebrew Bundle (`brew`)"
         case "cocoapods":
