@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 91
+- observing: 92
 - reviewed: 10
 
 ## Active Changes
@@ -95,6 +95,7 @@
 - `fallback-reason-legend-contract` - [changes/2026-05-09-fallback-reason-legend-contract.md](changes/2026-05-09-fallback-reason-legend-contract.md)
 - `forbidden-fallback-order-contract` - [changes/2026-05-09-forbidden-fallback-order-contract.md](changes/2026-05-09-forbidden-fallback-order-contract.md)
 - `package-manager-review-baseline-contract` - [changes/2026-05-09-package-manager-review-baseline-contract.md](changes/2026-05-09-package-manager-review-baseline-contract.md)
+- `package-registry-family-classification-contract` - [changes/2026-05-09-package-registry-family-classification-contract.md](changes/2026-05-09-package-registry-family-classification-contract.md)
 - `policy-index-order-contract` - [changes/2026-05-09-policy-index-order-contract.md](changes/2026-05-09-policy-index-order-contract.md)
 - `review-first-ask-first-prefix-contract` - [changes/2026-05-09-review-first-ask-first-prefix-contract.md](changes/2026-05-09-review-first-ask-first-prefix-contract.md)
 - `secret-search-shell-quoting` - [changes/2026-05-09-secret-search-shell-quoting.md](changes/2026-05-09-secret-search-shell-quoting.md)

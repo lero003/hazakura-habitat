@@ -372,6 +372,13 @@ struct PolicyReasonCatalogTests {
             )
         }
 
+        for command in PolicyReasonCatalog.packageRegistryMutationCommands {
+            #expect(
+                PolicyReasonCatalog.askFirstReason(for: command).code == "package_registry_mutation",
+                "Expected \(command) to keep package-registry mutation classification"
+            )
+        }
+
         for command in PolicyReasonCatalog.ephemeralPackageExecutionCommands {
             #expect(
                 PolicyReasonCatalog.askFirstReason(for: command).code == "ephemeral_package_execution",
