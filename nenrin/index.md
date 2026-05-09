@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 101
+- observing: 102
 - reviewed: 10
 
 ## Active Changes
@@ -21,6 +21,7 @@
 - `maintainability-roadmap-guardrails` - [changes/2026-05-05-maintainability-roadmap-guardrails.md](changes/2026-05-05-maintainability-roadmap-guardrails.md)
 - `apple-package-manager-command-family` - [changes/2026-05-06-apple-package-manager-command-family.md](changes/2026-05-06-apple-package-manager-command-family.md)
 - `baseline-policy-list-assembly` - [changes/2026-05-06-baseline-policy-list-assembly.md](changes/2026-05-06-baseline-policy-list-assembly.md)
+- `baseline-command-catalog-test-boundary` - [changes/2026-05-10-baseline-command-catalog-test-boundary.md](changes/2026-05-10-baseline-command-catalog-test-boundary.md)
 - `baseline-command-family-list-boundary` - [changes/2026-05-10-baseline-command-family-list-boundary.md](changes/2026-05-10-baseline-command-family-list-boundary.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)
