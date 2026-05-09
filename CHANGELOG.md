@@ -17,6 +17,7 @@
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Policy Index` ordering follows the rendered policy section order.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Policy Index` omits absent conditional sections instead of pointing agents at empty headings.
 - Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Ask First` and `Forbidden` reason-code annotations stay in sync with serialized `policy.commandReasons` metadata.
+- Added a `PolicyOutputContractTests` contract that verifies `command_policy.md` `Ask First` ordering keeps secret-bearing search, missing-tool, selected package-manager, lockfile, and Git risks in priority order.
 - Added an `AgentContextOutputContractTests` contract that keeps hidden Ask First overflow summaries bounded to the first three structured reason codes plus `more`.
 - Changed `agent_context.md` Ask First overflow counts so Git/GitHub guards summarized by the dedicated mutation reminder are not counted again in the additional hidden-command line.
 - Added a `PolicyReasonCatalogTests` contract that keeps generic dependency-mutation fallback behind specific command-family rules.

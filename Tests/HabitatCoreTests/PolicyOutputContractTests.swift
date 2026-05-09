@@ -312,6 +312,28 @@ struct PolicyOutputContractTests {
     }
 
     @Test
+    func commandPolicyAskFirstOrderingPrioritizesCommandChangingRisks() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            "package.json": #"{"scripts":{"build":"swift build"}}"#,
+            "pnpm-lock.yaml": "",
+            ".env": "",
+        ])
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+        let askFirstLines = markdownBulletLines(in: "Ask First", markdown: policy)
+
+        #expect(askFirstLines.first == "- `recursive project search without excluding secret-bearing files` (`secret_or_credential_access`)")
+        #expect(lineIndex("- `running pnpm commands before pnpm is available` (`missing_tool`)", in: askFirstLines) < lineIndex("- `pnpm install` (`dependency_mutation`)", in: askFirstLines))
+        #expect(lineIndex("- `pnpm install` (`dependency_mutation`)", in: askFirstLines) < lineIndex("- `modifying lockfiles` (`dependency_resolution_mutation`)", in: askFirstLines))
+        #expect(lineIndex("- `modifying lockfiles` (`dependency_resolution_mutation`)", in: askFirstLines) < lineIndex("- `git clean` (`git_mutation`)", in: askFirstLines))
+    }
+
+    @Test
     func scanResultReasonLegendCoversAllCommandReasonCodes() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift-tools-version: 6.0\n",
@@ -498,6 +520,10 @@ struct PolicyOutputContractTests {
 
             return String(line.dropFirst(3))
         }
+    }
+
+    private func lineIndex(_ line: String, in lines: [String]) -> Int {
+        lines.firstIndex(of: line) ?? Int.max
     }
 
     private func policyCommandLineReason(_ line: String, classification: String) -> PolicyCommandReason? {
