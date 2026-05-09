@@ -76,6 +76,61 @@ struct PolicyReasonCatalogTests {
     }
 
     @Test
+    func catalogCommandFamiliesDoNotDuplicateCommands() {
+        let commandFamilies: [(name: String, commands: [String])] = [
+            ("baselineAskFirstCommands", PolicyReasonCatalog.baselineAskFirstCommands),
+            ("baselineForbiddenCommands", PolicyReasonCatalog.baselineForbiddenCommands),
+            ("homebrewDirectAskFirstCommands", PolicyReasonCatalog.homebrewDirectAskFirstCommands),
+            ("homebrewBundleReviewCommands", PolicyReasonCatalog.homebrewBundleReviewCommands),
+            ("homebrewPackageManagerReviewCommands", PolicyReasonCatalog.homebrewPackageManagerReviewCommands),
+            ("pipDependencyMutationCommands", PolicyReasonCatalog.pipDependencyMutationCommands),
+            ("pipPackageFetchAndCacheCommands", PolicyReasonCatalog.pipPackageFetchAndCacheCommands),
+            ("pipCacheMutationCommands", PolicyReasonCatalog.pipCacheMutationCommands),
+            ("pipAskFirstCommands", PolicyReasonCatalog.pipAskFirstCommands),
+            ("uvDependencyMutationCommands", PolicyReasonCatalog.uvDependencyMutationCommands),
+            ("npmDependencyMutationCommands", PolicyReasonCatalog.npmDependencyMutationCommands),
+            ("pnpmDependencyMutationCommands", PolicyReasonCatalog.pnpmDependencyMutationCommands),
+            ("yarnDependencyMutationCommands", PolicyReasonCatalog.yarnDependencyMutationCommands),
+            ("bunDependencyMutationCommands", PolicyReasonCatalog.bunDependencyMutationCommands),
+            ("npmEphemeralPackageExecutionCommands", PolicyReasonCatalog.npmEphemeralPackageExecutionCommands),
+            ("pnpmEphemeralPackageExecutionCommands", PolicyReasonCatalog.pnpmEphemeralPackageExecutionCommands),
+            ("yarnEphemeralPackageExecutionCommands", PolicyReasonCatalog.yarnEphemeralPackageExecutionCommands),
+            ("bunEphemeralPackageExecutionCommands", PolicyReasonCatalog.bunEphemeralPackageExecutionCommands),
+            ("pythonEphemeralPackageExecutionCommands", PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands),
+            ("ephemeralPackageExecutionCommands", PolicyReasonCatalog.ephemeralPackageExecutionCommands),
+            ("packageRegistryMutationCommands", PolicyReasonCatalog.packageRegistryMutationCommands),
+            ("corepackPackageManagerActivationCommands", PolicyReasonCatalog.corepackPackageManagerActivationCommands),
+            ("rubyBundlerDependencyMutationCommands", PolicyReasonCatalog.rubyBundlerDependencyMutationCommands),
+            ("swiftPackageDependencyResolutionCommands", PolicyReasonCatalog.swiftPackageDependencyResolutionCommands),
+            ("goDependencyMutationCommands", PolicyReasonCatalog.goDependencyMutationCommands),
+            ("cargoDependencyMutationCommands", PolicyReasonCatalog.cargoDependencyMutationCommands),
+            ("cocoapodsDependencyMutationCommands", PolicyReasonCatalog.cocoapodsDependencyMutationCommands),
+            ("carthageDependencyMutationCommands", PolicyReasonCatalog.carthageDependencyMutationCommands),
+            ("xcodebuildProjectMutationCommands", PolicyReasonCatalog.xcodebuildProjectMutationCommands),
+            ("virtualEnvironmentMutationCommands", PolicyReasonCatalog.virtualEnvironmentMutationCommands),
+            ("versionManagerMutationCommands", PolicyReasonCatalog.versionManagerMutationCommands),
+            ("localGitWorkspaceMutationCommands", PolicyReasonCatalog.localGitWorkspaceMutationCommands),
+            ("gitHubCliMutationCommands", PolicyReasonCatalog.gitHubCliMutationCommands),
+            ("workspaceMutationCommands", PolicyReasonCatalog.workspaceMutationCommands),
+            ("secretBearingBroadSearchCommands", PolicyReasonCatalog.secretBearingBroadSearchCommands),
+            ("remoteScriptExecutionCommands", PolicyReasonCatalog.remoteScriptExecutionCommands),
+            ("globalEnvironmentMutationCommands", PolicyReasonCatalog.globalEnvironmentMutationCommands),
+            ("packageManagerCredentialAndConfigCommands", PolicyReasonCatalog.packageManagerCredentialAndConfigCommands),
+            ("cliAuthAndCredentialStoreCommands", PolicyReasonCatalog.cliAuthAndCredentialStoreCommands),
+            ("cloudAndContainerCredentialCommands", PolicyReasonCatalog.cloudAndContainerCredentialCommands),
+            ("hostPrivateDataCommands", PolicyReasonCatalog.hostPrivateDataCommands),
+            ("sshPrivateKeyCommands", PolicyReasonCatalog.sshPrivateKeyCommands),
+        ]
+
+        for family in commandFamilies {
+            #expect(
+                Set(family.commands).count == family.commands.count,
+                "Expected \(family.name) to avoid duplicate policy entries"
+            )
+        }
+    }
+
+    @Test
     func packageManagerReviewRoutingPreservesCatalogFamilies() {
         #expect(PolicyReasonCatalog.swiftPackageDependencyResolutionCommands == [
             "swift package update",
