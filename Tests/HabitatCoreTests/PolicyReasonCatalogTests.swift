@@ -34,40 +34,8 @@ struct PolicyReasonCatalogTests {
     func baselineCommandCatalogCoversStaticCommandFamilies() {
         let baselineAskFirstCommands = Set(PolicyReasonCatalog.baselineAskFirstCommands)
         let baselineForbiddenCommands = Set(PolicyReasonCatalog.baselineForbiddenCommands)
-        let staticAskFirstFamilyCommands = PolicyReasonCatalog.homebrewDirectAskFirstCommands
-            + PolicyReasonCatalog.pipAskFirstCommands
-            + PolicyReasonCatalog.npmDependencyMutationCommands
-            + PolicyReasonCatalog.npmEphemeralPackageExecutionCommands
-            + PolicyReasonCatalog.pnpmDependencyMutationCommands
-            + PolicyReasonCatalog.pnpmEphemeralPackageExecutionCommands
-            + PolicyReasonCatalog.yarnDependencyMutationCommands
-            + PolicyReasonCatalog.yarnEphemeralPackageExecutionCommands
-            + PolicyReasonCatalog.bunDependencyMutationCommands
-            + PolicyReasonCatalog.bunEphemeralPackageExecutionCommands
-            + PolicyReasonCatalog.packageRegistryMutationCommands
-            + PolicyReasonCatalog.corepackPackageManagerActivationCommands
-            + PolicyReasonCatalog.uvDependencyMutationCommands
-            + PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands
-            + PolicyReasonCatalog.rubyBundlerDependencyMutationCommands
-            + PolicyReasonCatalog.homebrewBundleReviewCommands
-            + PolicyReasonCatalog.xcodebuildProjectMutationCommands
-            + PolicyReasonCatalog.goDependencyMutationCommands
-            + PolicyReasonCatalog.cargoDependencyMutationCommands
-            + PolicyReasonCatalog.cocoapodsDependencyMutationCommands
-            + PolicyReasonCatalog.carthageDependencyMutationCommands
-            + PolicyReasonCatalog.virtualEnvironmentMutationCommands
-            + PolicyReasonCatalog.baselineLockfileMutationCommands
-            + PolicyReasonCatalog.versionManagerMutationCommands
-            + PolicyReasonCatalog.localGitWorkspaceMutationCommands
-            + PolicyReasonCatalog.gitHubCliMutationCommands
-            + PolicyReasonCatalog.workspaceMutationCommands
-        let staticForbiddenFamilyCommands = PolicyReasonCatalog.remoteScriptExecutionCommands
-            + PolicyReasonCatalog.globalEnvironmentMutationCommands
-            + PolicyReasonCatalog.packageManagerCredentialAndConfigCommands
-            + PolicyReasonCatalog.cliAuthAndCredentialStoreCommands
-            + PolicyReasonCatalog.cloudAndContainerCredentialCommands
-            + PolicyReasonCatalog.hostPrivateDataCommands
-            + PolicyReasonCatalog.sshPrivateKeyCommands
+        let staticAskFirstFamilyCommands = PolicyReasonCatalog.baselineAskFirstCommandFamilies.flatMap { $0.commands }
+        let staticForbiddenFamilyCommands = PolicyReasonCatalog.baselineForbiddenCommandFamilies.flatMap { $0.commands }
 
         #expect(Set(staticAskFirstFamilyCommands).isSubset(of: baselineAskFirstCommands))
         #expect(Set(staticForbiddenFamilyCommands).isSubset(of: baselineForbiddenCommands))
@@ -79,46 +47,8 @@ struct PolicyReasonCatalogTests {
     func baselineCommandCatalogHasNoUnownedStaticCommands() {
         let baselineAskFirstCommands = Set(PolicyReasonCatalog.baselineAskFirstCommands)
         let baselineForbiddenCommands = Set(PolicyReasonCatalog.baselineForbiddenCommands)
-        let ownedAskFirstCommands = Set(
-            PolicyReasonCatalog.homebrewDirectAskFirstCommands
-                + PolicyReasonCatalog.pipAskFirstCommands
-                + PolicyReasonCatalog.npmDependencyMutationCommands
-                + PolicyReasonCatalog.npmEphemeralPackageExecutionCommands
-                + PolicyReasonCatalog.pnpmDependencyMutationCommands
-                + PolicyReasonCatalog.pnpmEphemeralPackageExecutionCommands
-                + PolicyReasonCatalog.yarnDependencyMutationCommands
-                + PolicyReasonCatalog.yarnEphemeralPackageExecutionCommands
-                + PolicyReasonCatalog.bunDependencyMutationCommands
-                + PolicyReasonCatalog.bunEphemeralPackageExecutionCommands
-                + PolicyReasonCatalog.packageRegistryMutationCommands
-                + PolicyReasonCatalog.corepackPackageManagerActivationCommands
-                + PolicyReasonCatalog.uvDependencyMutationCommands
-                + PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands
-                + PolicyReasonCatalog.rubyBundlerDependencyMutationCommands
-                + PolicyReasonCatalog.homebrewBundleReviewCommands
-                + PolicyReasonCatalog.xcodebuildProjectMutationCommands
-                + PolicyReasonCatalog.goDependencyMutationCommands
-                + PolicyReasonCatalog.cargoDependencyMutationCommands
-                + PolicyReasonCatalog.cocoapodsDependencyMutationCommands
-                + PolicyReasonCatalog.carthageDependencyMutationCommands
-                + PolicyReasonCatalog.virtualEnvironmentMutationCommands
-                + PolicyReasonCatalog.baselineLockfileMutationCommands
-                + PolicyReasonCatalog.versionManagerMutationCommands
-                + PolicyReasonCatalog.localGitWorkspaceMutationCommands
-                + PolicyReasonCatalog.gitHubCliMutationCommands
-                + PolicyReasonCatalog.workspaceMutationCommands
-        )
-        let ownedForbiddenCommands = Set(
-            PolicyReasonCatalog.baselineForbiddenCoreCommands
-                + PolicyReasonCatalog.baselineForbiddenSecretValueCommands
-                + PolicyReasonCatalog.remoteScriptExecutionCommands
-                + PolicyReasonCatalog.globalEnvironmentMutationCommands
-                + PolicyReasonCatalog.packageManagerCredentialAndConfigCommands
-                + PolicyReasonCatalog.cliAuthAndCredentialStoreCommands
-                + PolicyReasonCatalog.cloudAndContainerCredentialCommands
-                + PolicyReasonCatalog.hostPrivateDataCommands
-                + PolicyReasonCatalog.sshPrivateKeyCommands
-        )
+        let ownedAskFirstCommands = Set(PolicyReasonCatalog.baselineAskFirstCommandFamilies.flatMap { $0.commands })
+        let ownedForbiddenCommands = Set(PolicyReasonCatalog.baselineForbiddenCommandFamilies.flatMap { $0.commands })
 
         #expect(
             baselineAskFirstCommands == ownedAskFirstCommands,
@@ -135,8 +65,6 @@ struct PolicyReasonCatalogTests {
         let commandFamilies: [(name: String, commands: [String])] = [
             ("baselineAskFirstCommands", PolicyReasonCatalog.baselineAskFirstCommands),
             ("baselineForbiddenCommands", PolicyReasonCatalog.baselineForbiddenCommands),
-            ("homebrewDirectAskFirstCommands", PolicyReasonCatalog.homebrewDirectAskFirstCommands),
-            ("homebrewBundleReviewCommands", PolicyReasonCatalog.homebrewBundleReviewCommands),
             ("homebrewPackageManagerReviewCommands", PolicyReasonCatalog.homebrewPackageManagerReviewCommands),
             ("pipDependencyMutationCommands", PolicyReasonCatalog.pipDependencyMutationCommands),
             ("pipPackageFetchAndCacheCommands", PolicyReasonCatalog.pipPackageFetchAndCacheCommands),
@@ -169,16 +97,8 @@ struct PolicyReasonCatalogTests {
             ("gitHubCliMutationCommands", PolicyReasonCatalog.gitHubCliMutationCommands),
             ("workspaceMutationCommands", PolicyReasonCatalog.workspaceMutationCommands),
             ("secretBearingBroadSearchCommands", PolicyReasonCatalog.secretBearingBroadSearchCommands),
-            ("remoteScriptExecutionCommands", PolicyReasonCatalog.remoteScriptExecutionCommands),
-            ("globalEnvironmentMutationCommands", PolicyReasonCatalog.globalEnvironmentMutationCommands),
-            ("packageManagerCredentialAndConfigCommands", PolicyReasonCatalog.packageManagerCredentialAndConfigCommands),
-            ("cliAuthAndCredentialStoreCommands", PolicyReasonCatalog.cliAuthAndCredentialStoreCommands),
-            ("cloudAndContainerCredentialCommands", PolicyReasonCatalog.cloudAndContainerCredentialCommands),
-            ("hostPrivateDataCommands", PolicyReasonCatalog.hostPrivateDataCommands),
-            ("sshPrivateKeyCommands", PolicyReasonCatalog.sshPrivateKeyCommands),
-            ("baselineForbiddenCoreCommands", PolicyReasonCatalog.baselineForbiddenCoreCommands),
-            ("baselineForbiddenSecretValueCommands", PolicyReasonCatalog.baselineForbiddenSecretValueCommands),
-        ]
+        ] + PolicyReasonCatalog.baselineAskFirstCommandFamilies
+            + PolicyReasonCatalog.baselineForbiddenCommandFamilies
 
         for family in commandFamilies {
             #expect(
