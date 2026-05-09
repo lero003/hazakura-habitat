@@ -71,6 +71,16 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func catalogCommandFamilyManifestEntriesAreNonEmpty() {
+        for family in PolicyReasonCatalog.catalogCommandFamilies {
+            #expect(
+                !family.commands.isEmpty,
+                "Expected \(family.name) to own at least one policy entry"
+            )
+        }
+    }
+
+    @Test
     func catalogCommandFamilyManifestDoesNotDuplicateNames() {
         let familyNames = PolicyReasonCatalog.catalogCommandFamilies.map(\.name)
 
