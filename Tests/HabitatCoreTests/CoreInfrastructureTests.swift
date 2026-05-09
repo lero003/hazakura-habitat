@@ -192,7 +192,7 @@ struct CoreInfrastructureTests {
         #expect(commandPolicyArtifact.sectionLines?.contains(.init(title: "Policy Index", line: 5)) == true)
         #expect(!policy.contains("`Review First` - 0 highest-priority approval rules"))
         #expect(!policy.contains("`Reason Codes` - 0 reason families"))
-        #expect(policy.contains("`Allowed` - 2 concrete safe starting points."))
+        #expect(policy.contains("`Allowed` - 2 safe starting points."))
     }
 
     @Test
@@ -326,7 +326,7 @@ struct CoreInfrastructureTests {
         ## Policy Index
         - `Review First` - 4 highest-priority approval rules with reasons.
         - `Reason Codes` - 6 reason families used by this policy.
-        - `Allowed` - 1 concrete safe starting point.
+        - `Allowed` - 1 safe starting point.
         - `Ask First` - 4 commands or command families requiring approval.
         - `Forbidden` - 2 commands or command families to avoid.
 

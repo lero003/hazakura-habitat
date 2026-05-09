@@ -6,7 +6,7 @@ This policy is advisory. Habitat does not block commands. `Forbidden` means this
 - `Review First` - 3 highest-priority approval rules with reasons.
 - `Reason Codes` - 4 reason families used by this policy.
 - `If Secret-Bearing Files Are Detected` - 3 detected paths requiring exclusions before broad search or export.
-- `Allowed` - 1 concrete safe starting point.
+- `Allowed` - 1 safe starting point.
 - `Ask First` - 3 commands or command families requiring approval.
 - `Forbidden` - 5 commands or command families to avoid.
 

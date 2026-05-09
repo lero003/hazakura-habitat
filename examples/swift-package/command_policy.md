@@ -5,7 +5,7 @@ This policy is advisory. Habitat does not block commands. `Forbidden` means this
 ## Policy Index
 - `Review First` - 6 highest-priority approval rules with reasons.
 - `Reason Codes` - 5 reason families used by this policy.
-- `Allowed` - 3 concrete safe starting points.
+- `Allowed` - 3 safe starting points.
 - `Ask First` - 6 commands or command families requiring approval.
 - `Forbidden` - 7 commands or command families to avoid.
 

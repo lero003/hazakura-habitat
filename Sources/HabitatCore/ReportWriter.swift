@@ -371,7 +371,7 @@ public struct ReportWriter {
         }
 
         lines.append(contentsOf: [
-            "`Allowed` - \(counted(allowedCount, singular: "concrete safe starting point", plural: "concrete safe starting points")).",
+            "`Allowed` - \(counted(allowedCount, singular: "safe starting point", plural: "safe starting points")).",
             "`Ask First` - \(counted(askFirstCount, singular: "command or command family", plural: "commands or command families")) requiring approval.",
             "`Forbidden` - \(counted(forbiddenCount, singular: "command or command family", plural: "commands or command families")) to avoid."
         ])

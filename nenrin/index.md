@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 92
+- observing: 93
 - reviewed: 10
 
 ## Active Changes
@@ -88,6 +88,7 @@
 - `baseline-static-family-coverage-contract` - [changes/2026-05-09-baseline-static-family-coverage-contract.md](changes/2026-05-09-baseline-static-family-coverage-contract.md)
 - `catalog-family-dedup-contract` - [changes/2026-05-09-catalog-family-dedup-contract.md](changes/2026-05-09-catalog-family-dedup-contract.md)
 - `command-policy-ask-first-priority-order` - [changes/2026-05-09-command-policy-ask-first-priority-order.md](changes/2026-05-09-command-policy-ask-first-priority-order.md)
+- `command-policy-allowed-index-wording` - [changes/2026-05-09-command-policy-allowed-index-wording.md](changes/2026-05-09-command-policy-allowed-index-wording.md)
 - `command-policy-size-budget` - [changes/2026-05-09-command-policy-size-budget.md](changes/2026-05-09-command-policy-size-budget.md)
 - `cross-project-habitat-observation` - [changes/2026-05-09-cross-project-habitat-observation.md](changes/2026-05-09-cross-project-habitat-observation.md)
 - `dependency-mutation-fallback-order-contract` - [changes/2026-05-09-dependency-mutation-fallback-order-contract.md](changes/2026-05-09-dependency-mutation-fallback-order-contract.md)
