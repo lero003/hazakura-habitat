@@ -25,6 +25,7 @@
 - Added a `PolicyReasonCatalogTests` contract that keeps generic dependency-mutation fallback behind specific command-family rules.
 - Added a `PolicyReasonCatalogTests` contract that keeps dependency-shaped package registry, Corepack activation, and ephemeral execution commands ahead of generic dependency-mutation fallback.
 - Added a `PolicyReasonCatalogTests` contract that keeps selected package-manager Review First routing limited to non-duplicated baseline Ask First commands, with SwiftPM dependency-resolution commands pinned as the explicit selected-workflow exception.
+- Added a `PolicyReasonCatalogTests` contract that keeps static command-family catalogs covered by the baseline Ask First and Forbidden lists while leaving dynamic SwiftPM and secret-bearing search guards out of the static baseline.
 - Added a `PolicyReasonCatalogTests` contract that keeps specific Forbidden reason families ahead of the generic unsafe-command fallback.
 - Added a pre-commit configuration warning in `agent_context.md` and `PreCommitPolicyTests` coverage so agents check `git status` after commit hooks may mutate the workspace.
 - Added a `PolicyReasonCatalogTests` contract that keeps GitHub CLI local workspace commands under `git_mutation` while remote GitHub actions stay under `remote_repository_action`.

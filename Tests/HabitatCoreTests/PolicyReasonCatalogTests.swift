@@ -31,6 +31,51 @@ struct PolicyReasonCatalogTests {
     }
 
     @Test
+    func baselineCommandCatalogCoversStaticCommandFamilies() {
+        let baselineAskFirstCommands = Set(PolicyReasonCatalog.baselineAskFirstCommands)
+        let baselineForbiddenCommands = Set(PolicyReasonCatalog.baselineForbiddenCommands)
+        let staticAskFirstFamilyCommands = PolicyReasonCatalog.homebrewDirectAskFirstCommands
+            + PolicyReasonCatalog.pipAskFirstCommands
+            + PolicyReasonCatalog.npmDependencyMutationCommands
+            + PolicyReasonCatalog.npmEphemeralPackageExecutionCommands
+            + PolicyReasonCatalog.pnpmDependencyMutationCommands
+            + PolicyReasonCatalog.pnpmEphemeralPackageExecutionCommands
+            + PolicyReasonCatalog.yarnDependencyMutationCommands
+            + PolicyReasonCatalog.yarnEphemeralPackageExecutionCommands
+            + PolicyReasonCatalog.bunDependencyMutationCommands
+            + PolicyReasonCatalog.bunEphemeralPackageExecutionCommands
+            + PolicyReasonCatalog.packageRegistryMutationCommands
+            + PolicyReasonCatalog.corepackPackageManagerActivationCommands
+            + PolicyReasonCatalog.uvDependencyMutationCommands
+            + PolicyReasonCatalog.pythonEphemeralPackageExecutionCommands
+            + PolicyReasonCatalog.rubyBundlerDependencyMutationCommands
+            + PolicyReasonCatalog.homebrewBundleReviewCommands
+            + PolicyReasonCatalog.xcodebuildProjectMutationCommands
+            + PolicyReasonCatalog.goDependencyMutationCommands
+            + PolicyReasonCatalog.cargoDependencyMutationCommands
+            + PolicyReasonCatalog.cocoapodsDependencyMutationCommands
+            + PolicyReasonCatalog.carthageDependencyMutationCommands
+            + PolicyReasonCatalog.virtualEnvironmentMutationCommands
+            + ["modifying lockfiles"]
+            + PolicyReasonCatalog.versionManagerMutationCommands
+            + PolicyReasonCatalog.localGitWorkspaceMutationCommands
+            + PolicyReasonCatalog.gitHubCliMutationCommands
+            + PolicyReasonCatalog.workspaceMutationCommands
+        let staticForbiddenFamilyCommands = PolicyReasonCatalog.remoteScriptExecutionCommands
+            + PolicyReasonCatalog.globalEnvironmentMutationCommands
+            + PolicyReasonCatalog.packageManagerCredentialAndConfigCommands
+            + PolicyReasonCatalog.cliAuthAndCredentialStoreCommands
+            + PolicyReasonCatalog.cloudAndContainerCredentialCommands
+            + PolicyReasonCatalog.hostPrivateDataCommands
+            + PolicyReasonCatalog.sshPrivateKeyCommands
+
+        #expect(Set(staticAskFirstFamilyCommands).isSubset(of: baselineAskFirstCommands))
+        #expect(Set(staticForbiddenFamilyCommands).isSubset(of: baselineForbiddenCommands))
+        #expect(!baselineAskFirstCommands.contains("swift package update"))
+        #expect(!baselineAskFirstCommands.contains("recursive project search without excluding secret-bearing files"))
+    }
+
+    @Test
     func packageManagerReviewRoutingPreservesCatalogFamilies() {
         #expect(PolicyReasonCatalog.swiftPackageDependencyResolutionCommands == [
             "swift package update",
