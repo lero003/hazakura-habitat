@@ -1078,13 +1078,17 @@ public struct ReportWriter {
     private func searchExclusionGlobs(for evidence: SecretBearingEvidence) -> [String] {
         searchExclusionGlobCandidates(for: evidence)
             .prefix(searchExclusionGlobLimit)
-            .map { "--glob '!\($0)'" }
+            .map { "--glob \(shellSingleQuoted("!\($0)"))" }
     }
 
     private func gitGrepExclusionPathspecs(for evidence: SecretBearingEvidence) -> [String] {
         searchExclusionGlobCandidates(for: evidence)
             .prefix(searchExclusionGlobLimit)
-            .map { "':(exclude)\($0)'" }
+            .map { shellSingleQuoted(":(exclude)\($0)") }
+    }
+
+    private func shellSingleQuoted(_ value: String) -> String {
+        "'\(value.replacingOccurrences(of: "'", with: "'\\''"))'"
     }
 
     private func searchExclusionGlobCandidates(for evidence: SecretBearingEvidence) -> [String] {

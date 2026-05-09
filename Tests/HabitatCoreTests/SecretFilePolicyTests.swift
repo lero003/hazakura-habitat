@@ -410,6 +410,23 @@ struct SecretFilePolicyTests {
     }
 
     @Test
+    func searchGuidanceShellQuotesSecretBearingPathsWithApostrophes() throws {
+        let projectURL = try makeProject(files: [
+            "team's.key": "not a real key\n",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
+
+        #expect(context.contains(#"start broad search with `rg <pattern> --glob '!team'\''s.key'`."#))
+        #expect(policy.contains(#"- For necessary broad search, start with exclusion-aware `rg`: `rg <pattern> --glob '!team'\''s.key'`."#))
+        #expect(policy.contains(#"- For necessary Git-tracked search, use pathspec exclusions: `git grep <pattern> -- . ':(exclude)team'\''s.key'`."#))
+    }
+
+    @Test
     func searchGuidanceMentionsRemainingExclusionsWhenSecretBearingPathsExceedGlobBudget() throws {
         let projectURL = try makeProject(files: [
             ".aws/credentials": "aws_access_key_id = secret\n",

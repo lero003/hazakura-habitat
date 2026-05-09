@@ -28,6 +28,7 @@
 - Added a `PolicyReasonCatalogTests` contract that keeps static command-family catalogs covered by the baseline Ask First and Forbidden lists while leaving dynamic SwiftPM and secret-bearing search guards out of the static baseline.
 - Added a `PolicyReasonCatalogTests` contract that keeps catalog command-family arrays free of duplicate commands before they are assembled into generated policy.
 - Added a `PolicyReasonCatalogTests` contract that keeps specific Forbidden reason families ahead of the generic unsafe-command fallback.
+- Changed secret-bearing broad-search guidance so generated `rg --glob` and `git grep` pathspec examples shell-quote detected paths with apostrophes safely.
 - Added a pre-commit configuration warning in `agent_context.md` and `PreCommitPolicyTests` coverage so agents check `git status` after commit hooks may mutate the workspace.
 - Added a `PolicyReasonCatalogTests` contract that keeps GitHub CLI local workspace commands under `git_mutation` while remote GitHub actions stay under `remote_repository_action`.
 - Changed workspace mutation reason-code routing so `rm`, `rm -r`, `rm -rf`, and `xargs rm` use `user_approval_required` instead of falling through to dependency-mutation reasoning.
