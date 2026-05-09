@@ -21,9 +21,7 @@ extension PolicyReasonCatalog {
         + cocoapodsDependencyMutationCommands
         + carthageDependencyMutationCommands
         + virtualEnvironmentMutationCommands
-        + [
-            "modifying lockfiles",
-        ]
+        + baselineLockfileMutationCommands
         + versionManagerMutationCommands
         + localGitWorkspaceMutationCommands
         + gitHubCliMutationCommands
@@ -38,18 +36,4 @@ extension PolicyReasonCatalog {
         + hostPrivateDataCommands
         + sshPrivateKeyCommands
         + baselineForbiddenSecretValueCommands
-
-    private static let baselineForbiddenCoreCommands: [String] = [
-        "sudo",
-        "destructive file deletion outside the selected project",
-    ]
-
-    private static let baselineForbiddenSecretValueCommands: [String] = [
-        "load secret environment files",
-        "read .env values",
-        "read .envrc values",
-        "read .netrc values",
-        "read package manager auth config values",
-        "read private keys",
-    ]
 }

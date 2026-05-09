@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 97
+- observing: 98
 - reviewed: 10
 
 ## Active Changes
@@ -88,6 +88,7 @@
 - `agent-context-github-metadata-reminder` - [changes/2026-05-09-agent-context-github-metadata-reminder.md](changes/2026-05-09-agent-context-github-metadata-reminder.md)
 - `baseline-secret-value-reason-contract` - [changes/2026-05-09-baseline-secret-value-reason-contract.md](changes/2026-05-09-baseline-secret-value-reason-contract.md)
 - `baseline-static-family-coverage-contract` - [changes/2026-05-09-baseline-static-family-coverage-contract.md](changes/2026-05-09-baseline-static-family-coverage-contract.md)
+- `baseline-static-guard-boundary` - [changes/2026-05-09-baseline-static-guard-boundary.md](changes/2026-05-09-baseline-static-guard-boundary.md)
 - `baseline-unowned-command-contract` - [changes/2026-05-09-baseline-unowned-command-contract.md](changes/2026-05-09-baseline-unowned-command-contract.md)
 - `catalog-family-dedup-contract` - [changes/2026-05-09-catalog-family-dedup-contract.md](changes/2026-05-09-catalog-family-dedup-contract.md)
 - `command-policy-allowed-index-wording` - [changes/2026-05-09-command-policy-allowed-index-wording.md](changes/2026-05-09-command-policy-allowed-index-wording.md)

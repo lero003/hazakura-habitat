@@ -122,7 +122,7 @@ enum PolicyReasonCatalog {
         .init(reasonCode: .dependencySignalConflict) { $0.hasPrefix("dependency installs ") },
         .init(reasonCode: .symlinkTargetReview) { $0 == "following project symlinks before reviewing targets" },
         .init(reasonCode: .secretOrCredentialAccess) { isSecretBearingBroadSearchCommand($0) },
-        .init(reasonCode: .dependencyResolutionMutation) { $0 == "modifying lockfiles" },
+        .init(reasonCode: .dependencyResolutionMutation) { isBaselineLockfileMutationCommand($0) },
         .init(reasonCode: .versionManagerMutation) { isVersionManagerMutationCommand($0) },
         .init(reasonCode: .dependencyResolutionMutation) { isSwiftPackageDependencyResolutionCommand($0) },
         .init(reasonCode: .remoteRepositoryAction) { isRemoteRepositoryActionCommand($0) },
@@ -235,7 +235,8 @@ enum PolicyReasonCatalog {
     }
 
     private static func isSecretOrCredentialCommand(_ command: String) -> Bool {
-        isCredentialOrAuthSessionCommand(command)
+        isBaselineForbiddenSecretValueCommand(command)
+            || isCredentialOrAuthSessionCommand(command)
             || command.contains("secret")
             || command.contains("credential")
             || command.contains("token")

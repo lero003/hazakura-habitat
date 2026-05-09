@@ -56,7 +56,7 @@ struct PolicyReasonCatalogTests {
             + PolicyReasonCatalog.cocoapodsDependencyMutationCommands
             + PolicyReasonCatalog.carthageDependencyMutationCommands
             + PolicyReasonCatalog.virtualEnvironmentMutationCommands
-            + ["modifying lockfiles"]
+            + PolicyReasonCatalog.baselineLockfileMutationCommands
             + PolicyReasonCatalog.versionManagerMutationCommands
             + PolicyReasonCatalog.localGitWorkspaceMutationCommands
             + PolicyReasonCatalog.gitHubCliMutationCommands
@@ -102,23 +102,15 @@ struct PolicyReasonCatalogTests {
                 + PolicyReasonCatalog.cocoapodsDependencyMutationCommands
                 + PolicyReasonCatalog.carthageDependencyMutationCommands
                 + PolicyReasonCatalog.virtualEnvironmentMutationCommands
-                + ["modifying lockfiles"]
+                + PolicyReasonCatalog.baselineLockfileMutationCommands
                 + PolicyReasonCatalog.versionManagerMutationCommands
                 + PolicyReasonCatalog.localGitWorkspaceMutationCommands
                 + PolicyReasonCatalog.gitHubCliMutationCommands
                 + PolicyReasonCatalog.workspaceMutationCommands
         )
         let ownedForbiddenCommands = Set(
-            [
-                "sudo",
-                "destructive file deletion outside the selected project",
-                "load secret environment files",
-                "read .env values",
-                "read .envrc values",
-                "read .netrc values",
-                "read package manager auth config values",
-                "read private keys",
-            ]
+            PolicyReasonCatalog.baselineForbiddenCoreCommands
+                + PolicyReasonCatalog.baselineForbiddenSecretValueCommands
                 + PolicyReasonCatalog.remoteScriptExecutionCommands
                 + PolicyReasonCatalog.globalEnvironmentMutationCommands
                 + PolicyReasonCatalog.packageManagerCredentialAndConfigCommands
@@ -171,6 +163,7 @@ struct PolicyReasonCatalogTests {
             ("carthageDependencyMutationCommands", PolicyReasonCatalog.carthageDependencyMutationCommands),
             ("xcodebuildProjectMutationCommands", PolicyReasonCatalog.xcodebuildProjectMutationCommands),
             ("virtualEnvironmentMutationCommands", PolicyReasonCatalog.virtualEnvironmentMutationCommands),
+            ("baselineLockfileMutationCommands", PolicyReasonCatalog.baselineLockfileMutationCommands),
             ("versionManagerMutationCommands", PolicyReasonCatalog.versionManagerMutationCommands),
             ("localGitWorkspaceMutationCommands", PolicyReasonCatalog.localGitWorkspaceMutationCommands),
             ("gitHubCliMutationCommands", PolicyReasonCatalog.gitHubCliMutationCommands),
@@ -183,6 +176,8 @@ struct PolicyReasonCatalogTests {
             ("cloudAndContainerCredentialCommands", PolicyReasonCatalog.cloudAndContainerCredentialCommands),
             ("hostPrivateDataCommands", PolicyReasonCatalog.hostPrivateDataCommands),
             ("sshPrivateKeyCommands", PolicyReasonCatalog.sshPrivateKeyCommands),
+            ("baselineForbiddenCoreCommands", PolicyReasonCatalog.baselineForbiddenCoreCommands),
+            ("baselineForbiddenSecretValueCommands", PolicyReasonCatalog.baselineForbiddenSecretValueCommands),
         ]
 
         for family in commandFamilies {
@@ -334,16 +329,7 @@ struct PolicyReasonCatalogTests {
 
     @Test
     func baselineSecretValueGuardsStayCredentialSpecific() {
-        let secretValueCommands = [
-            "load secret environment files",
-            "read .env values",
-            "read .envrc values",
-            "read .netrc values",
-            "read package manager auth config values",
-            "read private keys",
-        ]
-
-        for command in secretValueCommands {
+        for command in PolicyReasonCatalog.baselineForbiddenSecretValueCommands {
             #expect(
                 PolicyReasonCatalog.baselineForbiddenCommands.contains(command),
                 "Expected baseline Forbidden policy to include \(command)"
