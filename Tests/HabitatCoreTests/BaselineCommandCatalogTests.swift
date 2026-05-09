@@ -71,6 +71,16 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func catalogCommandFamilyManifestDoesNotDuplicateNames() {
+        let familyNames = PolicyReasonCatalog.catalogCommandFamilies.map(\.name)
+
+        #expect(
+            Set(familyNames).count == familyNames.count,
+            "Expected the catalog-owned family manifest to avoid duplicate family names"
+        )
+    }
+
+    @Test
     func baselineCommandFamilyManifestsDoNotDuplicateNames() {
         let askFirstFamilyNames = PolicyReasonCatalog.baselineAskFirstCommandFamilies.map(\.name)
         let forbiddenFamilyNames = PolicyReasonCatalog.baselineForbiddenCommandFamilies.map(\.name)

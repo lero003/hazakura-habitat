@@ -1,5 +1,5 @@
 extension PolicyReasonCatalog {
-    static let catalogCommandFamilies: [CommandFamilyManifestEntry] = [
+    static let catalogCommandFamilies = uniqueCommandFamilyManifest([
         .init("baselineAskFirstCommands", baselineAskFirstCommands),
         .init("baselineForbiddenCommands", baselineForbiddenCommands),
         .init("homebrewPackageManagerReviewCommands", homebrewPackageManagerReviewCommands),
@@ -35,5 +35,14 @@ extension PolicyReasonCatalog {
         .init("workspaceMutationCommands", workspaceMutationCommands),
         .init("secretBearingBroadSearchCommands", secretBearingBroadSearchCommands),
     ] + baselineAskFirstCommandFamilies
-        + baselineForbiddenCommandFamilies
+        + baselineForbiddenCommandFamilies)
+
+    private static func uniqueCommandFamilyManifest(
+        _ families: [CommandFamilyManifestEntry]
+    ) -> [CommandFamilyManifestEntry] {
+        var seenNames: Set<String> = []
+        return families.filter { family in
+            seenNames.insert(family.name).inserted
+        }
+    }
 }
