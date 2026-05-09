@@ -270,6 +270,29 @@ struct PolicyReasonCatalogTests {
     }
 
     @Test
+    func baselineSecretValueGuardsStayCredentialSpecific() {
+        let secretValueCommands = [
+            "load secret environment files",
+            "read .env values",
+            "read .envrc values",
+            "read .netrc values",
+            "read package manager auth config values",
+            "read private keys",
+        ]
+
+        for command in secretValueCommands {
+            #expect(
+                PolicyReasonCatalog.baselineForbiddenCommands.contains(command),
+                "Expected baseline Forbidden policy to include \(command)"
+            )
+            #expect(
+                PolicyReasonCatalog.forbiddenReason(for: command).code == "secret_or_credential_access",
+                "Expected \(command) to keep credential-specific reason metadata"
+            )
+        }
+    }
+
+    @Test
     func catalogFamilyExtractionsPreserveClassification() {
         #expect(PolicyReasonCatalog.askFirstReason(for: "git push").code == "git_mutation")
         #expect(PolicyReasonCatalog.askFirstReason(for: "git commit").code == "git_mutation")
