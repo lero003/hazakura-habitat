@@ -91,6 +91,24 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func catalogCommandFamilyManifestDoesNotDuplicateOwnedCommandsAcrossFamilies() {
+        var commandOwners: [String: String] = [:]
+
+        for family in PolicyReasonCatalog.catalogCommandFamilies {
+            for command in family.commands {
+                let existingOwner = commandOwners[command]
+
+                #expect(
+                    existingOwner == nil,
+                    "Expected \(command) to have one catalog family owner, not both \(existingOwner ?? "") and \(family.name)"
+                )
+
+                commandOwners[command] = family.name
+            }
+        }
+    }
+
+    @Test
     func catalogCommandFamilyManifestDoesNotIncludeRenderedBaselineAggregates() {
         let familyNames = Set(PolicyReasonCatalog.catalogCommandFamilies.map(\.name))
 

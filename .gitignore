@@ -1,5 +1,6 @@
 .DS_Store
 .build/
+.codex-clang-cache/
 dist/
 habitat-report/
 skills/*
