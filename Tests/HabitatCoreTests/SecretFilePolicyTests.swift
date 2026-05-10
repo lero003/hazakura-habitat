@@ -372,6 +372,16 @@ struct SecretFilePolicyTests {
             "git grep -n <pattern> -- .",
         ]
 
+        #expect(
+            SecretFileDetector().recursiveSecretSearchAskFirstCommands(result.project)
+                == PolicyReasonCatalog.secretBearingBroadSearchCommands,
+            "Expected secret-bearing broad-search Ask First generation to use the catalog-owned command family"
+        )
+        #expect(
+            recursiveSearchCommands == PolicyReasonCatalog.secretBearingBroadSearchCommands,
+            "Expected this regression fixture to cover the whole catalog-owned broad-search family"
+        )
+
         for command in recursiveSearchCommands {
             #expect(result.policy.askFirstCommands.contains(command), "Expected \(command) to require approval")
             #expect(!result.policy.forbiddenCommands.contains(command), "Did not expect \(command) to be forbidden")
