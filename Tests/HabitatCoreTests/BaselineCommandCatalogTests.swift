@@ -353,6 +353,40 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func catalogCommandFamilyManifestSourcesMatchGeneratedPolicyReasonMetadata() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            ".env": "",
+        ])
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let generatedReasonsByClassificationAndCommand = Dictionary(
+            uniqueKeysWithValues: result.policy.commandReasons.map {
+                ("\($0.classification)\u{0}\($0.command)", $0)
+            }
+        )
+
+        for family in PolicyReasonCatalog.catalogCommandFamilies {
+            for command in family.commands {
+                let expectedReason: PolicyCommandReason
+
+                switch family.source {
+                case .dynamicAskFirst, .baselineAskFirst:
+                    expectedReason = PolicyReasonCatalog.askFirstCommandReason(for: command)
+                case .baselineForbidden:
+                    expectedReason = PolicyReasonCatalog.forbiddenCommandReason(for: command)
+                }
+
+                #expect(
+                    generatedReasonsByClassificationAndCommand[
+                        "\(expectedReason.classification)\u{0}\(expectedReason.command)"
+                    ] == expectedReason,
+                    "Expected \(command) from \(family.name) to keep generated PolicyCommandReason metadata aligned with its manifest source"
+                )
+            }
+        }
+    }
+
+    @Test
     func baselineCommandFamilyManifestsDoNotDuplicateNames() {
         let askFirstFamilyNames = PolicyReasonCatalog.baselineAskFirstCommandFamilies.map(\.name)
         let forbiddenFamilyNames = PolicyReasonCatalog.baselineForbiddenCommandFamilies.map(\.name)
