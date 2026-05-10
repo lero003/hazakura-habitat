@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 106
+- observing: 107
 - reviewed: 10
 
 ## Active Changes
@@ -27,6 +27,7 @@
 - `catalog-command-family-nonempty-contract` - [changes/2026-05-10-catalog-command-family-nonempty-contract.md](changes/2026-05-10-catalog-command-family-nonempty-contract.md)
 - `catalog-command-family-leaf-manifest` - [changes/2026-05-10-catalog-command-family-leaf-manifest.md](changes/2026-05-10-catalog-command-family-leaf-manifest.md)
 - `catalog-command-family-unique-ownership` - [changes/2026-05-10-catalog-command-family-unique-ownership.md](changes/2026-05-10-catalog-command-family-unique-ownership.md)
+- `dynamic-command-family-manifest` - [changes/2026-05-10-dynamic-command-family-manifest.md](changes/2026-05-10-dynamic-command-family-manifest.md)
 - `typed-command-family-manifest-entry` - [changes/2026-05-10-typed-command-family-manifest-entry.md](changes/2026-05-10-typed-command-family-manifest-entry.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)

@@ -123,6 +123,16 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func dynamicCommandFamilyManifestStaysNarrow() {
+        let dynamicFamilyNames = PolicyReasonCatalog.dynamicCommandFamilies.map(\.name)
+
+        #expect(dynamicFamilyNames == [
+            "swiftPackageDependencyResolutionCommands",
+            "secretBearingBroadSearchCommands",
+        ])
+    }
+
+    @Test
     func baselineCommandFamilyManifestsDoNotDuplicateNames() {
         let askFirstFamilyNames = PolicyReasonCatalog.baselineAskFirstCommandFamilies.map(\.name)
         let forbiddenFamilyNames = PolicyReasonCatalog.baselineForbiddenCommandFamilies.map(\.name)
