@@ -133,6 +133,20 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func dynamicCommandFamilyCommandsStayOutOfStaticBaseline() {
+        let dynamicCommands = Set(PolicyReasonCatalog.dynamicCommandFamilies.flatMap { $0.commands })
+        let staticBaselineCommands = Set(
+            PolicyReasonCatalog.baselineAskFirstCommands
+                + PolicyReasonCatalog.baselineForbiddenCommands
+        )
+
+        #expect(
+            dynamicCommands.isDisjoint(with: staticBaselineCommands),
+            "Expected dynamic command families to be added from current project facts, not duplicated in static baseline policy"
+        )
+    }
+
+    @Test
     func baselineCommandFamilyManifestsDoNotDuplicateNames() {
         let askFirstFamilyNames = PolicyReasonCatalog.baselineAskFirstCommandFamilies.map(\.name)
         let forbiddenFamilyNames = PolicyReasonCatalog.baselineForbiddenCommandFamilies.map(\.name)
