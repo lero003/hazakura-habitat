@@ -36,7 +36,19 @@ enum PolicyReasonCatalog {
         let commands: [String]
         let source: Source
 
-        init(_ name: String, _ commands: [String], source: Source) {
+        static func dynamic(_ name: String, _ commands: [String]) -> Self {
+            Self(name, commands, source: .dynamic)
+        }
+
+        static func baselineAskFirst(_ name: String, _ commands: [String]) -> Self {
+            Self(name, commands, source: .baselineAskFirst)
+        }
+
+        static func baselineForbidden(_ name: String, _ commands: [String]) -> Self {
+            Self(name, commands, source: .baselineForbidden)
+        }
+
+        private init(_ name: String, _ commands: [String], source: Source) {
             self.name = name
             self.commands = commands
             self.source = source

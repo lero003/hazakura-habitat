@@ -22,17 +22,18 @@ review_after:
 
 - Added a `BaselineCommandCatalogTests` contract requiring `PolicyReasonCatalog.catalogCommandFamilies` to equal dynamic families followed by baseline Ask First families and baseline Forbidden families.
 - Added explicit source metadata to each `CommandFamilyManifestEntry`, so the partition boundary is recorded with each family instead of living only in array placement.
+- Replaced direct manifest-entry source labels with source-specific factories, so dynamic / baseline Ask First / baseline Forbidden entries cannot be created by passing the wrong source label at each call site.
 - Synced status and roadmap notes with the added catalog source-partition contract.
 - Preserved generated policy output and command ordering.
 
 ## Reason
 
-The catalog manifest is a maintainability contract, not a new policy source. Keeping its source partitions explicit should make future dynamic evidence additions deliberate and keep static baseline families separate from project-fact-driven command guidance.
+The catalog manifest is a maintainability contract, not a new policy source. Keeping its source partitions explicit and source-specific at construction should make future dynamic evidence additions deliberate and keep static baseline families separate from project-fact-driven command guidance.
 
 ## Expected Behavior
 
 - Generated policy output, command order, reason codes, Markdown, and JSON stay unchanged.
-- Future catalog manifest edits fail tests if they add extra families, omit a source partition, mislabel a source, or reorder the manifest away from the dynamic/static boundary.
+- Future catalog manifest edits use the source-specific constructor for the relevant partition and fail tests if they add extra families, omit a source partition, mislabel a source, or reorder the manifest away from the dynamic/static boundary.
 
 ## Review After
 
