@@ -147,6 +147,58 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func baselineAskFirstCommandFamilyManifestStaysLeafOrdered() {
+        let askFirstFamilyNames = PolicyReasonCatalog.baselineAskFirstCommandFamilies.map(\.name)
+
+        #expect(askFirstFamilyNames == [
+            "homebrewDirectAskFirstCommands",
+            "pipAskFirstCommands",
+            "npmDependencyMutationCommands",
+            "npmEphemeralPackageExecutionCommands",
+            "pnpmDependencyMutationCommands",
+            "pnpmEphemeralPackageExecutionCommands",
+            "yarnDependencyMutationCommands",
+            "yarnEphemeralPackageExecutionCommands",
+            "bunDependencyMutationCommands",
+            "bunEphemeralPackageExecutionCommands",
+            "packageRegistryMutationCommands",
+            "corepackPackageManagerActivationCommands",
+            "uvDependencyMutationCommands",
+            "pythonEphemeralPackageExecutionCommands",
+            "rubyBundlerDependencyMutationCommands",
+            "homebrewBundleReviewCommands",
+            "xcodebuildProjectMutationCommands",
+            "goDependencyMutationCommands",
+            "cargoDependencyMutationCommands",
+            "cocoapodsDependencyMutationCommands",
+            "carthageDependencyMutationCommands",
+            "virtualEnvironmentMutationCommands",
+            "baselineLockfileMutationCommands",
+            "versionManagerMutationCommands",
+            "localGitWorkspaceMutationCommands",
+            "gitHubCliMutationCommands",
+            "workspaceMutationCommands",
+        ])
+    }
+
+    @Test
+    func baselineForbiddenCommandFamilyManifestStaysLeafOrdered() {
+        let forbiddenFamilyNames = PolicyReasonCatalog.baselineForbiddenCommandFamilies.map(\.name)
+
+        #expect(forbiddenFamilyNames == [
+            "baselineForbiddenCoreCommands",
+            "remoteScriptExecutionCommands",
+            "globalEnvironmentMutationCommands",
+            "packageManagerCredentialAndConfigCommands",
+            "cliAuthAndCredentialStoreCommands",
+            "cloudAndContainerCredentialCommands",
+            "hostPrivateDataCommands",
+            "sshPrivateKeyCommands",
+            "baselineForbiddenSecretValueCommands",
+        ])
+    }
+
+    @Test
     func catalogCommandFamilyManifestStaysPartitionedByPolicySource() {
         typealias Source = PolicyReasonCatalog.CommandFamilyManifestEntry.Source
 
