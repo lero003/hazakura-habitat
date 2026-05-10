@@ -276,6 +276,50 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func catalogCommandFamilyManifestSourcesMatchRenderedPolicySides() {
+        let baselineAskFirstCommands = Set(PolicyReasonCatalog.baselineAskFirstCommands)
+        let baselineForbiddenCommands = Set(PolicyReasonCatalog.baselineForbiddenCommands)
+
+        for family in PolicyReasonCatalog.catalogCommandFamilies {
+            for command in family.commands {
+                switch family.source {
+                case .dynamicAskFirst:
+                    #expect(
+                        !baselineAskFirstCommands.contains(command),
+                        "Expected dynamic Ask First command \(command) from \(family.name) to stay outside rendered baseline Ask First policy"
+                    )
+                    #expect(
+                        !baselineForbiddenCommands.contains(command),
+                        "Expected dynamic Ask First command \(command) from \(family.name) to stay outside rendered baseline Forbidden policy"
+                    )
+                    #expect(
+                        PolicyReasonCatalog.askFirstFinding(for: command).classification == PolicyFinding.askFirstClassification,
+                        "Expected dynamic Ask First command \(command) from \(family.name) to render as Ask First metadata"
+                    )
+                case .baselineAskFirst:
+                    #expect(
+                        baselineAskFirstCommands.contains(command),
+                        "Expected baseline Ask First command \(command) from \(family.name) to render in Ask First policy"
+                    )
+                    #expect(
+                        !baselineForbiddenCommands.contains(command),
+                        "Expected baseline Ask First command \(command) from \(family.name) to stay out of Forbidden policy"
+                    )
+                case .baselineForbidden:
+                    #expect(
+                        baselineForbiddenCommands.contains(command),
+                        "Expected baseline Forbidden command \(command) from \(family.name) to render in Forbidden policy"
+                    )
+                    #expect(
+                        !baselineAskFirstCommands.contains(command),
+                        "Expected baseline Forbidden command \(command) from \(family.name) to stay out of Ask First policy"
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
     func baselineCommandFamilyManifestsDoNotDuplicateNames() {
         let askFirstFamilyNames = PolicyReasonCatalog.baselineAskFirstCommandFamilies.map(\.name)
         let forbiddenFamilyNames = PolicyReasonCatalog.baselineForbiddenCommandFamilies.map(\.name)
