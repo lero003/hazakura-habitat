@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 110
+- observing: 111
 - reviewed: 10
 
 ## Active Changes
@@ -27,6 +27,7 @@
 - `catalog-command-family-manifest` - [changes/2026-05-10-catalog-command-family-manifest.md](changes/2026-05-10-catalog-command-family-manifest.md)
 - `catalog-command-family-nonempty-contract` - [changes/2026-05-10-catalog-command-family-nonempty-contract.md](changes/2026-05-10-catalog-command-family-nonempty-contract.md)
 - `catalog-command-family-leaf-manifest` - [changes/2026-05-10-catalog-command-family-leaf-manifest.md](changes/2026-05-10-catalog-command-family-leaf-manifest.md)
+- `catalog-family-source-classification-contract` - [changes/2026-05-10-catalog-family-source-classification-contract.md](changes/2026-05-10-catalog-family-source-classification-contract.md)
 - `catalog-command-family-source-partition` - [changes/2026-05-10-catalog-command-family-source-partition.md](changes/2026-05-10-catalog-command-family-source-partition.md)
 - `catalog-command-family-unique-ownership` - [changes/2026-05-10-catalog-command-family-unique-ownership.md](changes/2026-05-10-catalog-command-family-unique-ownership.md)
 - `dynamic-command-family-static-baseline-separation` - [changes/2026-05-10-dynamic-command-family-static-baseline-separation.md](changes/2026-05-10-dynamic-command-family-static-baseline-separation.md)

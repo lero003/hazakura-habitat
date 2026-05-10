@@ -225,6 +225,42 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func catalogCommandFamilyManifestSourcesMatchCommandClassification() {
+        let deliberateGenericAskFirstCommands = Set(
+            [
+                "brew cleanup",
+                "brew autoremove",
+                "brew tap",
+                "brew tap-new",
+            ]
+            + PolicyReasonCatalog.homebrewBundleReviewCommands
+            + ["pod deintegrate"]
+            + PolicyReasonCatalog.xcodebuildProjectMutationCommands
+            + PolicyReasonCatalog.pipPackageFetchAndCacheCommands
+            + PolicyReasonCatalog.virtualEnvironmentMutationCommands
+            + PolicyReasonCatalog.workspaceMutationCommands
+        )
+
+        for family in PolicyReasonCatalog.catalogCommandFamilies {
+            for command in family.commands {
+                switch family.source {
+                case .dynamic, .baselineAskFirst:
+                    #expect(
+                        PolicyReasonCatalog.askFirstReason(for: command).code != "user_approval_required"
+                            || deliberateGenericAskFirstCommands.contains(command),
+                        "Expected Ask First manifest entry \(command) from \(family.name) to keep a deliberate Ask First reason"
+                    )
+                case .baselineForbidden:
+                    #expect(
+                        PolicyReasonCatalog.forbiddenReason(for: command).code != "unsafe_or_sensitive_command",
+                        "Expected Forbidden manifest entry \(command) from \(family.name) to keep a deliberate Forbidden reason"
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
     func baselineCommandFamilyManifestsDoNotDuplicateNames() {
         let askFirstFamilyNames = PolicyReasonCatalog.baselineAskFirstCommandFamilies.map(\.name)
         let forbiddenFamilyNames = PolicyReasonCatalog.baselineForbiddenCommandFamilies.map(\.name)
