@@ -6,6 +6,7 @@ status: observing
 impact: unknown
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog+CommandFamilies.swift
+  - Sources/HabitatCore/PolicyReasonCatalog.swift
   - Tests/HabitatCoreTests/BaselineCommandCatalogTests.swift
   - docs/current_status.md
   - docs/roadmap.md
@@ -19,9 +20,10 @@ review_after:
 
 ## Changed
 
-- Split non-baseline catalog families into `PolicyReasonCatalog.dynamicCommandFamilies`.
+- Split non-baseline Ask First catalog families into `PolicyReasonCatalog.dynamicAskFirstCommandFamilies`.
 - Added a `BaselineCommandCatalogTests` contract that keeps dynamic catalog families limited to SwiftPM dependency resolution and secret-bearing broad search.
 - Synced status, roadmap, and self-use docs with the narrower dynamic-family boundary.
+- Renamed the manifest source case and factory from generic `dynamic` to `dynamicAskFirst`, preserving generated output while making the policy side explicit.
 
 ## Reason
 
@@ -30,7 +32,8 @@ The catalog manifest should not quietly become a broad evidence or policy aggreg
 ## Expected Behavior
 
 - Generated policy output, command order, reason codes, Markdown, and JSON stay unchanged.
-- Future non-baseline catalog families require an explicit test update that explains the command-decision boundary.
+- Future non-baseline Ask First catalog families require an explicit test update that explains the command-decision boundary.
+- A future dynamic Forbidden family should require a separate source case instead of reusing the Ask First path.
 
 ## Review After
 

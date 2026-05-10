@@ -123,26 +123,26 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
-    func dynamicCommandFamilyManifestStaysNarrow() {
-        let dynamicFamilyNames = PolicyReasonCatalog.dynamicCommandFamilies.map(\.name)
+    func dynamicAskFirstCommandFamilyManifestStaysNarrow() {
+        let dynamicAskFirstFamilyNames = PolicyReasonCatalog.dynamicAskFirstCommandFamilies.map(\.name)
 
-        #expect(dynamicFamilyNames == [
+        #expect(dynamicAskFirstFamilyNames == [
             "swiftPackageDependencyResolutionCommands",
             "secretBearingBroadSearchCommands",
         ])
     }
 
     @Test
-    func dynamicCommandFamilyCommandsStayOutOfStaticBaseline() {
-        let dynamicCommands = Set(PolicyReasonCatalog.dynamicCommandFamilies.flatMap { $0.commands })
+    func dynamicAskFirstCommandFamilyCommandsStayOutOfStaticBaseline() {
+        let dynamicAskFirstCommands = Set(PolicyReasonCatalog.dynamicAskFirstCommandFamilies.flatMap { $0.commands })
         let staticBaselineCommands = Set(
             PolicyReasonCatalog.baselineAskFirstCommands
                 + PolicyReasonCatalog.baselineForbiddenCommands
         )
 
         #expect(
-            dynamicCommands.isDisjoint(with: staticBaselineCommands),
-            "Expected dynamic command families to be added from current project facts, not duplicated in static baseline policy"
+            dynamicAskFirstCommands.isDisjoint(with: staticBaselineCommands),
+            "Expected dynamic Ask First command families to be added from current project facts, not duplicated in static baseline policy"
         )
     }
 
@@ -206,18 +206,18 @@ struct BaselineCommandCatalogTests {
         let manifestNames = PolicyReasonCatalog.catalogCommandFamilies.map(\.name)
         let manifestSources = PolicyReasonCatalog.catalogCommandFamilies.map(\.source)
         let expectedManifestNames = (
-            PolicyReasonCatalog.dynamicCommandFamilies
+            PolicyReasonCatalog.dynamicAskFirstCommandFamilies
                 + PolicyReasonCatalog.baselineAskFirstCommandFamilies
                 + PolicyReasonCatalog.baselineForbiddenCommandFamilies
         ).map(\.name)
         let expectedManifestSources =
-            Array(repeating: Source.dynamic, count: PolicyReasonCatalog.dynamicCommandFamilies.count)
+            Array(repeating: Source.dynamicAskFirst, count: PolicyReasonCatalog.dynamicAskFirstCommandFamilies.count)
             + Array(repeating: .baselineAskFirst, count: PolicyReasonCatalog.baselineAskFirstCommandFamilies.count)
             + Array(repeating: .baselineForbidden, count: PolicyReasonCatalog.baselineForbiddenCommandFamilies.count)
 
         #expect(
             manifestNames == expectedManifestNames,
-            "Expected the catalog manifest to stay limited to dynamic families followed by baseline Ask First and Forbidden families"
+            "Expected the catalog manifest to stay limited to dynamic Ask First families followed by baseline Ask First and Forbidden families"
         )
         #expect(
             manifestSources == expectedManifestSources,
@@ -259,7 +259,7 @@ struct BaselineCommandCatalogTests {
         for family in PolicyReasonCatalog.catalogCommandFamilies {
             for command in family.commands {
                 switch family.source {
-                case .dynamic, .baselineAskFirst:
+                case .dynamicAskFirst, .baselineAskFirst:
                     #expect(
                         PolicyReasonCatalog.askFirstReason(for: command).code != "user_approval_required"
                             || deliberateGenericAskFirstCommands.contains(command),

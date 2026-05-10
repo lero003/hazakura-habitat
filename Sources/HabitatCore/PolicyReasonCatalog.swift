@@ -27,7 +27,7 @@ enum PolicyReasonCatalog {
 
     struct CommandFamilyManifestEntry: Sendable {
         enum Source: Equatable, Sendable {
-            case dynamic
+            case dynamicAskFirst
             case baselineAskFirst
             case baselineForbidden
         }
@@ -36,8 +36,8 @@ enum PolicyReasonCatalog {
         let commands: [String]
         let source: Source
 
-        static func dynamic(_ name: String, _ commands: [String]) -> Self {
-            Self(name, commands, source: .dynamic)
+        static func dynamicAskFirst(_ name: String, _ commands: [String]) -> Self {
+            Self(name, commands, source: .dynamicAskFirst)
         }
 
         static func baselineAskFirst(_ name: String, _ commands: [String]) -> Self {
