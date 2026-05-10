@@ -40,26 +40,17 @@ struct PolicyReasonCatalogTests {
     func packageManagerReviewRoutingKeepsBaselineAndSwiftPMBoundariesExplicit() {
         let baselineAskFirstCommands = Set(PolicyReasonCatalog.baselineAskFirstCommands)
         let selectedSwiftPMCommands = Set(PolicyReasonCatalog.swiftPackageDependencyResolutionCommands)
-        let packageManagers = [
-            "npm",
-            "pnpm",
-            "yarn",
-            "bun",
-            "uv",
-            "python",
-            "bundler",
-            "homebrew",
-            "swiftpm",
-            "go",
-            "cargo",
-            "cocoapods",
-            "carthage",
-            "xcodebuild",
-        ]
+        let routes = PolicyReasonCatalog.packageManagerMutationReviewRoutes
+        let packageManagers = routes.map(\.packageManager)
 
-        for packageManager in packageManagers {
+        #expect(Set(packageManagers).count == packageManagers.count, "Expected package-manager Review First routes to avoid duplicate selectors")
+        #expect(!routes.contains { $0.commands.isEmpty }, "Expected every package-manager Review First route to expose commands")
+
+        for route in routes {
+            let packageManager = route.packageManager
             let reviewCommands = PolicyReasonCatalog.packageManagerMutationReviewCommands(for: packageManager)
 
+            #expect(reviewCommands == route.commands, "Expected \(packageManager) Review First routing to use the catalog route table")
             #expect(!reviewCommands.isEmpty, "Expected \(packageManager) to have Review First routing commands")
             #expect(Set(reviewCommands).count == reviewCommands.count, "Expected \(packageManager) Review First commands to avoid duplicates")
 
