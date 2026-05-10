@@ -186,7 +186,8 @@ struct BaselineCommandCatalogTests {
         let forbiddenFamilyNames = PolicyReasonCatalog.baselineForbiddenCommandFamilies.map(\.name)
 
         #expect(forbiddenFamilyNames == [
-            "baselineForbiddenCoreCommands",
+            "privilegedCommands",
+            "outsideProjectDeletionCommands",
             "remoteScriptExecutionCommands",
             "globalEnvironmentMutationCommands",
             "packageManagerCredentialAndConfigCommands",

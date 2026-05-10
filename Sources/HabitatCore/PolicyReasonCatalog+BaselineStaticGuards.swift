@@ -4,10 +4,15 @@ extension PolicyReasonCatalog {
     ])
     static let baselineLockfileMutationCommands = baselineLockfileMutationCommandFamily.commands
 
-    static let baselineForbiddenCoreCommands: [String] = [
+    private static let privilegedCommandFamily = CommandFamily([
         "sudo",
+    ])
+    static let privilegedCommands = privilegedCommandFamily.commands
+
+    private static let outsideProjectDeletionCommandFamily = CommandFamily([
         "destructive file deletion outside the selected project",
-    ]
+    ])
+    static let outsideProjectDeletionCommands = outsideProjectDeletionCommandFamily.commands
 
     private static let baselineForbiddenSecretValueCommandFamily = CommandFamily([
         "load secret environment files",
@@ -21,6 +26,14 @@ extension PolicyReasonCatalog {
 
     static func isBaselineLockfileMutationCommand(_ command: String) -> Bool {
         baselineLockfileMutationCommandFamily.contains(command)
+    }
+
+    static func isPrivilegedCommand(_ command: String) -> Bool {
+        privilegedCommandFamily.contains(command)
+    }
+
+    static func isOutsideProjectDeletionCommand(_ command: String) -> Bool {
+        outsideProjectDeletionCommandFamily.contains(command)
     }
 
     static func isBaselineForbiddenSecretValueCommand(_ command: String) -> Bool {

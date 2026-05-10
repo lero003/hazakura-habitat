@@ -30,7 +30,8 @@ extension PolicyReasonCatalog {
     ]
 
     static let baselineForbiddenCommandFamilies: [CommandFamilyManifestEntry] = [
-        .baselineForbidden("baselineForbiddenCoreCommands", baselineForbiddenCoreCommands),
+        .baselineForbidden("privilegedCommands", privilegedCommands),
+        .baselineForbidden("outsideProjectDeletionCommands", outsideProjectDeletionCommands),
         .baselineForbidden("remoteScriptExecutionCommands", remoteScriptExecutionCommands),
         .baselineForbidden("globalEnvironmentMutationCommands", globalEnvironmentMutationCommands),
         .baselineForbidden("packageManagerCredentialAndConfigCommands", packageManagerCredentialAndConfigCommands),

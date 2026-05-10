@@ -137,6 +137,7 @@ struct PolicyReasonCatalogTests {
         #expect(PolicyReasonCatalog.forbiddenReason(for: "env").code == "host_private_data")
         #expect(PolicyReasonCatalog.forbiddenReason(for: "gh auth token").code == "secret_or_credential_access")
         #expect(PolicyReasonCatalog.forbiddenReason(for: "brew upgrade").code == "global_environment_mutation")
+        #expect(PolicyReasonCatalog.forbiddenReason(for: "destructive file deletion outside the selected project").code == "outside_project_deletion")
 
         #expect(PolicyReasonCatalog.forbiddenReason(for: "running unknown sensitive command").code == "unsafe_or_sensitive_command")
     }

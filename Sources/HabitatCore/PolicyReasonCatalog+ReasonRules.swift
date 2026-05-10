@@ -27,8 +27,8 @@ extension PolicyReasonCatalog {
     ]
 
     static let forbiddenReasonRules: [ReasonRule] = [
-        .init(reasonCode: .privilegedCommand) { $0 == "sudo" },
-        .init(reasonCode: .outsideProjectDeletion) { $0 == "destructive file deletion outside the selected project" },
+        .init(reasonCode: .privilegedCommand) { isPrivilegedCommand($0) },
+        .init(reasonCode: .outsideProjectDeletion) { isOutsideProjectDeletionCommand($0) },
         .init(reasonCode: .remoteScriptExecution) { isRemoteScriptExecutionCommand($0) },
         .init(reasonCode: .hostPrivateData) { isHostPrivateDataCommand($0) },
         .init(reasonCode: .secretOrCredentialAccess) { isSecretOrCredentialCommand($0) },
