@@ -147,6 +147,21 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func catalogCommandFamilyManifestStaysPartitionedByPolicySource() {
+        let manifestNames = PolicyReasonCatalog.catalogCommandFamilies.map(\.name)
+        let expectedManifestNames = (
+            PolicyReasonCatalog.dynamicCommandFamilies
+                + PolicyReasonCatalog.baselineAskFirstCommandFamilies
+                + PolicyReasonCatalog.baselineForbiddenCommandFamilies
+        ).map(\.name)
+
+        #expect(
+            manifestNames == expectedManifestNames,
+            "Expected the catalog manifest to stay limited to dynamic families followed by baseline Ask First and Forbidden families"
+        )
+    }
+
+    @Test
     func baselineCommandFamilyManifestsDoNotDuplicateNames() {
         let askFirstFamilyNames = PolicyReasonCatalog.baselineAskFirstCommandFamilies.map(\.name)
         let forbiddenFamilyNames = PolicyReasonCatalog.baselineForbiddenCommandFamilies.map(\.name)
