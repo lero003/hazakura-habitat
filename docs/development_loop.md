@@ -18,9 +18,16 @@ If a scanner or report section does not affect AI behavior, defer it.
 
 ## Automation Cycle Size
 
-The default automation cadence is one hour.
+Automation cadence is deliberately adjustable. Use lower-frequency runs when
+the project is in post-release observation mode, when recent slices are mostly
+confirming stable behavior, or when the next useful command-decision gap is not
+yet clear. Increase cadence only when there is fresh evidence that tighter
+feedback would change the next command or close a concrete release, safety, or
+output-contract risk.
 
-Use that hour for a complete, verified development slice, not only the smallest possible edit. A good one-hour slice may include multiple tightly related changes when they serve the same AI-facing decision, such as:
+Use each run for a complete, verified development slice, not only the smallest
+possible edit. A good slice may include multiple tightly related changes when
+they serve the same AI-facing decision, such as:
 
 - scanner data plus generated Markdown policy changes
 - missing-tool behavior plus fixture and snapshot coverage

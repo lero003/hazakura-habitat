@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 112
+- observing: 113
 - reviewed: 10
 
 ## Active Changes
@@ -99,6 +99,7 @@
 - `agent-context-git-overflow-dedup` - [changes/2026-05-09-agent-context-git-overflow-dedup.md](changes/2026-05-09-agent-context-git-overflow-dedup.md)
 - `agent-context-git-review-first-handoff` - [changes/2026-05-09-agent-context-git-review-first-handoff.md](changes/2026-05-09-agent-context-git-review-first-handoff.md)
 - `agent-context-github-metadata-reminder` - [changes/2026-05-09-agent-context-github-metadata-reminder.md](changes/2026-05-09-agent-context-github-metadata-reminder.md)
+- `automation-cadence-guidance` - [changes/2026-05-10-automation-cadence-guidance.md](changes/2026-05-10-automation-cadence-guidance.md)
 - `baseline-secret-value-reason-contract` - [changes/2026-05-09-baseline-secret-value-reason-contract.md](changes/2026-05-09-baseline-secret-value-reason-contract.md)
 - `baseline-static-family-coverage-contract` - [changes/2026-05-09-baseline-static-family-coverage-contract.md](changes/2026-05-09-baseline-static-family-coverage-contract.md)
 - `baseline-static-guard-boundary` - [changes/2026-05-09-baseline-static-guard-boundary.md](changes/2026-05-09-baseline-static-guard-boundary.md)
