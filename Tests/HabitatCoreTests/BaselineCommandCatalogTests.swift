@@ -225,6 +225,20 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func baselineRenderedPolicyOrderFollowsFamilyManifestOrder() {
+        #expect(
+            PolicyReasonCatalog.baselineAskFirstCommands
+                == PolicyReasonCatalog.baselineAskFirstCommandFamilies.flatMap { $0.commands },
+            "Expected rendered baseline Ask First order to follow the catalog family manifest order"
+        )
+        #expect(
+            PolicyReasonCatalog.baselineForbiddenCommands
+                == PolicyReasonCatalog.baselineForbiddenCommandFamilies.flatMap { $0.commands },
+            "Expected rendered baseline Forbidden order to follow the catalog family manifest order"
+        )
+    }
+
+    @Test
     func catalogCommandFamilyManifestSourcesMatchCommandClassification() {
         let deliberateGenericAskFirstCommands = Set(
             [

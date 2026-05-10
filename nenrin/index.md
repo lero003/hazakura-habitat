@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 114
+- observing: 115
 - reviewed: 10
 
 ## Active Changes
@@ -24,6 +24,7 @@
 - `baseline-command-catalog-test-boundary` - [changes/2026-05-10-baseline-command-catalog-test-boundary.md](changes/2026-05-10-baseline-command-catalog-test-boundary.md)
 - `baseline-command-family-list-boundary` - [changes/2026-05-10-baseline-command-family-list-boundary.md](changes/2026-05-10-baseline-command-family-list-boundary.md)
 - `baseline-family-leaf-order-contract` - [changes/2026-05-10-baseline-family-leaf-order-contract.md](changes/2026-05-10-baseline-family-leaf-order-contract.md)
+- `baseline-rendered-policy-order-contract` - [changes/2026-05-10-baseline-rendered-policy-order-contract.md](changes/2026-05-10-baseline-rendered-policy-order-contract.md)
 - `catalog-command-family-manifest` - [changes/2026-05-10-catalog-command-family-manifest.md](changes/2026-05-10-catalog-command-family-manifest.md)
 - `catalog-command-family-nonempty-contract` - [changes/2026-05-10-catalog-command-family-nonempty-contract.md](changes/2026-05-10-catalog-command-family-nonempty-contract.md)
 - `catalog-command-family-leaf-manifest` - [changes/2026-05-10-catalog-command-family-leaf-manifest.md](changes/2026-05-10-catalog-command-family-leaf-manifest.md)
