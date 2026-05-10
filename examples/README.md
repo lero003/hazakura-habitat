@@ -32,6 +32,7 @@ The purpose is to make the product value visible:
 - `behavior-evaluation/swiftpm-self-use-011.json`: sanitized observed behavior fixture for no-secret read-only search before choosing an observation slice.
 - `behavior-evaluation/swiftpm-self-use-012.json`: sanitized observed behavior fixture for reason-coded command policy before committing a post-v0.4 observation slice.
 - `behavior-evaluation/swiftpm-self-use-013.json`: sanitized observed behavior fixture for restricted SwiftPM preflight scan retry.
+- `behavior-evaluation/swiftpm-self-use-014.json`: sanitized observed behavior fixture for catalog manifest classification-contract work.
 - `behavior-evaluation/secret-bearing-search-001.json`: sanitized observed behavior fixture for secret-aware search command shaping.
 - `behavior-evaluation/secret-bearing-search-002.json`: sanitized observed behavior fixture for policy review before complex secret-aware search.
 - `behavior-evaluation/secret-bearing-search-003.json`: sanitized observed behavior fixture for concrete Git-tracked search exclusions.

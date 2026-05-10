@@ -1,4 +1,5 @@
 import Testing
+import Foundation
 @testable import HabitatCore
 
 struct BaselineCommandCatalogTests {
@@ -313,6 +314,38 @@ struct BaselineCommandCatalogTests {
                     #expect(
                         !baselineAskFirstCommands.contains(command),
                         "Expected baseline Forbidden command \(command) from \(family.name) to stay out of Ask First policy"
+                    )
+                }
+            }
+        }
+    }
+
+    @Test
+    func catalogCommandFamilyManifestSourcesMatchGeneratedPolicyFindingSides() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.0\n",
+            ".env": "",
+        ])
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let generatedAskFirstCommands = Set(result.policy.commandReasons.filter {
+            $0.classification == PolicyCommandReason.askFirstClassification
+        }.map(\.command))
+        let generatedForbiddenCommands = Set(result.policy.commandReasons.filter {
+            $0.classification == PolicyCommandReason.forbiddenClassification
+        }.map(\.command))
+
+        for family in PolicyReasonCatalog.catalogCommandFamilies {
+            for command in family.commands {
+                switch family.source {
+                case .dynamicAskFirst, .baselineAskFirst:
+                    #expect(
+                        generatedAskFirstCommands.contains(command),
+                        "Expected \(command) from \(family.name) to produce generated Ask First finding metadata"
+                    )
+                case .baselineForbidden:
+                    #expect(
+                        generatedForbiddenCommands.contains(command),
+                        "Expected \(command) from \(family.name) to produce generated Forbidden finding metadata"
                     )
                 }
             }
