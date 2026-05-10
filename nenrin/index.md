@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 111
+- observing: 112
 - reviewed: 10
 
 ## Active Changes
@@ -32,6 +32,7 @@
 - `catalog-command-family-unique-ownership` - [changes/2026-05-10-catalog-command-family-unique-ownership.md](changes/2026-05-10-catalog-command-family-unique-ownership.md)
 - `dynamic-command-family-static-baseline-separation` - [changes/2026-05-10-dynamic-command-family-static-baseline-separation.md](changes/2026-05-10-dynamic-command-family-static-baseline-separation.md)
 - `dynamic-command-family-manifest` - [changes/2026-05-10-dynamic-command-family-manifest.md](changes/2026-05-10-dynamic-command-family-manifest.md)
+- `no-secret-search-fixture-coverage` - [changes/2026-05-10-no-secret-search-fixture-coverage.md](changes/2026-05-10-no-secret-search-fixture-coverage.md)
 - `typed-command-family-manifest-entry` - [changes/2026-05-10-typed-command-family-manifest-entry.md](changes/2026-05-10-typed-command-family-manifest-entry.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)
