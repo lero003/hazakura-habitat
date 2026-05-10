@@ -22,6 +22,7 @@ extension PolicyReasonCatalog {
         .baselineAskFirst("goDependencyMutationCommands", goDependencyMutationCommands),
         .baselineAskFirst("cargoDependencyMutationCommands", cargoDependencyMutationCommands),
         .baselineAskFirst("cocoapodsDependencyMutationCommands", cocoapodsDependencyMutationCommands),
+        .baselineAskFirst("cocoapodsProjectMutationCommands", cocoapodsProjectMutationCommands),
         .baselineAskFirst("carthageDependencyMutationCommands", carthageDependencyMutationCommands),
         .baselineAskFirst("virtualEnvironmentMutationCommands", virtualEnvironmentMutationCommands),
         .baselineAskFirst("baselineLockfileMutationCommands", baselineLockfileMutationCommands),

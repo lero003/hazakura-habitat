@@ -174,6 +174,7 @@ struct BaselineCommandCatalogTests {
             "goDependencyMutationCommands",
             "cargoDependencyMutationCommands",
             "cocoapodsDependencyMutationCommands",
+            "cocoapodsProjectMutationCommands",
             "carthageDependencyMutationCommands",
             "virtualEnvironmentMutationCommands",
             "baselineLockfileMutationCommands",
@@ -252,7 +253,7 @@ struct BaselineCommandCatalogTests {
                 "brew tap-new",
             ]
             + PolicyReasonCatalog.homebrewBundleReviewCommands
-            + ["pod deintegrate"]
+            + PolicyReasonCatalog.cocoapodsProjectMutationCommands
             + PolicyReasonCatalog.xcodebuildProjectMutationCommands
             + PolicyReasonCatalog.pipPackageFetchAndCacheCommands
             + PolicyReasonCatalog.virtualEnvironmentMutationCommands

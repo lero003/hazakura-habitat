@@ -3,9 +3,16 @@ extension PolicyReasonCatalog {
         "pod install",
         "pod update",
         "pod repo update",
-        "pod deintegrate",
     ])
     static let cocoapodsDependencyMutationCommands = cocoapodsDependencyMutationCommandFamily.commands
+
+    private static let cocoapodsProjectMutationCommandFamily = CommandFamily([
+        "pod deintegrate",
+    ])
+    static let cocoapodsProjectMutationCommands = cocoapodsProjectMutationCommandFamily.commands
+
+    static let cocoapodsPackageManagerReviewCommands = cocoapodsDependencyMutationCommands
+        + cocoapodsProjectMutationCommands
 
     private static let carthageDependencyMutationCommandFamily = CommandFamily([
         "carthage bootstrap",

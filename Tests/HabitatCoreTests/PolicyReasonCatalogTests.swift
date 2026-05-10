@@ -19,7 +19,7 @@ struct PolicyReasonCatalogTests {
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "swiftpm") == PolicyReasonCatalog.swiftPackageDependencyResolutionCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "go") == PolicyReasonCatalog.goDependencyMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "cargo") == PolicyReasonCatalog.cargoDependencyMutationCommands)
-        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "cocoapods") == PolicyReasonCatalog.cocoapodsDependencyMutationCommands)
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "cocoapods") == PolicyReasonCatalog.cocoapodsPackageManagerReviewCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "carthage") == PolicyReasonCatalog.carthageDependencyMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "xcodebuild") == PolicyReasonCatalog.xcodebuildProjectMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "homebrew") == [
@@ -223,7 +223,8 @@ struct PolicyReasonCatalogTests {
                 "Expected \(command) to keep Apple dependency-mutation classification"
             )
         }
-        for command in ["pod deintegrate"] + PolicyReasonCatalog.xcodebuildProjectMutationCommands {
+        for command in PolicyReasonCatalog.cocoapodsProjectMutationCommands
+            + PolicyReasonCatalog.xcodebuildProjectMutationCommands {
             #expect(
                 PolicyReasonCatalog.askFirstReason(for: command).code == "user_approval_required",
                 "Expected \(command) to keep generic approval classification"
