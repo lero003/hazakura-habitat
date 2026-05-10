@@ -1,7 +1,9 @@
 extension PolicyReasonCatalog {
     static let baselineAskFirstCommandFamilies: [CommandFamilyManifestEntry] = [
         .baselineAskFirst("homebrewDirectAskFirstCommands", homebrewDirectAskFirstCommands),
-        .baselineAskFirst("pipAskFirstCommands", pipAskFirstCommands),
+        .baselineAskFirst("pipDependencyMutationCommands", pipDependencyMutationCommands),
+        .baselineAskFirst("pipPackageFetchAndCacheCommands", pipPackageFetchAndCacheCommands),
+        .baselineAskFirst("pipCacheMutationCommands", pipCacheMutationCommands),
         .baselineAskFirst("npmDependencyMutationCommands", npmDependencyMutationCommands),
         .baselineAskFirst("npmEphemeralPackageExecutionCommands", npmEphemeralPackageExecutionCommands),
         .baselineAskFirst("pnpmDependencyMutationCommands", pnpmDependencyMutationCommands),

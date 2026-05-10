@@ -43,10 +43,6 @@ extension PolicyReasonCatalog {
     ])
     static let pipCacheMutationCommands = pipCacheMutationCommandFamily.commands
 
-    static let pipAskFirstCommands = pipDependencyMutationCommands
-        + pipPackageFetchAndCacheCommands
-        + pipCacheMutationCommands
-
     private static let uvDependencyMutationCommandFamily = CommandFamily([
         "uv sync",
         "uv add",

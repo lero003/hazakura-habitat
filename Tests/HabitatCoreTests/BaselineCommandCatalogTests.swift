@@ -153,7 +153,9 @@ struct BaselineCommandCatalogTests {
 
         #expect(askFirstFamilyNames == [
             "homebrewDirectAskFirstCommands",
-            "pipAskFirstCommands",
+            "pipDependencyMutationCommands",
+            "pipPackageFetchAndCacheCommands",
+            "pipCacheMutationCommands",
             "npmDependencyMutationCommands",
             "npmEphemeralPackageExecutionCommands",
             "pnpmDependencyMutationCommands",
