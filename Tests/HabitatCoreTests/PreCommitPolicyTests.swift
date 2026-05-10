@@ -28,7 +28,7 @@ struct PreCommitPolicyTests {
         assertAgentContextContract(context)
         #expect(result.project.detectedFiles.contains(".pre-commit-config.yaml"))
         #expect(!result.project.symlinkedFiles.contains(".pre-commit-config.yaml"))
-        #expect(context.contains("Warning: Pre-commit configuration detected. Check git status after commit hooks run."))
+        #expect(context.contains("Warning: Pre-commit configuration detected. Run `git status --short` after commit hooks run."))
     }
 
     @Test

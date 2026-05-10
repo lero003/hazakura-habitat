@@ -201,7 +201,7 @@ public struct ReportWriter {
         let preCommitWarningLines: [String]
         if result.project.detectedFiles.contains(".pre-commit-config.yaml"),
            !result.project.symlinkedFiles.contains(".pre-commit-config.yaml") {
-            preCommitWarningLines = ["Warning: Pre-commit configuration detected. Check git status after commit hooks run."]
+            preCommitWarningLines = ["Warning: Pre-commit configuration detected. Run `git status --short` after commit hooks run."]
         } else {
             preCommitWarningLines = []
         }
