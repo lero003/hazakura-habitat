@@ -1,7 +1,7 @@
 extension PolicyReasonCatalog {
     static let dynamicCommandFamilies: [CommandFamilyManifestEntry] = [
-        .init("swiftPackageDependencyResolutionCommands", swiftPackageDependencyResolutionCommands),
-        .init("secretBearingBroadSearchCommands", secretBearingBroadSearchCommands),
+        .init("swiftPackageDependencyResolutionCommands", swiftPackageDependencyResolutionCommands, source: .dynamic),
+        .init("secretBearingBroadSearchCommands", secretBearingBroadSearchCommands, source: .dynamic),
     ]
 
     static let catalogCommandFamilies = dynamicCommandFamilies

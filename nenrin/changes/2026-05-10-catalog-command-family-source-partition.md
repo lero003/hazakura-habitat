@@ -5,7 +5,9 @@ date: 2026-05-10
 status: observing
 impact: unknown
 related_files:
+  - Sources/HabitatCore/PolicyReasonCatalog.swift
   - Sources/HabitatCore/PolicyReasonCatalog+CommandFamilies.swift
+  - Sources/HabitatCore/PolicyReasonCatalog+BaselinePolicy.swift
   - Tests/HabitatCoreTests/BaselineCommandCatalogTests.swift
   - docs/current_status.md
   - docs/roadmap.md
@@ -19,6 +21,7 @@ review_after:
 ## Changed
 
 - Added a `BaselineCommandCatalogTests` contract requiring `PolicyReasonCatalog.catalogCommandFamilies` to equal dynamic families followed by baseline Ask First families and baseline Forbidden families.
+- Added explicit source metadata to each `CommandFamilyManifestEntry`, so the partition boundary is recorded with each family instead of living only in array placement.
 - Synced status and roadmap notes with the added catalog source-partition contract.
 - Preserved generated policy output and command ordering.
 
@@ -29,7 +32,7 @@ The catalog manifest is a maintainability contract, not a new policy source. Kee
 ## Expected Behavior
 
 - Generated policy output, command order, reason codes, Markdown, and JSON stay unchanged.
-- Future catalog manifest edits fail tests if they add extra families, omit a source partition, or reorder the manifest away from the dynamic/static boundary.
+- Future catalog manifest edits fail tests if they add extra families, omit a source partition, mislabel a source, or reorder the manifest away from the dynamic/static boundary.
 
 ## Review After
 

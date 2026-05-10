@@ -26,12 +26,20 @@ enum PolicyReasonCatalog {
     }
 
     struct CommandFamilyManifestEntry: Sendable {
+        enum Source: Equatable, Sendable {
+            case dynamic
+            case baselineAskFirst
+            case baselineForbidden
+        }
+
         let name: String
         let commands: [String]
+        let source: Source
 
-        init(_ name: String, _ commands: [String]) {
+        init(_ name: String, _ commands: [String], source: Source) {
             self.name = name
             self.commands = commands
+            self.source = source
         }
     }
 

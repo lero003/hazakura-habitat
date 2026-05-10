@@ -148,16 +148,27 @@ struct BaselineCommandCatalogTests {
 
     @Test
     func catalogCommandFamilyManifestStaysPartitionedByPolicySource() {
+        typealias Source = PolicyReasonCatalog.CommandFamilyManifestEntry.Source
+
         let manifestNames = PolicyReasonCatalog.catalogCommandFamilies.map(\.name)
+        let manifestSources = PolicyReasonCatalog.catalogCommandFamilies.map(\.source)
         let expectedManifestNames = (
             PolicyReasonCatalog.dynamicCommandFamilies
                 + PolicyReasonCatalog.baselineAskFirstCommandFamilies
                 + PolicyReasonCatalog.baselineForbiddenCommandFamilies
         ).map(\.name)
+        let expectedManifestSources =
+            Array(repeating: Source.dynamic, count: PolicyReasonCatalog.dynamicCommandFamilies.count)
+            + Array(repeating: .baselineAskFirst, count: PolicyReasonCatalog.baselineAskFirstCommandFamilies.count)
+            + Array(repeating: .baselineForbidden, count: PolicyReasonCatalog.baselineForbiddenCommandFamilies.count)
 
         #expect(
             manifestNames == expectedManifestNames,
             "Expected the catalog manifest to stay limited to dynamic families followed by baseline Ask First and Forbidden families"
+        )
+        #expect(
+            manifestSources == expectedManifestSources,
+            "Expected each catalog manifest entry to declare the policy source used by its partition"
         )
     }
 
