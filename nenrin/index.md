@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 119
+- observing: 120
 - reviewed: 10
 
 ## Active Changes
@@ -33,6 +33,7 @@
 - `catalog-manifest-classification-contract` - [changes/2026-05-11-catalog-manifest-classification-contract.md](changes/2026-05-11-catalog-manifest-classification-contract.md)
 - `catalog-manifest-reason-metadata-contract` - [changes/2026-05-11-catalog-manifest-reason-metadata-contract.md](changes/2026-05-11-catalog-manifest-reason-metadata-contract.md)
 - `cocoapods-project-mutation-family` - [changes/2026-05-11-cocoapods-project-mutation-family.md](changes/2026-05-11-cocoapods-project-mutation-family.md)
+- `carthage-build-artifact-family` - [changes/2026-05-11-carthage-build-artifact-family.md](changes/2026-05-11-carthage-build-artifact-family.md)
 - `catalog-command-family-source-partition` - [changes/2026-05-10-catalog-command-family-source-partition.md](changes/2026-05-10-catalog-command-family-source-partition.md)
 - `catalog-command-family-unique-ownership` - [changes/2026-05-10-catalog-command-family-unique-ownership.md](changes/2026-05-10-catalog-command-family-unique-ownership.md)
 - `dynamic-command-family-static-baseline-separation` - [changes/2026-05-10-dynamic-command-family-static-baseline-separation.md](changes/2026-05-10-dynamic-command-family-static-baseline-separation.md)

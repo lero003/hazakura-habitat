@@ -176,6 +176,7 @@ struct BaselineCommandCatalogTests {
             "cocoapodsDependencyMutationCommands",
             "cocoapodsProjectMutationCommands",
             "carthageDependencyMutationCommands",
+            "carthageBuildArtifactMutationCommands",
             "virtualEnvironmentMutationCommands",
             "baselineLockfileMutationCommands",
             "versionManagerMutationCommands",
@@ -254,6 +255,7 @@ struct BaselineCommandCatalogTests {
             ]
             + PolicyReasonCatalog.homebrewBundleReviewCommands
             + PolicyReasonCatalog.cocoapodsProjectMutationCommands
+            + PolicyReasonCatalog.carthageBuildArtifactMutationCommands
             + PolicyReasonCatalog.xcodebuildProjectMutationCommands
             + PolicyReasonCatalog.pipPackageFetchAndCacheCommands
             + PolicyReasonCatalog.virtualEnvironmentMutationCommands

@@ -18,9 +18,13 @@ extension PolicyReasonCatalog {
         "carthage bootstrap",
         "carthage update",
         "carthage checkout",
-        "carthage build",
     ])
     static let carthageDependencyMutationCommands = carthageDependencyMutationCommandFamily.commands
+
+    private static let carthageBuildArtifactMutationCommandFamily = CommandFamily([
+        "carthage build",
+    ])
+    static let carthageBuildArtifactMutationCommands = carthageBuildArtifactMutationCommandFamily.commands
 
     private static let xcodebuildProjectMutationCommandFamily = CommandFamily([
         "xcodebuild build/test/archive before selecting a scheme",
@@ -28,4 +32,8 @@ extension PolicyReasonCatalog {
         "xcodebuild -allowProvisioningUpdates",
     ])
     static let xcodebuildProjectMutationCommands = xcodebuildProjectMutationCommandFamily.commands
+
+    static func isCarthageBuildArtifactMutationCommand(_ command: String) -> Bool {
+        carthageBuildArtifactMutationCommandFamily.contains(command)
+    }
 }

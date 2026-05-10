@@ -22,6 +22,7 @@ extension PolicyReasonCatalog {
         .init(reasonCode: .userApprovalRequired) { isWorkspaceMutationCommand($0) },
         .init(reasonCode: .packageRegistryMutation) { isPackageRegistryMutationCommand($0) },
         .init(reasonCode: .packageManagerActivation) { isPackageManagerActivationCommand($0) },
+        .init(reasonCode: .userApprovalRequired) { isCarthageBuildArtifactMutationCommand($0) },
         .init(reasonCode: .dependencyMutation) { isDependencyMutationCommand($0) },
         .init(reasonCode: .ephemeralPackageExecution) { isEphemeralPackageExecutionCommand($0) },
     ]

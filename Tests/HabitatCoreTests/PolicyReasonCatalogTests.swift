@@ -20,7 +20,11 @@ struct PolicyReasonCatalogTests {
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "go") == PolicyReasonCatalog.goDependencyMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "cargo") == PolicyReasonCatalog.cargoDependencyMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "cocoapods") == PolicyReasonCatalog.cocoapodsPackageManagerReviewCommands)
-        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "carthage") == PolicyReasonCatalog.carthageDependencyMutationCommands)
+        #expect(
+            PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "carthage")
+                == PolicyReasonCatalog.carthageDependencyMutationCommands
+                    + PolicyReasonCatalog.carthageBuildArtifactMutationCommands
+        )
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "xcodebuild") == PolicyReasonCatalog.xcodebuildProjectMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "homebrew") == [
             "brew bundle",
@@ -224,6 +228,7 @@ struct PolicyReasonCatalogTests {
             )
         }
         for command in PolicyReasonCatalog.cocoapodsProjectMutationCommands
+            + PolicyReasonCatalog.carthageBuildArtifactMutationCommands
             + PolicyReasonCatalog.xcodebuildProjectMutationCommands {
             #expect(
                 PolicyReasonCatalog.askFirstReason(for: command).code == "user_approval_required",

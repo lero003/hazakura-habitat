@@ -46,6 +46,10 @@ The post-v0.4 self-scan still showed long command-policy output as active comman
 - Future CocoaPods, Carthage, or Xcodebuild policy changes reuse catalog-owned arrays instead of scanner-local duplicates.
 - Generated policy counts stay stable unless a behavior-driven command addition intentionally changes them.
 
+## Follow-up Notes
+
+- 2026-05-11: `carthage-build-artifact-family` intentionally superseded the original expectation that `carthage build` keep `dependency_mutation`; the command remains Ask First but now uses generic approval metadata.
+
 ## Failure Signals
 
 - Generated Ask First ordering changes unexpectedly.
