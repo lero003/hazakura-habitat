@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 122
+- observing: 123
 - reviewed: 10
 
 ## Active Changes
@@ -36,6 +36,7 @@
 - `carthage-build-artifact-family` - [changes/2026-05-11-carthage-build-artifact-family.md](changes/2026-05-11-carthage-build-artifact-family.md)
 - `package-manager-review-route-exceptions` - [changes/2026-05-11-package-manager-review-route-exceptions.md](changes/2026-05-11-package-manager-review-route-exceptions.md)
 - `package-manager-review-exception-rationale` - [changes/2026-05-11-package-manager-review-exception-rationale.md](changes/2026-05-11-package-manager-review-exception-rationale.md)
+- `roadmap-backlog-maintainability-sync` - [changes/2026-05-11-roadmap-backlog-maintainability-sync.md](changes/2026-05-11-roadmap-backlog-maintainability-sync.md)
 - `catalog-command-family-source-partition` - [changes/2026-05-10-catalog-command-family-source-partition.md](changes/2026-05-10-catalog-command-family-source-partition.md)
 - `catalog-command-family-unique-ownership` - [changes/2026-05-10-catalog-command-family-unique-ownership.md](changes/2026-05-10-catalog-command-family-unique-ownership.md)
 - `dynamic-command-family-static-baseline-separation` - [changes/2026-05-10-dynamic-command-family-static-baseline-separation.md](changes/2026-05-10-dynamic-command-family-static-baseline-separation.md)

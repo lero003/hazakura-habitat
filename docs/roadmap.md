@@ -666,8 +666,8 @@ Stable advisory context generation for AI coding agents.
 - behavior evaluation fixtures
 - policy finding model
 - renderer separation
-- targeted Scanner decomposition (partial: `SecretFileDetector` extracted; `PolicyReasonCatalog` in progress - Git/GitHub, ephemeral package execution, package-registry mutation, CLI auth credential-store, package-manager credential/config, cloud/container credential, host-private data, Corepack package-manager activation, SwiftPM dependency-resolution, and JavaScript package-manager dependency-mutation families extracted)
-- scenario-based test-file split (complete: 5 suites, 206 tests, all pass)
+- targeted Scanner and policy-catalog decomposition (continue only when a new command-decision risk touches nearby behavior; current completed boundaries include `SecretFileDetector`, catalog command-family manifests, reason-code/rule tables, selected package-manager review routing, and the extracted package, Git/GitHub, credential, host-private, workspace, secret-search, and project-environment command families)
+- scenario-based test-file split (continue only from a new command-decision risk; the old catch-all policy suite is gone and current coverage is scenario-grouped)
 - lockfile conflict tests
 - missing preferred tool scenarios
 
