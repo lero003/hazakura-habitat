@@ -379,5 +379,19 @@ struct PolicyReasonCatalogTests {
         }
         #expect(PolicyReasonCatalog.forbiddenReason(for: "brew upgrade").code == "global_environment_mutation")
         #expect(PolicyReasonCatalog.forbiddenReason(for: "pipx ensurepath").code == "global_environment_mutation")
+
+        for command in PolicyReasonCatalog.privilegedCommands {
+            #expect(
+                PolicyReasonCatalog.forbiddenReason(for: command).code == "privileged_command",
+                "Expected \(command) to keep privileged command classification"
+            )
+        }
+
+        for command in PolicyReasonCatalog.outsideProjectDeletionCommands {
+            #expect(
+                PolicyReasonCatalog.forbiddenReason(for: command).code == "outside_project_deletion",
+                "Expected \(command) to keep outside-project deletion classification"
+            )
+        }
     }
 }
