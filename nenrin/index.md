@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 131
+- observing: 133
 - reviewed: 10
 
 ## Active Changes
@@ -122,7 +122,10 @@
 - `reason-coded-policy-fixture-coverage` - [changes/2026-05-10-reason-coded-policy-fixture-coverage.md](changes/2026-05-10-reason-coded-policy-fixture-coverage.md)
 - `reason-rule-catalog-boundary` - [changes/2026-05-10-reason-rule-catalog-boundary.md](changes/2026-05-10-reason-rule-catalog-boundary.md)
 - `typed-command-family-manifest-entry` - [changes/2026-05-10-typed-command-family-manifest-entry.md](changes/2026-05-10-typed-command-family-manifest-entry.md)
+- `agent-context-non-git-overflow-label` - [changes/2026-05-11-agent-context-non-git-overflow-label.md](changes/2026-05-11-agent-context-non-git-overflow-label.md)
+- `baseline-command-family-assembly` - [changes/2026-05-11-baseline-command-family-assembly.md](changes/2026-05-11-baseline-command-family-assembly.md)
 - `baseline-static-guard-source-split` - [changes/2026-05-11-baseline-static-guard-source-split.md](changes/2026-05-11-baseline-static-guard-source-split.md)
+- `behavior-fixture-context-usage-contract` - [changes/2026-05-11-behavior-fixture-context-usage-contract.md](changes/2026-05-11-behavior-fixture-context-usage-contract.md)
 - `behavior-fixture-index-contract` - [changes/2026-05-11-behavior-fixture-index-contract.md](changes/2026-05-11-behavior-fixture-index-contract.md)
 - `carthage-build-artifact-family` - [changes/2026-05-11-carthage-build-artifact-family.md](changes/2026-05-11-carthage-build-artifact-family.md)
 - `catalog-family-rendered-side-contract` - [changes/2026-05-11-catalog-family-rendered-side-contract.md](changes/2026-05-11-catalog-family-rendered-side-contract.md)
@@ -137,7 +140,6 @@
 - `pip-cache-removal-reason` - [changes/2026-05-11-pip-cache-removal-reason.md](changes/2026-05-11-pip-cache-removal-reason.md)
 - `privileged-outside-deletion-boundaries` - [changes/2026-05-11-privileged-outside-deletion-boundaries.md](changes/2026-05-11-privileged-outside-deletion-boundaries.md)
 - `roadmap-backlog-maintainability-sync` - [changes/2026-05-11-roadmap-backlog-maintainability-sync.md](changes/2026-05-11-roadmap-backlog-maintainability-sync.md)
-- `baseline-command-family-assembly` - [changes/2026-05-11-baseline-command-family-assembly.md](changes/2026-05-11-baseline-command-family-assembly.md)
 
 ## Review Due
 

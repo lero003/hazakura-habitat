@@ -12,7 +12,7 @@
 - Ask before `uv add`.
 - Ask before `uv remove`.
 - Ask before Git/GitHub commands that mutate workspace/history/branches/remotes or read/change remote metadata; see `command_policy.md`.
-- 157 additional Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_resolution_mutation`, `version_manager_mutation`, `dependency_mutation`, more).
+- 157 additional non-Git/GitHub Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_resolution_mutation`, `version_manager_mutation`, `dependency_mutation`, more).
 
 ## Do Not
 - Do not run `sudo`.

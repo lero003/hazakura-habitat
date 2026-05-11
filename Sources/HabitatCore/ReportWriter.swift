@@ -547,7 +547,10 @@ public struct ReportWriter {
                 result: result,
                 gitGuardsSummarized: hiddenGitGuardsSummarized
             )
-            lines.append("- \(overflowCommands.count) additional Ask First commands or command families in `command_policy.md`\(reasonSuffix).")
+            let overflowLabel = hiddenGitGuardsSummarized
+                ? "additional non-Git/GitHub Ask First commands or command families"
+                : "additional Ask First commands or command families"
+            lines.append("- \(overflowCommands.count) \(overflowLabel) in `command_policy.md`\(reasonSuffix).")
         }
 
         return lines

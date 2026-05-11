@@ -119,7 +119,7 @@ struct AgentContextOutputContractTests {
         #expect(!context.contains("Ask before `brew install`."))
         #expect(context.contains("Ask before Git/GitHub commands that mutate workspace/history/branches/remotes or read/change remote metadata; see `command_policy.md`."))
         #expect(!context.contains("Ask before Git/GitHub workspace, history, branch, remote, or metadata actions"))
-        #expect(context.contains("2 additional Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_mutation`)."))
+        #expect(context.contains("2 additional non-Git/GitHub Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_mutation`)."))
         let swiftPackageUpdateIndex = try #require(policy.range(of: "`swift package update`")?.lowerBound)
         let modifyingLockfilesIndex = try #require(policy.range(of: "`modifying lockfiles`")?.lowerBound)
         let gitAddIndex = try #require(policy.range(of: "`git add`")?.lowerBound)
@@ -298,7 +298,7 @@ struct AgentContextOutputContractTests {
 
         assertAgentContextContract(context)
         #expect(context.contains("Ask before Git/GitHub commands that mutate workspace/history/branches/remotes or read/change remote metadata; see `command_policy.md`."))
-        #expect(context.contains("3 additional Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_mutation`, `ephemeral_package_execution`, `user_approval_required`)."))
+        #expect(context.contains("3 additional non-Git/GitHub Ask First commands or command families in `command_policy.md` (other reason codes: `dependency_mutation`, `ephemeral_package_execution`, `user_approval_required`)."))
         #expect(!context.contains("additional Ask First commands or command families in `command_policy.md` (reason codes: `git_mutation`"))
     }
 
