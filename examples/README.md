@@ -40,6 +40,7 @@ The purpose is to make the product value visible:
 - `behavior-evaluation/swiftpm-self-use-016.json`: sanitized observed behavior fixture for the Carthage build artifact command-family boundary.
 - `behavior-evaluation/swiftpm-self-use-017.json`: sanitized observed behavior fixture for the pip cache-removal reason-metadata boundary.
 - `behavior-evaluation/swiftpm-self-use-018.json`: sanitized observed behavior fixture for a quiet catalog observation boundary.
+- `behavior-evaluation/swiftpm-self-use-019.json`: sanitized observed behavior fixture for keeping read-only `git status` available while preserving Git/GitHub review.
 - `behavior-evaluation/secret-bearing-search-001.json`: sanitized observed behavior fixture for secret-aware search command shaping.
 - `behavior-evaluation/secret-bearing-search-002.json`: sanitized observed behavior fixture for policy review before complex secret-aware search.
 - `behavior-evaluation/secret-bearing-search-003.json`: sanitized observed behavior fixture for concrete Git-tracked search exclusions.

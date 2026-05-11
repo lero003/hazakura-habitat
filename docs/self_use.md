@@ -125,7 +125,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 ## What Worked
 
 - The first screen tells Codex to use SwiftPM and prefer `swift test` and `swift build`.
-- The generated context asks before dependency resolution, lockfile mutation, and Git/GitHub workspace, history, branch, remote, or metadata actions.
+- The generated context asks before dependency resolution, lockfile mutation, and Git/GitHub commands that mutate workspace/history/branches/remotes or read/change remote metadata; ordinary read-only `git status --short` remains available for workspace checks.
 - Secret-bearing file, browser, mail, shell history, clipboard, and environment dump guidance is clear.
 - Irrelevant missing-tool diagnostics stay out of the short agent context.
 - The generated command policy states that it is advisory and does not block commands.
@@ -166,7 +166,7 @@ Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in 
 - `scan_result.json` now records generated Markdown artifact roles, report-relative paths, agent reading role, read trigger, read order, entry section, entry line, section heading line index, line counts, character counts, the `agent_context.md` line limit, and whether line-limited outputs are within budget, so agents can open the right report-local file, identify the short working context first, and jump to `Review First`, `Ask First`, `Forbidden`, or diagnostics when continuing into longer reports without parsing every report.
 - `agent_context.md` now states that it is the short working context and keeps full approval detail in `command_policy.md`, so agents can stop after the first artifact unless a risky command needs policy review.
 - `agent_context.md` Ask First overflow counts now exclude Git/GitHub guards already covered by the dedicated mutation reminder line, so the short context does not double-count hidden policy entries.
-- The Git/GitHub review reminder is backed by concrete `Review First` / Ask First entries in `command_policy.md`, so agents can move from the short warning to exact commands before workspace, branch, history, remote, or metadata actions.
+- The Git/GitHub review reminder is backed by concrete `Review First` / Ask First entries in `command_policy.md`, so agents can move from the short warning to exact commands before mutating workspace, branch, history, or remote state, or before reading/changing remote metadata.
 - `scan_result.json` now records `policy.commandCounts`, so agents can see policy size, short approval-checklist size, and reason coverage before deciding whether to inspect the full `command_policy.md`.
 - `scan_result.json` now records `policy.reviewFirstCommandReasons`, so agents and tools can read the highest-priority approval checklist with reasons without parsing `command_policy.md`; `PolicyOutputContractTests` now verifies those JSON entries match the generated `Review First` Markdown lines exactly.
 - The bundled helper must use the current source checkout for self-scans instead of silently falling back to `dist/`, otherwise a stale local release artifact can hide new output-contract sections.

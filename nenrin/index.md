@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 126
+- observing: 129
 - reviewed: 10
 
 ## Active Changes
@@ -21,33 +21,6 @@
 - `maintainability-roadmap-guardrails` - [changes/2026-05-05-maintainability-roadmap-guardrails.md](changes/2026-05-05-maintainability-roadmap-guardrails.md)
 - `apple-package-manager-command-family` - [changes/2026-05-06-apple-package-manager-command-family.md](changes/2026-05-06-apple-package-manager-command-family.md)
 - `baseline-policy-list-assembly` - [changes/2026-05-06-baseline-policy-list-assembly.md](changes/2026-05-06-baseline-policy-list-assembly.md)
-- `baseline-command-catalog-test-boundary` - [changes/2026-05-10-baseline-command-catalog-test-boundary.md](changes/2026-05-10-baseline-command-catalog-test-boundary.md)
-- `baseline-command-family-list-boundary` - [changes/2026-05-10-baseline-command-family-list-boundary.md](changes/2026-05-10-baseline-command-family-list-boundary.md)
-- `baseline-static-guard-source-split` - [changes/2026-05-11-baseline-static-guard-source-split.md](changes/2026-05-11-baseline-static-guard-source-split.md)
-- `baseline-family-leaf-order-contract` - [changes/2026-05-10-baseline-family-leaf-order-contract.md](changes/2026-05-10-baseline-family-leaf-order-contract.md)
-- `baseline-rendered-policy-order-contract` - [changes/2026-05-10-baseline-rendered-policy-order-contract.md](changes/2026-05-10-baseline-rendered-policy-order-contract.md)
-- `catalog-command-family-manifest` - [changes/2026-05-10-catalog-command-family-manifest.md](changes/2026-05-10-catalog-command-family-manifest.md)
-- `catalog-command-family-nonempty-contract` - [changes/2026-05-10-catalog-command-family-nonempty-contract.md](changes/2026-05-10-catalog-command-family-nonempty-contract.md)
-- `catalog-command-family-leaf-manifest` - [changes/2026-05-10-catalog-command-family-leaf-manifest.md](changes/2026-05-10-catalog-command-family-leaf-manifest.md)
-- `catalog-family-source-classification-contract` - [changes/2026-05-10-catalog-family-source-classification-contract.md](changes/2026-05-10-catalog-family-source-classification-contract.md)
-- `catalog-family-rendered-side-contract` - [changes/2026-05-11-catalog-family-rendered-side-contract.md](changes/2026-05-11-catalog-family-rendered-side-contract.md)
-- `catalog-manifest-classification-contract` - [changes/2026-05-11-catalog-manifest-classification-contract.md](changes/2026-05-11-catalog-manifest-classification-contract.md)
-- `catalog-manifest-blank-entry-contract` - [changes/2026-05-11-catalog-manifest-blank-entry-contract.md](changes/2026-05-11-catalog-manifest-blank-entry-contract.md)
-- `catalog-observation-fixture` - [changes/2026-05-11-catalog-observation-fixture.md](changes/2026-05-11-catalog-observation-fixture.md)
-- `catalog-manifest-reason-metadata-contract` - [changes/2026-05-11-catalog-manifest-reason-metadata-contract.md](changes/2026-05-11-catalog-manifest-reason-metadata-contract.md)
-- `cocoapods-project-mutation-family` - [changes/2026-05-11-cocoapods-project-mutation-family.md](changes/2026-05-11-cocoapods-project-mutation-family.md)
-- `carthage-build-artifact-family` - [changes/2026-05-11-carthage-build-artifact-family.md](changes/2026-05-11-carthage-build-artifact-family.md)
-- `pip-cache-removal-reason` - [changes/2026-05-11-pip-cache-removal-reason.md](changes/2026-05-11-pip-cache-removal-reason.md)
-- `package-manager-review-route-exceptions` - [changes/2026-05-11-package-manager-review-route-exceptions.md](changes/2026-05-11-package-manager-review-route-exceptions.md)
-- `package-manager-review-exception-rationale` - [changes/2026-05-11-package-manager-review-exception-rationale.md](changes/2026-05-11-package-manager-review-exception-rationale.md)
-- `roadmap-backlog-maintainability-sync` - [changes/2026-05-11-roadmap-backlog-maintainability-sync.md](changes/2026-05-11-roadmap-backlog-maintainability-sync.md)
-- `catalog-command-family-source-partition` - [changes/2026-05-10-catalog-command-family-source-partition.md](changes/2026-05-10-catalog-command-family-source-partition.md)
-- `catalog-command-family-unique-ownership` - [changes/2026-05-10-catalog-command-family-unique-ownership.md](changes/2026-05-10-catalog-command-family-unique-ownership.md)
-- `dynamic-command-family-static-baseline-separation` - [changes/2026-05-10-dynamic-command-family-static-baseline-separation.md](changes/2026-05-10-dynamic-command-family-static-baseline-separation.md)
-- `dynamic-command-family-manifest` - [changes/2026-05-10-dynamic-command-family-manifest.md](changes/2026-05-10-dynamic-command-family-manifest.md)
-- `no-secret-search-fixture-coverage` - [changes/2026-05-10-no-secret-search-fixture-coverage.md](changes/2026-05-10-no-secret-search-fixture-coverage.md)
-- `reason-coded-policy-fixture-coverage` - [changes/2026-05-10-reason-coded-policy-fixture-coverage.md](changes/2026-05-10-reason-coded-policy-fixture-coverage.md)
-- `typed-command-family-manifest-entry` - [changes/2026-05-10-typed-command-family-manifest-entry.md](changes/2026-05-10-typed-command-family-manifest-entry.md)
 - `executable-test-annotation-coverage` - [changes/2026-05-06-executable-test-annotation-coverage.md](changes/2026-05-06-executable-test-annotation-coverage.md)
 - `go-cargo-command-family` - [changes/2026-05-06-go-cargo-command-family.md](changes/2026-05-06-go-cargo-command-family.md)
 - `homebrew-command-family` - [changes/2026-05-06-homebrew-command-family.md](changes/2026-05-06-homebrew-command-family.md)
@@ -113,7 +86,6 @@
 - `agent-context-git-overflow-dedup` - [changes/2026-05-09-agent-context-git-overflow-dedup.md](changes/2026-05-09-agent-context-git-overflow-dedup.md)
 - `agent-context-git-review-first-handoff` - [changes/2026-05-09-agent-context-git-review-first-handoff.md](changes/2026-05-09-agent-context-git-review-first-handoff.md)
 - `agent-context-github-metadata-reminder` - [changes/2026-05-09-agent-context-github-metadata-reminder.md](changes/2026-05-09-agent-context-github-metadata-reminder.md)
-- `automation-cadence-guidance` - [changes/2026-05-10-automation-cadence-guidance.md](changes/2026-05-10-automation-cadence-guidance.md)
 - `baseline-secret-value-reason-contract` - [changes/2026-05-09-baseline-secret-value-reason-contract.md](changes/2026-05-09-baseline-secret-value-reason-contract.md)
 - `baseline-static-family-coverage-contract` - [changes/2026-05-09-baseline-static-family-coverage-contract.md](changes/2026-05-09-baseline-static-family-coverage-contract.md)
 - `baseline-static-guard-boundary` - [changes/2026-05-09-baseline-static-guard-boundary.md](changes/2026-05-09-baseline-static-guard-boundary.md)
@@ -131,11 +103,50 @@
 - `package-manager-review-baseline-contract` - [changes/2026-05-09-package-manager-review-baseline-contract.md](changes/2026-05-09-package-manager-review-baseline-contract.md)
 - `package-registry-family-classification-contract` - [changes/2026-05-09-package-registry-family-classification-contract.md](changes/2026-05-09-package-registry-family-classification-contract.md)
 - `policy-index-order-contract` - [changes/2026-05-09-policy-index-order-contract.md](changes/2026-05-09-policy-index-order-contract.md)
+- `reason-code-catalog-boundary` - [changes/2026-05-09-reason-code-catalog-boundary.md](changes/2026-05-09-reason-code-catalog-boundary.md)
 - `review-first-ask-first-prefix-contract` - [changes/2026-05-09-review-first-ask-first-prefix-contract.md](changes/2026-05-09-review-first-ask-first-prefix-contract.md)
 - `secret-search-shell-quoting` - [changes/2026-05-09-secret-search-shell-quoting.md](changes/2026-05-09-secret-search-shell-quoting.md)
-- `reason-code-catalog-boundary` - [changes/2026-05-09-reason-code-catalog-boundary.md](changes/2026-05-09-reason-code-catalog-boundary.md)
+- `automation-cadence-guidance` - [changes/2026-05-10-automation-cadence-guidance.md](changes/2026-05-10-automation-cadence-guidance.md)
+- `baseline-command-catalog-test-boundary` - [changes/2026-05-10-baseline-command-catalog-test-boundary.md](changes/2026-05-10-baseline-command-catalog-test-boundary.md)
+- `baseline-command-family-list-boundary` - [changes/2026-05-10-baseline-command-family-list-boundary.md](changes/2026-05-10-baseline-command-family-list-boundary.md)
+- `baseline-family-leaf-order-contract` - [changes/2026-05-10-baseline-family-leaf-order-contract.md](changes/2026-05-10-baseline-family-leaf-order-contract.md)
+- `baseline-rendered-policy-order-contract` - [changes/2026-05-10-baseline-rendered-policy-order-contract.md](changes/2026-05-10-baseline-rendered-policy-order-contract.md)
+- `catalog-command-family-leaf-manifest` - [changes/2026-05-10-catalog-command-family-leaf-manifest.md](changes/2026-05-10-catalog-command-family-leaf-manifest.md)
+- `catalog-command-family-manifest` - [changes/2026-05-10-catalog-command-family-manifest.md](changes/2026-05-10-catalog-command-family-manifest.md)
+- `catalog-command-family-nonempty-contract` - [changes/2026-05-10-catalog-command-family-nonempty-contract.md](changes/2026-05-10-catalog-command-family-nonempty-contract.md)
+- `catalog-command-family-source-partition` - [changes/2026-05-10-catalog-command-family-source-partition.md](changes/2026-05-10-catalog-command-family-source-partition.md)
+- `catalog-command-family-unique-ownership` - [changes/2026-05-10-catalog-command-family-unique-ownership.md](changes/2026-05-10-catalog-command-family-unique-ownership.md)
+- `catalog-family-source-classification-contract` - [changes/2026-05-10-catalog-family-source-classification-contract.md](changes/2026-05-10-catalog-family-source-classification-contract.md)
+- `dynamic-command-family-manifest` - [changes/2026-05-10-dynamic-command-family-manifest.md](changes/2026-05-10-dynamic-command-family-manifest.md)
+- `no-secret-search-fixture-coverage` - [changes/2026-05-10-no-secret-search-fixture-coverage.md](changes/2026-05-10-no-secret-search-fixture-coverage.md)
+- `reason-coded-policy-fixture-coverage` - [changes/2026-05-10-reason-coded-policy-fixture-coverage.md](changes/2026-05-10-reason-coded-policy-fixture-coverage.md)
 - `reason-rule-catalog-boundary` - [changes/2026-05-10-reason-rule-catalog-boundary.md](changes/2026-05-10-reason-rule-catalog-boundary.md)
+- `typed-command-family-manifest-entry` - [changes/2026-05-10-typed-command-family-manifest-entry.md](changes/2026-05-10-typed-command-family-manifest-entry.md)
+- `baseline-static-guard-source-split` - [changes/2026-05-11-baseline-static-guard-source-split.md](changes/2026-05-11-baseline-static-guard-source-split.md)
+- `behavior-fixture-index-contract` - [changes/2026-05-11-behavior-fixture-index-contract.md](changes/2026-05-11-behavior-fixture-index-contract.md)
+- `carthage-build-artifact-family` - [changes/2026-05-11-carthage-build-artifact-family.md](changes/2026-05-11-carthage-build-artifact-family.md)
+- `catalog-family-rendered-side-contract` - [changes/2026-05-11-catalog-family-rendered-side-contract.md](changes/2026-05-11-catalog-family-rendered-side-contract.md)
+- `catalog-manifest-blank-entry-contract` - [changes/2026-05-11-catalog-manifest-blank-entry-contract.md](changes/2026-05-11-catalog-manifest-blank-entry-contract.md)
+- `catalog-manifest-classification-contract` - [changes/2026-05-11-catalog-manifest-classification-contract.md](changes/2026-05-11-catalog-manifest-classification-contract.md)
+- `catalog-manifest-reason-metadata-contract` - [changes/2026-05-11-catalog-manifest-reason-metadata-contract.md](changes/2026-05-11-catalog-manifest-reason-metadata-contract.md)
+- `catalog-observation-fixture` - [changes/2026-05-11-catalog-observation-fixture.md](changes/2026-05-11-catalog-observation-fixture.md)
+- `cocoapods-project-mutation-family` - [changes/2026-05-11-cocoapods-project-mutation-family.md](changes/2026-05-11-cocoapods-project-mutation-family.md)
+- `git-reminder-readonly-status` - [changes/2026-05-11-git-reminder-readonly-status.md](changes/2026-05-11-git-reminder-readonly-status.md)
+- `package-manager-review-exception-rationale` - [changes/2026-05-11-package-manager-review-exception-rationale.md](changes/2026-05-11-package-manager-review-exception-rationale.md)
+- `package-manager-review-route-exceptions` - [changes/2026-05-11-package-manager-review-route-exceptions.md](changes/2026-05-11-package-manager-review-route-exceptions.md)
+- `pip-cache-removal-reason` - [changes/2026-05-11-pip-cache-removal-reason.md](changes/2026-05-11-pip-cache-removal-reason.md)
+- `roadmap-backlog-maintainability-sync` - [changes/2026-05-11-roadmap-backlog-maintainability-sync.md](changes/2026-05-11-roadmap-backlog-maintainability-sync.md)
 
 ## Review Due
 
-- None
+- cli-auth-credential-command-family: 8 day(s) old, review_after.days=7
+- cloud-container-credential-command-family: 8 day(s) old, review_after.days=7
+- package-manager-credential-command-family: 8 day(s) old, review_after.days=7
+- package-registry-reason-code: 8 day(s) old, review_after.days=7
+- corepack-package-manager-activation-reason: 7 day(s) old, review_after.days=7
+- host-private-command-family: 7 day(s) old, review_after.days=7
+- instruction-alignment-roadmap: 7 day(s) old, review_after.days=7
+- javascript-package-manager-mutation-command-families: 7 day(s) old, review_after.days=7
+- package-manager-mutation-review-map: 7 day(s) old, review_after.days=7
+- roadmap-policy-finding-foundation: 7 day(s) old, review_after.days=7
+- swiftpm-dependency-resolution-command-family: 7 day(s) old, review_after.days=7
