@@ -85,4 +85,38 @@ struct BehaviorEvidenceSanitizationTests {
             }
         }
     }
+
+    @Test
+    func behaviorEvaluationFixtureIndexesListEveryFixture() throws {
+        let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        let fixturesURL = rootURL.appendingPathComponent("examples/behavior-evaluation")
+        let fixtureNames = try FileManager.default.contentsOfDirectory(
+            at: fixturesURL,
+            includingPropertiesForKeys: nil
+        )
+            .filter { $0.pathExtension == "json" }
+            .map(\.lastPathComponent)
+            .sorted()
+        let examplesReadme = try String(
+            contentsOf: rootURL.appendingPathComponent("examples/README.md"),
+            encoding: .utf8
+        )
+        let evaluationDoc = try String(
+            contentsOf: rootURL.appendingPathComponent("docs/evaluation.md"),
+            encoding: .utf8
+        )
+
+        #expect(!fixtureNames.isEmpty)
+
+        for fixtureName in fixtureNames {
+            #expect(
+                examplesReadme.contains("`behavior-evaluation/\(fixtureName)`"),
+                "Expected examples/README.md to list \(fixtureName)"
+            )
+            #expect(
+                evaluationDoc.contains("`examples/behavior-evaluation/\(fixtureName)`"),
+                "Expected docs/evaluation.md to summarize \(fixtureName)"
+            )
+        }
+    }
 }

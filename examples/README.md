@@ -20,6 +20,9 @@ The purpose is to make the product value visible:
 - `secret-bearing-files/agent_context.md`: representative output when secret-bearing file signals are present.
 - `secret-bearing-files/command_policy.md`: representative policy shape with secret-bearing search/export guidance near the top.
 - `behavior-evaluation/habitat-self-use-swiftpm.json`: sanitized observed behavior fixture for SwiftPM self-use.
+- `behavior-evaluation/instruction-claim-validation-001.json`: sanitized observed behavior fixture for documented validation-command mismatch handling.
+- `behavior-evaluation/instruction-claim-xcodebuild-001.json`: sanitized observed behavior fixture for documented Xcode validation scheme-discovery restraint.
+- `behavior-evaluation/ci-workflow-no-local-validation-001.json`: sanitized observed behavior fixture for CI presence without inferred local validation.
 - `behavior-evaluation/swiftpm-self-use-002.json`: sanitized observed behavior fixture for policy review before SwiftPM self-use Git mutation.
 - `behavior-evaluation/swiftpm-self-use-003.json`: sanitized observed behavior fixture for clean SwiftPM dependency-resolution restraint.
 - `behavior-evaluation/swiftpm-self-use-004.json`: sanitized observed behavior fixture for current-cycle self-use policy review before Git mutation.

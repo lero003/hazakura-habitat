@@ -203,6 +203,23 @@ Follow-up:
 
 - Do not broaden Xcode instruction parsing until a later self-use case shows another command-changing gap.
 
+### ci-workflow-no-local-validation-001
+
+Fixture:
+
+- `examples/behavior-evaluation/ci-workflow-no-local-validation-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: `agent_context.md` plus `scan_result.json`.
+- Observation: Habitat treated CI workflow presence as a repository fact, but emitted bounded `Open uncertainty` instead of inventing a local validation command from workflow YAML when package-manager and validation-command facts were absent.
+
+Follow-up:
+
+- Only add deeper CI evidence if repeated tasks need workflow-name or job-name hints to choose the next safe local command.
+
 ### swiftpm-self-use-001
 
 Fixture:
