@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 125
+- observing: 126
 - reviewed: 10
 
 ## Active Changes
@@ -33,6 +33,7 @@
 - `catalog-family-rendered-side-contract` - [changes/2026-05-11-catalog-family-rendered-side-contract.md](changes/2026-05-11-catalog-family-rendered-side-contract.md)
 - `catalog-manifest-classification-contract` - [changes/2026-05-11-catalog-manifest-classification-contract.md](changes/2026-05-11-catalog-manifest-classification-contract.md)
 - `catalog-manifest-blank-entry-contract` - [changes/2026-05-11-catalog-manifest-blank-entry-contract.md](changes/2026-05-11-catalog-manifest-blank-entry-contract.md)
+- `catalog-observation-fixture` - [changes/2026-05-11-catalog-observation-fixture.md](changes/2026-05-11-catalog-observation-fixture.md)
 - `catalog-manifest-reason-metadata-contract` - [changes/2026-05-11-catalog-manifest-reason-metadata-contract.md](changes/2026-05-11-catalog-manifest-reason-metadata-contract.md)
 - `cocoapods-project-mutation-family` - [changes/2026-05-11-cocoapods-project-mutation-family.md](changes/2026-05-11-cocoapods-project-mutation-family.md)
 - `carthage-build-artifact-family` - [changes/2026-05-11-carthage-build-artifact-family.md](changes/2026-05-11-carthage-build-artifact-family.md)
