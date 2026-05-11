@@ -732,6 +732,23 @@ Follow-up:
 
 - Keep this as a bounded Gradle wrapper project-fact slice. Add deeper Gradle or Android-specific evidence only if repeated observations need wrapper-version, task-list, or Android command constraints.
 
+### cross-project-stale-report-001
+
+Fixture:
+
+- `examples/behavior-evaluation/cross-project-stale-report-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: comparison between saved `agent_context.md` and a fresh temporary scan.
+- Observation: Cross-project intake treated an older saved Android report as bounded uncertainty, refreshed into temporary output, confirmed the same Gradle wrapper guidance, and kept the watched projects read-only instead of expanding Habitat into Android or Python workflow work.
+
+Follow-up:
+
+- If stale-report checks repeatedly require manual timestamp comparison, add a small generated freshness hint instead of broad report lifecycle automation.
+
 ## Acceptance Criteria
 
 - `docs/evaluation.md` defines the evidence policy and verdict scale.
