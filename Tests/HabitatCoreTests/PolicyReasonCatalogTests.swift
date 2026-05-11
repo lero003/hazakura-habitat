@@ -78,6 +78,40 @@ struct PolicyReasonCatalogTests {
     }
 
     @Test
+    func detectedPackageManagersEitherHaveReviewRoutingOrExplicitException() {
+        let detectedPackageManagers = Set([
+            "npm",
+            "pnpm",
+            "yarn",
+            "bun",
+            "cocoapods",
+            "carthage",
+            "xcodebuild",
+            "gradle",
+            "swiftpm",
+            "go",
+            "cargo",
+            "homebrew",
+            "uv",
+            "python",
+            "bundler",
+        ])
+        let routedPackageManagers = Set(PolicyReasonCatalog.packageManagerMutationReviewRoutes.map(\.packageManager))
+        let explicitExceptions = Set(PolicyReasonCatalog.packageManagersWithoutMutationReviewRoute)
+
+        #expect(explicitExceptions == ["gradle"])
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "gradle") == [])
+        #expect(
+            detectedPackageManagers.subtracting(routedPackageManagers).subtracting(explicitExceptions).isEmpty,
+            "Expected every detected package manager to either route Review First commands or be explicitly documented as unrouted"
+        )
+        #expect(
+            explicitExceptions.isSubset(of: detectedPackageManagers),
+            "Expected package-manager Review First exceptions to name detected package managers"
+        )
+    }
+
+    @Test
     func githubCliCatalogSeparatesLocalWorkspaceFromRemoteRepositoryActions() {
         let localWorkspaceCommands = [
             "gh pr checkout",

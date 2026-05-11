@@ -21,6 +21,10 @@ extension PolicyReasonCatalog {
         .init(packageManager: "xcodebuild", commands: xcodebuildProjectMutationCommands),
     ]
 
+    static let packageManagersWithoutMutationReviewRoute = [
+        "gradle",
+    ]
+
     static func packageManagerMutationReviewCommands(for packageManager: String) -> [String] {
         packageManagerMutationReviewRoutes.first {
             $0.packageManager == packageManager
