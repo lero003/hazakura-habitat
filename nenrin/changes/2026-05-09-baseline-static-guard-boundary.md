@@ -5,7 +5,9 @@ date: 2026-05-09
 status: observing
 impact: unknown
 related_files:
-  - Sources/HabitatCore/PolicyReasonCatalog+BaselineStaticGuards.swift
+  - Sources/HabitatCore/PolicyReasonCatalog+BaselineLockfile.swift
+  - Sources/HabitatCore/PolicyReasonCatalog+BaselineHostBoundary.swift
+  - Sources/HabitatCore/PolicyReasonCatalog+BaselineSecretValue.swift
   - Sources/HabitatCore/PolicyReasonCatalog+BaselinePolicy.swift
   - Sources/HabitatCore/PolicyReasonCatalog.swift
   - Tests/HabitatCoreTests/PolicyReasonCatalogTests.swift
@@ -31,7 +33,7 @@ Baseline policy assembly had mostly moved into catalog-owned families, but a few
 ## Expected Behavior
 
 - Generated command order, reason codes, Markdown, and `scan_result.json` stay unchanged.
-- Future baseline static guard edits start in `PolicyReasonCatalog+BaselineStaticGuards.swift` and are covered by existing catalog ownership tests.
+- Future baseline static guard edits start in the split lockfile, host-boundary, or secret-value guard file and are covered by existing catalog ownership tests.
 
 ## Review After
 
