@@ -262,7 +262,8 @@ public struct ProjectDetector {
 
     private func symlinkedProjectFiles(projectURL: URL, detectedFiles: [String]) -> [String] {
         let detectedSymlinks = detectedFiles.filter {
-            isSymbolicLink(projectURL.appendingPathComponent($0))
+            !isBenignVirtualEnvironmentInterpreterSymlink($0)
+                && isSymbolicLink(projectURL.appendingPathComponent($0))
         }
 
         let ancestorSymlinks = candidateFiles.compactMap {
@@ -270,6 +271,10 @@ public struct ProjectDetector {
         }
 
         return orderedUnique(detectedSymlinks + ancestorSymlinks).sorted()
+    }
+
+    private func isBenignVirtualEnvironmentInterpreterSymlink(_ relativePath: String) -> Bool {
+        relativePath == ".venv/bin/python"
     }
 
     private func unsafeRuntimeHintFiles(projectURL: URL, detectedFiles: [String], symlinkedFiles: [String]) -> [String] {

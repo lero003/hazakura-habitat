@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 133
+- observing: 134
 - reviewed: 10
 
 ## Active Changes
@@ -140,17 +140,19 @@
 - `pip-cache-removal-reason` - [changes/2026-05-11-pip-cache-removal-reason.md](changes/2026-05-11-pip-cache-removal-reason.md)
 - `privileged-outside-deletion-boundaries` - [changes/2026-05-11-privileged-outside-deletion-boundaries.md](changes/2026-05-11-privileged-outside-deletion-boundaries.md)
 - `roadmap-backlog-maintainability-sync` - [changes/2026-05-11-roadmap-backlog-maintainability-sync.md](changes/2026-05-11-roadmap-backlog-maintainability-sync.md)
+- `venv-python-symlink-guidance` - [changes/2026-05-12-venv-python-symlink-guidance.md](changes/2026-05-12-venv-python-symlink-guidance.md)
 
 ## Review Due
 
-- cli-auth-credential-command-family: 8 day(s) old, review_after.days=7
-- cloud-container-credential-command-family: 8 day(s) old, review_after.days=7
-- package-manager-credential-command-family: 8 day(s) old, review_after.days=7
-- package-registry-reason-code: 8 day(s) old, review_after.days=7
-- corepack-package-manager-activation-reason: 7 day(s) old, review_after.days=7
-- host-private-command-family: 7 day(s) old, review_after.days=7
-- instruction-alignment-roadmap: 7 day(s) old, review_after.days=7
-- javascript-package-manager-mutation-command-families: 7 day(s) old, review_after.days=7
-- package-manager-mutation-review-map: 7 day(s) old, review_after.days=7
-- roadmap-policy-finding-foundation: 7 day(s) old, review_after.days=7
-- swiftpm-dependency-resolution-command-family: 7 day(s) old, review_after.days=7
+- cli-auth-credential-command-family: 9 day(s) old, review_after.days=7
+- cloud-container-credential-command-family: 9 day(s) old, review_after.days=7
+- package-manager-credential-command-family: 9 day(s) old, review_after.days=7
+- package-registry-reason-code: 9 day(s) old, review_after.days=7
+- corepack-package-manager-activation-reason: 8 day(s) old, review_after.days=7
+- host-private-command-family: 8 day(s) old, review_after.days=7
+- instruction-alignment-roadmap: 8 day(s) old, review_after.days=7
+- javascript-package-manager-mutation-command-families: 8 day(s) old, review_after.days=7
+- package-manager-mutation-review-map: 8 day(s) old, review_after.days=7
+- roadmap-policy-finding-foundation: 8 day(s) old, review_after.days=7
+- swiftpm-dependency-resolution-command-family: 8 day(s) old, review_after.days=7
+- maintainability-roadmap-guardrails: 7 day(s) old, review_after.days=7

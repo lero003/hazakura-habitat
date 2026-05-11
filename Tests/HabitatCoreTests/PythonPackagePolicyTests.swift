@@ -63,6 +63,28 @@ struct PythonPackagePolicyTests {
     }
 
     @Test
+    func scanDoesNotTreatVenvPythonSymlinkAsProjectMetadataSymlink() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+        ])
+        let python3URL = projectURL.appendingPathComponent(".venv/bin/python3")
+        try writeExecutableScript(python3URL, contents: "#!/bin/sh\n")
+        try FileManager.default.createSymbolicLink(
+            atPath: projectURL.appendingPathComponent(".venv/bin/python").path,
+            withDestinationPath: "python3"
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains(".venv/bin/python"))
+        #expect(!result.project.symlinkedFiles.contains(".venv/bin/python"))
+        #expect(result.policy.preferredCommands == [".venv/bin/python -m pytest", ".venv/bin/python"])
+        #expect(!result.policy.askFirstCommands.contains("following project symlinks before reviewing targets"))
+        #expect(!result.policy.askFirstCommands.contains("dependency installs before reviewing symlinked project metadata"))
+        #expect(!result.warnings.contains { $0.hasPrefix("Project symlinks detected") })
+    }
+
+    @Test
     func scanAsksBeforePythonCommandsWhenProjectVenvIsBroken() throws {
         let projectURL = try makeProject(files: [
             "pyproject.toml": "[project]\nname = \"demo\"\n",
