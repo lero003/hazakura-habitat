@@ -117,6 +117,19 @@ Keep this observational:
 
 The current Android-first `hazakura-ai-mobile` observation is a good example: its report was useful as a weak signal because it detected only `AGENTS.md` and `README.md`, emitted no primary package-manager guidance, and therefore kept agents on read-only inspection. A later read-only comparison found real Gradle wrapper and Kotlin build files while a fresh Habitat scan still emitted the same no-primary-package-manager guidance. The first carry-back is intentionally narrow: executable `gradlew` can now select Gradle wrapper validation and align sanitized `./gradlew test` claims with repository facts. Treat further Gradle or Android work as a new measured command-decision gap, not as permission for broad ecosystem coverage.
 
+For recurring Habitat automation, make cross-project observation a short intake
+step before choosing the slice, not a second workstream:
+
+- inspect the watched project's current `habitat-report/agent_context.md` when it exists
+- if the report is missing, stale, or contradicted by visible key files, run a fresh scan into a temporary output directory and compare only the command-changing result
+- check `hazakura-ai-mobile` for Gradle wrapper, validation-command, blocker, or stale-report signals, and `hazakura-nenrin` for Python workflow, ledger, no-op, and record-pressure signals
+- carry back only one bounded Habitat improvement when the observed signal changes command choice, report freshness handling, generated guidance, fixture coverage, or automation wording
+- if the intake confirms current behavior, record the judgment briefly in the run report and continue with the best local Habitat slice or end as a clean no-op
+
+Do not edit the watched project, copy raw report text into this repository, or
+let the watched project's backlog choose Habitat's work. The useful shape is
+still `repo fact -> short annotation -> command decision`.
+
 ## Self-Use Before Substantial Work
 
 Before larger Habitat changes, use the bundled `hazakura-habitat` skill or run Habitat on this repository and read the generated agent context:
