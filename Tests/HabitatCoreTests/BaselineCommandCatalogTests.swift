@@ -82,6 +82,23 @@ struct BaselineCommandCatalogTests {
     }
 
     @Test
+    func catalogCommandFamilyManifestEntriesDoNotContainBlankNamesOrCommands() {
+        for family in PolicyReasonCatalog.catalogCommandFamilies {
+            #expect(
+                !family.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                "Expected catalog family names to stay non-blank"
+            )
+
+            for command in family.commands {
+                #expect(
+                    !command.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                    "Expected \(family.name) to avoid blank policy entries"
+                )
+            }
+        }
+    }
+
+    @Test
     func catalogCommandFamilyManifestDoesNotDuplicateNames() {
         let familyNames = PolicyReasonCatalog.catalogCommandFamilies.map(\.name)
 
