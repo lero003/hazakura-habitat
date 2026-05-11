@@ -229,8 +229,7 @@ struct BaselineCommandCatalogTests {
         let manifestSources = PolicyReasonCatalog.catalogCommandFamilies.map(\.source)
         let expectedManifestNames = (
             PolicyReasonCatalog.dynamicAskFirstCommandFamilies
-                + PolicyReasonCatalog.baselineAskFirstCommandFamilies
-                + PolicyReasonCatalog.baselineForbiddenCommandFamilies
+                + PolicyReasonCatalog.baselineCommandFamilies
         ).map(\.name)
         let expectedManifestSources =
             Array(repeating: Source.dynamicAskFirst, count: PolicyReasonCatalog.dynamicAskFirstCommandFamilies.count)
@@ -413,6 +412,7 @@ struct BaselineCommandCatalogTests {
     func baselineCommandFamilyManifestsDoNotDuplicateNames() {
         let askFirstFamilyNames = PolicyReasonCatalog.baselineAskFirstCommandFamilies.map(\.name)
         let forbiddenFamilyNames = PolicyReasonCatalog.baselineForbiddenCommandFamilies.map(\.name)
+        let baselineFamilyNames = PolicyReasonCatalog.baselineCommandFamilies.map(\.name)
 
         #expect(
             Set(askFirstFamilyNames).count == askFirstFamilyNames.count,
@@ -422,15 +422,16 @@ struct BaselineCommandCatalogTests {
             Set(forbiddenFamilyNames).count == forbiddenFamilyNames.count,
             "Expected the baseline Forbidden family manifest to avoid duplicate family names"
         )
+        #expect(
+            Set(baselineFamilyNames).count == baselineFamilyNames.count,
+            "Expected the combined baseline family manifest to avoid duplicate family names across policy sides"
+        )
     }
 
     @Test
     func catalogCommandFamilyManifestIncludesBaselineFamilies() {
         let manifestNames = Set(PolicyReasonCatalog.catalogCommandFamilies.map(\.name))
-        let baselineFamilyNames = Set(
-            (PolicyReasonCatalog.baselineAskFirstCommandFamilies + PolicyReasonCatalog.baselineForbiddenCommandFamilies)
-                .map(\.name)
-        )
+        let baselineFamilyNames = Set(PolicyReasonCatalog.baselineCommandFamilies.map(\.name))
 
         #expect(
             baselineFamilyNames.isSubset(of: manifestNames),

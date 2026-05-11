@@ -46,6 +46,9 @@ extension PolicyReasonCatalog {
         .baselineForbidden("baselineForbiddenSecretValueCommands", baselineForbiddenSecretValueCommands),
     ]
 
+    static let baselineCommandFamilies = baselineAskFirstCommandFamilies
+        + baselineForbiddenCommandFamilies
+
     static let baselineAskFirstCommands = baselineAskFirstCommandFamilies.flatMap { $0.commands }
 
     static let baselineForbiddenCommands = baselineForbiddenCommandFamilies.flatMap { $0.commands }

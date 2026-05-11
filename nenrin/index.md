@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 130
+- observing: 131
 - reviewed: 10
 
 ## Active Changes
@@ -137,6 +137,7 @@
 - `pip-cache-removal-reason` - [changes/2026-05-11-pip-cache-removal-reason.md](changes/2026-05-11-pip-cache-removal-reason.md)
 - `privileged-outside-deletion-boundaries` - [changes/2026-05-11-privileged-outside-deletion-boundaries.md](changes/2026-05-11-privileged-outside-deletion-boundaries.md)
 - `roadmap-backlog-maintainability-sync` - [changes/2026-05-11-roadmap-backlog-maintainability-sync.md](changes/2026-05-11-roadmap-backlog-maintainability-sync.md)
+- `baseline-command-family-assembly` - [changes/2026-05-11-baseline-command-family-assembly.md](changes/2026-05-11-baseline-command-family-assembly.md)
 
 ## Review Due
 

@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Added a combined baseline command-family manifest boundary so `PolicyReasonCatalog` catalog assembly and drift tests consume one baseline family list instead of separately joining Ask First and Forbidden families.
 - Split baseline lockfile, privileged-command, outside-project deletion, and secret-value static guard ownership into separate `PolicyReasonCatalog` file boundaries with no intended generated-output behavior change.
 - Recorded post-`v0.5.0` review guidance in automation-facing docs: no rollback, hotfix, or release-note edit is needed for `v0.5.0`, and future instruction-alignment work should stay in narrow `v0.5.x` / `v0.6` slices.
 - Clarified future release workflow guidance so release artifact builds are verified before public version tags when practical, while published releases and tags remain immutable.

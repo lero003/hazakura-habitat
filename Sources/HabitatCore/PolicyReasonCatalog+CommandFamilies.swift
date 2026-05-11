@@ -5,6 +5,5 @@ extension PolicyReasonCatalog {
     ]
 
     static let catalogCommandFamilies = dynamicAskFirstCommandFamilies
-        + baselineAskFirstCommandFamilies
-        + baselineForbiddenCommandFamilies
+        + baselineCommandFamilies
 }
