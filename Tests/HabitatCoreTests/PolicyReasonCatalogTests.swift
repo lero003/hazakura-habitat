@@ -97,10 +97,21 @@ struct PolicyReasonCatalogTests {
             "bundler",
         ])
         let routedPackageManagers = Set(PolicyReasonCatalog.packageManagerMutationReviewRoutes.map(\.packageManager))
-        let explicitExceptions = Set(PolicyReasonCatalog.packageManagersWithoutMutationReviewRoute)
+        let explicitExceptionPackageManagers = PolicyReasonCatalog.packageManagersWithoutMutationReviewRoute.map(\.packageManager)
+        let explicitExceptions = Set(explicitExceptionPackageManagers)
 
         #expect(explicitExceptions == ["gradle"])
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "gradle") == [])
+        #expect(
+            explicitExceptions.count == explicitExceptionPackageManagers.count,
+            "Expected package-manager Review First exceptions to avoid duplicate selectors"
+        )
+        #expect(
+            PolicyReasonCatalog.packageManagersWithoutMutationReviewRoute.allSatisfy {
+                !$0.reason.isEmpty && $0.reason.contains("command-changing evidence")
+            },
+            "Expected every package-manager Review First exception to explain why it is unrouted"
+        )
         #expect(
             detectedPackageManagers.subtracting(routedPackageManagers).subtracting(explicitExceptions).isEmpty,
             "Expected every detected package manager to either route Review First commands or be explicitly documented as unrouted"

@@ -4,6 +4,11 @@ extension PolicyReasonCatalog {
         let commands: [String]
     }
 
+    struct PackageManagerReviewRouteException: Sendable {
+        let packageManager: String
+        let reason: String
+    }
+
     static let packageManagerMutationReviewRoutes: [PackageManagerReviewRoute] = [
         .init(packageManager: "npm", commands: npmDependencyMutationCommands),
         .init(packageManager: "pnpm", commands: pnpmDependencyMutationCommands),
@@ -21,8 +26,11 @@ extension PolicyReasonCatalog {
         .init(packageManager: "xcodebuild", commands: xcodebuildProjectMutationCommands),
     ]
 
-    static let packageManagersWithoutMutationReviewRoute = [
-        "gradle",
+    static let packageManagersWithoutMutationReviewRoute: [PackageManagerReviewRouteException] = [
+        .init(
+            packageManager: "gradle",
+            reason: "Executable Gradle wrapper validation is a bounded project-local validation signal; dependency-mutation guidance needs command-changing evidence first."
+        ),
     ]
 
     static func packageManagerMutationReviewCommands(for packageManager: String) -> [String] {
