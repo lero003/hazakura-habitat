@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 124
+- observing: 125
 - reviewed: 10
 
 ## Active Changes
@@ -35,6 +35,7 @@
 - `catalog-manifest-reason-metadata-contract` - [changes/2026-05-11-catalog-manifest-reason-metadata-contract.md](changes/2026-05-11-catalog-manifest-reason-metadata-contract.md)
 - `cocoapods-project-mutation-family` - [changes/2026-05-11-cocoapods-project-mutation-family.md](changes/2026-05-11-cocoapods-project-mutation-family.md)
 - `carthage-build-artifact-family` - [changes/2026-05-11-carthage-build-artifact-family.md](changes/2026-05-11-carthage-build-artifact-family.md)
+- `pip-cache-removal-reason` - [changes/2026-05-11-pip-cache-removal-reason.md](changes/2026-05-11-pip-cache-removal-reason.md)
 - `package-manager-review-route-exceptions` - [changes/2026-05-11-package-manager-review-route-exceptions.md](changes/2026-05-11-package-manager-review-route-exceptions.md)
 - `package-manager-review-exception-rationale` - [changes/2026-05-11-package-manager-review-exception-rationale.md](changes/2026-05-11-package-manager-review-exception-rationale.md)
 - `roadmap-backlog-maintainability-sync` - [changes/2026-05-11-roadmap-backlog-maintainability-sync.md](changes/2026-05-11-roadmap-backlog-maintainability-sync.md)

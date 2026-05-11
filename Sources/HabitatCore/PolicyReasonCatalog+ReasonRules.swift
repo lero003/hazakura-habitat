@@ -19,6 +19,7 @@ extension PolicyReasonCatalog {
         .init(reasonCode: .dependencyResolutionMutation) { isSwiftPackageDependencyResolutionCommand($0) },
         .init(reasonCode: .remoteRepositoryAction) { isRemoteRepositoryActionCommand($0) },
         .init(reasonCode: .gitMutation) { isGitOrGitHubMutationGuard($0) },
+        .init(reasonCode: .userApprovalRequired) { isPipCacheMutationCommand($0) },
         .init(reasonCode: .userApprovalRequired) { isWorkspaceMutationCommand($0) },
         .init(reasonCode: .packageRegistryMutation) { isPackageRegistryMutationCommand($0) },
         .init(reasonCode: .packageManagerActivation) { isPackageManagerActivationCommand($0) },

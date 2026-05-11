@@ -43,6 +43,10 @@ extension PolicyReasonCatalog {
     ])
     static let pipCacheMutationCommands = pipCacheMutationCommandFamily.commands
 
+    static func isPipCacheMutationCommand(_ command: String) -> Bool {
+        pipCacheMutationCommandFamily.contains(command)
+    }
+
     private static let uvDependencyMutationCommandFamily = CommandFamily([
         "uv sync",
         "uv add",
@@ -56,7 +60,6 @@ extension PolicyReasonCatalog {
 
     static func isPythonPackageManagerDependencyMutationCommand(_ command: String) -> Bool {
         pipDependencyMutationCommandFamily.contains(command)
-            || pipCacheMutationCommandFamily.contains(command)
             || uvDependencyMutationCommandFamily.contains(command)
     }
 }

@@ -234,14 +234,14 @@ struct PolicyReasonCatalogTests {
         }
 
         for command in PolicyReasonCatalog.pipDependencyMutationCommands
-            + PolicyReasonCatalog.pipCacheMutationCommands
             + PolicyReasonCatalog.uvDependencyMutationCommands {
             #expect(
                 PolicyReasonCatalog.askFirstReason(for: command).code == "dependency_mutation",
                 "Expected \(command) to keep Python package-manager dependency-mutation classification"
             )
         }
-        for command in PolicyReasonCatalog.pipPackageFetchAndCacheCommands {
+        for command in PolicyReasonCatalog.pipPackageFetchAndCacheCommands
+            + PolicyReasonCatalog.pipCacheMutationCommands {
             #expect(
                 PolicyReasonCatalog.askFirstReason(for: command).code == "user_approval_required",
                 "Expected \(command) to keep generic approval classification"

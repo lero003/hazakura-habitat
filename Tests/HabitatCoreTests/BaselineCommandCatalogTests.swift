@@ -258,6 +258,7 @@ struct BaselineCommandCatalogTests {
             + PolicyReasonCatalog.carthageBuildArtifactMutationCommands
             + PolicyReasonCatalog.xcodebuildProjectMutationCommands
             + PolicyReasonCatalog.pipPackageFetchAndCacheCommands
+            + PolicyReasonCatalog.pipCacheMutationCommands
             + PolicyReasonCatalog.virtualEnvironmentMutationCommands
             + PolicyReasonCatalog.workspaceMutationCommands
         )
