@@ -26,6 +26,9 @@ extension PolicyReasonCatalog {
     ])
     static let carthageBuildArtifactMutationCommands = carthageBuildArtifactMutationCommandFamily.commands
 
+    static let carthagePackageManagerReviewCommands = carthageDependencyMutationCommands
+        + carthageBuildArtifactMutationCommands
+
     private static let xcodebuildProjectMutationCommandFamily = CommandFamily([
         "xcodebuild build/test/archive before selecting a scheme",
         "xcodebuild -resolvePackageDependencies",

@@ -20,11 +20,13 @@ struct PolicyReasonCatalogTests {
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "go") == PolicyReasonCatalog.goDependencyMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "cargo") == PolicyReasonCatalog.cargoDependencyMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "cocoapods") == PolicyReasonCatalog.cocoapodsPackageManagerReviewCommands)
-        #expect(
-            PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "carthage")
-                == PolicyReasonCatalog.carthageDependencyMutationCommands
-                    + PolicyReasonCatalog.carthageBuildArtifactMutationCommands
-        )
+        #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "carthage") == PolicyReasonCatalog.carthagePackageManagerReviewCommands)
+        #expect(PolicyReasonCatalog.carthagePackageManagerReviewCommands == [
+            "carthage bootstrap",
+            "carthage update",
+            "carthage checkout",
+            "carthage build",
+        ])
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "xcodebuild") == PolicyReasonCatalog.xcodebuildProjectMutationCommands)
         #expect(PolicyReasonCatalog.packageManagerMutationReviewCommands(for: "homebrew") == [
             "brew bundle",

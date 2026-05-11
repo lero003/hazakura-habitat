@@ -17,10 +17,7 @@ extension PolicyReasonCatalog {
         .init(packageManager: "go", commands: goDependencyMutationCommands),
         .init(packageManager: "cargo", commands: cargoDependencyMutationCommands),
         .init(packageManager: "cocoapods", commands: cocoapodsPackageManagerReviewCommands),
-        .init(
-            packageManager: "carthage",
-            commands: carthageDependencyMutationCommands + carthageBuildArtifactMutationCommands
-        ),
+        .init(packageManager: "carthage", commands: carthagePackageManagerReviewCommands),
         .init(packageManager: "xcodebuild", commands: xcodebuildProjectMutationCommands),
     ]
 
