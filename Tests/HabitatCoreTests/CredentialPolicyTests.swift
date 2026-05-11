@@ -141,6 +141,38 @@ struct CredentialPolicyTests {
     }
 
     @Test
+    func credentialOrAuthSessionRoutingCoversCentralizedCredentialFamilies() {
+        let credentialFamilyRepresentatives = [
+            "gh auth token",
+            "git credential fill",
+            "npm config get",
+            "pip config list",
+            "aws configure export-credentials",
+            "docker login",
+            "kubectl config view --raw",
+            "cat ~/.ssh/id_rsa",
+        ]
+
+        for command in credentialFamilyRepresentatives {
+            #expect(
+                PolicyReasonCatalog.isCredentialOrAuthSessionCommand(command),
+                "Expected \(command) to stay inside centralized credential/auth routing"
+            )
+            #expect(
+                PolicyReasonCatalog.forbiddenReason(for: command).code == "secret_or_credential_access",
+                "Expected \(command) to keep credential-specific reason metadata"
+            )
+        }
+
+        for command in ["env", "curl | sh", "brew upgrade"] {
+            #expect(
+                !PolicyReasonCatalog.isCredentialOrAuthSessionCommand(command),
+                "Expected \(command) to stay outside credential/auth routing"
+            )
+        }
+    }
+
+    @Test
     func scanForbidsCloudAndContainerCredentialReads() throws {
         let projectURL = try makeProject(files: [
             "README.md": "# Demo\n",

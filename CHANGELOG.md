@@ -103,6 +103,7 @@ Evidence and Instruction Alignment release.
 - Extracted CLI auth-session and credential-store command families into `PolicyReasonCatalog+CliAuth.swift` with no intended generated-output behavior change.
 - Extracted package-manager credential/session and config command families into `PolicyReasonCatalog+PackageManagerCredential.swift` with no intended generated-output behavior change.
 - Extracted cloud/container credential and auth-session command families into `PolicyReasonCatalog+CloudContainerCredential.swift` with no intended generated-output behavior change.
+- Extracted credential/auth-session reason routing into `PolicyReasonCatalog+CredentialAuth.swift` with no intended generated-output behavior change.
 - Extracted host-private data command families into `PolicyReasonCatalog+HostPrivate.swift` with no intended generated-output behavior change.
 - Extracted Corepack package-manager activation command families into `PolicyReasonCatalog+PackageManagerActivation.swift` with no intended generated-output behavior change.
 - Extracted SwiftPM dependency-resolution command families into `PolicyReasonCatalog+SwiftPM.swift` with no intended generated-output behavior change.
