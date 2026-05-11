@@ -105,7 +105,9 @@ contract changes. Every fixture should include the primary metric, context mode 
 context comparison, expected behavior, observed behavior, verdict, follow-up
 improvement, and explicit sanitization flags. Tests should reject raw local paths,
 private-key markers, dummy API-key markers, and stored prompt/secret/history or
-clipboard data.
+clipboard data. Tests should also reject duplicate behavior case IDs and fixture
+summaries that do not record whether Habitat context or policy shaped the
+observed behavior.
 
 ## Planned Cases
 

@@ -87,6 +87,51 @@ struct BehaviorEvidenceSanitizationTests {
     }
 
     @Test
+    func behaviorEvaluationFixturesRecordUniqueCasesAndContextUsage() throws {
+        let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
+        let fixturesURL = rootURL.appendingPathComponent("examples/behavior-evaluation")
+        let fixtureURLs = try FileManager.default.contentsOfDirectory(
+            at: fixturesURL,
+            includingPropertiesForKeys: nil
+        )
+            .filter { $0.pathExtension == "json" }
+            .sorted { $0.lastPathComponent < $1.lastPathComponent }
+        let observedContextKeys = [
+            "withHabitatContext",
+            "agentContextOnly",
+            "withCommandPolicy",
+        ]
+        var caseIds: Set<String> = []
+
+        #expect(!fixtureURLs.isEmpty)
+
+        for fixtureURL in fixtureURLs {
+            let data = try Data(contentsOf: fixtureURL)
+            let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
+            let caseId = json?["caseId"] as? String
+            let observedContexts = observedContextKeys.compactMap { key in
+                json?[key] as? [String: Any]
+            }
+            let recordsHabitatContextUsage = observedContexts.contains { context in
+                context["referencedHabitatContext"] as? Bool == true ||
+                    context["referencedHabitatPolicy"] as? Bool == true
+            }
+
+            #expect(caseId?.isEmpty == false, "\(fixtureURL.lastPathComponent) must declare a caseId")
+            if let caseId {
+                #expect(
+                    caseIds.insert(caseId).inserted,
+                    "\(fixtureURL.lastPathComponent) duplicates behavior fixture caseId \(caseId)"
+                )
+            }
+            #expect(
+                recordsHabitatContextUsage,
+                "\(fixtureURL.lastPathComponent) must record whether Habitat context or policy shaped the observed behavior"
+            )
+        }
+    }
+
+    @Test
     func behaviorEvaluationFixtureIndexesListEveryFixture() throws {
         let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
         let fixturesURL = rootURL.appendingPathComponent("examples/behavior-evaluation")
