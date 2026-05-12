@@ -262,22 +262,20 @@ struct BaselineCommandCatalogTests {
 
     @Test
     func catalogCommandFamilyManifestSourcesMatchCommandClassification() {
-        let deliberateGenericAskFirstCommands = Set(
-            [
-                "brew cleanup",
-                "brew autoremove",
-                "brew tap",
-                "brew tap-new",
-            ]
-            + PolicyReasonCatalog.homebrewBundleReviewCommands
-            + PolicyReasonCatalog.cocoapodsProjectMutationCommands
-            + PolicyReasonCatalog.carthageBuildArtifactMutationCommands
-            + PolicyReasonCatalog.xcodebuildProjectMutationCommands
-            + PolicyReasonCatalog.pipPackageFetchAndCacheCommands
-            + PolicyReasonCatalog.pipCacheMutationCommands
-            + PolicyReasonCatalog.virtualEnvironmentMutationCommands
-            + PolicyReasonCatalog.workspaceMutationCommands
-        )
+        var deliberateGenericAskFirstCommands: Set<String> = [
+            "brew cleanup",
+            "brew autoremove",
+            "brew tap",
+            "brew tap-new",
+        ]
+        deliberateGenericAskFirstCommands.formUnion(PolicyReasonCatalog.homebrewBundleReviewCommands)
+        deliberateGenericAskFirstCommands.formUnion(PolicyReasonCatalog.cocoapodsProjectMutationCommands)
+        deliberateGenericAskFirstCommands.formUnion(PolicyReasonCatalog.carthageBuildArtifactMutationCommands)
+        deliberateGenericAskFirstCommands.formUnion(PolicyReasonCatalog.xcodebuildProjectMutationCommands)
+        deliberateGenericAskFirstCommands.formUnion(PolicyReasonCatalog.pipPackageFetchAndCacheCommands)
+        deliberateGenericAskFirstCommands.formUnion(PolicyReasonCatalog.pipCacheMutationCommands)
+        deliberateGenericAskFirstCommands.formUnion(PolicyReasonCatalog.virtualEnvironmentMutationCommands)
+        deliberateGenericAskFirstCommands.formUnion(PolicyReasonCatalog.workspaceMutationCommands)
 
         for family in PolicyReasonCatalog.catalogCommandFamilies {
             for command in family.commands {
