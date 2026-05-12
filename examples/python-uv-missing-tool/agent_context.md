@@ -31,5 +31,5 @@
 - Freshness: regenerate if key project files changed after this timestamp; `scan_result.json` includes observed file mtimes.
 - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
 - Scope: short working context; full approval detail is in `command_policy.md`.
-- Mismatch: Project files prefer uv, but uv was not found on PATH; ask before running uv commands or substituting another package manager.
+- Warning: Project files prefer uv, but uv was not found on PATH; ask before running uv commands or substituting another package manager.
 - uv --version unavailable: env: uv: No such file or directory

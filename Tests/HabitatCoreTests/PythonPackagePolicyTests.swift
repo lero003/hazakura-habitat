@@ -29,7 +29,8 @@ struct PythonPackagePolicyTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(context.contains("Prefer `.venv/bin/python -m pytest`."))
-        #expect(context.contains("Project .venv exists; use .venv/bin/python for Python commands before system python3."))
+        #expect(context.contains("Warning: Project .venv exists; use .venv/bin/python for Python commands before system python3."))
+        #expect(!context.contains("Mismatch: Project .venv exists; use .venv/bin/python for Python commands before system python3."))
     }
 
     @Test

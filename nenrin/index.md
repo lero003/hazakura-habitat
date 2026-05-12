@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 137
+- observing: 138
 - reviewed: 10
 
 ## Active Changes
@@ -140,10 +140,11 @@
 - `pip-cache-removal-reason` - [changes/2026-05-11-pip-cache-removal-reason.md](changes/2026-05-11-pip-cache-removal-reason.md)
 - `privileged-outside-deletion-boundaries` - [changes/2026-05-11-privileged-outside-deletion-boundaries.md](changes/2026-05-11-privileged-outside-deletion-boundaries.md)
 - `roadmap-backlog-maintainability-sync` - [changes/2026-05-11-roadmap-backlog-maintainability-sync.md](changes/2026-05-11-roadmap-backlog-maintainability-sync.md)
+- `agent-context-freshness-note` - [changes/2026-05-12-agent-context-freshness-note.md](changes/2026-05-12-agent-context-freshness-note.md)
+- `agent-context-warning-label` - [changes/2026-05-12-agent-context-warning-label.md](changes/2026-05-12-agent-context-warning-label.md)
 - `cross-project-stale-report-fixture` - [changes/2026-05-12-cross-project-stale-report-fixture.md](changes/2026-05-12-cross-project-stale-report-fixture.md)
 - `observed-file-freshness-metadata` - [changes/2026-05-12-observed-file-freshness-metadata.md](changes/2026-05-12-observed-file-freshness-metadata.md)
 - `venv-python-symlink-guidance` - [changes/2026-05-12-venv-python-symlink-guidance.md](changes/2026-05-12-venv-python-symlink-guidance.md)
-- `agent-context-freshness-note` - [changes/2026-05-12-agent-context-freshness-note.md](changes/2026-05-12-agent-context-freshness-note.md)
 
 ## Review Due
 

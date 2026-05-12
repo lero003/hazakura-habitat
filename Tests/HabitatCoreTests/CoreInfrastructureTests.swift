@@ -323,8 +323,8 @@ struct CoreInfrastructureTests {
         - Freshness: regenerate if key project files changed after this timestamp; `scan_result.json` includes observed file mtimes.
         - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
         - Scope: short working context; full approval detail is in `command_policy.md`.
-        - Mismatch: Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node).
-        - Mismatch: Project files prefer pnpm, but pnpm was not found on PATH; ask before running pnpm commands or substituting another package manager.
+        - Warning: Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node).
+        - Warning: Project files prefer pnpm, but pnpm was not found on PATH; ask before running pnpm commands or substituting another package manager.
         - node --version unavailable: missing
         """)
     }

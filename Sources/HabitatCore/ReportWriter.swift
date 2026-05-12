@@ -171,9 +171,9 @@ public struct ReportWriter {
         let askFirstCommands = prioritizedAskFirstCommands(result)
         let askLines = agentContextAskFirstLines(askFirstCommands, result: result)
         let relevantDiagnostics = agentRelevantDiagnostics(result)
-        let mismatchLines = result.warnings.isEmpty
-            ? ["- Mismatches: none detected."]
-            : limitedBulletLines(result.warnings.map { "Mismatch: \($0)" }, limit: 10, overflowLabel: "warnings")
+        let warningLines = result.warnings.isEmpty
+            ? ["- Warnings: none detected."]
+            : limitedBulletLines(result.warnings.map { "Warning: \($0)" }, limit: 10, overflowLabel: "warnings")
         let validationLines = limitedBulletLines(
             validationEvidence.agentContextAnnotations,
             limit: 4,
@@ -205,7 +205,7 @@ public struct ReportWriter {
         } else {
             preCommitWarningLines = []
         }
-        let noteAnnotationLines = validationLines + ciUncertaintyLines + preCommitWarningLines + mismatchLines + noteLines
+        let noteAnnotationLines = validationLines + ciUncertaintyLines + preCommitWarningLines + warningLines + noteLines
 
         return """
         # Agent Context

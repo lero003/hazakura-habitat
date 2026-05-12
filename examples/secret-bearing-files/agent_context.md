@@ -24,6 +24,6 @@
 - Freshness: regenerate if key project files changed after this timestamp; `scan_result.json` includes observed file mtimes.
 - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
 - Scope: short working context; full approval detail is in `command_policy.md`.
-- Mismatches: none detected.
+- Warnings: none detected.
 - Habitat detects secret-bearing file presence, not secret values.
 - This example uses placeholder filenames only.
