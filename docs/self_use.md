@@ -118,6 +118,7 @@ Observed output from scanning this repository:
 - `scan_result.json` `policy.reasonCodes`: 15 reason families, including `package_manager_activation`, `remote_repository_action`, `ephemeral_package_execution`, and `package_registry_mutation`.
 - `scan_result.json` `project.validationCommandClaims`: none in the current self-scan; README build examples are not treated as validation-command claims without validation context.
 - `scan_result.json` `project.ciWorkflowFiles`: `.github/workflows/ci.yml` and `.github/workflows/release-artifacts.yml`; no CI uncertainty appears because SwiftPM local verification is already selected.
+- `scan_result.json` `project.observedFiles` includes project guidance documents such as `docs/current_status.md`, `docs/development_loop.md`, `docs/roadmap.md`, `docs/evaluation.md`, and `docs/self_use.md`, so stale-report checks can notice agent-facing doc updates as well as package/build metadata.
 - Warnings: none.
 
 Missing Python, pip, uv, pyenv, and Go commands were recorded as diagnostics in machine-readable data, but they did not pollute `agent_context.md` because they were not relevant to the SwiftPM command decision.

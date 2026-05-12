@@ -224,9 +224,11 @@ struct ScanExecutionInfrastructureTests {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift package",
             "README.md": "# Project",
+            "docs/current_status.md": "# Current Status",
+            "docs/development_automation.md": "# Development Automation",
             ".github/workflows/ci.yml": "name: CI",
         ])
-        let readmeURL = projectURL.appendingPathComponent("README.md")
+        let readmeURL = projectURL.appendingPathComponent("docs/current_status.md")
         let newestDate = Date(timeIntervalSince1970: 1_800_000_000)
         try FileManager.default.setAttributes([.modificationDate: newestDate], ofItemAtPath: readmeURL.path)
 
@@ -235,10 +237,12 @@ struct ScanExecutionInfrastructureTests {
 
         #expect(observedFiles.map(\.path).contains("Package.swift"))
         #expect(observedFiles.map(\.path).contains("README.md"))
+        #expect(observedFiles.map(\.path).contains("docs/current_status.md"))
+        #expect(observedFiles.map(\.path).contains("docs/development_automation.md"))
         #expect(observedFiles.map(\.path).contains(".github/workflows/ci.yml"))
         #expect(observedFiles.allSatisfy { !$0.modifiedAt.isEmpty })
         #expect(observedFiles.allSatisfy { !$0.modifiedAt.contains(projectURL.path) })
-        #expect(result.project.latestObservedFilePath == "README.md")
-        #expect(result.project.latestObservedFileModifiedAt == observedFiles.first { $0.path == "README.md" }?.modifiedAt)
+        #expect(result.project.latestObservedFilePath == "docs/current_status.md")
+        #expect(result.project.latestObservedFileModifiedAt == observedFiles.first { $0.path == "docs/current_status.md" }?.modifiedAt)
     }
 }
