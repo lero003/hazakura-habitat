@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 136
+- observing: 137
 - reviewed: 10
 
 ## Active Changes
@@ -143,6 +143,7 @@
 - `cross-project-stale-report-fixture` - [changes/2026-05-12-cross-project-stale-report-fixture.md](changes/2026-05-12-cross-project-stale-report-fixture.md)
 - `observed-file-freshness-metadata` - [changes/2026-05-12-observed-file-freshness-metadata.md](changes/2026-05-12-observed-file-freshness-metadata.md)
 - `venv-python-symlink-guidance` - [changes/2026-05-12-venv-python-symlink-guidance.md](changes/2026-05-12-venv-python-symlink-guidance.md)
+- `agent-context-freshness-note` - [changes/2026-05-12-agent-context-freshness-note.md](changes/2026-05-12-agent-context-freshness-note.md)
 
 ## Review Due
 

@@ -225,6 +225,7 @@ public struct ReportWriter {
         ## Notes
         - Scanned at: \(result.scannedAt)
         - Project: \(result.projectPath)
+        - Freshness: regenerate if key project files changed after this timestamp; `scan_result.json` includes observed file mtimes.
         - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
         - Scope: short working context; full approval detail is in `command_policy.md`.
         \(noteAnnotationLines.joined(separator: "\n"))

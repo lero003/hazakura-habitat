@@ -22,6 +22,10 @@ struct RepresentativeExampleTests {
             #expect(!context.contains("## Avoid"), "Representative examples should use Do Not for current output shape: \(path)")
             #expect(!context.contains("## Mismatches"), "Representative examples should keep mismatch details in Notes: \(path)")
             #expect(
+                context.contains("- Freshness: regenerate if key project files changed after this timestamp; `scan_result.json` includes observed file mtimes."),
+                "Representative examples should point stale-report checks to scan_result.json observed file metadata: \(path)"
+            )
+            #expect(
                 context.contains("- Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics."),
                 "Representative examples should tell agents where to stop or continue reading: \(path)"
             )
