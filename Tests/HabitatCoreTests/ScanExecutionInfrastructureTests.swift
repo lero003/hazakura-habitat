@@ -226,6 +226,8 @@ struct ScanExecutionInfrastructureTests {
             "README.md": "# Project",
             "docs/current_status.md": "# Current Status",
             "docs/development_automation.md": "# Development Automation",
+            "nenrin/index.md": "# Nenrin",
+            "nenrin/metrics.md": "# Metrics",
             ".github/workflows/ci.yml": "name: CI",
         ])
         let readmeURL = projectURL.appendingPathComponent("docs/current_status.md")
@@ -239,6 +241,8 @@ struct ScanExecutionInfrastructureTests {
         #expect(observedFiles.map(\.path).contains("README.md"))
         #expect(observedFiles.map(\.path).contains("docs/current_status.md"))
         #expect(observedFiles.map(\.path).contains("docs/development_automation.md"))
+        #expect(observedFiles.map(\.path).contains("nenrin/index.md"))
+        #expect(observedFiles.map(\.path).contains("nenrin/metrics.md"))
         #expect(observedFiles.map(\.path).contains(".github/workflows/ci.yml"))
         #expect(observedFiles.allSatisfy { !$0.modifiedAt.isEmpty })
         #expect(observedFiles.allSatisfy { !$0.modifiedAt.contains(projectURL.path) })

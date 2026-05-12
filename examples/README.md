@@ -53,3 +53,4 @@ The purpose is to make the product value visible:
 - `behavior-evaluation/secret-bearing-search-010.json`: sanitized observed behavior fixture for clarified policy preserving direct non-secret source inspection.
 - `behavior-evaluation/gradle-wrapper-validation-001.json`: sanitized behavior fixture for executable Gradle wrapper validation guidance.
 - `behavior-evaluation/cross-project-stale-report-001.json`: sanitized behavior fixture for bounded stale-report refresh during cross-project intake.
+- `behavior-evaluation/cross-project-nenrin-freshness-001.json`: sanitized behavior fixture for treating Nenrin ledger files as report-freshness signals.

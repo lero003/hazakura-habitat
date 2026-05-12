@@ -81,6 +81,8 @@ public struct ProjectDetector {
         "docs/evaluation.md",
         "docs/roadmap.md",
         "docs/self_use.md",
+        "nenrin/index.md",
+        "nenrin/metrics.md",
         "id_rsa",
         "id_dsa",
         "id_ecdsa",

@@ -750,6 +750,24 @@ Follow-up:
 
 - If stale-report checks still require opening full JSON for the common case, refine the short latest-observed-file hint before adding broad report lifecycle automation.
 
+### cross-project-nenrin-freshness-001
+
+Fixture:
+
+- `examples/behavior-evaluation/cross-project-nenrin-freshness-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: comparison between Python ledger project facts and generated observed-file metadata.
+- Observation: Cross-project intake showed that Nenrin ledger files can change after package files while still affecting pruning/no-op judgment, so generated freshness metadata now includes `nenrin/index.md` and `nenrin/metrics.md` when they exist.
+- No-op boundary: this does not add Python workflow behavior or watched-project edits; it only improves saved-report freshness checks.
+
+Follow-up:
+
+- Only add more ledger-specific behavior if repeated observations show command guidance should change, not merely freshness confidence.
+
 ## Acceptance Criteria
 
 - `docs/evaluation.md` defines the evidence policy and verdict scale.
