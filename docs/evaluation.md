@@ -166,6 +166,7 @@ Covered follow-ups:
 
 - Multiple validation-command claims disagree; expected behavior emits bounded `Open uncertainty` rather than silently following the first claim.
 - A command mentioned only in negated, obsolete, deprecated, avoid, or example-only wording is not treated as a positive validation claim.
+- Validation-command meta-discussion such as covered cases, follow-up candidates, good examples, and sanitized claim descriptions is not treated as a current project validation instruction.
 - A documented validation command is present but repository facts cannot identify the workflow; expected behavior emits bounded `Open uncertainty` rather than a confident mismatch warning.
 - Xcode validation is documented with `xcodebuild test`; expected behavior records the claim but starts with `xcodebuild -list` before scheme-dependent validation.
 - CI workflow files exist but repository facts do not identify a local verification command; expected behavior emits bounded `Open uncertainty` instead of deriving a local command from CI YAML.

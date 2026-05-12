@@ -507,6 +507,18 @@ public struct ProjectDetector {
             return true
         }
 
+        let metaDiscussionMarkers = [
+            "covered by",
+            "expected behavior",
+            "follow-up candidate",
+            "good example",
+            "claim",
+            "claims"
+        ]
+        if metaDiscussionMarkers.contains(where: { line.contains($0) }) {
+            return true
+        }
+
         return line.contains("example only") || line.contains("obsolete example")
     }
 
