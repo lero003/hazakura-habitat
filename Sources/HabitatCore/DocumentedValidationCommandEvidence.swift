@@ -26,6 +26,10 @@ public struct DocumentedValidationCommandEvidence {
             return alignedAnnotations(claim: firstClaim)
         }
 
+        if claimedWorkflow == "project_script" {
+            return projectScriptAnnotations(claim: firstClaim)
+        }
+
         if claimedWorkflow != nil, actualWorkflow == nil {
             return unknownRepositoryWorkflowAnnotations(claim: firstClaim)
         }
@@ -91,6 +95,21 @@ public struct DocumentedValidationCommandEvidence {
         return lines
     }
 
+    private func projectScriptAnnotations(claim: ValidationCommandClaim) -> [String] {
+        var lines = [
+            "Fact: Project instructions mention project-local validation script `\(claim.command)`."
+        ]
+
+        if let actualWorkflow = project.packageManager {
+            lines.append("Open uncertainty: Verify whether the script wraps \(workflowName(actualWorkflow)) validation before using raw package-manager commands.")
+        } else {
+            lines.append("Open uncertainty: Verify the project-local validation script before using it as the local check.")
+        }
+
+        lines.append("Hint: Prefer `\(claim.command)` when repository docs make it the validation entrypoint.")
+        return lines
+    }
+
     private func unknownRepositoryWorkflowAnnotations(claim: ValidationCommandClaim) -> [String] {
         [
             repositoryFactLine,
@@ -143,6 +162,7 @@ public struct DocumentedValidationCommandEvidence {
         if command.hasPrefix("go ") { return "go" }
         if command.hasPrefix("cargo ") { return "cargo" }
         if command.hasPrefix("./gradlew ") { return "gradle" }
+        if command.hasPrefix("./scripts/") { return "project_script" }
         if command.hasPrefix("bundle ") { return "bundler" }
         if command.hasPrefix("xcodebuild ") { return "xcodebuild" }
         return nil
@@ -174,6 +194,8 @@ public struct DocumentedValidationCommandEvidence {
             return "Bundler"
         case "xcodebuild":
             return "Xcode"
+        case "project_script":
+            return "project-local script"
         default:
             return "unknown"
         }

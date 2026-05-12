@@ -371,7 +371,12 @@ public struct ProjectDetector {
     }
 
     private var instructionClaimFiles: [String] {
-        ["AGENTS.md", "README.md"]
+        [
+            "AGENTS.md",
+            "README.md",
+            "docs/development_loop.md",
+            "docs/development_environment.md",
+        ]
     }
 
     private func safeInstructionFileContent(_ url: URL) -> String? {
@@ -408,6 +413,7 @@ public struct ProjectDetector {
             "cargo test",
             "./gradlew test",
             "./gradlew build",
+            "./scripts/assemble-debug.sh",
             "bundle exec",
             "xcodebuild test"
         ]
@@ -428,6 +434,16 @@ public struct ProjectDetector {
             return true
         }
 
+        if command.hasPrefix("./scripts/") {
+            return line.contains("test")
+                || line.contains("build")
+                || line.contains("validat")
+                || line.contains("verify")
+                || line.contains("check")
+                || line.contains("確認")
+                || line.contains("検証")
+        }
+
         let markers = [
             "validat",
             "verify",
@@ -435,7 +451,9 @@ public struct ProjectDetector {
             "before commit",
             "before committing",
             "ci",
-            "quality"
+            "quality",
+            "確認",
+            "検証"
         ]
 
         return markers.contains {

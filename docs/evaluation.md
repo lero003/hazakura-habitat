@@ -155,6 +155,7 @@ Expected behavior:
 - Prefer the repository-supported validation command when docs and facts agree.
 - Warn and avoid overconfident guidance when docs mention a validation command that repository facts do not support or cannot verify.
 - For Xcode projects, treat a documented `xcodebuild test` claim as support for Xcode validation, but prefer scheme discovery before running scheme-dependent validation.
+- When development guidance names a project-local validation script that likely wraps the selected package manager, surface bounded uncertainty instead of silently treating raw package-manager commands as the only entrypoint.
 - Keep the first case narrow enough to justify `v0.5.0` without turning Habitat into a generic project-instruction linter.
 
 Post-`v0.5.0` follow-up candidates:
@@ -168,6 +169,7 @@ Covered follow-ups:
 - A documented validation command is present but repository facts cannot identify the workflow; expected behavior emits bounded `Open uncertainty` rather than a confident mismatch warning.
 - Xcode validation is documented with `xcodebuild test`; expected behavior records the claim but starts with `xcodebuild -list` before scheme-dependent validation.
 - CI workflow files exist but repository facts do not identify a local verification command; expected behavior emits bounded `Open uncertainty` instead of deriving a local command from CI YAML.
+- Development guidance mentions a project-local validation script such as `./scripts/assemble-debug.sh`; expected behavior records the sanitized script command and tells agents to verify whether it is the intended wrapper before using raw package-manager commands.
 
 ## Observed Cases
 
