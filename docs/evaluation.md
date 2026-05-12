@@ -746,12 +746,12 @@ Summary:
 - Result: Pass.
 - Primary metric: risk-aware behavior.
 - Context mode: comparison between saved stale report and a fresh temporary scan.
-- Observation: A fresh ai-mobile scan kept Gradle wrapper validation as the project fact but also surfaced the documented `./scripts/assemble-debug.sh` validation wrapper, so the next command becomes "verify the wrapper entrypoint" rather than jumping straight to raw `./gradlew`.
+- Observation: A fresh ai-mobile scan kept Gradle wrapper validation as the project fact but also surfaced the documented `./scripts/assemble-debug.sh` validation wrapper and promoted it into the short `Prefer` list, so the next command becomes "verify and use the wrapper entrypoint" rather than jumping straight to raw `./gradlew`.
 - Boundary: this records an existing `ValidationCommandClaim` shape; it does not add Android environment auditing or raw watched-project report output.
 
 Follow-up:
 
-- If agents still bypass documented validation wrappers, tighten short-context wording before adding broader Android scanning.
+- If agents still bypass documented validation wrappers, add a narrower wrapper-command fixture before broader Android scanning.
 
 ### cross-project-stale-report-001
 

@@ -129,7 +129,10 @@ public struct ReportWriter {
     }
 
     private func agentContext(_ result: ScanResult) -> String {
-        let preferredCommands = markdownPreferredCommands(result)
+        let preferredCommands = renderedPreferredCommands(
+            result,
+            preferredCommands: markdownPreferredCommands(result)
+        )
         let validationEvidence = DocumentedValidationCommandEvidence(
             project: result.project,
             preferredCommands: preferredCommands
@@ -270,7 +273,10 @@ public struct ReportWriter {
     }
 
     private func commandPolicy(_ result: ScanResult) -> String {
-        let preferredCommands = markdownPreferredCommands(result)
+        let preferredCommands = renderedPreferredCommands(
+            result,
+            preferredCommands: markdownPreferredCommands(result)
+        )
         let secretEvidence = SecretBearingEvidence(project: result.project)
         let secretGuidance = secretBearingFileGuidance(evidence: secretEvidence)
         let askFirstCommands = prioritizedAskFirstCommands(result)
@@ -813,6 +819,19 @@ public struct ReportWriter {
         return result.policy.preferredCommands
     }
 
+    private func renderedPreferredCommands(_ result: ScanResult, preferredCommands: [String]) -> [String] {
+        var commands = preferredCommands
+
+        for claim in result.project.validationCommandClaims
+            where isAvailableProjectLocalValidationScriptCommand(claim.command, result: result) {
+            commands.removeAll { $0 == claim.command }
+            commands.insert(claim.command, at: 0)
+            break
+        }
+
+        return commands
+    }
+
     private func xcodeToolingNeedsVerification(_ result: ScanResult) -> Bool {
         result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild is available")
             || result.policy.askFirstCommands.contains("running Xcode build commands before xcodebuild version check succeeds")
@@ -962,6 +981,20 @@ public struct ReportWriter {
         default:
             return false
         }
+    }
+
+    private func isAvailableProjectLocalValidationScriptCommand(_ command: String, result: ScanResult) -> Bool {
+        guard command.hasPrefix("./scripts/"),
+              !command.contains(".."),
+              !command.contains("\0")
+        else {
+            return false
+        }
+
+        let scriptPath = URL(fileURLWithPath: result.projectPath)
+            .appendingPathComponent(String(command.dropFirst(2)))
+            .path
+        return FileManager.default.isExecutableFile(atPath: scriptPath)
     }
 
     private func prioritizedForbiddenCommands(_ result: ScanResult) -> [String] {

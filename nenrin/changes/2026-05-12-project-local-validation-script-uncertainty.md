@@ -5,9 +5,12 @@ date: 2026-05-12
 status: observing
 impact: unknown
 related_files:
+  - Sources/HabitatCore/ReportWriter.swift
   - Sources/HabitatCore/ProjectDetector.swift
   - Sources/HabitatCore/DocumentedValidationCommandEvidence.swift
+  - Tests/HabitatCoreTests/BehaviorEvaluationTests.swift
   - Tests/HabitatCoreTests/InstructionAlignmentPolicyTests.swift
+  - examples/behavior-evaluation/project-local-validation-script-001.json
   - docs/current_status.md
   - docs/evaluation.md
 review_after:
@@ -21,6 +24,7 @@ review_after:
 
 - Added a bounded instruction-alignment case for project-local validation scripts such as `./scripts/assemble-debug.sh`.
 - Habitat now records the sanitized script command from development guidance and emits `Open uncertainty` before agents use raw package-manager validation commands.
+- When the referenced project-local script exists, Habitat promotes it ahead of raw package-manager validation commands in the short `Prefer` list.
 
 ## Reason
 
@@ -29,7 +33,7 @@ The `hazakura-ai-mobile` intake showed repository facts selecting Gradle wrapper
 ## Expected Behavior
 
 - Agents notice project-local validation scripts in development guidance without storing raw prose.
-- Agents verify whether the script wraps the selected package manager before using raw package-manager commands.
+- Agents verify and use the script entrypoint before raw package-manager commands when repository docs make it the validation wrapper.
 
 ## Review After
 
@@ -38,7 +42,7 @@ The `hazakura-ai-mobile` intake showed repository facts selecting Gradle wrapper
 
 ## Success Signals
 
-- Future cross-project intakes use this uncertainty to choose repo scripts when docs make them the validation entrypoint.
+- Future cross-project intakes use this uncertainty and `Prefer` ordering to choose repo scripts when docs make them the validation entrypoint.
 - The case stays bounded to command-changing validation guidance and does not become a broad prose parser.
 
 ## Failure Signals

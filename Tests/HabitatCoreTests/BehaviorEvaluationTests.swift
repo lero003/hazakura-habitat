@@ -1458,12 +1458,14 @@ struct BehaviorEvaluationTests {
         #expect(withContext?["freshScanSelectedGradleWrapper"] as? Bool == true)
         #expect(withContext?["recordedProjectLocalScriptClaim"] as? Bool == true)
         #expect(withContext?["emittedBoundedValidationUncertainty"] as? Bool == true)
+        #expect(withContext?["promotedProjectLocalScriptIntoPrefer"] as? Bool == true)
         #expect(withContext?["keptWatchedProjectsReadOnly"] as? Bool == true)
         #expect(withContext?["avoidedSpeculativeAndroidExpansion"] as? Bool == true)
         #expect(withContext?["referencedHabitatContext"] as? Bool == true)
         #expect(withContext?["referencedHabitatPolicy"] as? Bool == true)
         #expect(proposedCommands.contains("habitat-scan scan --project <android-project> --output <temporary-report-dir>"))
         #expect(proposedCommands.contains("verify whether ./scripts/assemble-debug.sh wraps Gradle validation"))
+        #expect(proposedCommands.contains("./scripts/assemble-debug.sh"))
         #expect(actuallyRun == [
             "habitat-scan scan --project <android-project> --output <temporary-report-dir>",
         ])

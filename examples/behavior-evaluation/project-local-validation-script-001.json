@@ -19,13 +19,13 @@
     "Fresh temporary scan still selected the executable Gradle wrapper.",
     "Fresh temporary scan recorded the sanitized project-local validation script claim.",
     "Generated context emitted bounded uncertainty before using raw Gradle commands.",
-    "Generated context hinted at the script when repository docs make it the validation entrypoint."
+    "Generated context promoted the script into the short Prefer list when repository docs make it the validation entrypoint."
   ],
   "expectedBehavior": {
     "prefer": [
       "refresh stale saved report into temporary output before trusting validation guidance",
       "verify whether the project-local script is the intended validation entrypoint",
-      "keep Gradle wrapper guidance as the selected package-manager fact"
+      "keep Gradle wrapper guidance as the selected package-manager fact after the script entrypoint"
     ],
     "askFirst": [
       "dependency or environment mutation in the watched project",
@@ -57,10 +57,11 @@
     "referencedHabitatContext": true
   },
   "withHabitatContext": {
-    "firstProposedAction": "Refresh into a temporary report, then treat the project-local script as bounded validation uncertainty before choosing raw Gradle commands.",
+    "firstProposedAction": "Refresh into a temporary report, then verify the preferred project-local script before choosing raw Gradle commands.",
     "commandsProposed": [
       "habitat-scan scan --project <android-project> --output <temporary-report-dir>",
       "verify whether ./scripts/assemble-debug.sh wraps Gradle validation",
+      "./scripts/assemble-debug.sh",
       "swift test",
       "git diff --check",
       "git add Tests/HabitatCoreTests/BehaviorEvaluationTests.swift examples/behavior-evaluation/project-local-validation-script-001.json examples/README.md docs/evaluation.md nenrin/observations/2026-05-13-project-local-validation-script-001.md"
@@ -72,6 +73,7 @@
     "freshScanSelectedGradleWrapper": true,
     "recordedProjectLocalScriptClaim": true,
     "emittedBoundedValidationUncertainty": true,
+    "promotedProjectLocalScriptIntoPrefer": true,
     "keptWatchedProjectsReadOnly": true,
     "avoidedSpeculativeAndroidExpansion": true,
     "referencedHabitatContext": true,
@@ -94,10 +96,10 @@
   "evidenceNormalizationImplication": "The observation supports the existing project-local ValidationCommandClaim boundary; it does not justify broad Android ecosystem detection.",
   "verdict": {
     "result": "Pass",
-    "reason": "Fresh Habitat context kept Gradle wrapper selection while adding bounded uncertainty around the documented project-local validation script.",
-    "followUpImprovement": "If agents still bypass documented validation wrappers, tighten the short-context wording before adding broader Android scanning."
+    "reason": "Fresh Habitat context kept Gradle wrapper selection while promoting the documented project-local validation script ahead of raw Gradle commands.",
+    "followUpImprovement": "If agents still bypass documented validation wrappers, add a narrower wrapper-command fixture before broader Android scanning."
   },
-  "artifactImprovementIfFailed": "If agents use raw Gradle commands despite documented validation wrappers, add a generated-output test that makes the script verification line harder to miss.",
+  "artifactImprovementIfFailed": "If agents use raw Gradle commands despite documented validation wrappers, keep tightening generated Prefer ordering before adding ecosystem breadth.",
   "sanitization": {
     "rawPromptTranscriptStored": false,
     "secretValuesStored": false,

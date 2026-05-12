@@ -243,6 +243,7 @@ struct InstructionAlignmentPolicyTests {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
         let scanJSON = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
 
         assertAgentContextContract(context)
@@ -252,7 +253,10 @@ struct InstructionAlignmentPolicyTests {
         #expect(context.contains("Fact: Project instructions mention project-local validation script `./scripts/assemble-debug.sh`."))
         #expect(context.contains("Open uncertainty: Verify whether the script wraps Gradle validation before using raw package-manager commands."))
         #expect(context.contains("Hint: Prefer `./scripts/assemble-debug.sh` when repository docs make it the validation entrypoint."))
+        #expect(context.contains("Prefer `./scripts/assemble-debug.sh`."))
         #expect(context.contains("Prefer `./gradlew test`."))
+        #expect(!context.contains("Prefer `./gradlew build`."))
+        #expect(policy.contains("- `./scripts/assemble-debug.sh`"))
         #expect(scanJSON.contains("\"source\" : \"docs/development_loop.md\""))
         #expect(scanJSON.contains("\"command\" : \"./scripts/assemble-debug.sh\""))
         #expect(!scanJSON.contains("HAZAKURA_GRADLE_TASK"))
