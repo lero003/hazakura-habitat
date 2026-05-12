@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 138
+- observing: 139
 - reviewed: 10
 
 ## Active Changes
@@ -144,6 +144,7 @@
 - `agent-context-warning-label` - [changes/2026-05-12-agent-context-warning-label.md](changes/2026-05-12-agent-context-warning-label.md)
 - `cross-project-stale-report-fixture` - [changes/2026-05-12-cross-project-stale-report-fixture.md](changes/2026-05-12-cross-project-stale-report-fixture.md)
 - `observed-file-freshness-metadata` - [changes/2026-05-12-observed-file-freshness-metadata.md](changes/2026-05-12-observed-file-freshness-metadata.md)
+- `roadmap-scanner-size-sync` - [changes/2026-05-12-roadmap-scanner-size-sync.md](changes/2026-05-12-roadmap-scanner-size-sync.md)
 - `venv-python-symlink-guidance` - [changes/2026-05-12-venv-python-symlink-guidance.md](changes/2026-05-12-venv-python-symlink-guidance.md)
 
 ## Review Due
