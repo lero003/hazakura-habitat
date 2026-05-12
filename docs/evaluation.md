@@ -735,6 +735,24 @@ Follow-up:
 
 - Keep this as a bounded Gradle wrapper project-fact slice. Add deeper Gradle or Android-specific evidence only if repeated observations need wrapper-version, task-list, or Android command constraints.
 
+### project-local-validation-script-001
+
+Fixture:
+
+- `examples/behavior-evaluation/project-local-validation-script-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: comparison between saved stale report and a fresh temporary scan.
+- Observation: A fresh ai-mobile scan kept Gradle wrapper validation as the project fact but also surfaced the documented `./scripts/assemble-debug.sh` validation wrapper, so the next command becomes "verify the wrapper entrypoint" rather than jumping straight to raw `./gradlew`.
+- Boundary: this records an existing `ValidationCommandClaim` shape; it does not add Android environment auditing or raw watched-project report output.
+
+Follow-up:
+
+- If agents still bypass documented validation wrappers, tighten short-context wording before adding broader Android scanning.
+
 ### cross-project-stale-report-001
 
 Fixture:
