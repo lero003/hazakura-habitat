@@ -748,7 +748,7 @@ Summary:
 
 Follow-up:
 
-- If stale-report checks repeatedly require manual timestamp comparison, add a small generated freshness hint instead of broad report lifecycle automation.
+- If stale-report checks still require opening full JSON for the common case, refine the short latest-observed-file hint before adding broad report lifecycle automation.
 
 ## Acceptance Criteria
 

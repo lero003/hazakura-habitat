@@ -321,6 +321,7 @@ struct CoreInfrastructureTests {
         - Scanned at: 2026-04-25T00:00:00Z
         - Project: /tmp/project
         - Freshness: regenerate if key project files changed after this timestamp; `scan_result.json` includes observed file mtimes.
+        - Latest observed file: pnpm-lock.yaml modified at 2026-04-25T00:00:00Z.
         - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
         - Scope: short working context; full approval detail is in `command_policy.md`.
         - Warning: Active Node is v25.9.0, but project requests v20; ask before dependency installs (/opt/homebrew/bin/node).

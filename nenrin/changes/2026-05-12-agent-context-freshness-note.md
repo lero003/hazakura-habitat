@@ -9,7 +9,9 @@ related_files:
   - Tests/HabitatCoreTests/CoreInfrastructureTests.swift
   - Tests/HabitatCoreTests/RepresentativeExampleTests.swift
   - examples/swift-package/agent_context.md
+  - examples/swift-package/scan_result.json
   - docs/current_status.md
+  - docs/evaluation.md
 review_after:
   tasks: 3
   days: 7
@@ -21,6 +23,7 @@ review_after:
 
 - Added a short `agent_context.md` Notes reminder to regenerate reports when key project files changed after `Scanned at`.
 - Pointed agents to `scan_result.json` observed file mtimes for freshness comparison.
+- Added the latest observed project file and timestamp to the short context, so stale-report intake can often decide whether to refresh without opening JSON first.
 
 ## Reason
 
@@ -38,7 +41,7 @@ Cross-project intake found an existing ai-mobile report whose command guidance w
 
 ## Success Signals
 
-- Future cross-project intakes use the generated note plus `scan_result.json` mtimes to decide whether to rescan.
+- Future cross-project intakes use the generated note, latest observed-file line, and `scan_result.json` mtimes to decide whether to rescan.
 - Agents do not copy raw report output or edit watched projects when handling stale reports.
 
 ## Failure Signals

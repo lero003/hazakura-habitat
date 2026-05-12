@@ -225,11 +225,25 @@ public struct ReportWriter {
         ## Notes
         - Scanned at: \(result.scannedAt)
         - Project: \(result.projectPath)
-        - Freshness: regenerate if key project files changed after this timestamp; `scan_result.json` includes observed file mtimes.
+        \(freshnessNoteLines(result.project))
         - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
         - Scope: short working context; full approval detail is in `command_policy.md`.
         \(noteAnnotationLines.joined(separator: "\n"))
         """
+    }
+
+    private func freshnessNoteLines(_ project: ProjectInfo) -> String {
+        var lines = [
+            "- Freshness: regenerate if key project files changed after this timestamp; `scan_result.json` includes observed file mtimes."
+        ]
+
+        guard let path = project.latestObservedFilePath,
+              let modifiedAt = project.latestObservedFileModifiedAt else {
+            return lines.joined(separator: "\n")
+        }
+
+        lines.append("- Latest observed file: \(path) modified at \(modifiedAt).")
+        return lines.joined(separator: "\n")
     }
 
     private func hasConcreteLocalValidationCommand(_ commands: [String]) -> Bool {

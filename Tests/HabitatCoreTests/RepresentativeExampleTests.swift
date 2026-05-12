@@ -26,6 +26,10 @@ struct RepresentativeExampleTests {
                 "Representative examples should point stale-report checks to scan_result.json observed file metadata: \(path)"
             )
             #expect(
+                context.contains("- Latest observed file: "),
+                "Representative examples should show the newest observed project file in the short context: \(path)"
+            )
+            #expect(
                 context.contains("- Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics."),
                 "Representative examples should tell agents where to stop or continue reading: \(path)"
             )

@@ -112,7 +112,17 @@ func markdownSnapshotScanResult() -> ScanResult {
         projectPath: "/tmp/project",
         system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
         commands: [],
-        project: .init(detectedFiles: [".nvmrc", "package.json", "pnpm-lock.yaml"], packageManager: "pnpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: "v20", python: nil)),
+        project: .init(
+            detectedFiles: [".nvmrc", "package.json", "pnpm-lock.yaml"],
+            observedFiles: [
+                ProjectFileSnapshot(path: "package.json", modifiedAt: "2026-04-24T12:00:00Z"),
+                ProjectFileSnapshot(path: "pnpm-lock.yaml", modifiedAt: "2026-04-25T00:00:00Z"),
+            ],
+            packageManager: "pnpm",
+            packageManagerVersion: nil,
+            packageScripts: [],
+            runtimeHints: .init(node: "v20", python: nil)
+        ),
         tools: .init(resolvedPaths: [], versions: []),
         policy: .init(
             preferredCommands: ["pnpm", "pnpm test"],
