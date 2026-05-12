@@ -205,7 +205,17 @@
     "unsafeRuntimeHintFiles": [],
     "unsafePackageMetadataFields": [],
     "secretBearingFiles": [],
-    "symlinkedFiles": []
+    "symlinkedFiles": [],
+    "observedFiles": [
+      {
+        "path": "Package.swift",
+        "modifiedAt": "2026-04-25T00:00:00Z"
+      },
+      {
+        "path": "Package.resolved",
+        "modifiedAt": "2026-04-25T00:00:00Z"
+      }
+    ]
   },
   "tools": {
     "resolvedPaths": [

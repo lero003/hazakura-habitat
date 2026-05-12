@@ -245,6 +245,7 @@ public struct CommandInfo: Codable {
 public struct ProjectInfo: Codable {
     public let detectedFiles: [String]
     public let symlinkedFiles: [String]
+    public let observedFiles: [ProjectFileSnapshot]
     public let unsafeRuntimeHintFiles: [String]
     public let unsafePackageMetadataFields: [String]
     public let packageManager: String?
@@ -260,6 +261,7 @@ public struct ProjectInfo: Codable {
     public init(
         detectedFiles: [String],
         symlinkedFiles: [String] = [],
+        observedFiles: [ProjectFileSnapshot] = [],
         unsafeRuntimeHintFiles: [String] = [],
         unsafePackageMetadataFields: [String] = [],
         packageManager: String?,
@@ -274,6 +276,7 @@ public struct ProjectInfo: Codable {
     ) {
         self.detectedFiles = detectedFiles
         self.symlinkedFiles = symlinkedFiles
+        self.observedFiles = observedFiles
         self.unsafeRuntimeHintFiles = unsafeRuntimeHintFiles
         self.unsafePackageMetadataFields = unsafePackageMetadataFields
         self.packageManager = packageManager
@@ -290,6 +293,7 @@ public struct ProjectInfo: Codable {
     private enum CodingKeys: String, CodingKey {
         case detectedFiles
         case symlinkedFiles
+        case observedFiles
         case unsafeRuntimeHintFiles
         case unsafePackageMetadataFields
         case packageManager
@@ -307,6 +311,7 @@ public struct ProjectInfo: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         detectedFiles = try container.decode([String].self, forKey: .detectedFiles)
         symlinkedFiles = try container.decodeIfPresent([String].self, forKey: .symlinkedFiles) ?? []
+        observedFiles = try container.decodeIfPresent([ProjectFileSnapshot].self, forKey: .observedFiles) ?? []
         unsafeRuntimeHintFiles = try container.decodeIfPresent([String].self, forKey: .unsafeRuntimeHintFiles) ?? []
         unsafePackageMetadataFields = try container.decodeIfPresent([String].self, forKey: .unsafePackageMetadataFields) ?? []
         packageManager = try container.decodeIfPresent(String.self, forKey: .packageManager)
@@ -324,6 +329,7 @@ public struct ProjectInfo: Codable {
         var container = encoder.container(keyedBy: CodingKeys.self)
         try container.encode(detectedFiles, forKey: .detectedFiles)
         try container.encode(symlinkedFiles, forKey: .symlinkedFiles)
+        try container.encode(observedFiles, forKey: .observedFiles)
         try container.encode(unsafeRuntimeHintFiles, forKey: .unsafeRuntimeHintFiles)
         try container.encode(unsafePackageMetadataFields, forKey: .unsafePackageMetadataFields)
         try container.encodeIfPresent(packageManager, forKey: .packageManager)
@@ -341,6 +347,7 @@ public struct ProjectInfo: Codable {
         ProjectInfo(
             detectedFiles: detectedFiles,
             symlinkedFiles: symlinkedFiles,
+            observedFiles: observedFiles,
             unsafeRuntimeHintFiles: unsafeRuntimeHintFiles,
             unsafePackageMetadataFields: unsafePackageMetadataFields,
             packageManager: packageManager,
@@ -353,6 +360,35 @@ public struct ProjectInfo: Codable {
             declaredPackageManagerVersion: declaredPackageManagerVersion,
             ciWorkflowFiles: files
         )
+    }
+
+    public func withObservedFiles(_ files: [ProjectFileSnapshot]) -> ProjectInfo {
+        ProjectInfo(
+            detectedFiles: detectedFiles,
+            symlinkedFiles: symlinkedFiles,
+            observedFiles: files,
+            unsafeRuntimeHintFiles: unsafeRuntimeHintFiles,
+            unsafePackageMetadataFields: unsafePackageMetadataFields,
+            packageManager: packageManager,
+            packageManagerVersion: packageManagerVersion,
+            packageManagerVersionSource: packageManagerVersionSource,
+            packageScripts: packageScripts,
+            validationCommandClaims: validationCommandClaims,
+            runtimeHints: runtimeHints,
+            declaredPackageManager: declaredPackageManager,
+            declaredPackageManagerVersion: declaredPackageManagerVersion,
+            ciWorkflowFiles: ciWorkflowFiles
+        )
+    }
+}
+
+public struct ProjectFileSnapshot: Codable, Equatable {
+    public let path: String
+    public let modifiedAt: String
+
+    public init(path: String, modifiedAt: String) {
+        self.path = path
+        self.modifiedAt = modifiedAt
     }
 }
 

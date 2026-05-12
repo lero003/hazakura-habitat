@@ -12,7 +12,9 @@ public struct HabitatScanner {
     }
 
     public func scan(projectURL: URL) -> ScanResult {
-        let project = detector.detect(projectURL: projectURL).withCiWorkflowFiles(ciDetector.detect(projectURL: projectURL))
+        let detectedProject = detector.detect(projectURL: projectURL)
+            .withCiWorkflowFiles(ciDetector.detect(projectURL: projectURL))
+        let project = detectedProject.withObservedFiles(observedFiles(projectURL: projectURL, project: detectedProject))
         let projectPathIsExistingDirectory = projectPathIsExistingDirectory(projectURL)
         let pathEntries = (ProcessInfo.processInfo.environment["PATH"] ?? "")
             .split(separator: ":")
@@ -175,6 +177,22 @@ public struct HabitatScanner {
         var isDirectory: ObjCBool = false
         return FileManager.default.fileExists(atPath: projectURL.path, isDirectory: &isDirectory)
             && isDirectory.boolValue
+    }
+
+    private func observedFiles(projectURL: URL, project: ProjectInfo) -> [ProjectFileSnapshot] {
+        let symlinkedFiles = Set(project.symlinkedFiles)
+        let observedPaths = orderedUnique(project.detectedFiles + project.ciWorkflowFiles)
+            .filter { !symlinkedFiles.contains($0) }
+
+        let formatter = ISO8601DateFormatter()
+        return observedPaths.compactMap { path in
+            let url = projectURL.appendingPathComponent(path)
+            guard let attributes = try? FileManager.default.attributesOfItem(atPath: url.path),
+                  let modifiedAt = attributes[.modificationDate] as? Date else {
+                return nil
+            }
+            return ProjectFileSnapshot(path: path, modifiedAt: formatter.string(from: modifiedAt))
+        }
     }
 
     private func preferredCommands(project: ProjectInfo) -> [String] {

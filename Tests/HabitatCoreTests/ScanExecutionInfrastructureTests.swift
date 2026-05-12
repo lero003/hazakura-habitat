@@ -218,4 +218,22 @@ struct ScanExecutionInfrastructureTests {
         #expect(result.commands.allSatisfy { !$0.available })
         #expect(result.diagnostics.count == result.commands.count)
     }
+
+    @Test
+    func scanRecordsObservedProjectFileModificationTimes() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift package",
+            "README.md": "# Project",
+            ".github/workflows/ci.yml": "name: CI",
+        ])
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let observedFiles = result.project.observedFiles
+
+        #expect(observedFiles.map(\.path).contains("Package.swift"))
+        #expect(observedFiles.map(\.path).contains("README.md"))
+        #expect(observedFiles.map(\.path).contains(".github/workflows/ci.yml"))
+        #expect(observedFiles.allSatisfy { !$0.modifiedAt.isEmpty })
+        #expect(observedFiles.allSatisfy { !$0.modifiedAt.contains(projectURL.path) })
+    }
 }

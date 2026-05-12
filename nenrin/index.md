@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 135
+- observing: 136
 - reviewed: 10
 
 ## Active Changes
@@ -141,6 +141,7 @@
 - `privileged-outside-deletion-boundaries` - [changes/2026-05-11-privileged-outside-deletion-boundaries.md](changes/2026-05-11-privileged-outside-deletion-boundaries.md)
 - `roadmap-backlog-maintainability-sync` - [changes/2026-05-11-roadmap-backlog-maintainability-sync.md](changes/2026-05-11-roadmap-backlog-maintainability-sync.md)
 - `cross-project-stale-report-fixture` - [changes/2026-05-12-cross-project-stale-report-fixture.md](changes/2026-05-12-cross-project-stale-report-fixture.md)
+- `observed-file-freshness-metadata` - [changes/2026-05-12-observed-file-freshness-metadata.md](changes/2026-05-12-observed-file-freshness-metadata.md)
 - `venv-python-symlink-guidance` - [changes/2026-05-12-venv-python-symlink-guidance.md](changes/2026-05-12-venv-python-symlink-guidance.md)
 
 ## Review Due

@@ -223,6 +223,25 @@ struct CoreInfrastructureTests {
     }
 
     @Test
+    func projectInfoDecodesOlderJsonWithoutObservedFiles() throws {
+        let data = """
+        {
+          "detectedFiles": ["Package.swift"],
+          "symlinkedFiles": [],
+          "packageManager": "swiftpm",
+          "packageScripts": [],
+          "runtimeHints": {}
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(ProjectInfo.self, from: data)
+
+        #expect(decoded.detectedFiles == ["Package.swift"])
+        #expect(decoded.observedFiles.isEmpty)
+        #expect(decoded.packageManager == "swiftpm")
+    }
+
+    @Test
     func agentContextIncludesRuntimeMismatchWarnings() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(

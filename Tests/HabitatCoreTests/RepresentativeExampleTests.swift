@@ -118,6 +118,8 @@ struct RepresentativeExampleTests {
             let data = try Data(contentsOf: scanResultURL)
             let json = try JSONSerialization.jsonObject(with: data) as? [String: Any]
             let artifacts = json?["artifacts"] as? [[String: Any]] ?? []
+            let project = json?["project"] as? [String: Any] ?? [:]
+            let observedFiles = project["observedFiles"] as? [[String: Any]] ?? []
             let policy = json?["policy"] as? [String: Any] ?? [:]
             let commandCounts = policy["commandCounts"] as? [String: Any] ?? [:]
             let preferredCommands = policy["preferredCommands"] as? [String] ?? []
@@ -146,6 +148,9 @@ struct RepresentativeExampleTests {
             ]
 
             #expect(!artifacts.isEmpty, "Expected example artifact metadata in \(directory)")
+            #expect(!observedFiles.isEmpty, "Expected example observed project-file freshness metadata in \(directory)")
+            #expect(observedFiles.allSatisfy { ($0["path"] as? String)?.hasPrefix("/") == false })
+            #expect(observedFiles.allSatisfy { ($0["modifiedAt"] as? String)?.isEmpty == false })
             #expect(commandCounts["preferred"] as? Int == preferredCommands.count)
             #expect(commandCounts["askFirst"] as? Int == askFirstCommands.count)
             #expect(commandCounts["reviewFirst"] as? Int == (policy["reviewFirstCommandReasons"] as? [[String: Any]] ?? []).count)
