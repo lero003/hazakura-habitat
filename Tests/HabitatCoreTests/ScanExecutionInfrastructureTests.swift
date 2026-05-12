@@ -226,6 +226,9 @@ struct ScanExecutionInfrastructureTests {
             "README.md": "# Project",
             ".github/workflows/ci.yml": "name: CI",
         ])
+        let readmeURL = projectURL.appendingPathComponent("README.md")
+        let newestDate = Date(timeIntervalSince1970: 1_800_000_000)
+        try FileManager.default.setAttributes([.modificationDate: newestDate], ofItemAtPath: readmeURL.path)
 
         let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
         let observedFiles = result.project.observedFiles
@@ -235,5 +238,7 @@ struct ScanExecutionInfrastructureTests {
         #expect(observedFiles.map(\.path).contains(".github/workflows/ci.yml"))
         #expect(observedFiles.allSatisfy { !$0.modifiedAt.isEmpty })
         #expect(observedFiles.allSatisfy { !$0.modifiedAt.contains(projectURL.path) })
+        #expect(result.project.latestObservedFilePath == "README.md")
+        #expect(result.project.latestObservedFileModifiedAt == observedFiles.first { $0.path == "README.md" }?.modifiedAt)
     }
 }

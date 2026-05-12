@@ -246,6 +246,8 @@ public struct ProjectInfo: Codable {
     public let detectedFiles: [String]
     public let symlinkedFiles: [String]
     public let observedFiles: [ProjectFileSnapshot]
+    public let latestObservedFilePath: String?
+    public let latestObservedFileModifiedAt: String?
     public let unsafeRuntimeHintFiles: [String]
     public let unsafePackageMetadataFields: [String]
     public let packageManager: String?
@@ -262,6 +264,8 @@ public struct ProjectInfo: Codable {
         detectedFiles: [String],
         symlinkedFiles: [String] = [],
         observedFiles: [ProjectFileSnapshot] = [],
+        latestObservedFilePath: String? = nil,
+        latestObservedFileModifiedAt: String? = nil,
         unsafeRuntimeHintFiles: [String] = [],
         unsafePackageMetadataFields: [String] = [],
         packageManager: String?,
@@ -277,6 +281,9 @@ public struct ProjectInfo: Codable {
         self.detectedFiles = detectedFiles
         self.symlinkedFiles = symlinkedFiles
         self.observedFiles = observedFiles
+        let latestObservedFile = ProjectInfo.latestObservedFile(in: observedFiles)
+        self.latestObservedFilePath = latestObservedFilePath ?? latestObservedFile?.path
+        self.latestObservedFileModifiedAt = latestObservedFileModifiedAt ?? latestObservedFile?.modifiedAt
         self.unsafeRuntimeHintFiles = unsafeRuntimeHintFiles
         self.unsafePackageMetadataFields = unsafePackageMetadataFields
         self.packageManager = packageManager
@@ -294,6 +301,8 @@ public struct ProjectInfo: Codable {
         case detectedFiles
         case symlinkedFiles
         case observedFiles
+        case latestObservedFilePath
+        case latestObservedFileModifiedAt
         case unsafeRuntimeHintFiles
         case unsafePackageMetadataFields
         case packageManager
@@ -312,6 +321,8 @@ public struct ProjectInfo: Codable {
         detectedFiles = try container.decode([String].self, forKey: .detectedFiles)
         symlinkedFiles = try container.decodeIfPresent([String].self, forKey: .symlinkedFiles) ?? []
         observedFiles = try container.decodeIfPresent([ProjectFileSnapshot].self, forKey: .observedFiles) ?? []
+        latestObservedFilePath = try container.decodeIfPresent(String.self, forKey: .latestObservedFilePath)
+        latestObservedFileModifiedAt = try container.decodeIfPresent(String.self, forKey: .latestObservedFileModifiedAt)
         unsafeRuntimeHintFiles = try container.decodeIfPresent([String].self, forKey: .unsafeRuntimeHintFiles) ?? []
         unsafePackageMetadataFields = try container.decodeIfPresent([String].self, forKey: .unsafePackageMetadataFields) ?? []
         packageManager = try container.decodeIfPresent(String.self, forKey: .packageManager)
@@ -330,6 +341,8 @@ public struct ProjectInfo: Codable {
         try container.encode(detectedFiles, forKey: .detectedFiles)
         try container.encode(symlinkedFiles, forKey: .symlinkedFiles)
         try container.encode(observedFiles, forKey: .observedFiles)
+        try container.encodeIfPresent(latestObservedFilePath, forKey: .latestObservedFilePath)
+        try container.encodeIfPresent(latestObservedFileModifiedAt, forKey: .latestObservedFileModifiedAt)
         try container.encode(unsafeRuntimeHintFiles, forKey: .unsafeRuntimeHintFiles)
         try container.encode(unsafePackageMetadataFields, forKey: .unsafePackageMetadataFields)
         try container.encodeIfPresent(packageManager, forKey: .packageManager)
@@ -348,6 +361,8 @@ public struct ProjectInfo: Codable {
             detectedFiles: detectedFiles,
             symlinkedFiles: symlinkedFiles,
             observedFiles: observedFiles,
+            latestObservedFilePath: latestObservedFilePath,
+            latestObservedFileModifiedAt: latestObservedFileModifiedAt,
             unsafeRuntimeHintFiles: unsafeRuntimeHintFiles,
             unsafePackageMetadataFields: unsafePackageMetadataFields,
             packageManager: packageManager,
@@ -379,6 +394,15 @@ public struct ProjectInfo: Codable {
             declaredPackageManagerVersion: declaredPackageManagerVersion,
             ciWorkflowFiles: ciWorkflowFiles
         )
+    }
+
+    private static func latestObservedFile(in files: [ProjectFileSnapshot]) -> ProjectFileSnapshot? {
+        files.max {
+            if $0.modifiedAt == $1.modifiedAt {
+                return $0.path < $1.path
+            }
+            return $0.modifiedAt < $1.modifiedAt
+        }
     }
 }
 

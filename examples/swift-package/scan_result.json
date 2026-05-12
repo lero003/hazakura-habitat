@@ -215,7 +215,9 @@
         "path": "Package.resolved",
         "modifiedAt": "2026-04-25T00:00:00Z"
       }
-    ]
+    ],
+    "latestObservedFilePath": "Package.swift",
+    "latestObservedFileModifiedAt": "2026-04-25T00:00:00Z"
   },
   "tools": {
     "resolvedPaths": [

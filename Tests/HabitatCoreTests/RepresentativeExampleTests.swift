@@ -155,6 +155,8 @@ struct RepresentativeExampleTests {
             #expect(!observedFiles.isEmpty, "Expected example observed project-file freshness metadata in \(directory)")
             #expect(observedFiles.allSatisfy { ($0["path"] as? String)?.hasPrefix("/") == false })
             #expect(observedFiles.allSatisfy { ($0["modifiedAt"] as? String)?.isEmpty == false })
+            #expect((project["latestObservedFilePath"] as? String)?.isEmpty == false)
+            #expect((project["latestObservedFileModifiedAt"] as? String)?.isEmpty == false)
             #expect(commandCounts["preferred"] as? Int == preferredCommands.count)
             #expect(commandCounts["askFirst"] as? Int == askFirstCommands.count)
             #expect(commandCounts["reviewFirst"] as? Int == (policy["reviewFirstCommandReasons"] as? [[String: Any]] ?? []).count)

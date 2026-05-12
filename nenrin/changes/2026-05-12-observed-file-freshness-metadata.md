@@ -8,6 +8,9 @@ related_files:
   - Sources/HabitatCore/Models.swift
   - Sources/HabitatCore/Scanner.swift
   - Tests/HabitatCoreTests/ScanExecutionInfrastructureTests.swift
+  - Tests/HabitatCoreTests/RepresentativeExampleTests.swift
+  - examples/swift-package/scan_result.json
+  - README.md
   - docs/agent_contract.md
   - docs/current_status.md
 review_after:
@@ -20,6 +23,7 @@ review_after:
 ## Changed
 
 - Added `project.observedFiles` metadata with relative paths and modification times for detected project-signal files and CI workflows.
+- Added `project.latestObservedFilePath` and `project.latestObservedFileModifiedAt` so agents can quickly compare the newest saved project signal before deciding whether to inspect the full observed-file list.
 - Documented the field as scan-result metadata for report freshness checks.
 
 ## Reason
@@ -38,7 +42,7 @@ Cross-project observation repeatedly needed manual timestamp comparison before t
 
 ## Success Signals
 
-- A future external intake uses `project.observedFiles` to decide whether to rescan instead of hand-comparing mtimes.
+- A future external intake uses `project.latestObservedFileModifiedAt` first, then `project.observedFiles` only when it needs per-file detail.
 - No raw instruction prose, file contents, or private absolute paths appear in the metadata.
 
 ## Failure Signals
