@@ -1401,6 +1401,8 @@ struct BehaviorEvaluationTests {
         #expect(savedReport?["detectedStaleReportRisk"] as? Bool == true)
         #expect(withContext?["freshScanConfirmedSavedGradleGuidance"] as? Bool == true)
         #expect(withContext?["freshScanSelectedProjectPythonForLedgerRepo"] as? Bool == true)
+        #expect(withContext?["confirmedNoNewHabitatCarryBack"] as? Bool == true)
+        #expect(withContext?["continuedLocalHabitatSliceAfterNoOpIntake"] as? Bool == true)
         #expect(withContext?["keptWatchedProjectsReadOnly"] as? Bool == true)
         #expect(withContext?["avoidedSpeculativeEcosystemExpansion"] as? Bool == true)
         #expect(withContext?["referencedHabitatContext"] as? Bool == true)

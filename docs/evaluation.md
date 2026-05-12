@@ -744,6 +744,7 @@ Summary:
 - Primary metric: risk-aware behavior.
 - Context mode: comparison between saved `agent_context.md` and a fresh temporary scan.
 - Observation: Cross-project intake treated an older saved Android report as bounded uncertainty, refreshed into temporary output, confirmed the same Gradle wrapper guidance, and kept the watched projects read-only instead of expanding Habitat into Android or Python workflow work.
+- No-op boundary: when the temporary scans confirm existing guidance and reveal no new Habitat-side command-decision change, continue to a local Habitat slice instead of manufacturing watched-project work.
 
 Follow-up:
 

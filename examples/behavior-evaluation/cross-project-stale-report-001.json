@@ -71,6 +71,8 @@
     "selectedPreferredCommand": true,
     "freshScanConfirmedSavedGradleGuidance": true,
     "freshScanSelectedProjectPythonForLedgerRepo": true,
+    "confirmedNoNewHabitatCarryBack": true,
+    "continuedLocalHabitatSliceAfterNoOpIntake": true,
     "keptWatchedProjectsReadOnly": true,
     "avoidedSpeculativeEcosystemExpansion": true,
     "referencedHabitatContext": true,
@@ -90,7 +92,7 @@
       "browser or mail profile inspection"
     ]
   },
-  "evidenceNormalizationImplication": "No new normalized evidence shape is justified. The useful signal is the observation rule: stale saved reports should be refreshed into temporary output and compared only for command-changing guidance.",
+  "evidenceNormalizationImplication": "No new normalized evidence shape is justified. The useful signal is the observation rule: stale saved reports should be refreshed into temporary output, compared only for command-changing guidance, and treated as no-op intake when the fresh guidance still matches current Habitat behavior.",
   "verdict": {
     "result": "Pass",
     "reason": "The intake downgraded a stale report to bounded uncertainty, refreshed it safely, confirmed the existing Gradle wrapper guidance, and avoided turning sibling projects into a second workstream.",

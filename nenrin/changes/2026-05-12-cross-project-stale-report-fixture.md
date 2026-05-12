@@ -37,6 +37,7 @@ The daily Habitat loop now observes sibling projects before choosing a local sli
 
 - Future cross-project intakes refresh stale or missing reports into temporary output before trusting command guidance.
 - Agents keep watched projects read-only when a fresh scan confirms existing guidance.
+- A no-op intake can still be effective when it prevents Android/Python scope expansion and lets the run continue to a local Habitat slice.
 
 ## Failure Signals
 
