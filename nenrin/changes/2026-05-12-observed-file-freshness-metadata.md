@@ -26,6 +26,7 @@ review_after:
 - Added `project.observedFiles` metadata with relative paths and modification times for detected project-signal files and CI workflows.
 - Added `project.latestObservedFilePath` and `project.latestObservedFileModifiedAt` so agents can quickly compare the newest saved project signal before deciding whether to inspect the full observed-file list.
 - Extended observed-file coverage to project guidance documents such as `docs/current_status.md`, `docs/development_automation.md`, `docs/development_loop.md`, `docs/evaluation.md`, `docs/roadmap.md`, `docs/self_use.md`, and `docs/agent-usage.md` when present.
+- Extended Gradle freshness coverage to common module build files such as `app/build.gradle` and `app/build.gradle.kts` without treating them as a broader Android package-manager signal.
 - Documented the field as scan-result metadata for report freshness checks.
 
 ## Reason

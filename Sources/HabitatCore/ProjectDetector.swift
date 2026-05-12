@@ -29,6 +29,8 @@ public struct ProjectDetector {
         "settings.gradle.kts",
         "build.gradle",
         "build.gradle.kts",
+        "app/build.gradle",
+        "app/build.gradle.kts",
         "Package.swift",
         "Package.resolved",
         "Podfile",

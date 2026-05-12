@@ -744,6 +744,7 @@ Summary:
 - Primary metric: risk-aware behavior.
 - Context mode: comparison between saved `agent_context.md` and a fresh temporary scan.
 - Observation: Cross-project intake treated an older saved Android report as bounded uncertainty, refreshed into temporary output, confirmed the same Gradle wrapper guidance, and kept the watched projects read-only instead of expanding Habitat into Android or Python workflow work.
+- Follow-up observation: A later ai-mobile intake showed `app/build.gradle.kts` can change after a saved report while top-level Gradle files remain stable. Habitat now observes the common module-level `app/build.gradle` / `app/build.gradle.kts` paths for freshness metadata without using them as a broader Android package-manager signal.
 - No-op boundary: when the temporary scans confirm existing guidance and reveal no new Habitat-side command-decision change, continue to a local Habitat slice instead of manufacturing watched-project work.
 
 Follow-up:
