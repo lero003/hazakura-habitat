@@ -245,7 +245,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"agentUse":"consult_before_risky_commands"}]}\\n'
+              printf '{"generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"agentUse":"debug_audit_only"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
@@ -300,7 +300,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"generatorVersion":"1.2.4","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"agentUse":"consult_before_risky_commands"}]}\\n'
+              printf '{"generatorVersion":"1.2.4","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"agentUse":"debug_audit_only"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
@@ -381,7 +381,7 @@ struct ScanExecutionInfrastructureTests {
 
         let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
         #expect(process.terminationStatus == 3)
-        #expect(error.contains("missing agent_context.md, command_policy.md"))
+        #expect(error.contains("missing agent_context.md, command_policy.md, environment_report.md"))
     }
 
     @Test
@@ -402,7 +402,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":2,"agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"agentUse":"consult_before_risky_commands"}]}\\n'
+              printf '{"generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":2,"agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"agentUse":"debug_audit_only"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
@@ -453,7 +453,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"agentUse":"consult_before_risky_commands"}]}\\n'
+              printf '{"generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"agentUse":"debug_audit_only"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then

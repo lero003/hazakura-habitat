@@ -36,6 +36,10 @@ review_after:
 - Tightened the helper contract again so local scripts also fail when
   `--stdout agent-context` or `--stdout command-policy` does not return the
   expected generated Markdown artifact.
+- Tightened the helper contract again so local scripts also require
+  `environment_report.md` metadata in `scan_result.json`, while keeping direct
+  stdout Markdown checks limited to the AI-facing agent context and command
+  policy artifacts.
 - Reused the same report rendering path as file output, so stdout output does not fork the artifact contract.
 - Allowed `habitat-scan scan --help` as a scan-specific help entrypoint, so agents can discover stdout/file output forms without triggering an argument error.
 - Documented when to use stdout versus durable `habitat-report/` files.
@@ -54,6 +58,9 @@ review_after:
   but the agent-facing role, path, format, or read-order contract is wrong.
 - Scripts can reject a broken direct stdout Markdown path before wiring agents
   or automation to a binary.
+- Scripts can reject a binary whose machine-readable artifact list omits the
+  diagnostic report metadata, without requiring `environment_report.md` to gain
+  a stdout mode.
 - File output remains the path for durable report snapshots and environment diagnostics.
 
 ## Review After
@@ -71,6 +78,9 @@ review_after:
   or agent-use hints before downstream scripts wire agents to the wrong file.
 - Metadata checks catch broken direct stdout Markdown output before downstream
   scripts consume it.
+- Metadata checks catch an incomplete generated report metadata set, including
+  missing `environment_report.md` metadata, before downstream scripts trust the
+  binary for durable file output.
 - Agents checking scan usage use `scan --help` successfully before choosing `--stdout` or `--output`.
 
 ## Failure Signals
@@ -83,6 +93,8 @@ review_after:
   or agent-use hints would make downstream consumption ambiguous.
 - A helper accepts a binary whose metadata says the Markdown artifacts exist but
   whose direct stdout Markdown output is unavailable or malformed.
+- A helper accepts a binary whose file-output metadata omits the diagnostic
+  report artifact even though scripts may later depend on durable report files.
 
 ## Result
 

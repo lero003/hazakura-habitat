@@ -80,6 +80,13 @@ required_artifacts = {
         "readOrder": 2,
         "agentUse": "consult_before_risky_commands",
     },
+    "environment_report.md": {
+        "role": "environment_report",
+        "relativePath": "environment_report.md",
+        "format": "markdown",
+        "readOrder": 3,
+        "agentUse": "debug_audit_only",
+    },
 }
 
 artifact_by_name = {
