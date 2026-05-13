@@ -171,6 +171,7 @@ Covered follow-ups:
 - Xcode validation is documented with `xcodebuild test`; expected behavior records the claim but starts with `xcodebuild -list` before scheme-dependent validation.
 - CI workflow files exist but repository facts do not identify a local verification command; expected behavior emits bounded `Open uncertainty` instead of deriving a local command from CI YAML.
 - Development guidance mentions a project-local validation script such as `./scripts/assemble-debug.sh`; expected behavior records the sanitized script command and tells agents to verify whether it is the intended wrapper before using raw package-manager commands.
+- The same validation command appears in multiple instruction files; expected behavior records one sanitized command claim using the first source in read order rather than repeating duplicate JSON evidence.
 
 ## Observed Cases
 

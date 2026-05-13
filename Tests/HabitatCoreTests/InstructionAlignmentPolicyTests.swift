@@ -264,6 +264,39 @@ struct InstructionAlignmentPolicyTests {
     }
 
     @Test
+    func scanDeduplicatesSameValidationCommandAcrossInstructionFiles() throws {
+        let projectURL = try makeProject(files: [
+            "settings.gradle.kts": "pluginManagement {}\n",
+            "build.gradle.kts": "plugins { kotlin(\"jvm\") version \"2.0.0\" }\n",
+            "README.md": "Use ./scripts/assemble-debug.sh to validate the debug build.",
+            "docs/development_loop.md": "Run ./scripts/assemble-debug.sh when checking the build."
+        ])
+        try writeExecutableScript(
+            projectURL.appendingPathComponent("gradlew"),
+            contents: "#!/bin/sh\n"
+        )
+        try writeExecutableScript(
+            projectURL.appendingPathComponent("scripts/assemble-debug.sh"),
+            contents: "#!/bin/sh\n"
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let scanJSON = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+
+        assertAgentContextContract(context)
+        #expect(result.project.validationCommandClaims == [
+            ValidationCommandClaim(source: "README.md", command: "./scripts/assemble-debug.sh")
+        ])
+        #expect(context.contains("Fact: Project instructions mention project-local validation script `./scripts/assemble-debug.sh`."))
+        #expect(!context.contains("Project instructions mention multiple validation workflows"))
+        #expect(scanJSON.components(separatedBy: "\"command\" : \"./scripts/assemble-debug.sh\"").count == 2)
+        #expect(!scanJSON.contains("\"source\" : \"docs/development_loop.md\""))
+    }
+
+    @Test
     func scanConstrainsDocumentedXcodebuildTestClaimToSchemeDiscovery() throws {
         let projectURL = try makeProject(files: [
             "Demo App.xcodeproj/project.pbxproj": "// synthetic project marker",

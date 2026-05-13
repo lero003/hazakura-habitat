@@ -364,7 +364,7 @@ public struct ProjectDetector {
             }
         }
         .reduce(into: [ValidationCommandClaim]()) { claims, claim in
-            if !claims.contains(claim) {
+            if !claims.contains(where: { $0.command == claim.command }) {
                 claims.append(claim)
             }
         }
