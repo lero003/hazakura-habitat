@@ -333,6 +333,29 @@ struct InstructionAlignmentPolicyTests {
     }
 
     @Test
+    func scanIgnoresReleaseArtifactScriptAsOrdinaryValidationClaim() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": "// swift-tools-version: 6.1\n",
+            "README.md": "Use ./scripts/build_release_artifacts.sh for release artifact verification.",
+            "docs/development_loop.md": "Run swift test before committing core changes."
+        ])
+        try writeExecutableScript(
+            projectURL.appendingPathComponent("scripts/build_release_artifacts.sh"),
+            contents: "#!/bin/sh\n"
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [
+            "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Swift version 6.1", stderr: ""),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: "")
+        ])).scan(projectURL: projectURL)
+
+        #expect(result.project.validationCommandClaims == [
+            ValidationCommandClaim(source: "docs/development_loop.md", command: "swift test")
+        ])
+        #expect(!result.policy.preferredCommands.contains("./scripts/build_release_artifacts.sh"))
+    }
+
+    @Test
     func scanDeduplicatesSameValidationCommandAcrossInstructionFiles() throws {
         let projectURL = try makeProject(files: [
             "settings.gradle.kts": "pluginManagement {}\n",

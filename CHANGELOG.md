@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## v0.6.0 Developer Preview - 2026-05-13
+
+Agent Behavior Feedback Loop release.
+
+`v0.6.0` turns Habitat's short command annotations into a more observable feedback loop. Generated guidance is now covered more directly by output contracts, behavior fixtures, project-local validation handling, freshness metadata, and Nenrin observations. Habitat remains advisory; it does not enforce agent behavior.
+
+Generated Markdown and JSON guidance may differ materially from `v0.5.0`, especially around command preference reasons, review-first reasons, project-local validation scripts, freshness metadata, and bounded `Open uncertainty`.
+
 ### Changed
 
 - Added a combined baseline command-family manifest boundary so `PolicyReasonCatalog` catalog assembly and drift tests consume one baseline family list instead of separately joining Ask First and Forbidden families.
@@ -39,9 +47,11 @@
 - Added CI workflow presence to scan data and `agent_context.md` uncertainty when CI exists but repository facts do not identify a local verification command.
 - Changed documented validation-command alignment so multiple instruction files that point to different validation workflows emit bounded `Open uncertainty` instead of silently trusting the first claim.
 - Changed documented validation-command extraction so negated, obsolete, or example-only command mentions are not recorded as positive validation claims.
+- Changed documented validation-command extraction so release-artifact or packaging scripts are not promoted as ordinary local validation commands merely because they live under `./scripts/`.
 - Changed documented validation-command alignment so a documented workflow with no repository-supported workflow emits bounded `Open uncertainty` instead of a confident mismatch warning.
 - Changed documented Xcode validation alignment so `xcodebuild test` claims are constrained to `xcodebuild -list` scheme discovery before following the documented test command.
 - Documented a cross-project observation boundary for using another local project's `habitat-report/` as self-use input without turning Habitat into a planner or a second workstream for that project.
+- Updated generated artifact metadata to report generator version `0.6.0`.
 
 ## v0.5.0 Developer Preview - 2026-05-08
 

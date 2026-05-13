@@ -470,6 +470,20 @@ public struct ProjectDetector {
     private func lineTreatsCommandAsNonClaim(_ line: String, command: String) -> Bool {
         guard let range = line.range(of: command) else { return false }
 
+        if command.hasPrefix("./scripts/") {
+            let releaseOnlyMarkers = [
+                "release-prep",
+                "release prep",
+                "release artifact",
+                "release-artifact",
+                "artifact verification",
+                "packaging"
+            ]
+            if releaseOnlyMarkers.contains(where: { line.contains($0) }) {
+                return true
+            }
+        }
+
         let prefix = String(line[..<range.lowerBound])
         let suffix = String(line[range.upperBound...])
         let localPrefix = String(prefix.suffix(48))

@@ -9,6 +9,7 @@ enum ProjectLocalValidationScript {
         let extracted = scriptCommands(in: line).filter { command in
             command.hasSuffix(".sh")
                 && isCommand(command)
+                && !isReleaseArtifactScript(command)
         }
         return unique(knownValidationCommands + extracted).filter { command in
             line.contains(command)
@@ -19,6 +20,12 @@ enum ProjectLocalValidationScript {
         command.hasPrefix("./scripts/")
             && !command.contains("..")
             && !command.contains("\0")
+    }
+
+    private static func isReleaseArtifactScript(_ command: String) -> Bool {
+        command.contains("release")
+            || command.contains("artifact")
+            || command.contains("package")
     }
 
     static func isExecutable(command: String, projectPath: String) -> Bool {

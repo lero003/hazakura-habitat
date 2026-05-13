@@ -53,9 +53,9 @@ Keep the correction narrow:
 
 This is part of finishing the work, not a separate planning project.
 
-## Post-v0.5 Observation Handoff
+## Historical Post-v0.5 Observation Handoff
 
-Use this handoff when starting automated work after the public `v0.5.0 Developer Preview`:
+This handoff describes the observation loop that led from the public `v0.5.0 Developer Preview` toward `v0.6.0`. Use it as historical context when reviewing that release boundary, not as the default starting prompt for new post-`v0.6` work:
 
 ```text
 Start post-v0.5 work from the current public v0.5.0 Developer Preview. Keep released tags immutable.
@@ -225,6 +225,7 @@ Allowed scanner commands must be read-only, bounded, and timeout-protected.
 
 - Commit complete, tested development slices directly to `main`.
 - Prefer `swift test` before committing core changes.
+- Use `./scripts/build_release_artifacts.sh` for release-prep and artifact verification, not as the normal first command for everyday code validation.
 - Push after each complete development slice.
 - Use feature branches only when a change is large, risky, or needs review before landing.
 - Keep generated reports, build output, and release artifacts out of git unless they are intentional fixtures.
