@@ -22,6 +22,7 @@ The purpose is to make the product value visible:
 - `behavior-evaluation/habitat-self-use-swiftpm.json`: sanitized observed behavior fixture for SwiftPM self-use.
 - `behavior-evaluation/instruction-claim-validation-001.json`: sanitized observed behavior fixture for documented validation-command mismatch handling.
 - `behavior-evaluation/instruction-claim-xcodebuild-001.json`: sanitized observed behavior fixture for documented Xcode validation scheme-discovery restraint.
+- `behavior-evaluation/release-artifact-validation-purpose-001.json`: sanitized behavior fixture for keeping release artifact verification out of ordinary local validation preference.
 - `behavior-evaluation/ci-workflow-no-local-validation-001.json`: sanitized observed behavior fixture for CI presence without inferred local validation.
 - `behavior-evaluation/python-unittest-validation-001.json`: sanitized behavior fixture for avoiding pytest over-promotion when Python docs and tests point to unittest.
 - `behavior-evaluation/swiftpm-self-use-002.json`: sanitized observed behavior fixture for policy review before SwiftPM self-use Git mutation.

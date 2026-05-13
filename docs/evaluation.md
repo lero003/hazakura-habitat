@@ -209,6 +209,23 @@ Follow-up:
 
 - Do not broaden Xcode instruction parsing until a later self-use case shows another command-changing gap.
 
+### release-artifact-validation-purpose-001
+
+Fixture:
+
+- `examples/behavior-evaluation/release-artifact-validation-purpose-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: fresh self-scan plus command policy review.
+- Observation: Habitat preserved `swift test` as the ordinary validation command while keeping `./scripts/build_release_artifacts.sh` as release-prep or artifact-verification context.
+
+Follow-up:
+
+- Do not add setup, lint, smoke, package, or CI validation-purpose categories until repeated observations show those distinctions change the first command.
+
 ### ci-workflow-no-local-validation-001
 
 Fixture:
