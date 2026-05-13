@@ -8,10 +8,14 @@ public struct ReportWriter {
 
     public func write(scanResult: ScanResult, outputURL: URL) throws {
         try FileManager.default.createDirectory(at: outputURL, withIntermediateDirectories: true)
+        let preferredCommands = renderedPreferredCommands(
+            scanResult,
+            preferredCommands: markdownPreferredCommands(scanResult)
+        )
         let result = scanResult.withPolicy(
-            scanResult.policy.withReviewFirstCommandReasons(
-                commandPolicyReviewFirstCommandReasons(scanResult)
-            )
+            scanResult.policy
+                .withPreferredCommands(preferredCommands)
+                .withReviewFirstCommandReasons(commandPolicyReviewFirstCommandReasons(scanResult))
         )
         let agentContextText = agentContext(result)
         let commandPolicyText = commandPolicy(result)

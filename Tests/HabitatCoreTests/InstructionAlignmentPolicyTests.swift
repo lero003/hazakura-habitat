@@ -245,6 +245,10 @@ struct InstructionAlignmentPolicyTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
         let scanJSON = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let writtenResult = try JSONDecoder().decode(
+            ScanResult.self,
+            from: Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        )
 
         assertAgentContextContract(context)
         #expect(result.project.validationCommandClaims == [
@@ -257,6 +261,11 @@ struct InstructionAlignmentPolicyTests {
         #expect(context.contains("Prefer `./gradlew test`."))
         #expect(!context.contains("Prefer `./gradlew build`."))
         #expect(policy.contains("- `./scripts/assemble-debug.sh`"))
+        #expect(writtenResult.policy.preferredCommands.prefix(2) == [
+            "./scripts/assemble-debug.sh",
+            "./gradlew test"
+        ])
+        #expect(writtenResult.policy.commandCounts.preferred == writtenResult.policy.preferredCommands.count)
         #expect(scanJSON.contains("\"source\" : \"docs/development_loop.md\""))
         #expect(scanJSON.contains("\"command\" : \"./scripts/assemble-debug.sh\""))
         #expect(!scanJSON.contains("HAZAKURA_GRADLE_TASK"))
@@ -372,6 +381,10 @@ struct InstructionAlignmentPolicyTests {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: result, outputURL: outputURL)
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let writtenResult = try JSONDecoder().decode(
+            ScanResult.self,
+            from: Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        )
 
         assertAgentContextContract(context)
         #expect(result.project.validationCommandClaims == [
@@ -382,6 +395,7 @@ struct InstructionAlignmentPolicyTests {
         #expect(!context.contains("- Prefer `./scripts/assemble-debug.sh`."))
         #expect(context.contains("- Prefer `./gradlew test`."))
         #expect(context.contains("- Prefer `./gradlew build`."))
+        #expect(writtenResult.policy.preferredCommands == ["./gradlew test", "./gradlew build"])
     }
 
     @Test

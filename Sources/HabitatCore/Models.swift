@@ -593,4 +593,15 @@ public struct PolicySummary: Codable {
             reviewFirstCommandReasons: reviewFirstCommandReasons
         )
     }
+
+    public func withPreferredCommands(_ preferredCommands: [String]) -> PolicySummary {
+        PolicySummary(
+            preferredCommands: preferredCommands,
+            askFirstCommands: askFirstCommands,
+            forbiddenCommands: forbiddenCommands,
+            reasonCodes: reasonCodes,
+            commandReasons: commandReasons,
+            reviewFirstCommandReasons: reviewFirstCommandReasons
+        )
+    }
 }
