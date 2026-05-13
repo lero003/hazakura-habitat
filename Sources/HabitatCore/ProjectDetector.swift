@@ -416,11 +416,17 @@ public struct ProjectDetector {
             "./gradlew build",
             "bundle exec",
             "xcodebuild test"
-        ] + ProjectLocalValidationScript.knownValidationCommands
+        ]
 
-        return candidates.filter { candidate in
-            lines.contains { line in
+        return lines.flatMap { line in
+            let lineCandidates = orderedUnique(candidates + ProjectLocalValidationScript.validationCommands(in: line))
+            return lineCandidates.filter { candidate in
                 line.contains(candidate) && lineLooksLikeValidationClaim(line, command: candidate)
+            }
+        }
+        .reduce(into: [String]()) { commands, command in
+            if !commands.contains(command) {
+                commands.append(command)
             }
         }
     }

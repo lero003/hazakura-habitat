@@ -772,6 +772,24 @@ Follow-up:
 
 - Only add generated blocker guidance if repeated agents try risky device cleanup after correct build-command context.
 
+### project-local-validation-script-generic-001
+
+Fixture:
+
+- `examples/behavior-evaluation/project-local-validation-script-generic-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: synthetic scanner fixture plus local output-contract test.
+- Observation: Habitat now detects bounded safe `./scripts/*.sh` validation claims instead of recognizing only one previously observed script name, records only the sanitized command, rejects parent-directory and non-shell examples, and promotes the script into `Prefer` only when it exists and is executable.
+- Boundary: this generalizes the project-local validation script command shape without adding Android environment auditing, arbitrary script execution, or raw instruction prose.
+
+Follow-up:
+
+- Only broaden project-local script shapes if a real repository shows a command-changing validation wrapper outside `./scripts/*.sh`.
+
 ### cross-project-stale-report-001
 
 Fixture:
