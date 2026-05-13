@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 141
+- observing: 142
 - reviewed: 10
 
 ## Active Changes
@@ -147,6 +147,7 @@
 - `project-local-validation-script-uncertainty` - [changes/2026-05-12-project-local-validation-script-uncertainty.md](changes/2026-05-12-project-local-validation-script-uncertainty.md)
 - `roadmap-scanner-size-sync` - [changes/2026-05-12-roadmap-scanner-size-sync.md](changes/2026-05-12-roadmap-scanner-size-sync.md)
 - `venv-python-symlink-guidance` - [changes/2026-05-12-venv-python-symlink-guidance.md](changes/2026-05-12-venv-python-symlink-guidance.md)
+- `cross-project-device-install-blocker-fixture` - [changes/2026-05-13-cross-project-device-install-blocker-fixture.md](changes/2026-05-13-cross-project-device-install-blocker-fixture.md)
 - `validation-claim-meta-discussion-filter` - [changes/2026-05-13-validation-claim-meta-discussion-filter.md](changes/2026-05-13-validation-claim-meta-discussion-filter.md)
 
 ## Review Due
