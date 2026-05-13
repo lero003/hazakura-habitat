@@ -809,6 +809,24 @@ Follow-up:
 
 - Only add more ledger-specific behavior if repeated observations show command guidance should change, not merely freshness confidence.
 
+### cross-project-intake-noop-001
+
+Fixture:
+
+- `examples/behavior-evaluation/cross-project-intake-noop-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: saved report freshness check plus fresh temporary scans.
+- Observation: Cross-project intake refreshed stale or missing sibling-project reports into temporary output, confirmed the existing Gradle wrapper, project-local validation script, and Python virtualenv guidance, and therefore stopped as no-op instead of duplicating fixtures or expanding Habitat into watched-project work.
+- No-op boundary: fresh external scans can confirm current Habitat behavior; that should prevent external intake from becoming a second workstream.
+
+Follow-up:
+
+- Only add another external-intake fixture if a fresh scan changes command guidance beyond the existing stale-report, wrapper-script, ledger, or blocker cases.
+
 ## Acceptance Criteria
 
 - `docs/evaluation.md` defines the evidence policy and verdict scale.

@@ -56,3 +56,4 @@ The purpose is to make the product value visible:
 - `behavior-evaluation/cross-project-device-install-blocker-001.json`: sanitized behavior fixture for treating Android device install approval failures as environment blockers.
 - `behavior-evaluation/cross-project-stale-report-001.json`: sanitized behavior fixture for bounded stale-report refresh during cross-project intake.
 - `behavior-evaluation/cross-project-nenrin-freshness-001.json`: sanitized behavior fixture for treating Nenrin ledger files as report-freshness signals.
+- `behavior-evaluation/cross-project-intake-noop-001.json`: sanitized behavior fixture for stopping external intake as no-op when fresh scans confirm existing guidance.
