@@ -200,10 +200,12 @@ directory:
 ```bash
 ./.build/debug/habitat-scan scan --project . --stdout agent-context
 ./.build/debug/habitat-scan scan --project . --stdout command-policy
+./.build/debug/habitat-scan scan --help
 ```
 
 `--stdout` keeps stdout limited to the requested artifact. Use `--output` when
 you need `scan_result.json`, `environment_report.md`, or durable report files.
+Use `scan --help` for scan-specific output and file-consumption forms.
 
 Optional comparison against a previous scan:
 

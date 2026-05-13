@@ -24,6 +24,11 @@ struct CLI {
     }
 
     private func runScan(arguments: [String]) -> Int32 {
+        if arguments.count == 1, ["--help", "-h", "help"].contains(arguments[0]) {
+            print(helpText)
+            return 0
+        }
+
         let options: ScanOptions
         do {
             options = try ScanArgumentParser().parse(
@@ -69,6 +74,7 @@ struct CLI {
           habitat-scan scan --project /path/to/project --output ./habitat-report --previous-scan ./old-habitat-report
           habitat-scan scan --project /path/to/project --stdout agent-context
           habitat-scan scan --project /path/to/project --stdout command-policy
+          habitat-scan scan --help
           habitat-scan --help
           habitat-scan --version
         """
