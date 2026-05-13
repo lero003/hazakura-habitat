@@ -79,6 +79,7 @@ public struct ProjectDetector {
         "docs/agent-usage.md",
         "docs/current_status.md",
         "docs/development_automation.md",
+        "docs/development_environment.md",
         "docs/development_loop.md",
         "docs/evaluation.md",
         "docs/roadmap.md",
