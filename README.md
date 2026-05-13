@@ -8,6 +8,19 @@ It does not execute, approve, block, or sandbox commands.
 
 Status: `v0.6.0 Developer Preview` - advisory only - no command enforcement - macOS-first.
 
+## AI Agent Entry Point
+
+If you are an AI coding agent reading this repository, start with the bundled
+skill:
+
+- [Agent Skill](skills/hazakura-habitat/SKILL.md)
+- Install command: `npx skills add lero003/hazakura-habitat@hazakura-habitat -g`
+
+Use the skill before substantial project work, dependency or lockfile changes,
+Git/GitHub mutations, unfamiliar-repo onboarding, or secret-adjacent operations.
+The skill explains when to run Habitat, which generated file to read first, and
+how to proceed if `habitat-scan` is not installed yet.
+
 The MVP is not a human dashboard. It is a pre-work contract for AI agents: a map before the agent walks, not a fence around the agent.
 
 Hazakura Habitat does not make an AI coding agent safe by itself. It only generates advisory context that an agent or user may choose to follow.

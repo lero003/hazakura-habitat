@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Moved the bundled agent skill entrypoint into the top of `README.md` so AI agents can discover `skills/hazakura-habitat/SKILL.md` during an initial repository read.
 - Clarified the post-`v0.6.0` roadmap handoff: `v0.7` stays focused on Distribution Foundations, with minimal validation-command purpose clarity as an early bounded slice, while deeper Observation -> Action work moves to `v0.8`.
 - Updated automation-facing phase guidance so recurring Habitat work does not keep pursuing the post-`v0.5` observation loop or broaden validation taxonomy without repeated command-decision evidence.
 - Clarified that `v0.7` distribution work should verify binary version, `generatorVersion`, and generated metadata, and should prefer stdout/file consumption before considering a thin read-only MCP prototype.
