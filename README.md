@@ -1,5 +1,9 @@
 # Hazakura Habitat
 
+<p align="center">
+  <img src="docs/assets/hazakura-habitat-logo.png" alt="Hazakura Habitat - pre-execution context for AI coding agents" width="900">
+</p>
+
 Hazakura Habitat is a macOS-first SwiftPM CLI for developers using AI coding agents.
 
 Run it before an agent starts work. It generates short, advisory project context that tells the agent which tools to prefer, which commands require approval, and which secret-bearing paths to avoid.
