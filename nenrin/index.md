@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 143
+- observing: 144
 - reviewed: 10
 
 ## Active Changes
@@ -149,6 +149,7 @@
 - `venv-python-symlink-guidance` - [changes/2026-05-12-venv-python-symlink-guidance.md](changes/2026-05-12-venv-python-symlink-guidance.md)
 - `cross-project-device-install-blocker-fixture` - [changes/2026-05-13-cross-project-device-install-blocker-fixture.md](changes/2026-05-13-cross-project-device-install-blocker-fixture.md)
 - `cross-project-behavior-test-boundary` - [changes/2026-05-13-cross-project-behavior-test-boundary.md](changes/2026-05-13-cross-project-behavior-test-boundary.md)
+- `secret-bearing-behavior-test-boundary` - [changes/2026-05-13-secret-bearing-behavior-test-boundary.md](changes/2026-05-13-secret-bearing-behavior-test-boundary.md)
 - `validation-claim-meta-discussion-filter` - [changes/2026-05-13-validation-claim-meta-discussion-filter.md](changes/2026-05-13-validation-claim-meta-discussion-filter.md)
 
 ## Review Due
