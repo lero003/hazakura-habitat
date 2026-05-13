@@ -201,6 +201,17 @@ grep '"generatorVersion"' habitat-report/scan_result.json
 
 The `--version` output identifies the binary. The top-level `generatorVersion` in `scan_result.json` identifies the generator that produced the report. If either value is not the release you meant to consume, refresh the binary or report before using `agent_context.md` for command decisions.
 
+For local scripts that only need this metadata check, use the bundled helper
+with a verified binary path:
+
+```bash
+scripts/check_habitat_metadata.sh ./dist/habitat-scan . 0.6.0
+```
+
+The helper reads `scan_result.json` through `--stdout scan-result`, compares
+`generatorVersion` with `habitat-scan --version`, and leaves
+`habitat-report/` untouched.
+
 ## Run
 
 ```bash

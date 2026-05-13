@@ -8,6 +8,7 @@ related_files:
   - Sources/HabitatCore/ScanArguments.swift
   - Sources/HabitatCore/ReportWriter.swift
   - Sources/habitat-scan/main.swift
+  - scripts/check_habitat_metadata.sh
   - Tests/HabitatCoreTests/ScanExecutionInfrastructureTests.swift
   - Tests/HabitatCoreTests/CoreInfrastructureTests.swift
   - README.md
@@ -23,6 +24,9 @@ review_after:
 
 - Added `--stdout agent-context` and `--stdout command-policy` for direct generated Markdown consumption.
 - Added `--stdout scan-result` for direct machine-readable metadata consumption.
+- Added `scripts/check_habitat_metadata.sh` as a small script-consumption helper
+  that compares binary `--version` with stdout `generatorVersion` without
+  creating or updating `habitat-report/`.
 - Reused the same report rendering path as file output, so stdout output does not fork the artifact contract.
 - Allowed `habitat-scan scan --help` as a scan-specific help entrypoint, so agents can discover stdout/file output forms without triggering an argument error.
 - Documented when to use stdout versus durable `habitat-report/` files.

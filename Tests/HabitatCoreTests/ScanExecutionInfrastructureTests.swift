@@ -228,6 +228,94 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func metadataCheckScriptAcceptsMatchingBinaryAndGeneratorVersions() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = tempURL.appendingPathComponent("habitat-scan")
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            set -euo pipefail
+            if [[ "$1" == "--version" ]]; then
+              printf 'habitat-scan 1.2.3\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" ]]; then
+              printf '{"generatorVersion":"1.2.3"}\\n'
+              exit 0
+            fi
+            exit 2
+            """
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/check_habitat_metadata.sh",
+            binaryURL.path,
+            projectURL.path,
+            "1.2.3",
+        ]
+
+        let stdout = Pipe()
+        process.standardOutput = stdout
+        try process.run()
+        process.waitUntilExit()
+
+        let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 0)
+        #expect(output.contains("binaryVersion=1.2.3"))
+        #expect(output.contains("generatorVersion=1.2.3"))
+    }
+
+    @Test
+    func metadataCheckScriptRejectsMismatchedBinaryAndGeneratorVersions() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = tempURL.appendingPathComponent("habitat-scan")
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            set -euo pipefail
+            if [[ "$1" == "--version" ]]; then
+              printf 'habitat-scan 1.2.3\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" ]]; then
+              printf '{"generatorVersion":"1.2.4"}\\n'
+              exit 0
+            fi
+            exit 2
+            """
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/check_habitat_metadata.sh",
+            binaryURL.path,
+            projectURL.path,
+        ]
+
+        let stderr = Pipe()
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 1)
+        #expect(error.contains("binary version 1.2.3 does not match generatorVersion 1.2.4"))
+    }
+
+    @Test
     func scanGuardsMissingProjectPathBeforeProjectCommands() throws {
         let projectURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
 

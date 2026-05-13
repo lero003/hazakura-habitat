@@ -1,0 +1,63 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: check_habitat_metadata.sh /path/to/habitat-scan /path/to/project [expected-version]
+
+Checks that:
+- habitat-scan --version reports the same version as scan_result.json generatorVersion
+- optional expected-version matches both values
+
+This script reads scan_result.json through --stdout scan-result and does not
+create or update a habitat-report directory.
+EOF
+}
+
+if [[ "${1:-}" == "--help" || "${1:-}" == "-h" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ "$#" -lt 2 || "$#" -gt 3 ]]; then
+  usage
+  exit 2
+fi
+
+habitat_scan="$1"
+project_path="$2"
+expected_version="${3:-}"
+
+if [[ ! -x "$habitat_scan" ]]; then
+  printf 'error: habitat-scan binary is not executable: %s\n' "$habitat_scan" >&2
+  exit 1
+fi
+
+version_output="$("$habitat_scan" --version)"
+binary_version="${version_output##* }"
+
+if [[ -z "$binary_version" || "$binary_version" == "$version_output" ]]; then
+  printf 'error: could not parse habitat-scan --version output: %s\n' "$version_output" >&2
+  exit 1
+fi
+
+scan_json="$("$habitat_scan" scan --project "$project_path" --stdout scan-result)"
+generator_version="$(printf '%s' "$scan_json" | /usr/bin/env python3 -c 'import json, sys; print(json.load(sys.stdin).get("generatorVersion", ""))')"
+
+if [[ -z "$generator_version" ]]; then
+  printf 'error: scan_result.json did not include generatorVersion\n' >&2
+  exit 1
+fi
+
+if [[ "$binary_version" != "$generator_version" ]]; then
+  printf 'error: binary version %s does not match generatorVersion %s\n' "$binary_version" "$generator_version" >&2
+  exit 1
+fi
+
+if [[ -n "$expected_version" && "$binary_version" != "$expected_version" ]]; then
+  printf 'error: version %s does not match expected version %s\n' "$binary_version" "$expected_version" >&2
+  exit 1
+fi
+
+printf 'binaryVersion=%s\n' "$binary_version"
+printf 'generatorVersion=%s\n' "$generator_version"
