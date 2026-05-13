@@ -20,6 +20,8 @@ review_after:
 ## Changed
 
 - Clarified that post-`v0.6.0` Habitat work should treat `v0.7` as Distribution Foundations.
+- Added binary version, `generatorVersion`, and generated metadata verification to the `v0.7` distribution trust boundary.
+- Clarified that a read-only MCP prototype should wait until stdout/file consumption exists and still proves insufficient.
 - Kept validation-command purpose clarity as an early bounded `v0.7` slice, not a broad taxonomy release by default.
 - Moved deeper validation taxonomy, cross-project observation boundaries, and Nenrin review hygiene into later Observation -> Action work unless fresh command-decision evidence pulls a smaller piece forward.
 - Updated automation-facing development-loop guidance so recurring runs do not continue the post-`v0.5` observation loop or broaden into workspace intelligence.

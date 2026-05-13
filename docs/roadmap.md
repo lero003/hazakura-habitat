@@ -508,8 +508,9 @@ Candidate work:
 - setup guide for agent workflows
 - release install guidance that models Habitat's own caution around remote scripts
 - checksum verification in the default install path
+- binary version, `generatorVersion`, and generated metadata verification
 - a minimal validation-purpose distinction between ordinary local validation and release/artifact validation, only where it changes command preference or bounded `Open uncertainty`
-- minimal read-only MCP prototype, if file-based consumption is a measured blocker and the CLI contract is mature enough
+- minimal read-only MCP prototype after the stdout path exists, and only if file/CLI-based consumption remains a measured blocker and the CLI contract is mature enough
 - Linux feasibility notes for read-only scan paths, without promising support before portability risks are known
 
 Possible read-only MCP surface:
@@ -534,6 +535,7 @@ Completion criteria:
 - Read-only boundaries are preserved.
 - Integration docs repeat that policy is advisory, not enforcement.
 - Users can obtain the preview without install instructions contradicting the product's command policy philosophy.
+- Users and automation can verify which binary version and `generatorVersion` produced a report.
 - Ordinary local validation and release/artifact validation are not confused in generated guidance.
 - If MCP is pulled earlier than this phase, it remains read-only and thin enough to be removed or reshaped before `v1.0`.
 

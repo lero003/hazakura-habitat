@@ -73,10 +73,11 @@ bounded `Open uncertainty` instead of promoting a release or packaging script as
 the first ordinary validation command.
 
 For distribution work, model Habitat's own command policy philosophy. Prefer
-checksum verification and explicit binary/version checks over remote script
-piping, package-manager mutation, or automatic installation. Pull a read-only
-MCP prototype forward only if file-based consumption becomes the measured
-blocker.
+checksum verification, explicit binary version checks, `generatorVersion`
+checks, and generated metadata verification over remote script piping,
+package-manager mutation, or automatic installation. Finish the stdout/file
+consumption path first; pull a read-only MCP prototype forward only after that
+path exists and file/CLI-based consumption remains the measured blocker.
 
 Do not let external project backlogs choose Habitat work. Cross-project intake
 may supply one bounded carry-back, and Nenrin may record durable judgment
