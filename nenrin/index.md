@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 144
+- observing: 145
 - reviewed: 10
 
 ## Active Changes
@@ -113,6 +113,7 @@
 - `baseline-rendered-policy-order-contract` - [changes/2026-05-10-baseline-rendered-policy-order-contract.md](changes/2026-05-10-baseline-rendered-policy-order-contract.md)
 - `catalog-command-family-leaf-manifest` - [changes/2026-05-10-catalog-command-family-leaf-manifest.md](changes/2026-05-10-catalog-command-family-leaf-manifest.md)
 - `catalog-command-family-manifest` - [changes/2026-05-10-catalog-command-family-manifest.md](changes/2026-05-10-catalog-command-family-manifest.md)
+- `command-family-model-boundary` - [changes/2026-05-13-command-family-model-boundary.md](changes/2026-05-13-command-family-model-boundary.md)
 - `catalog-command-family-nonempty-contract` - [changes/2026-05-10-catalog-command-family-nonempty-contract.md](changes/2026-05-10-catalog-command-family-nonempty-contract.md)
 - `catalog-command-family-source-partition` - [changes/2026-05-10-catalog-command-family-source-partition.md](changes/2026-05-10-catalog-command-family-source-partition.md)
 - `catalog-command-family-unique-ownership` - [changes/2026-05-10-catalog-command-family-unique-ownership.md](changes/2026-05-10-catalog-command-family-unique-ownership.md)
