@@ -162,7 +162,7 @@ public struct DocumentedValidationCommandEvidence {
         if command.hasPrefix("go ") { return "go" }
         if command.hasPrefix("cargo ") { return "cargo" }
         if command.hasPrefix("./gradlew ") { return "gradle" }
-        if command.hasPrefix("./scripts/") { return "project_script" }
+        if ProjectLocalValidationScript.isCommand(command) { return "project_script" }
         if command.hasPrefix("bundle ") { return "bundler" }
         if command.hasPrefix("xcodebuild ") { return "xcodebuild" }
         return nil

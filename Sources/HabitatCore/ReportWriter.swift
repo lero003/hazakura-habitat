@@ -984,17 +984,7 @@ public struct ReportWriter {
     }
 
     private func isAvailableProjectLocalValidationScriptCommand(_ command: String, result: ScanResult) -> Bool {
-        guard command.hasPrefix("./scripts/"),
-              !command.contains(".."),
-              !command.contains("\0")
-        else {
-            return false
-        }
-
-        let scriptPath = URL(fileURLWithPath: result.projectPath)
-            .appendingPathComponent(String(command.dropFirst(2)))
-            .path
-        return FileManager.default.isExecutableFile(atPath: scriptPath)
+        ProjectLocalValidationScript.isExecutable(command: command, projectPath: result.projectPath)
     }
 
     private func prioritizedForbiddenCommands(_ result: ScanResult) -> [String] {

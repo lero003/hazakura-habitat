@@ -414,10 +414,9 @@ public struct ProjectDetector {
             "cargo test",
             "./gradlew test",
             "./gradlew build",
-            "./scripts/assemble-debug.sh",
             "bundle exec",
             "xcodebuild test"
-        ]
+        ] + ProjectLocalValidationScript.knownValidationCommands
 
         return candidates.filter { candidate in
             lines.contains { line in

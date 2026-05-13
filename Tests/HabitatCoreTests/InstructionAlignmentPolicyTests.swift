@@ -297,6 +297,34 @@ struct InstructionAlignmentPolicyTests {
     }
 
     @Test
+    func scanDoesNotPromoteMissingProjectLocalValidationScriptIntoPrefer() throws {
+        let projectURL = try makeProject(files: [
+            "settings.gradle.kts": "pluginManagement {}\n",
+            "build.gradle.kts": "plugins { kotlin(\"jvm\") version \"2.0.0\" }\n",
+            "README.md": "Use ./scripts/assemble-debug.sh to validate the debug build."
+        ])
+        try writeExecutableScript(
+            projectURL.appendingPathComponent("gradlew"),
+            contents: "#!/bin/sh\n"
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        assertAgentContextContract(context)
+        #expect(result.project.validationCommandClaims == [
+            ValidationCommandClaim(source: "README.md", command: "./scripts/assemble-debug.sh")
+        ])
+        #expect(context.contains("Fact: Project instructions mention project-local validation script `./scripts/assemble-debug.sh`."))
+        #expect(context.contains("Hint: Prefer `./scripts/assemble-debug.sh` when repository docs make it the validation entrypoint."))
+        #expect(!context.contains("- Prefer `./scripts/assemble-debug.sh`."))
+        #expect(context.contains("- Prefer `./gradlew test`."))
+        #expect(context.contains("- Prefer `./gradlew build`."))
+    }
+
+    @Test
     func scanConstrainsDocumentedXcodebuildTestClaimToSchemeDiscovery() throws {
         let projectURL = try makeProject(files: [
             "Demo App.xcodeproj/project.pbxproj": "// synthetic project marker",
