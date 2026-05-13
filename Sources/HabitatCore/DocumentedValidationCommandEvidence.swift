@@ -14,35 +14,41 @@ public struct DocumentedValidationCommandEvidence {
     }
 
     public var agentContextAnnotations: [String] {
-        guard let firstClaim = claims.first else { return [] }
+        let ordinaryClaims = claims.filter { $0.purpose == .ordinaryLocal }
+        let releaseArtifactClaims = claims.filter { $0.purpose == .releaseArtifact }
+        guard let firstClaim = ordinaryClaims.first else {
+            return releaseArtifactAnnotations(for: releaseArtifactClaims.first)
+        }
+
+        let releaseArtifactAnnotations = releaseArtifactAnnotations(for: releaseArtifactClaims.first)
         if let uncertainAnnotations = multipleClaimUncertaintyAnnotations {
-            return uncertainAnnotations
+            return uncertainAnnotations + releaseArtifactAnnotations
         }
 
         let claimedWorkflow = workflow(for: firstClaim.command)
         let actualWorkflow = project.packageManager
 
         if let claimedWorkflow, claimedWorkflow == actualWorkflow {
-            return alignedAnnotations(claim: firstClaim)
+            return alignedAnnotations(claim: firstClaim) + releaseArtifactAnnotations
         }
 
         if claimedWorkflow == "project_script" {
-            return projectScriptAnnotations(claim: firstClaim)
+            return projectScriptAnnotations(claim: firstClaim) + releaseArtifactAnnotations
         }
 
         if claimedWorkflow != nil, actualWorkflow == nil {
-            return unknownRepositoryWorkflowAnnotations(claim: firstClaim)
+            return unknownRepositoryWorkflowAnnotations(claim: firstClaim) + releaseArtifactAnnotations
         }
 
         if claimedWorkflow != nil {
-            return conflictingAnnotations(claim: firstClaim)
+            return conflictingAnnotations(claim: firstClaim) + releaseArtifactAnnotations
         }
 
-        return []
+        return releaseArtifactAnnotations
     }
 
     private var multipleClaimUncertaintyAnnotations: [String]? {
-        let workflows = uniqueWorkflows(for: claims)
+        let workflows = uniqueWorkflows(for: claims.filter { $0.purpose == .ordinaryLocal })
         guard workflows.count > 1 else { return nil }
 
         var lines = [
@@ -55,6 +61,14 @@ public struct DocumentedValidationCommandEvidence {
         }
 
         return lines
+    }
+
+    private func releaseArtifactAnnotations(for claim: ValidationCommandClaim?) -> [String] {
+        guard let claim else { return [] }
+        return [
+            "Fact: Project instructions mention release/artifact validation `\(claim.command)`.",
+            "Hint: Keep `\(claim.command)` for release prep or artifact verification, not ordinary local validation."
+        ]
     }
 
     private func alignedAnnotations(claim: ValidationCommandClaim) -> [String] {

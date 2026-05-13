@@ -360,8 +360,8 @@ public struct ProjectDetector {
                 return []
             }
 
-            return validationCommands(in: content).map {
-                ValidationCommandClaim(source: source, command: $0)
+            return validationCommandClaims(in: content).map {
+                ValidationCommandClaim(source: source, command: $0.command, purpose: $0.purpose)
             }
         }
         .reduce(into: [ValidationCommandClaim]()) { claims, claim in
@@ -387,7 +387,7 @@ public struct ProjectDetector {
         return try? String(contentsOf: url, encoding: .utf8)
     }
 
-    private func validationCommands(in content: String) -> [String] {
+    private func validationCommandClaims(in content: String) -> [(command: String, purpose: ValidationCommandPurpose)] {
         let lines = content
             .lowercased()
             .split(whereSeparator: \.isNewline)
@@ -419,16 +419,39 @@ public struct ProjectDetector {
         ]
 
         return lines.flatMap { line in
-            let lineCandidates = orderedUnique(candidates + ProjectLocalValidationScript.validationCommands(in: line))
-            return lineCandidates.filter { candidate in
-                line.contains(candidate) && lineLooksLikeValidationClaim(line, command: candidate)
+            let lineCandidates = orderedUnique(
+                candidates
+                    + ProjectLocalValidationScript.validationCommands(in: line)
+                    + ProjectLocalValidationScript.releaseArtifactCommands(in: line)
+            )
+            return lineCandidates.compactMap { candidate -> (command: String, purpose: ValidationCommandPurpose)? in
+                guard line.contains(candidate),
+                      lineLooksLikeValidationClaim(line, command: candidate)
+                else {
+                    return nil
+                }
+
+                return (candidate, validationCommandPurpose(for: candidate, in: line))
             }
         }
-        .reduce(into: [String]()) { commands, command in
-            if !commands.contains(command) {
+        .reduce(into: [(command: String, purpose: ValidationCommandPurpose)]()) { commands, command in
+            if !commands.contains(where: { $0.command == command.command }) {
                 commands.append(command)
             }
         }
+    }
+
+    private func validationCommandPurpose(
+        for command: String,
+        in line: String
+    ) -> ValidationCommandPurpose {
+        if command.hasPrefix("./scripts/"),
+           (ProjectLocalValidationScript.isReleaseArtifactCommand(command)
+               || lineMentionsReleaseArtifactValidation(line)) {
+            return .releaseArtifact
+        }
+
+        return .ordinaryLocal
     }
 
     private func lineLooksLikeValidationClaim(_ line: String, command: String) -> Bool {
@@ -469,20 +492,6 @@ public struct ProjectDetector {
 
     private func lineTreatsCommandAsNonClaim(_ line: String, command: String) -> Bool {
         guard let range = line.range(of: command) else { return false }
-
-        if command.hasPrefix("./scripts/") {
-            let releaseOnlyMarkers = [
-                "release-prep",
-                "release prep",
-                "release artifact",
-                "release-artifact",
-                "artifact verification",
-                "packaging"
-            ]
-            if releaseOnlyMarkers.contains(where: { line.contains($0) }) {
-                return true
-            }
-        }
 
         let prefix = String(line[..<range.lowerBound])
         let suffix = String(line[range.upperBound...])
@@ -540,6 +549,19 @@ public struct ProjectDetector {
         }
 
         return line.contains("example only") || line.contains("obsolete example")
+    }
+
+    private func lineMentionsReleaseArtifactValidation(_ line: String) -> Bool {
+        [
+            "release-prep",
+            "release prep",
+            "release artifact",
+            "release-artifact",
+            "artifact verification",
+            "packaging"
+        ].contains {
+            line.contains($0)
+        }
     }
 
     private func packageManagerVersion(packageManager: String?, packageJSON: PackageJSONMetadata, toolVersions: ToolVersionsMetadata, miseToml: ToolVersionsMetadata, miseTomlSource: String?) -> PackageManagerVersionInfo {

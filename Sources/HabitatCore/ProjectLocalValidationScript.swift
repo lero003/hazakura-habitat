@@ -16,16 +16,31 @@ enum ProjectLocalValidationScript {
         }
     }
 
+    static func releaseArtifactCommands(in line: String) -> [String] {
+        let extracted = scriptCommands(in: line).filter { command in
+            command.hasSuffix(".sh")
+                && isCommand(command)
+                && isReleaseArtifactScript(command)
+        }
+        return unique(extracted).filter { command in
+            line.contains(command)
+        }
+    }
+
     static func isCommand(_ command: String) -> Bool {
         command.hasPrefix("./scripts/")
             && !command.contains("..")
             && !command.contains("\0")
     }
 
-    private static func isReleaseArtifactScript(_ command: String) -> Bool {
+    static func isReleaseArtifactCommand(_ command: String) -> Bool {
         command.contains("release")
             || command.contains("artifact")
             || command.contains("package")
+    }
+
+    private static func isReleaseArtifactScript(_ command: String) -> Bool {
+        isReleaseArtifactCommand(command)
     }
 
     static func isExecutable(command: String, projectPath: String) -> Bool {

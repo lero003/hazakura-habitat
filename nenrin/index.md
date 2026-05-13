@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 151
+- observing: 152
 - reviewed: 10
 
 ## Active Changes
@@ -158,6 +158,7 @@
 - `validation-claim-command-dedup` - [changes/2026-05-13-validation-claim-command-dedup.md](changes/2026-05-13-validation-claim-command-dedup.md)
 - `validation-claim-freshness-metadata` - [changes/2026-05-13-validation-claim-freshness-metadata.md](changes/2026-05-13-validation-claim-freshness-metadata.md)
 - `validation-claim-meta-discussion-filter` - [changes/2026-05-13-validation-claim-meta-discussion-filter.md](changes/2026-05-13-validation-claim-meta-discussion-filter.md)
+- `validation-command-purpose` - [changes/2026-05-13-validation-command-purpose.md](changes/2026-05-13-validation-command-purpose.md)
 
 ## Review Due
 

@@ -242,6 +242,28 @@ struct CoreInfrastructureTests {
     }
 
     @Test
+    func validationCommandClaimsDecodeOlderJsonWithoutPurpose() throws {
+        let data = """
+        {
+          "detectedFiles": ["Package.swift"],
+          "symlinkedFiles": [],
+          "packageManager": "swiftpm",
+          "packageScripts": [],
+          "validationCommandClaims": [
+            { "source": "README.md", "command": "swift test" }
+          ],
+          "runtimeHints": {}
+        }
+        """.data(using: .utf8)!
+
+        let decoded = try JSONDecoder().decode(ProjectInfo.self, from: data)
+
+        #expect(decoded.validationCommandClaims == [
+            ValidationCommandClaim(source: "README.md", command: "swift test")
+        ])
+    }
+
+    @Test
     func agentContextIncludesRuntimeMismatchWarnings() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(

@@ -416,13 +416,37 @@ public struct ProjectFileSnapshot: Codable, Equatable {
     }
 }
 
+public enum ValidationCommandPurpose: String, Codable, Equatable {
+    case ordinaryLocal = "ordinary_local"
+    case releaseArtifact = "release_artifact"
+}
+
 public struct ValidationCommandClaim: Codable, Equatable {
     public let source: String
     public let command: String
+    public let purpose: ValidationCommandPurpose
 
-    public init(source: String, command: String) {
+    public init(
+        source: String,
+        command: String,
+        purpose: ValidationCommandPurpose = .ordinaryLocal
+    ) {
         self.source = source
         self.command = command
+        self.purpose = purpose
+    }
+
+    private enum CodingKeys: String, CodingKey {
+        case source
+        case command
+        case purpose
+    }
+
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        source = try container.decode(String.self, forKey: .source)
+        command = try container.decode(String.self, forKey: .command)
+        purpose = try container.decodeIfPresent(ValidationCommandPurpose.self, forKey: .purpose) ?? .ordinaryLocal
     }
 }
 

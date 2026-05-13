@@ -827,7 +827,8 @@ public struct ReportWriter {
         var commands = preferredCommands
 
         for claim in result.project.validationCommandClaims
-            where isAvailableProjectLocalValidationScriptCommand(claim.command, result: result) {
+            where claim.purpose == .ordinaryLocal
+                && isAvailableProjectLocalValidationScriptCommand(claim.command, result: result) {
             commands.removeAll { $0 == claim.command }
             commands.insert(claim.command, at: 0)
             break

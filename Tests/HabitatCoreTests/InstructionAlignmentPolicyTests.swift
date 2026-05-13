@@ -333,10 +333,16 @@ struct InstructionAlignmentPolicyTests {
     }
 
     @Test
-    func scanIgnoresReleaseArtifactScriptAsOrdinaryValidationClaim() throws {
+    func scanSeparatesReleaseArtifactScriptFromOrdinaryValidationClaim() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": "// swift-tools-version: 6.1\n",
-            "README.md": "Use ./scripts/build_release_artifacts.sh for release artifact verification.",
+            "README.md": """
+            Manual artifact build:
+
+            ```bash
+            ./scripts/build_release_artifacts.sh
+            ```
+            """,
             "docs/development_loop.md": "Run swift test before committing core changes."
         ])
         try writeExecutableScript(
@@ -348,11 +354,25 @@ struct InstructionAlignmentPolicyTests {
             "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Swift version 6.1", stderr: ""),
             "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: "")
         ])).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let scanJSON = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
 
         #expect(result.project.validationCommandClaims == [
+            ValidationCommandClaim(
+                source: "README.md",
+                command: "./scripts/build_release_artifacts.sh",
+                purpose: .releaseArtifact
+            ),
             ValidationCommandClaim(source: "docs/development_loop.md", command: "swift test")
         ])
         #expect(!result.policy.preferredCommands.contains("./scripts/build_release_artifacts.sh"))
+        #expect(context.contains("Hint: Prefer `swift test` for local validation."))
+        #expect(context.contains("Fact: Project instructions mention release/artifact validation `./scripts/build_release_artifacts.sh`."))
+        #expect(context.contains("Hint: Keep `./scripts/build_release_artifacts.sh` for release prep or artifact verification, not ordinary local validation."))
+        #expect(!context.contains("- Prefer `./scripts/build_release_artifacts.sh`."))
+        #expect(scanJSON.contains("\"purpose\" : \"release_artifact\""))
     }
 
     @Test
