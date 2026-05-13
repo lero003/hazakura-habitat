@@ -8,6 +8,7 @@ Usage: check_habitat_metadata.sh /path/to/habitat-scan /path/to/project [expecte
 Checks that:
 - habitat-scan --version reports the same version as scan_result.json generatorVersion
 - scan_result.json includes the core generated Markdown artifact metadata
+- --stdout agent-context and --stdout command-policy return the core Markdown artifacts
 - optional expected-version matches both values
 
 This script reads scan_result.json through --stdout scan-result and does not
@@ -43,6 +44,19 @@ if [[ -z "$binary_version" || "$binary_version" == "$version_output" ]]; then
 fi
 
 scan_json="$("$habitat_scan" scan --project "$project_path" --stdout scan-result)"
+agent_context="$("$habitat_scan" scan --project "$project_path" --stdout agent-context)"
+command_policy="$("$habitat_scan" scan --project "$project_path" --stdout command-policy)"
+
+if [[ "$agent_context" != \#\ Agent\ Context* ]]; then
+  printf 'error: --stdout agent-context did not return agent_context.md\n' >&2
+  exit 4
+fi
+
+if [[ "$command_policy" != \#\ Command\ Policy* ]]; then
+  printf 'error: --stdout command-policy did not return command_policy.md\n' >&2
+  exit 4
+fi
+
 generator_version="$(printf '%s' "$scan_json" | /usr/bin/env python3 -c '
 import json
 import sys
@@ -78,3 +92,5 @@ fi
 
 printf 'binaryVersion=%s\n' "$binary_version"
 printf 'generatorVersion=%s\n' "$generator_version"
+printf 'agentContext=ok\n'
+printf 'commandPolicy=ok\n'

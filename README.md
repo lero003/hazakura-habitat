@@ -210,7 +210,9 @@ scripts/check_habitat_metadata.sh ./dist/habitat-scan . 0.6.0
 
 The helper reads `scan_result.json` through `--stdout scan-result`, compares
 `generatorVersion` with `habitat-scan --version`, verifies the core generated
-Markdown artifact metadata is present, and leaves `habitat-report/` untouched.
+Markdown artifact metadata is present, checks that `--stdout agent-context` and
+`--stdout command-policy` return the expected Markdown artifacts, and leaves
+`habitat-report/` untouched.
 
 ## Run
 

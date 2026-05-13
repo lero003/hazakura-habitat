@@ -244,8 +244,16 @@ struct ScanExecutionInfrastructureTests {
               printf 'habitat-scan 1.2.3\\n'
               exit 0
             fi
-            if [[ "$1" == "scan" ]]; then
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
               printf '{"generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md"},{"name":"command_policy.md"}]}\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
+              printf '# Agent Context\\n\\n## Use\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
+              printf '# Command Policy\\n\\n## Allowed\\n'
               exit 0
             fi
             exit 2
@@ -270,6 +278,8 @@ struct ScanExecutionInfrastructureTests {
         #expect(process.terminationStatus == 0)
         #expect(output.contains("binaryVersion=1.2.3"))
         #expect(output.contains("generatorVersion=1.2.3"))
+        #expect(output.contains("agentContext=ok"))
+        #expect(output.contains("commandPolicy=ok"))
     }
 
     @Test
@@ -289,8 +299,16 @@ struct ScanExecutionInfrastructureTests {
               printf 'habitat-scan 1.2.3\\n'
               exit 0
             fi
-            if [[ "$1" == "scan" ]]; then
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
               printf '{"generatorVersion":"1.2.4","artifacts":[{"name":"agent_context.md"},{"name":"command_policy.md"}]}\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
+              printf '# Agent Context\\n\\n## Use\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
+              printf '# Command Policy\\n\\n## Allowed\\n'
               exit 0
             fi
             exit 2
@@ -332,8 +350,16 @@ struct ScanExecutionInfrastructureTests {
               printf 'habitat-scan 1.2.3\\n'
               exit 0
             fi
-            if [[ "$1" == "scan" ]]; then
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
               printf '{"generatorVersion":"1.2.3","artifacts":[{"name":"scan_result.json"}]}\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
+              printf '# Agent Context\\n\\n## Use\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
+              printf '# Command Policy\\n\\n## Allowed\\n'
               exit 0
             fi
             exit 2
@@ -356,6 +382,57 @@ struct ScanExecutionInfrastructureTests {
         let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
         #expect(process.terminationStatus == 3)
         #expect(error.contains("missing artifact metadata for agent_context.md, command_policy.md"))
+    }
+
+    @Test
+    func metadataCheckScriptRejectsMissingStdoutMarkdownArtifact() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = tempURL.appendingPathComponent("habitat-scan")
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            set -euo pipefail
+            if [[ "$1" == "--version" ]]; then
+              printf 'habitat-scan 1.2.3\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
+              printf '{"generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md"},{"name":"command_policy.md"}]}\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
+              printf '# Agent Context\\n\\n## Use\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
+              printf '{"not":"markdown"}\\n'
+              exit 0
+            fi
+            exit 2
+            """
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/check_habitat_metadata.sh",
+            binaryURL.path,
+            projectURL.path,
+        ]
+
+        let stderr = Pipe()
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 4)
+        #expect(error.contains("--stdout command-policy did not return command_policy.md"))
     }
 
     @Test
