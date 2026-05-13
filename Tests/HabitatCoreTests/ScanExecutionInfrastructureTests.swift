@@ -44,6 +44,41 @@ struct ScanExecutionInfrastructureTests {
         #expect(throws: ScanArgumentError.unknownArgument("--previous_scan")) {
             try parser.parse(arguments: ["--previous_scan", "/tmp/old"], currentDirectory: "/tmp/project")
         }
+
+        #expect(throws: ScanArgumentError.invalidStdoutArtifact("environment-report")) {
+            try parser.parse(arguments: ["--stdout", "environment-report"], currentDirectory: "/tmp/project")
+        }
+    }
+
+    @Test
+    func scanArgumentParserAcceptsStdoutArtifacts() throws {
+        let parser = ScanArgumentParser()
+
+        let agentContextOptions = try parser.parse(
+            arguments: ["--project", "/tmp/project", "--stdout", "agent-context"],
+            currentDirectory: "/tmp/current"
+        )
+        #expect(agentContextOptions == ScanOptions(
+            projectPath: "/tmp/project",
+            outputPath: "/tmp/current/habitat-report",
+            previousScanPath: nil,
+            stdoutArtifact: .agentContext
+        ))
+
+        let commandPolicyOptions = try parser.parse(
+            arguments: [
+                "--project", "/tmp/project",
+                "--previous-scan", "/tmp/old-report",
+                "--stdout", "command-policy",
+            ],
+            currentDirectory: "/tmp/current"
+        )
+        #expect(commandPolicyOptions == ScanOptions(
+            projectPath: "/tmp/project",
+            outputPath: "/tmp/current/habitat-report",
+            previousScanPath: "/tmp/old-report",
+            stdoutArtifact: .commandPolicy
+        ))
     }
 
     @Test

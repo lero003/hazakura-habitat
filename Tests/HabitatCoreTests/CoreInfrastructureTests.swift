@@ -93,6 +93,52 @@ struct CoreInfrastructureTests {
     }
 
     @Test
+    func reportWriterRendersStdoutArtifactsFromSameGeneratedReport() throws {
+        let result = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: ["Package.swift"],
+                packageManager: "swiftpm",
+                packageManagerVersion: nil,
+                packageScripts: [],
+                runtimeHints: .init(node: nil, python: nil)
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["swift test"],
+                askFirstCommands: ["swift package update"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let report = ReportWriter().render(scanResult: result)
+
+        #expect(report.text(for: .agentContext) == report.agentContext)
+        #expect(report.text(for: .commandPolicy) == report.commandPolicy)
+        #expect(report.agentContext.hasPrefix("# Agent Context\n"))
+        #expect(report.commandPolicy.hasPrefix("# Command Policy\n"))
+        #expect(report.scanResult.artifacts.map(\.name) == [
+            "agent_context.md",
+            "command_policy.md",
+            "environment_report.md",
+        ])
+        #expect(report.scanResult.policy.reviewFirstCommandReasons == [
+            .init(
+                command: "swift package update",
+                classification: "ask_first",
+                reasonCode: "dependency_resolution_mutation",
+                reason: "Dependency resolution or lockfile changes can change project state."
+            )
+        ])
+    }
+
+    @Test
     func commandPolicyMarkdownUsesStructuredReasonMetadata() throws {
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let result = ScanResult(

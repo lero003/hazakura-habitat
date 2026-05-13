@@ -1,13 +1,28 @@
 import Foundation
 
+public struct GeneratedReport {
+    public let scanResult: ScanResult
+    public let agentContext: String
+    public let commandPolicy: String
+    public let environmentReport: String
+
+    public func text(for artifact: StdoutArtifact) -> String {
+        switch artifact {
+        case .agentContext:
+            return agentContext
+        case .commandPolicy:
+            return commandPolicy
+        }
+    }
+}
+
 public struct ReportWriter {
     private let agentContextLineLimit = 120
     private let searchExclusionGlobLimit = 6
 
     public init() {}
 
-    public func write(scanResult: ScanResult, outputURL: URL) throws {
-        try FileManager.default.createDirectory(at: outputURL, withIntermediateDirectories: true)
+    public func render(scanResult: ScanResult) -> GeneratedReport {
         let preferredCommands = renderedPreferredCommands(
             scanResult,
             preferredCommands: markdownPreferredCommands(scanResult)
@@ -26,10 +41,22 @@ public struct ReportWriter {
             markdownArtifact(name: "environment_report.md", role: "environment_report", readOrder: 3, text: environmentReportText)
         ]
 
-        try writeJSON(scanResult: result.withArtifacts(artifacts), outputURL: outputURL)
-        try writeText(agentContextText, to: outputURL.appendingPathComponent("agent_context.md"))
-        try writeText(commandPolicyText, to: outputURL.appendingPathComponent("command_policy.md"))
-        try writeText(environmentReportText, to: outputURL.appendingPathComponent("environment_report.md"))
+        return GeneratedReport(
+            scanResult: result.withArtifacts(artifacts),
+            agentContext: agentContextText,
+            commandPolicy: commandPolicyText,
+            environmentReport: environmentReportText
+        )
+    }
+
+    public func write(scanResult: ScanResult, outputURL: URL) throws {
+        try FileManager.default.createDirectory(at: outputURL, withIntermediateDirectories: true)
+        let report = render(scanResult: scanResult)
+
+        try writeJSON(scanResult: report.scanResult, outputURL: outputURL)
+        try writeText(report.agentContext, to: outputURL.appendingPathComponent("agent_context.md"))
+        try writeText(report.commandPolicy, to: outputURL.appendingPathComponent("command_policy.md"))
+        try writeText(report.environmentReport, to: outputURL.appendingPathComponent("environment_report.md"))
     }
 
     private func writeJSON(scanResult: ScanResult, outputURL: URL) throws {

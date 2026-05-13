@@ -45,6 +45,12 @@ struct CLI {
             if let previousScanPath = options.previousScanPath {
                 result = result.withChanges(changes(fromPreviousScanAt: previousScanPath, current: result))
             }
+            if let stdoutArtifact = options.stdoutArtifact {
+                let report = writer.render(scanResult: result)
+                print(report.text(for: stdoutArtifact))
+                return 0
+            }
+
             try writer.write(scanResult: result, outputURL: outputURL)
             print("Generated habitat report at \(outputURL.path)")
             return 0
@@ -61,6 +67,8 @@ struct CLI {
         Usage:
           habitat-scan scan --project /path/to/project --output ./habitat-report
           habitat-scan scan --project /path/to/project --output ./habitat-report --previous-scan ./old-habitat-report
+          habitat-scan scan --project /path/to/project --stdout agent-context
+          habitat-scan scan --project /path/to/project --stdout command-policy
           habitat-scan --help
           habitat-scan --version
         """

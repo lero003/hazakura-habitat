@@ -180,6 +180,18 @@ swift build
 ./.build/debug/habitat-scan scan --project . --output ./habitat-report
 ```
 
+For automation and local scripts that only need the short working context or the
+full command policy, print that artifact directly instead of creating a report
+directory:
+
+```bash
+./.build/debug/habitat-scan scan --project . --stdout agent-context
+./.build/debug/habitat-scan scan --project . --stdout command-policy
+```
+
+`--stdout` keeps stdout limited to the requested artifact. Use `--output` when
+you need `scan_result.json`, `environment_report.md`, or durable report files.
+
 Optional comparison against a previous scan:
 
 ```bash

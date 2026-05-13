@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 152
+- observing: 153
 - reviewed: 10
 
 ## Active Changes
@@ -155,6 +155,7 @@
 - `preferred-command-json-sync` - [changes/2026-05-13-preferred-command-json-sync.md](changes/2026-05-13-preferred-command-json-sync.md)
 - `project-local-validation-script-boundary` - [changes/2026-05-13-project-local-validation-script-boundary.md](changes/2026-05-13-project-local-validation-script-boundary.md)
 - `secret-bearing-behavior-test-boundary` - [changes/2026-05-13-secret-bearing-behavior-test-boundary.md](changes/2026-05-13-secret-bearing-behavior-test-boundary.md)
+- `stdout-artifact-output` - [changes/2026-05-13-stdout-artifact-output.md](changes/2026-05-13-stdout-artifact-output.md)
 - `validation-claim-command-dedup` - [changes/2026-05-13-validation-claim-command-dedup.md](changes/2026-05-13-validation-claim-command-dedup.md)
 - `validation-claim-freshness-metadata` - [changes/2026-05-13-validation-claim-freshness-metadata.md](changes/2026-05-13-validation-claim-freshness-metadata.md)
 - `validation-claim-meta-discussion-filter` - [changes/2026-05-13-validation-claim-meta-discussion-filter.md](changes/2026-05-13-validation-claim-meta-discussion-filter.md)

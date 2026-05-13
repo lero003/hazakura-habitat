@@ -4,12 +4,24 @@ public struct ScanOptions: Equatable {
     public let projectPath: String
     public let outputPath: String
     public let previousScanPath: String?
+    public let stdoutArtifact: StdoutArtifact?
 
-    public init(projectPath: String, outputPath: String, previousScanPath: String?) {
+    public init(
+        projectPath: String,
+        outputPath: String,
+        previousScanPath: String?,
+        stdoutArtifact: StdoutArtifact? = nil
+    ) {
         self.projectPath = projectPath
         self.outputPath = outputPath
         self.previousScanPath = previousScanPath
+        self.stdoutArtifact = stdoutArtifact
     }
+}
+
+public enum StdoutArtifact: String, Equatable {
+    case agentContext = "agent-context"
+    case commandPolicy = "command-policy"
 }
 
 public enum ScanArgumentError: LocalizedError, Equatable {
@@ -17,6 +29,7 @@ public enum ScanArgumentError: LocalizedError, Equatable {
     case emptyValue(flag: String)
     case duplicateFlag(flag: String)
     case unknownArgument(String)
+    case invalidStdoutArtifact(String)
 
     public var errorDescription: String? {
         switch self {
@@ -28,6 +41,8 @@ public enum ScanArgumentError: LocalizedError, Equatable {
             return "`\(flag)` was provided more than once."
         case .unknownArgument(let argument):
             return "Unknown scan argument: `\(argument)`."
+        case .invalidStdoutArtifact(let value):
+            return "Unsupported `--stdout` artifact `\(value)`; use `agent-context` or `command-policy`."
         }
     }
 }
@@ -41,7 +56,7 @@ public struct ScanArgumentParser {
 
         while index < arguments.count {
             let argument = arguments[index]
-            guard ["--project", "--output", "--previous-scan"].contains(argument) else {
+            guard ["--project", "--output", "--previous-scan", "--stdout"].contains(argument) else {
                 throw ScanArgumentError.unknownArgument(argument)
             }
 
@@ -61,6 +76,16 @@ public struct ScanArgumentParser {
             index += 2
         }
 
+        let stdoutArtifact: StdoutArtifact?
+        if let stdoutValue = values["--stdout"] {
+            guard let parsed = StdoutArtifact(rawValue: stdoutValue) else {
+                throw ScanArgumentError.invalidStdoutArtifact(stdoutValue)
+            }
+            stdoutArtifact = parsed
+        } else {
+            stdoutArtifact = nil
+        }
+
         let outputPath = values["--output"] ?? URL(fileURLWithPath: currentDirectory)
             .appendingPathComponent("habitat-report")
             .path
@@ -68,7 +93,8 @@ public struct ScanArgumentParser {
         return ScanOptions(
             projectPath: values["--project"] ?? currentDirectory,
             outputPath: outputPath,
-            previousScanPath: values["--previous-scan"]
+            previousScanPath: values["--previous-scan"],
+            stdoutArtifact: stdoutArtifact
         )
     }
 }
