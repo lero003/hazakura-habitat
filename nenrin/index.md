@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 150
+- observing: 151
 - reviewed: 10
 
 ## Active Changes
@@ -151,6 +151,7 @@
 - `cross-project-behavior-test-boundary` - [changes/2026-05-13-cross-project-behavior-test-boundary.md](changes/2026-05-13-cross-project-behavior-test-boundary.md)
 - `cross-project-device-install-blocker-fixture` - [changes/2026-05-13-cross-project-device-install-blocker-fixture.md](changes/2026-05-13-cross-project-device-install-blocker-fixture.md)
 - `generic-project-local-validation-script` - [changes/2026-05-13-generic-project-local-validation-script.md](changes/2026-05-13-generic-project-local-validation-script.md)
+- `post-v0-6-roadmap-automation-handoff` - [changes/2026-05-13-post-v0-6-roadmap-automation-handoff.md](changes/2026-05-13-post-v0-6-roadmap-automation-handoff.md)
 - `preferred-command-json-sync` - [changes/2026-05-13-preferred-command-json-sync.md](changes/2026-05-13-preferred-command-json-sync.md)
 - `project-local-validation-script-boundary` - [changes/2026-05-13-project-local-validation-script-boundary.md](changes/2026-05-13-project-local-validation-script-boundary.md)
 - `secret-bearing-behavior-test-boundary` - [changes/2026-05-13-secret-bearing-behavior-test-boundary.md](changes/2026-05-13-secret-bearing-behavior-test-boundary.md)

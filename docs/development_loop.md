@@ -53,6 +53,36 @@ Keep the correction narrow:
 
 This is part of finishing the work, not a separate planning project.
 
+## Post-v0.6 Automation Handoff
+
+After the `v0.6.0 Developer Preview`, recurring Habitat work should start from
+the `v0.7` Distribution Foundations phase. Keep the public `v0.6.0` tag and
+release assets immutable unless the user explicitly asks for a patch release.
+
+Default priority for automation:
+
+- first, remove friction in how agents obtain, verify, or consume Habitat output
+- second, take a minimal validation-command purpose slice when it prevents a real first-command mistake
+- third, keep cross-project and Nenrin evidence observational unless it changes a Habitat command decision
+
+For validation-purpose work, do not build a broad taxonomy by default. The
+current measured gap is narrower: ordinary local validation such as `swift test`
+should remain distinct from release-prep or artifact validation such as
+`./scripts/build_release_artifacts.sh`. If the distinction is unclear, preserve
+bounded `Open uncertainty` instead of promoting a release or packaging script as
+the first ordinary validation command.
+
+For distribution work, model Habitat's own command policy philosophy. Prefer
+checksum verification and explicit binary/version checks over remote script
+piping, package-manager mutation, or automatic installation. Pull a read-only
+MCP prototype forward only if file-based consumption becomes the measured
+blocker.
+
+Do not let external project backlogs choose Habitat work. Cross-project intake
+may supply one bounded carry-back, and Nenrin may record durable judgment
+changes, but neither should turn the run into broad workspace intelligence or
+changelog storage.
+
 ## Historical Post-v0.5 Observation Handoff
 
 This handoff describes the observation loop that led from the public `v0.5.0 Developer Preview` toward `v0.6.0`. Use it as historical context when reviewing that release boundary, not as the default starting prompt for new post-`v0.6` work:

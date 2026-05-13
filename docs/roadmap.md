@@ -67,8 +67,8 @@ If behavior evaluation shows Habitat is most useful in a smaller set of high-con
 | 4 | `v0.4` | Policy finding foundation | A visible policy-decision core |
 | 5 | `v0.5` | Evidence and instruction alignment | Cleaner inputs for policy decisions and instruction-drift checks |
 | 6 | `v0.6` | Agent behavior feedback loop | Turning observations into measured policy changes |
-| 7 | `v0.7` | Integration and distribution foundations | Easier consumption and safer installation path |
-| 8 | `v0.8` | Release trust hardening | Checksums, compatibility, install clarity |
+| 7 | `v0.7` | Distribution Foundations | Easier consumption, safer installation path, and minimal validation-purpose clarity |
+| 8 | `v0.8` | Observation -> Action | Deeper validation taxonomy, cross-project boundaries, and Nenrin review hygiene when evidence justifies them |
 | 9 | `v0.9` | Pre-1.0 hardening | Stability boundaries |
 | 10 | `v1.0` | Stable advisory generator | Narrow, reliable, documented behavior |
 
@@ -491,11 +491,13 @@ Completion criteria:
 
 Do not build a large multi-LLM benchmark, full diff viewer, Git history analyzer, project timeline, or changed-file dashboard.
 
-## v0.7: Integration and Distribution Foundations
+## v0.7: Distribution Foundations
 
 Purpose:
 
-Make Habitat easier for agent workflows to consume and obtain while preserving the advisory, read-only boundary.
+Make Habitat easier for agent workflows to consume, obtain, and verify while preserving the advisory, read-only boundary.
+
+The release theme is distribution and consumption, not a broad taxonomy release. However, `v0.6.0` self-use exposed one distribution-adjacent command-decision gap: ordinary local validation and release/artifact validation must not be treated as the same first command. `v0.7` may include the smallest validation-purpose slice needed to keep release-prep scripts such as `./scripts/build_release_artifacts.sh` out of ordinary validation preference while keeping `swift test` as normal local validation.
 
 Candidate work:
 
@@ -506,6 +508,7 @@ Candidate work:
 - setup guide for agent workflows
 - release install guidance that models Habitat's own caution around remote scripts
 - checksum verification in the default install path
+- a minimal validation-purpose distinction between ordinary local validation and release/artifact validation, only where it changes command preference or bounded `Open uncertainty`
 - minimal read-only MCP prototype, if file-based consumption is a measured blocker and the CLI contract is mature enough
 - Linux feasibility notes for read-only scan paths, without promising support before portability risks are known
 
@@ -531,23 +534,29 @@ Completion criteria:
 - Read-only boundaries are preserved.
 - Integration docs repeat that policy is advisory, not enforcement.
 - Users can obtain the preview without install instructions contradicting the product's command policy philosophy.
+- Ordinary local validation and release/artifact validation are not confused in generated guidance.
 - If MCP is pulled earlier than this phase, it remains read-only and thin enough to be removed or reshaped before `v1.0`.
 
-## v0.8: Release Trust Hardening
+Do not spend `v0.7` on:
+
+- a broad setup/lint/smoke/package/CI taxonomy without repeated observed command mistakes
+- cross-project workspace intelligence
+- Nenrin changelog storage
+- command execution, approval, enforcement, or install repair
+
+## v0.8: Observation -> Action
 
 Purpose:
 
-Make releases easier to trust, compare, and upgrade without broadening the product surface.
+Turn repeated observations into the next layer of measured command-decision behavior after the `v0.7` consumption and distribution path is usable.
 
 Focus:
 
-- GitHub Releases
-- release notes
-- checksums
-- install and upgrade instructions
-- changelog
-- compatibility notes
-- source archive clarity
+- validation command taxonomy beyond the minimal ordinary-vs-release/artifact split, but only where setup, lint, smoke, package, or CI-mirror distinctions change command preference
+- cross-project observation boundaries: sibling repository facts may inform Habitat, but should not become a second workstream or override fresh repo-local evidence
+- report freshness and stale-context handling when old reports would otherwise mislead command guidance
+- Nenrin review hygiene: record durable judgment changes and review overdue observations before deepening Habitat/Nenrin coupling
+- release trust follow-through that remains after `v0.7`: compatibility notes, upgrade clarity, and source/archive expectations
 
 Future macOS distribution candidates:
 
@@ -555,16 +564,16 @@ Future macOS distribution candidates:
 - signed binary
 - notarization
 
-These are trust and reach improvements, not a reason to expand scanner behavior. If users repeatedly fail to install or verify the preview before `v0.8`, move the smallest distribution fix earlier rather than waiting for the full hardening phase.
+These are trust and reach improvements, not a reason to expand scanner behavior. If users repeatedly fail to install or verify the preview before `v0.8`, move the smallest distribution fix earlier rather than waiting for a broader hardening phase.
 
 Avoid recommending `curl | sh` install flows. Habitat itself treats remote script piping as dangerous, so distribution should model the same caution.
 
 Completion criteria:
 
-- Users can obtain releases safely.
-- Release-to-release changes are understandable.
-- Version and schema compatibility are documented.
-- Install instructions do not contradict the product's command policy philosophy.
+- Repeated behavior observations have a visible path into policy, output contracts, fixtures, docs, or Nenrin review decisions.
+- Validation-purpose distinctions are visible only where they affect command choice or uncertainty.
+- Cross-project evidence stays bounded, fresh, and non-authoritative.
+- Nenrin integration remains a thin judgment ledger, not a changelog mirror.
 
 ## v0.9: Pre-1.0 Hardening
 

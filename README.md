@@ -77,8 +77,8 @@ Hazakura Habitat is developed around output quality, not feature breadth. The `v
 
 The roadmap prioritizes:
 
-1. Integration and distribution foundations (v0.7)
-2. Release trust hardening (v0.8)
+1. Distribution foundations (v0.7), including safer install guidance, easier agent consumption, and only the minimal validation-command purpose split needed to avoid treating release-artifact scripts as ordinary first validation commands.
+2. Observation -> Action (v0.8), including deeper validation taxonomy, cross-project observation boundaries, and Nenrin review hygiene only after repeated command-decision evidence justifies them.
 3. Pre-1.0 stability boundaries (v0.9)
 
 The goal is not to inspect everything on the machine. The goal is to generate concise, conservative context that changes an AI coding agent's next command choice.
