@@ -71,7 +71,8 @@ Read `agent_context.md` first. Use it as the working context for the next comman
 For local scripts that only need one generated artifact, `habitat-scan scan --project . --stdout scan-result`,
 `--stdout agent-context`, `--stdout command-policy`, and
 `--stdout environment-report` print that artifact without creating a report
-directory.
+directory. Use `--output` for durable report files; do not combine `--stdout`
+and `--output` in one scan command.
 
 Then consult `command_policy.md` before:
 

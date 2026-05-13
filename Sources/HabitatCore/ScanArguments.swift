@@ -32,6 +32,7 @@ public enum ScanArgumentError: LocalizedError, Equatable {
     case duplicateFlag(flag: String)
     case unknownArgument(String)
     case invalidStdoutArtifact(String)
+    case incompatibleFlags(String, String)
 
     public var errorDescription: String? {
         switch self {
@@ -45,6 +46,8 @@ public enum ScanArgumentError: LocalizedError, Equatable {
             return "Unknown scan argument: `\(argument)`."
         case .invalidStdoutArtifact(let value):
             return "Unsupported `--stdout` artifact `\(value)`; use `scan-result`, `agent-context`, `command-policy`, or `environment-report`."
+        case .incompatibleFlags(let first, let second):
+            return "`\(first)` and `\(second)` cannot be used together."
         }
     }
 }
@@ -82,6 +85,9 @@ public struct ScanArgumentParser {
         if let stdoutValue = values["--stdout"] {
             guard let parsed = StdoutArtifact(rawValue: stdoutValue) else {
                 throw ScanArgumentError.invalidStdoutArtifact(stdoutValue)
+            }
+            if values["--output"] != nil {
+                throw ScanArgumentError.incompatibleFlags("--stdout", "--output")
             }
             stdoutArtifact = parsed
         } else {

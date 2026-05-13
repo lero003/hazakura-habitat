@@ -13,6 +13,8 @@ related_files:
   - Tests/HabitatCoreTests/CoreInfrastructureTests.swift
   - README.md
   - docs/current_status.md
+  - docs/roadmap.md
+  - skills/hazakura-habitat/SKILL.md
 review_after:
   tasks: 3
   days: 7
@@ -49,6 +51,8 @@ review_after:
 - Reused the same report rendering path as file output, so stdout output does not fork the artifact contract.
 - Allowed `habitat-scan scan --help` as a scan-specific help entrypoint, so agents can discover stdout/file output forms without triggering an argument error.
 - Documented when to use stdout versus durable `habitat-report/` files.
+- Rejected combined `--stdout` and `--output` scan flags, so direct artifact
+  consumption cannot silently ignore a requested durable report path.
 
 ## Reason
 
@@ -69,6 +73,8 @@ review_after:
   diagnostic report metadata or whose direct diagnostic stdout path is
   unavailable.
 - File output remains the path for durable report snapshots.
+- Agents and scripts choose either a direct stdout artifact or durable report
+  files for one scan command; they do not assume both happened.
 
 ## Review After
 
@@ -91,6 +97,8 @@ review_after:
 - Metadata checks catch broken direct diagnostic stdout output before
   downstream scripts depend on audit/detail consumption.
 - Agents checking scan usage use `scan --help` successfully before choosing `--stdout` or `--output`.
+- Miscombined stdout/file-output commands fail early with a clear argument
+  error instead of leaving stale `habitat-report/` files looking current.
 
 ## Failure Signals
 
@@ -105,6 +113,8 @@ review_after:
 - A helper accepts a binary whose file-output metadata omits the diagnostic
   report artifact even though scripts may later depend on durable report files.
 - A helper accepts a binary whose diagnostic stdout path is missing or malformed.
+- Scripts pass both `--stdout` and `--output`, then trust an old report
+  directory because the stdout-only scan did not refresh it.
 
 ## Result
 

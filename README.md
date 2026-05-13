@@ -237,7 +237,8 @@ artifact directly instead of creating a report directory:
 ```
 
 `--stdout` keeps stdout limited to the requested artifact. Use `--output` when
-you need durable report files.
+you need durable report files; do not combine `--stdout` and `--output` in one
+scan command.
 Use `scan --help` for scan-specific output and file-consumption forms.
 
 Optional comparison against a previous scan:

@@ -48,6 +48,13 @@ struct ScanExecutionInfrastructureTests {
         #expect(throws: ScanArgumentError.invalidStdoutArtifact("environment-json")) {
             try parser.parse(arguments: ["--stdout", "environment-json"], currentDirectory: "/tmp/project")
         }
+
+        #expect(throws: ScanArgumentError.incompatibleFlags("--stdout", "--output")) {
+            try parser.parse(
+                arguments: ["--stdout", "agent-context", "--output", "/tmp/report"],
+                currentDirectory: "/tmp/project"
+            )
+        }
     }
 
     @Test

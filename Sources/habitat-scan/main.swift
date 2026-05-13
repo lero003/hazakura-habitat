@@ -79,6 +79,9 @@ struct CLI {
           habitat-scan scan --help
           habitat-scan --help
           habitat-scan --version
+
+        Note:
+          Use --stdout for one direct artifact, or --output for durable report files; do not combine them.
         """
     }
 
