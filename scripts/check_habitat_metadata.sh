@@ -7,7 +7,7 @@ Usage: check_habitat_metadata.sh /path/to/habitat-scan /path/to/project [expecte
 
 Checks that:
 - habitat-scan --version reports the same version as scan_result.json generatorVersion
-- scan_result.json includes the core generated Markdown artifact metadata
+- scan_result.json includes the core generated Markdown artifact names, roles, paths, formats, read order, and agent-use hints
 - --stdout agent-context and --stdout command-policy return the core Markdown artifacts
 - optional expected-version matches both values
 
@@ -64,12 +64,47 @@ import sys
 data = json.load(sys.stdin)
 generator_version = data.get("generatorVersion", "")
 artifacts = data.get("artifacts", [])
-artifact_names = {artifact.get("name") for artifact in artifacts if isinstance(artifact, dict)}
-required_artifacts = {"agent_context.md", "command_policy.md"}
-missing_artifacts = sorted(required_artifacts - artifact_names)
 
-if missing_artifacts:
-    print("error: scan_result.json missing artifact metadata for " + ", ".join(missing_artifacts), file=sys.stderr)
+required_artifacts = {
+    "agent_context.md": {
+        "role": "agent_context",
+        "relativePath": "agent_context.md",
+        "format": "markdown",
+        "readOrder": 1,
+        "agentUse": "read_first",
+    },
+    "command_policy.md": {
+        "role": "command_policy",
+        "relativePath": "command_policy.md",
+        "format": "markdown",
+        "readOrder": 2,
+        "agentUse": "consult_before_risky_commands",
+    },
+}
+
+artifact_by_name = {
+    artifact.get("name"): artifact
+    for artifact in artifacts
+    if isinstance(artifact, dict)
+}
+
+missing_artifacts = sorted(name for name in required_artifacts if name not in artifact_by_name)
+metadata_errors = []
+for name, required_fields in required_artifacts.items():
+    artifact = artifact_by_name.get(name)
+    if not isinstance(artifact, dict):
+        continue
+    for field, expected in required_fields.items():
+        actual = artifact.get(field)
+        if actual != expected:
+            metadata_errors.append(f"{name}.{field} expected {expected!r} but found {actual!r}")
+
+if missing_artifacts or metadata_errors:
+    details = []
+    if missing_artifacts:
+        details.append("missing " + ", ".join(missing_artifacts))
+    details.extend(metadata_errors)
+    print("error: scan_result.json missing or invalid core artifact metadata: " + "; ".join(details), file=sys.stderr)
     sys.exit(3)
 
 print(generator_version)

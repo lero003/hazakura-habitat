@@ -46,8 +46,9 @@ Keep the current cycle focused:
   diagnostics and durable report snapshots.
 - `scripts/check_habitat_metadata.sh` gives local scripts a small checked path
   for comparing a binary's `--version` output with `scan_result.json`
-  `generatorVersion` and verifying core generated Markdown artifact metadata
-  through `--stdout scan-result`, plus the direct stdout availability of
+  `generatorVersion` and verifying core generated Markdown artifact names,
+  roles, relative paths, formats, read order, and agent-use metadata through
+  `--stdout scan-result`, plus the direct stdout availability of
   `agent_context.md` and `command_policy.md`, without creating or updating
   `habitat-report/`.
 - `habitat-scan scan --help` now succeeds and shows the scan output forms,
