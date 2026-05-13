@@ -501,7 +501,10 @@ The release theme is distribution and consumption, not a broad taxonomy release.
 
 First shipped slice:
 
-- `--stdout agent-context` / `--stdout command-policy` let automation and local scripts consume one generated Markdown artifact without managing `habitat-report/` files.
+- `--stdout agent-context` / `--stdout command-policy` /
+  `--stdout environment-report` let automation and local scripts consume one
+  generated Markdown artifact without managing `habitat-report/` files, while
+  `--stdout scan-result` covers the machine-readable metadata path.
 - Python validation-runner fit now avoids promoting `.venv/bin/python -m pytest` unless project pytest is runnable, and prefers project-virtualenv unittest when repo docs or top-level tests indicate unittest.
 
 Candidate work:

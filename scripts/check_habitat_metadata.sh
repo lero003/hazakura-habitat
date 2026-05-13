@@ -8,7 +8,7 @@ Usage: check_habitat_metadata.sh /path/to/habitat-scan /path/to/project [expecte
 Checks that:
 - habitat-scan --version reports the same version as scan_result.json generatorVersion
 - scan_result.json includes the core generated Markdown artifact names, roles, paths, formats, read order, and agent-use hints
-- --stdout agent-context and --stdout command-policy return the core Markdown artifacts
+- --stdout agent-context, command-policy, and environment-report return the core Markdown artifacts
 - optional expected-version matches both values
 
 This script reads scan_result.json through --stdout scan-result and does not
@@ -46,6 +46,7 @@ fi
 scan_json="$("$habitat_scan" scan --project "$project_path" --stdout scan-result)"
 agent_context="$("$habitat_scan" scan --project "$project_path" --stdout agent-context)"
 command_policy="$("$habitat_scan" scan --project "$project_path" --stdout command-policy)"
+environment_report="$("$habitat_scan" scan --project "$project_path" --stdout environment-report)"
 
 if [[ "$agent_context" != \#\ Agent\ Context* ]]; then
   printf 'error: --stdout agent-context did not return agent_context.md\n' >&2
@@ -54,6 +55,11 @@ fi
 
 if [[ "$command_policy" != \#\ Command\ Policy* ]]; then
   printf 'error: --stdout command-policy did not return command_policy.md\n' >&2
+  exit 4
+fi
+
+if [[ "$environment_report" != \#\ Environment\ Report* ]]; then
+  printf 'error: --stdout environment-report did not return environment_report.md\n' >&2
   exit 4
 fi
 
@@ -136,3 +142,4 @@ printf 'binaryVersion=%s\n' "$binary_version"
 printf 'generatorVersion=%s\n' "$generator_version"
 printf 'agentContext=ok\n'
 printf 'commandPolicy=ok\n'
+printf 'environmentReport=ok\n'

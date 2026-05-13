@@ -68,8 +68,10 @@ If Habitat cannot be run, continue conservatively and mention that the scan was 
 ## Read And Apply Output
 
 Read `agent_context.md` first. Use it as the working context for the next commands.
-For local scripts that only need metadata, `habitat-scan scan --project . --stdout scan-result`
-prints the same `scan_result.json` content without creating a report directory.
+For local scripts that only need one generated artifact, `habitat-scan scan --project . --stdout scan-result`,
+`--stdout agent-context`, `--stdout command-policy`, and
+`--stdout environment-report` print that artifact without creating a report
+directory.
 
 Then consult `command_policy.md` before:
 

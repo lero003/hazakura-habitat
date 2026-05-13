@@ -212,8 +212,9 @@ The helper reads `scan_result.json` through `--stdout scan-result`, compares
 `generatorVersion` with `habitat-scan --version`, verifies the generated
 Markdown artifact metadata for `agent_context.md`, `command_policy.md`, and
 `environment_report.md` includes the expected names, roles, relative paths,
-formats, read order, and agent-use hints, checks that `--stdout agent-context`
-and `--stdout command-policy` return the expected AI-facing Markdown artifacts,
+formats, read order, and agent-use hints, checks that `--stdout agent-context`,
+`--stdout command-policy`, and `--stdout environment-report` return the
+expected Markdown artifacts,
 and leaves `habitat-report/` untouched.
 
 ## Run
@@ -223,19 +224,20 @@ swift build
 ./.build/debug/habitat-scan scan --project . --output ./habitat-report
 ```
 
-For automation and local scripts that only need the short working context or the
-full command policy, or that only need the machine-readable scan result, print
-that artifact directly instead of creating a report directory:
+For automation and local scripts that only need the short working context, full
+command policy, diagnostics, or machine-readable scan result, print that
+artifact directly instead of creating a report directory:
 
 ```bash
 ./.build/debug/habitat-scan scan --project . --stdout scan-result
 ./.build/debug/habitat-scan scan --project . --stdout agent-context
 ./.build/debug/habitat-scan scan --project . --stdout command-policy
+./.build/debug/habitat-scan scan --project . --stdout environment-report
 ./.build/debug/habitat-scan scan --help
 ```
 
 `--stdout` keeps stdout limited to the requested artifact. Use `--output` when
-you need `environment_report.md` or durable report files.
+you need durable report files.
 Use `scan --help` for scan-specific output and file-consumption forms.
 
 Optional comparison against a previous scan:

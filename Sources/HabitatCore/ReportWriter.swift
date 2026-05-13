@@ -15,6 +15,8 @@ public struct GeneratedReport {
             return agentContext
         case .commandPolicy:
             return commandPolicy
+        case .environmentReport:
+            return environmentReport
         }
     }
 }

@@ -23,6 +23,7 @@ public enum StdoutArtifact: String, Equatable {
     case scanResult = "scan-result"
     case agentContext = "agent-context"
     case commandPolicy = "command-policy"
+    case environmentReport = "environment-report"
 }
 
 public enum ScanArgumentError: LocalizedError, Equatable {
@@ -43,7 +44,7 @@ public enum ScanArgumentError: LocalizedError, Equatable {
         case .unknownArgument(let argument):
             return "Unknown scan argument: `\(argument)`."
         case .invalidStdoutArtifact(let value):
-            return "Unsupported `--stdout` artifact `\(value)`; use `scan-result`, `agent-context`, or `command-policy`."
+            return "Unsupported `--stdout` artifact `\(value)`; use `scan-result`, `agent-context`, `command-policy`, or `environment-report`."
         }
     }
 }

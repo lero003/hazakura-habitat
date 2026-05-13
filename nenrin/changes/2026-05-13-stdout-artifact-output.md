@@ -23,6 +23,9 @@ review_after:
 ## Changed
 
 - Added `--stdout agent-context` and `--stdout command-policy` for direct generated Markdown consumption.
+- Added `--stdout environment-report` so diagnostic/audit Markdown can be
+  consumed through the same stdout-only path when a durable report directory is
+  unnecessary.
 - Added `--stdout scan-result` for direct machine-readable metadata consumption.
 - Added `scripts/check_habitat_metadata.sh` as a small script-consumption helper
   that compares binary `--version` with stdout `generatorVersion` without
@@ -40,6 +43,9 @@ review_after:
   `environment_report.md` metadata in `scan_result.json`, while keeping direct
   stdout Markdown checks limited to the AI-facing agent context and command
   policy artifacts.
+- Tightened the helper contract again so local scripts also fail when
+  `--stdout environment-report` does not return the expected diagnostic
+  Markdown artifact.
 - Reused the same report rendering path as file output, so stdout output does not fork the artifact contract.
 - Allowed `habitat-scan scan --help` as a scan-specific help entrypoint, so agents can discover stdout/file output forms without triggering an argument error.
 - Documented when to use stdout versus durable `habitat-report/` files.
@@ -51,7 +57,8 @@ review_after:
 ## Expected Behavior
 
 - Agents can fetch the short working context without creating or locating `habitat-report/agent_context.md`.
-- Scripts can consult `scan_result.json` or the full policy through stdout when they do not need diagnostics or durable report snapshots.
+- Scripts can consult `scan_result.json`, the full policy, or diagnostics
+  through stdout when they do not need durable report snapshots.
 - Scripts can reject a malformed or incomplete generated-Markdown metadata
   contract before trusting generated Markdown paths or roles.
 - Scripts can reject subtly incomplete artifact metadata where the name exists
@@ -59,9 +66,9 @@ review_after:
 - Scripts can reject a broken direct stdout Markdown path before wiring agents
   or automation to a binary.
 - Scripts can reject a binary whose machine-readable artifact list omits the
-  diagnostic report metadata, without requiring `environment_report.md` to gain
-  a stdout mode.
-- File output remains the path for durable report snapshots and environment diagnostics.
+  diagnostic report metadata or whose direct diagnostic stdout path is
+  unavailable.
+- File output remains the path for durable report snapshots.
 
 ## Review After
 
@@ -81,6 +88,8 @@ review_after:
 - Metadata checks catch an incomplete generated report metadata set, including
   missing `environment_report.md` metadata, before downstream scripts trust the
   binary for durable file output.
+- Metadata checks catch broken direct diagnostic stdout output before
+  downstream scripts depend on audit/detail consumption.
 - Agents checking scan usage use `scan --help` successfully before choosing `--stdout` or `--output`.
 
 ## Failure Signals
@@ -95,6 +104,7 @@ review_after:
   whose direct stdout Markdown output is unavailable or malformed.
 - A helper accepts a binary whose file-output metadata omits the diagnostic
   report artifact even though scripts may later depend on durable report files.
+- A helper accepts a binary whose diagnostic stdout path is missing or malformed.
 
 ## Result
 

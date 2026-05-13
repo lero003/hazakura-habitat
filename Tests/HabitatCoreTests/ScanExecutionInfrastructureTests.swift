@@ -45,8 +45,8 @@ struct ScanExecutionInfrastructureTests {
             try parser.parse(arguments: ["--previous_scan", "/tmp/old"], currentDirectory: "/tmp/project")
         }
 
-        #expect(throws: ScanArgumentError.invalidStdoutArtifact("environment-report")) {
-            try parser.parse(arguments: ["--stdout", "environment-report"], currentDirectory: "/tmp/project")
+        #expect(throws: ScanArgumentError.invalidStdoutArtifact("environment-json")) {
+            try parser.parse(arguments: ["--stdout", "environment-json"], currentDirectory: "/tmp/project")
         }
     }
 
@@ -89,6 +89,17 @@ struct ScanExecutionInfrastructureTests {
             outputPath: "/tmp/current/habitat-report",
             previousScanPath: "/tmp/old-report",
             stdoutArtifact: .commandPolicy
+        ))
+
+        let environmentReportOptions = try parser.parse(
+            arguments: ["--project", "/tmp/project", "--stdout", "environment-report"],
+            currentDirectory: "/tmp/current"
+        )
+        #expect(environmentReportOptions == ScanOptions(
+            projectPath: "/tmp/project",
+            outputPath: "/tmp/current/habitat-report",
+            previousScanPath: nil,
+            stdoutArtifact: .environmentReport
         ))
     }
 
@@ -256,6 +267,10 @@ struct ScanExecutionInfrastructureTests {
               printf '# Command Policy\\n\\n## Allowed\\n'
               exit 0
             fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment-report" ]]; then
+              printf '# Environment Report\\n\\n## Diagnostics\\n'
+              exit 0
+            fi
             exit 2
             """
         )
@@ -280,6 +295,7 @@ struct ScanExecutionInfrastructureTests {
         #expect(output.contains("generatorVersion=1.2.3"))
         #expect(output.contains("agentContext=ok"))
         #expect(output.contains("commandPolicy=ok"))
+        #expect(output.contains("environmentReport=ok"))
     }
 
     @Test
@@ -309,6 +325,10 @@ struct ScanExecutionInfrastructureTests {
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
               printf '# Command Policy\\n\\n## Allowed\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment-report" ]]; then
+              printf '# Environment Report\\n\\n## Diagnostics\\n'
               exit 0
             fi
             exit 2
@@ -362,6 +382,10 @@ struct ScanExecutionInfrastructureTests {
               printf '# Command Policy\\n\\n## Allowed\\n'
               exit 0
             fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment-report" ]]; then
+              printf '# Environment Report\\n\\n## Diagnostics\\n'
+              exit 0
+            fi
             exit 2
             """
         )
@@ -413,6 +437,10 @@ struct ScanExecutionInfrastructureTests {
               printf '# Command Policy\\n\\n## Allowed\\n'
               exit 0
             fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment-report" ]]; then
+              printf '# Environment Report\\n\\n## Diagnostics\\n'
+              exit 0
+            fi
             exit 2
             """
         )
@@ -462,6 +490,10 @@ struct ScanExecutionInfrastructureTests {
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
               printf '{"not":"markdown"}\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment-report" ]]; then
+              printf '# Environment Report\\n\\n## Diagnostics\\n'
               exit 0
             fi
             exit 2

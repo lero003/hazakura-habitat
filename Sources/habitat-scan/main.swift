@@ -75,6 +75,7 @@ struct CLI {
           habitat-scan scan --project /path/to/project --stdout scan-result
           habitat-scan scan --project /path/to/project --stdout agent-context
           habitat-scan scan --project /path/to/project --stdout command-policy
+          habitat-scan scan --project /path/to/project --stdout environment-report
           habitat-scan scan --help
           habitat-scan --help
           habitat-scan --version
