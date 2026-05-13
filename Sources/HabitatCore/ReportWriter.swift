@@ -6,8 +6,11 @@ public struct GeneratedReport {
     public let commandPolicy: String
     public let environmentReport: String
 
-    public func text(for artifact: StdoutArtifact) -> String {
+    public func text(for artifact: StdoutArtifact) throws -> String {
         switch artifact {
+        case .scanResult:
+            let data = try ReportWriter.jsonData(scanResult: scanResult)
+            return String(decoding: data, as: UTF8.self)
         case .agentContext:
             return agentContext
         case .commandPolicy:
@@ -60,10 +63,14 @@ public struct ReportWriter {
     }
 
     private func writeJSON(scanResult: ScanResult, outputURL: URL) throws {
+        let data = try Self.jsonData(scanResult: scanResult)
+        try data.write(to: outputURL.appendingPathComponent("scan_result.json"))
+    }
+
+    static func jsonData(scanResult: ScanResult) throws -> Data {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys, .withoutEscapingSlashes]
-        let data = try encoder.encode(scanResult)
-        try data.write(to: outputURL.appendingPathComponent("scan_result.json"))
+        return try encoder.encode(scanResult)
     }
 
     private func writeText(_ text: String, to url: URL) throws {

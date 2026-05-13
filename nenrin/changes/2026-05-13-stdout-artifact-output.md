@@ -22,6 +22,7 @@ review_after:
 ## Changed
 
 - Added `--stdout agent-context` and `--stdout command-policy` for direct generated Markdown consumption.
+- Added `--stdout scan-result` for direct machine-readable metadata consumption.
 - Reused the same report rendering path as file output, so stdout output does not fork the artifact contract.
 - Allowed `habitat-scan scan --help` as a scan-specific help entrypoint, so agents can discover stdout/file output forms without triggering an argument error.
 - Documented when to use stdout versus durable `habitat-report/` files.
@@ -33,8 +34,8 @@ review_after:
 ## Expected Behavior
 
 - Agents can fetch the short working context without creating or locating `habitat-report/agent_context.md`.
-- Scripts can consult the full policy through stdout when they do not need `scan_result.json` or diagnostics.
-- File output remains the path for durable report snapshots and machine metadata.
+- Scripts can consult `scan_result.json` or the full policy through stdout when they do not need diagnostics or durable report snapshots.
+- File output remains the path for durable report snapshots and environment diagnostics.
 
 ## Review After
 
@@ -43,7 +44,7 @@ review_after:
 
 ## Success Signals
 
-- Future automation can replace temporary report-file reads with stdout when only one Markdown artifact is needed.
+- Future automation can replace temporary report-file reads with stdout when only one generated artifact is needed.
 - The stdout path stays byte-for-byte aligned with the generated report renderer.
 - Agents checking scan usage use `scan --help` successfully before choosing `--stdout` or `--output`.
 

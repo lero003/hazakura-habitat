@@ -54,6 +54,17 @@ struct ScanExecutionInfrastructureTests {
     func scanArgumentParserAcceptsStdoutArtifacts() throws {
         let parser = ScanArgumentParser()
 
+        let scanResultOptions = try parser.parse(
+            arguments: ["--project", "/tmp/project", "--stdout", "scan-result"],
+            currentDirectory: "/tmp/current"
+        )
+        #expect(scanResultOptions == ScanOptions(
+            projectPath: "/tmp/project",
+            outputPath: "/tmp/current/habitat-report",
+            previousScanPath: nil,
+            stdoutArtifact: .scanResult
+        ))
+
         let agentContextOptions = try parser.parse(
             arguments: ["--project", "/tmp/project", "--stdout", "agent-context"],
             currentDirectory: "/tmp/current"

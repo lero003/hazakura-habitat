@@ -38,14 +38,16 @@ Keep the current cycle focused:
   - `agent_context.md`
   - `command_policy.md`
   - `environment_report.md`
-- `habitat-scan scan --project ... --stdout agent-context` and `--stdout command-policy`
-  print the selected generated Markdown artifact directly, so automation and
-  local scripts can consume the short working context or full policy without
-  first managing a `habitat-report/` directory. File output remains the path for
-  `scan_result.json`, environment diagnostics, and durable report snapshots.
+- `habitat-scan scan --project ... --stdout scan-result`, `--stdout agent-context`,
+  and `--stdout command-policy` print the selected generated artifact directly,
+  so automation and local scripts can consume machine-readable metadata, the
+  short working context, or full policy without first managing a
+  `habitat-report/` directory. File output remains the path for environment
+  diagnostics and durable report snapshots.
 - `habitat-scan scan --help` now succeeds and shows the scan output forms,
-  including stdout-only agent-context and command-policy usage, so agents do not
-  have to recover from an argument error when checking file-consumption options.
+  including stdout-only scan-result, agent-context, and command-policy usage, so
+  agents do not have to recover from an argument error when checking
+  file-consumption options.
 - Bundled distributable agent skill at `skills/hazakura-habitat` so AI agents can run Habitat as a preflight step before substantial work, dependency changes, Git/GitHub mutations, and secret-adjacent operations.
 - The bundled skill helper uses or rebuilds the current Hazakura Habitat source checkout during self-scans instead of silently falling back to packaged or installed binaries, and retries with a writable module cache plus `--disable-sandbox` when plain SwiftPM build fails before project code runs, so generated context reflects the current output contract instead of a stale local `dist/` artifact.
 - Project-local `nenrin/` improvement observation ledger for tracking whether changes to Habitat's agent-facing docs, skills, roadmap, release guidance, QA criteria, and automation prompts actually improve later agent behavior.

@@ -4,6 +4,7 @@
 
 ### Changed
 
+- Added `habitat-scan scan --stdout scan-result` so automation and local scripts can consume `scan_result.json` metadata without creating a report directory.
 - Added the Hazakura Habitat logo asset and surfaced it at the top of `README.md`.
 - Moved the bundled agent skill entrypoint into the top of `README.md` so AI agents can discover `skills/hazakura-habitat/SKILL.md` during an initial repository read.
 - Clarified the post-`v0.6.0` roadmap handoff: `v0.7` stays focused on Distribution Foundations, with minimal validation-command purpose clarity as an early bounded slice, while deeper Observation -> Action work moves to `v0.8`.

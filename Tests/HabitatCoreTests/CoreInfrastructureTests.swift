@@ -119,8 +119,13 @@ struct CoreInfrastructureTests {
 
         let report = ReportWriter().render(scanResult: result)
 
-        #expect(report.text(for: .agentContext) == report.agentContext)
-        #expect(report.text(for: .commandPolicy) == report.commandPolicy)
+        #expect(try report.text(for: .agentContext) == report.agentContext)
+        #expect(try report.text(for: .commandPolicy) == report.commandPolicy)
+        #expect(try report.text(for: .scanResult) == String(
+            decoding: ReportWriter.jsonData(scanResult: report.scanResult),
+            as: UTF8.self
+        ))
+        #expect(try report.text(for: .scanResult).contains("\"generatorVersion\" : \"\(HabitatMetadata.generatorVersion)\""))
         #expect(report.agentContext.hasPrefix("# Agent Context\n"))
         #expect(report.commandPolicy.hasPrefix("# Command Policy\n"))
         #expect(report.scanResult.artifacts.map(\.name) == [
