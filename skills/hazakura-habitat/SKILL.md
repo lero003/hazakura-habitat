@@ -54,8 +54,10 @@ Choose the least surprising setup path that fits the user's existing authorizati
 1. Use `HABITAT_SCAN=/absolute/path/to/habitat-scan` when the user already chose a specific verified binary.
 2. If working inside the Hazakura Habitat source repository, run `swift build` and use `./.build/debug/habitat-scan`.
 3. Otherwise, use an existing `habitat-scan` binary from `PATH`, `.build/debug/habitat-scan`, or `dist/habitat-scan`.
-4. If network use and tool installation are already authorized, download a GitHub Release asset and verify checksums before running it.
+4. If network use and tool installation are already authorized, download `habitat-scan-macos.zip`, `habitat-scan`, and `SHA256SUMS` from a GitHub Release into the same directory, run `shasum -c SHA256SUMS`, and only then unzip and run the binary. If checksum verification fails or the asset is missing from `SHA256SUMS`, do not run the downloaded binary.
 5. Do not use `curl | sh`, mutate shell startup files, or install globally unless the user explicitly authorized that class of mutation.
+
+For release binaries, check `habitat-scan --version` before scanning. When a report is saved with `--output`, compare the top-level `generatorVersion` in `scan_result.json` with the binary version you intended to use before treating the generated Markdown as current command-decision context.
 
 The bundled helper treats a Hazakura Habitat source checkout specially: unless `HABITAT_SCAN` explicitly selects another binary, it uses or rebuilds that checkout's `./.build/debug/habitat-scan` instead of falling back to packaged or installed binaries, so self-scans reflect the current generator contract.
 

@@ -178,17 +178,28 @@ See [Public Readiness](docs/public_readiness.md) for the completed `v0.1.0` publ
 
 ## Install From Release
 
-Download `habitat-scan-macos.zip`, `habitat-scan`, and `SHA256SUMS` from the latest GitHub Release, keep them in the same directory, then run:
+Download `habitat-scan-macos.zip`, `habitat-scan`, and `SHA256SUMS` from the latest GitHub Release, keep them in the same directory, then verify checksums before running the downloaded binary:
 
 ```bash
 shasum -c SHA256SUMS
 unzip habitat-scan-macos.zip
+./dist/habitat-scan --version
 ./dist/habitat-scan scan --project . --output ./habitat-report
 ```
 
-`SHA256SUMS` is published alongside the generated release assets. Verification is optional, but recommended before running downloaded binaries.
+`SHA256SUMS` is published alongside the generated release assets. Treat checksum verification as the first trust step for release consumption. If `shasum -c SHA256SUMS` fails, or if a release asset is missing from `SHA256SUMS`, do not run the downloaded binary.
 
 The zip path is the recommended run path. The standalone `habitat-scan` asset is included so `SHA256SUMS` can verify every generated release artifact.
+
+For automation and agent workflows, also compare the binary version with the generated report metadata before depending on a saved report:
+
+```bash
+./dist/habitat-scan --version
+./dist/habitat-scan scan --project . --output ./habitat-report
+grep '"generatorVersion"' habitat-report/scan_result.json
+```
+
+The `--version` output identifies the binary. The top-level `generatorVersion` in `scan_result.json` identifies the generator that produced the report. If either value is not the release you meant to consume, refresh the binary or report before using `agent_context.md` for command decisions.
 
 ## Run
 
