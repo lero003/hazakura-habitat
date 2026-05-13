@@ -845,6 +845,24 @@ Follow-up:
 
 - Only add another external-intake fixture if a fresh scan changes command guidance beyond the existing stale-report, wrapper-script, ledger, or blocker cases.
 
+### python-unittest-validation-001
+
+Fixture:
+
+- `examples/behavior-evaluation/python-unittest-validation-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: fresh scan after external cross-project feedback.
+- Observation: A Python project can expose `.venv/bin/python` while its README, release checklist, and tests point to unittest and the project virtualenv does not confirm pytest availability. Habitat should prefer `.venv/bin/python -m unittest discover -s tests` plus the interpreter fallback instead of promoting `.venv/bin/python -m pytest`.
+- Scope boundary: this is a narrow runner-fit check, not a broad Python validation taxonomy.
+
+Follow-up:
+
+- Only expand Python validation taxonomy if repeated observations show additional runner kinds changing first-command guidance.
+
 ## Acceptance Criteria
 
 - `docs/evaluation.md` defines the evidence policy and verdict scale.

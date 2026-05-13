@@ -23,6 +23,7 @@ The purpose is to make the product value visible:
 - `behavior-evaluation/instruction-claim-validation-001.json`: sanitized observed behavior fixture for documented validation-command mismatch handling.
 - `behavior-evaluation/instruction-claim-xcodebuild-001.json`: sanitized observed behavior fixture for documented Xcode validation scheme-discovery restraint.
 - `behavior-evaluation/ci-workflow-no-local-validation-001.json`: sanitized observed behavior fixture for CI presence without inferred local validation.
+- `behavior-evaluation/python-unittest-validation-001.json`: sanitized behavior fixture for avoiding pytest over-promotion when Python docs and tests point to unittest.
 - `behavior-evaluation/swiftpm-self-use-002.json`: sanitized observed behavior fixture for policy review before SwiftPM self-use Git mutation.
 - `behavior-evaluation/swiftpm-self-use-003.json`: sanitized observed behavior fixture for clean SwiftPM dependency-resolution restraint.
 - `behavior-evaluation/swiftpm-self-use-004.json`: sanitized observed behavior fixture for current-cycle self-use policy review before Git mutation.

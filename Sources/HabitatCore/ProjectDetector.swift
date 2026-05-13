@@ -51,6 +51,7 @@ public struct ProjectDetector {
         ".yarnrc.yml",
         ".pypirc",
         "pip.conf",
+        "docs/release-checklist.md",
         ".gem/credentials",
         ".bundle/config",
         ".cargo/credentials.toml",
@@ -172,7 +173,9 @@ public struct ProjectDetector {
             .sorted()
         let extraPrivateKeyFiles = privateKeyFiles(projectURL: projectURL, directoryEntries: directoryEntries)
 
-        return orderedUnique(explicitFiles + xcodeProjectContainers + extraSecretEnvironmentFiles + extraPrivateKeyFiles)
+        let pythonTests = pythonTestFiles(projectURL: projectURL)
+
+        return orderedUnique(explicitFiles + xcodeProjectContainers + pythonTests + extraSecretEnvironmentFiles + extraPrivateKeyFiles)
     }
 
     private func detectPackageManager(files: [String], declaredPackageManager: DeclaredPackageManager?) -> String? {
@@ -353,14 +356,17 @@ public struct ProjectDetector {
 
     private func validationCommandClaims(projectURL: URL, symlinkedFiles: [String]) -> [ValidationCommandClaim] {
         let symlinked = Set(symlinkedFiles)
-        return instructionClaimFiles.flatMap { source -> [ValidationCommandClaim] in
+        return validationClaimFiles(projectURL: projectURL).flatMap { source -> [ValidationCommandClaim] in
             guard !symlinked.contains(source),
                   let content = safeInstructionFileContent(projectURL.appendingPathComponent(source))
             else {
                 return []
             }
 
-            return validationCommandClaims(in: content).map {
+            let parsedClaims = validationCommandClaims(in: content)
+                + inferredPythonTestClaims(in: content, source: source)
+
+            return parsedClaims.map {
                 ValidationCommandClaim(source: source, command: $0.command, purpose: $0.purpose)
             }
         }
@@ -377,7 +383,12 @@ public struct ProjectDetector {
             "README.md",
             "docs/development_loop.md",
             "docs/development_environment.md",
+            "docs/release-checklist.md",
         ]
+    }
+
+    private func validationClaimFiles(projectURL: URL) -> [String] {
+        orderedUnique(instructionClaimFiles + pythonTestFiles(projectURL: projectURL))
     }
 
     private func safeInstructionFileContent(_ url: URL) -> String? {
@@ -385,6 +396,27 @@ public struct ProjectDetector {
         guard !isSymbolicLink(url) else { return nil }
         guard fileSize(at: url) <= 64 * 1024 else { return nil }
         return try? String(contentsOf: url, encoding: .utf8)
+    }
+
+    private func pythonTestFiles(projectURL: URL) -> [String] {
+        let testsURL = projectURL.appendingPathComponent("tests")
+        guard !isSymbolicLink(testsURL) else { return [] }
+        guard (try? testsURL.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true else {
+            return []
+        }
+
+        let entries = (try? FileManager.default.contentsOfDirectory(atPath: testsURL.path)) ?? []
+        let files = entries
+            .filter { $0.hasSuffix(".py") }
+            .map { "tests/\($0)" }
+            .filter { relativePath in
+                let fileURL = projectURL.appendingPathComponent(relativePath)
+                return !isSymbolicLink(fileURL)
+                    && fileSize(at: fileURL) <= 64 * 1024
+            }
+            .sorted()
+
+        return Array(files.prefix(20))
     }
 
     private func validationCommandClaims(in content: String) -> [(command: String, purpose: ValidationCommandPurpose)] {
@@ -410,6 +442,10 @@ public struct ProjectDetector {
             "python3 -m pytest",
             "python -m pytest",
             "uv run pytest",
+            "python3 -m unittest discover -s tests",
+            "python -m unittest discover -s tests",
+            "python3 -m unittest",
+            "python -m unittest",
             "go test ./...",
             "cargo test",
             "./gradlew test",
@@ -439,6 +475,22 @@ public struct ProjectDetector {
                 commands.append(command)
             }
         }
+    }
+
+    private func inferredPythonTestClaims(
+        in content: String,
+        source: String
+    ) -> [(command: String, purpose: ValidationCommandPurpose)] {
+        guard source.hasPrefix("tests/") else { return [] }
+        let lowercased = content.lowercased()
+        guard lowercased.contains("import unittest")
+                || lowercased.contains("unittest.testcase")
+                || lowercased.contains("unittest.main(")
+        else {
+            return []
+        }
+
+        return [("python3 -m unittest discover -s tests", .ordinaryLocal)]
     }
 
     private func validationCommandPurpose(

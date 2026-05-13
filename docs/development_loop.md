@@ -72,6 +72,13 @@ should remain distinct from release-prep or artifact validation such as
 bounded `Open uncertainty` instead of promoting a release or packaging script as
 the first ordinary validation command.
 
+The first concrete Python validation-purpose follow-up is now covered: Habitat
+does not promote virtualenv pytest guidance from interpreter existence alone.
+It verifies project pytest first, and checks whether repository docs or
+top-level test files point to unittest before rendering a pytest preference.
+Future runner taxonomy should still wait for repeated command-decision
+evidence.
+
 For distribution work, model Habitat's own command policy philosophy. Prefer
 checksum verification, explicit binary version checks, `generatorVersion`
 checks, and generated metadata verification over remote script piping,

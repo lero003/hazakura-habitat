@@ -105,6 +105,23 @@ func makeExecutableProjectVenvPython(_ projectURL: URL) throws {
     try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: pythonURL.path)
 }
 
+func projectPytestVersionKey(_ projectURL: URL) -> String {
+    "\(projectURL.appendingPathComponent(".venv/bin/python").path) -m pytest --version"
+}
+
+func projectPytestVersionResult(_ projectURL: URL) -> CommandInfo {
+    CommandInfo(
+        name: projectURL.appendingPathComponent(".venv/bin/python").path,
+        args: ["-m", "pytest", "--version"],
+        exitCode: 0,
+        durationMs: 1,
+        timedOut: false,
+        available: true,
+        stdout: "pytest 8.3.0",
+        stderr: ""
+    )
+}
+
 func markdownSnapshotScanResult() -> ScanResult {
     ScanResult(
         schemaVersion: "0.1",

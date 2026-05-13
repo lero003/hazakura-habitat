@@ -54,7 +54,7 @@ public struct HabitatScanner {
         }
 
         let commandSpecs = baseCommandSpecs
-            + projectSpecificVersionCommandSpecs(project: project, resolvedPaths: resolvedPaths)
+            + projectSpecificVersionCommandSpecs(project: project, projectURL: projectURL, resolvedPaths: resolvedPaths)
         let additionalCommands = commandSpecs.dropFirst(baseCommandSpecs.count).map { spec in
             runner.run(executable: spec.1, arguments: spec.2, timeout: 3.0)
         }
@@ -82,7 +82,7 @@ public struct HabitatScanner {
             + secretDetector.secretEnvironmentRenderForbiddenCommands(project)
             + secretDetector.secretProjectBulkExportForbiddenCommands(project)
         )
-        let preferredCommands = preferredCommands(project: project)
+        let preferredCommands = preferredCommands(project: project, versions: versions)
         let askFirstCommands = askFirstCommands(
             project: project,
             projectPathIsExistingDirectory: projectPathIsExistingDirectory,
@@ -195,7 +195,7 @@ public struct HabitatScanner {
         }
     }
 
-    private func preferredCommands(project: ProjectInfo) -> [String] {
+    private func preferredCommands(project: ProjectInfo, versions: [ToolVersion]) -> [String] {
         switch project.packageManager {
         case "pnpm":
             return javaScriptPreferredCommands(packageManager: "pnpm", project: project)
@@ -220,15 +220,9 @@ public struct HabitatScanner {
         case "xcodebuild":
             return xcodebuildPreferredCommands(project: project)
         case "uv":
-            return hasUsableProjectVirtualEnvironment(project) ? [".venv/bin/python -m pytest"] : []
+            return pythonPreferredCommands(project: project, versions: versions, includeInterpreterFallback: false)
         case "python":
-            if hasUsableProjectVirtualEnvironment(project) {
-                return [".venv/bin/python -m pytest", ".venv/bin/python"]
-            }
-            if hasBrokenProjectVirtualEnvironment(project) {
-                return []
-            }
-            return ["python3 -m pytest"]
+            return pythonPreferredCommands(project: project, versions: versions, includeInterpreterFallback: true)
         case "bundler":
             return []
         case "homebrew":
@@ -236,6 +230,40 @@ public struct HabitatScanner {
         default:
             return []
         }
+    }
+
+    private func pythonPreferredCommands(
+        project: ProjectInfo,
+        versions: [ToolVersion],
+        includeInterpreterFallback: Bool
+    ) -> [String] {
+        let fallback = includeInterpreterFallback ? [".venv/bin/python"] : []
+
+        if hasUsableProjectVirtualEnvironment(project) {
+            if hasUnittestValidationSignal(project) {
+                return [".venv/bin/python -m unittest discover -s tests"] + fallback
+            }
+
+            if projectPytestIsAvailable(versions) {
+                return [".venv/bin/python -m pytest"] + fallback
+            }
+
+            return fallback
+        }
+
+        if hasBrokenProjectVirtualEnvironment(project) {
+            return []
+        }
+
+        guard includeInterpreterFallback else {
+            return []
+        }
+
+        if hasUnittestValidationSignal(project) {
+            return ["python3 -m unittest discover -s tests"]
+        }
+
+        return ["python3 -m pytest"]
     }
 
     private func xcodebuildPreferredCommands(project: ProjectInfo) -> [String] {
@@ -686,6 +714,16 @@ public struct HabitatScanner {
         hasProjectVirtualEnvironment(project) && !hasUsableProjectVirtualEnvironment(project)
     }
 
+    private func projectPytestIsAvailable(_ versions: [ToolVersion]) -> Bool {
+        versions.first(where: { $0.name == "project-pytest" })?.available == true
+    }
+
+    private func hasUnittestValidationSignal(_ project: ProjectInfo) -> Bool {
+        project.validationCommandClaims.contains {
+            $0.command.contains("unittest")
+        }
+    }
+
     private func hasMixedPythonDependencyFiles(_ project: ProjectInfo) -> Bool {
         project.detectedFiles.contains("pyproject.toml")
             && (project.detectedFiles.contains("requirements.txt") || project.detectedFiles.contains("requirements-dev.txt"))
@@ -791,30 +829,44 @@ public struct HabitatScanner {
         }
     }
 
-    private func projectSpecificVersionCommandSpecs(project: ProjectInfo, resolvedPaths: [ResolvedTool]) -> [(String, String, [String])] {
+    private func projectSpecificVersionCommandSpecs(project: ProjectInfo, projectURL: URL, resolvedPaths: [ResolvedTool]) -> [(String, String, [String])] {
+        var specs: [(String, String, [String])] = []
+
+        if project.packageManager.map({ ["python", "uv"].contains($0) }) == true,
+           hasUsableProjectVirtualEnvironment(project),
+           !hasUnittestValidationSignal(project) {
+            specs.append((
+                "project-pytest",
+                projectURL.appendingPathComponent(".venv/bin/python").path,
+                ["-m", "pytest", "--version"]
+            ))
+        }
+
         switch project.packageManager {
         case "npm", "pnpm", "yarn", "bun":
             guard let packageManager = project.packageManager,
                   toolIsResolved(packageManager, resolvedPaths: resolvedPaths)
             else {
-                return []
+                return specs
             }
-            return [(packageManager, "/usr/bin/env", [packageManager, "--version"])]
+            specs.append((packageManager, "/usr/bin/env", [packageManager, "--version"]))
         case "bundler":
-            guard toolIsResolved("bundle", resolvedPaths: resolvedPaths) else { return [] }
-            return [("bundle", "/usr/bin/env", ["bundle", "--version"])]
+            guard toolIsResolved("bundle", resolvedPaths: resolvedPaths) else { return specs }
+            specs.append(("bundle", "/usr/bin/env", ["bundle", "--version"]))
         case "homebrew":
-            guard toolIsResolved("brew", resolvedPaths: resolvedPaths) else { return [] }
-            return [("brew", "/usr/bin/env", ["brew", "--version"])]
+            guard toolIsResolved("brew", resolvedPaths: resolvedPaths) else { return specs }
+            specs.append(("brew", "/usr/bin/env", ["brew", "--version"]))
         case "cocoapods":
-            guard toolIsResolved("pod", resolvedPaths: resolvedPaths) else { return [] }
-            return [("pod", "/usr/bin/env", ["pod", "--version"])]
+            guard toolIsResolved("pod", resolvedPaths: resolvedPaths) else { return specs }
+            specs.append(("pod", "/usr/bin/env", ["pod", "--version"]))
         case "carthage":
-            guard toolIsResolved("carthage", resolvedPaths: resolvedPaths) else { return [] }
-            return [("carthage", "/usr/bin/env", ["carthage", "version"])]
+            guard toolIsResolved("carthage", resolvedPaths: resolvedPaths) else { return specs }
+            specs.append(("carthage", "/usr/bin/env", ["carthage", "version"]))
         default:
-            return []
+            break
         }
+
+        return specs
     }
 
     private func shouldWarnAboutMissingPreferredTool(project: ProjectInfo, packageManager: String, resolvedPaths: [ResolvedTool]) -> Bool {

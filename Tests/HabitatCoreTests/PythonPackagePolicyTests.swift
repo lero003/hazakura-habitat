@@ -13,6 +13,7 @@ struct PythonPackagePolicyTests {
 
         let runner = FakeCommandRunner(results: [
             "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
+            projectPytestVersionKey(projectURL): projectPytestVersionResult(projectURL),
         ])
 
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
@@ -44,7 +45,7 @@ struct PythonPackagePolicyTests {
 
         #expect(result.project.packageManager == "python")
         #expect(result.project.detectedFiles.contains(".venv/bin/python"))
-        #expect(result.policy.preferredCommands == [".venv/bin/python -m pytest", ".venv/bin/python"])
+        #expect(result.policy.preferredCommands == [".venv/bin/python"])
         #expect(!result.policy.askFirstCommands.contains("running Python commands before python3 is available"))
         #expect(!result.warnings.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
         #expect(result.warnings.contains("Project .venv exists; use .venv/bin/python for Python commands before system python3."))
@@ -54,13 +55,76 @@ struct PythonPackagePolicyTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
         let policy = try String(contentsOf: outputURL.appendingPathComponent("command_policy.md"), encoding: .utf8)
 
-        #expect(context.contains("Prefer `.venv/bin/python -m pytest`."))
+        #expect(context.contains("Prefer `.venv/bin/python`."))
+        #expect(!context.contains("Prefer `.venv/bin/python -m pytest`."))
         #expect(!context.contains("Ask before `running Python commands before python3 is available`."))
         #expect(!context.contains("Project files prefer Python, but python3 was not found on PATH; ask before running Python commands."))
-        #expect(policy.contains("`.venv/bin/python -m pytest`"))
+        #expect(policy.contains("`.venv/bin/python`"))
+        #expect(!policy.contains("`.venv/bin/python -m pytest`"))
         #expect(!policy.contains("`test commands for the selected project`"))
         #expect(!policy.contains("`running Python commands before python3 is available`"))
         #expect(!policy.contains("`build commands for the selected project`"))
+    }
+
+    @Test
+    func scanPrefersUnittestWhenDocsPointAwayFromPytest() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            "README.md": "Validate with `PYTHONPATH=src python3 -m unittest discover -s tests`.\n",
+            "docs/release-checklist.md": "Before release, run `PYTHONPATH=src python3 -m unittest discover -s tests`.\n",
+        ])
+        try makeExecutableProjectVenvPython(projectURL)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("docs/release-checklist.md"))
+        #expect(result.project.validationCommandClaims.contains {
+            $0.command == "python3 -m unittest discover -s tests"
+        })
+        #expect(result.policy.preferredCommands == [
+            ".venv/bin/python -m unittest discover -s tests",
+            ".venv/bin/python"
+        ])
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Prefer `.venv/bin/python -m unittest discover -s tests`."))
+        #expect(!context.contains("Prefer `.venv/bin/python -m pytest`."))
+    }
+
+    @Test
+    func scanInfersUnittestFromPythonTestFiles() throws {
+        let projectURL = try makeProject(files: [
+            "pyproject.toml": "[project]\nname = \"demo\"\n",
+            "tests/test_demo.py": """
+            import unittest
+
+            class DemoTests(unittest.TestCase):
+                pass
+            """,
+        ])
+        try makeExecutableProjectVenvPython(projectURL)
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+
+        #expect(result.project.detectedFiles.contains("tests/test_demo.py"))
+        #expect(result.project.validationCommandClaims.contains {
+            $0.source == "tests/test_demo.py"
+                && $0.command == "python3 -m unittest discover -s tests"
+        })
+        #expect(result.policy.preferredCommands == [
+            ".venv/bin/python -m unittest discover -s tests",
+            ".venv/bin/python"
+        ])
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Prefer `.venv/bin/python -m unittest discover -s tests`."))
+        #expect(!context.contains("Prefer `.venv/bin/python -m pytest`."))
     }
 
     @Test
@@ -75,7 +139,11 @@ struct PythonPackagePolicyTests {
             withDestinationPath: "python3"
         )
 
-        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let runner = FakeCommandRunner(results: [
+            projectPytestVersionKey(projectURL): projectPytestVersionResult(projectURL),
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
 
         #expect(result.project.detectedFiles.contains(".venv/bin/python"))
         #expect(!result.project.symlinkedFiles.contains(".venv/bin/python"))
@@ -538,6 +606,7 @@ struct PythonPackagePolicyTests {
             "/usr/bin/env python3 --version": .init(name: "/usr/bin/env", args: ["python3", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Python 3.12.4", stderr: ""),
             "/usr/bin/which -a python3": .init(name: "/usr/bin/which", args: ["-a", "python3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/python3", stderr: ""),
             "/usr/bin/which -a pip3": .init(name: "/usr/bin/which", args: ["-a", "pip3"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/opt/homebrew/bin/pip3", stderr: ""),
+            projectPytestVersionKey(projectURL): projectPytestVersionResult(projectURL),
         ])
 
         let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)

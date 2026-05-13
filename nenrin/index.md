@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 153
+- observing: 154
 - reviewed: 10
 
 ## Active Changes
@@ -154,6 +154,7 @@
 - `post-v0-6-roadmap-automation-handoff` - [changes/2026-05-13-post-v0-6-roadmap-automation-handoff.md](changes/2026-05-13-post-v0-6-roadmap-automation-handoff.md)
 - `preferred-command-json-sync` - [changes/2026-05-13-preferred-command-json-sync.md](changes/2026-05-13-preferred-command-json-sync.md)
 - `project-local-validation-script-boundary` - [changes/2026-05-13-project-local-validation-script-boundary.md](changes/2026-05-13-project-local-validation-script-boundary.md)
+- `python-unittest-validation-preference` - [changes/2026-05-13-python-unittest-validation-preference.md](changes/2026-05-13-python-unittest-validation-preference.md)
 - `secret-bearing-behavior-test-boundary` - [changes/2026-05-13-secret-bearing-behavior-test-boundary.md](changes/2026-05-13-secret-bearing-behavior-test-boundary.md)
 - `stdout-artifact-output` - [changes/2026-05-13-stdout-artifact-output.md](changes/2026-05-13-stdout-artifact-output.md)
 - `validation-claim-command-dedup` - [changes/2026-05-13-validation-claim-command-dedup.md](changes/2026-05-13-validation-claim-command-dedup.md)
