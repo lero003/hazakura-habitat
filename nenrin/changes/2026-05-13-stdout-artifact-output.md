@@ -27,6 +27,9 @@ review_after:
 - Added `scripts/check_habitat_metadata.sh` as a small script-consumption helper
   that compares binary `--version` with stdout `generatorVersion` without
   creating or updating `habitat-report/`.
+- Tightened the helper contract so local scripts also fail when stdout
+  `scan_result.json` is missing core generated Markdown artifact metadata for
+  `agent_context.md` or `command_policy.md`.
 - Reused the same report rendering path as file output, so stdout output does not fork the artifact contract.
 - Allowed `habitat-scan scan --help` as a scan-specific help entrypoint, so agents can discover stdout/file output forms without triggering an argument error.
 - Documented when to use stdout versus durable `habitat-report/` files.
@@ -39,6 +42,8 @@ review_after:
 
 - Agents can fetch the short working context without creating or locating `habitat-report/agent_context.md`.
 - Scripts can consult `scan_result.json` or the full policy through stdout when they do not need diagnostics or durable report snapshots.
+- Scripts can reject a malformed or incomplete generated-Markdown metadata
+  contract before trusting generated Markdown paths or roles.
 - File output remains the path for durable report snapshots and environment diagnostics.
 
 ## Review After
@@ -50,12 +55,16 @@ review_after:
 
 - Future automation can replace temporary report-file reads with stdout when only one generated artifact is needed.
 - The stdout path stays byte-for-byte aligned with the generated report renderer.
+- Metadata checks catch missing core artifact entries before downstream scripts
+  assume the report is consumable.
 - Agents checking scan usage use `scan --help` successfully before choosing `--stdout` or `--output`.
 
 ## Failure Signals
 
 - Agents need `scan_result.json` but accidentally use stdout-only output.
 - Stdout output diverges from file output or gains status/log noise.
+- A helper accepts scan-result JSON without the core artifact metadata that
+  agents and scripts rely on for consumption.
 
 ## Result
 

@@ -7,6 +7,7 @@ Usage: check_habitat_metadata.sh /path/to/habitat-scan /path/to/project [expecte
 
 Checks that:
 - habitat-scan --version reports the same version as scan_result.json generatorVersion
+- scan_result.json includes the core generated Markdown artifact metadata
 - optional expected-version matches both values
 
 This script reads scan_result.json through --stdout scan-result and does not
@@ -42,7 +43,23 @@ if [[ -z "$binary_version" || "$binary_version" == "$version_output" ]]; then
 fi
 
 scan_json="$("$habitat_scan" scan --project "$project_path" --stdout scan-result)"
-generator_version="$(printf '%s' "$scan_json" | /usr/bin/env python3 -c 'import json, sys; print(json.load(sys.stdin).get("generatorVersion", ""))')"
+generator_version="$(printf '%s' "$scan_json" | /usr/bin/env python3 -c '
+import json
+import sys
+
+data = json.load(sys.stdin)
+generator_version = data.get("generatorVersion", "")
+artifacts = data.get("artifacts", [])
+artifact_names = {artifact.get("name") for artifact in artifacts if isinstance(artifact, dict)}
+required_artifacts = {"agent_context.md", "command_policy.md"}
+missing_artifacts = sorted(required_artifacts - artifact_names)
+
+if missing_artifacts:
+    print("error: scan_result.json missing artifact metadata for " + ", ".join(missing_artifacts), file=sys.stderr)
+    sys.exit(3)
+
+print(generator_version)
+')"
 
 if [[ -z "$generator_version" ]]; then
   printf 'error: scan_result.json did not include generatorVersion\n' >&2

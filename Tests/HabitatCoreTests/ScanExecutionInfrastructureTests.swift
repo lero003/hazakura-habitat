@@ -245,7 +245,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" ]]; then
-              printf '{"generatorVersion":"1.2.3"}\\n'
+              printf '{"generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md"},{"name":"command_policy.md"}]}\\n'
               exit 0
             fi
             exit 2
@@ -290,7 +290,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" ]]; then
-              printf '{"generatorVersion":"1.2.4"}\\n'
+              printf '{"generatorVersion":"1.2.4","artifacts":[{"name":"agent_context.md"},{"name":"command_policy.md"}]}\\n'
               exit 0
             fi
             exit 2
@@ -313,6 +313,49 @@ struct ScanExecutionInfrastructureTests {
         let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
         #expect(process.terminationStatus == 1)
         #expect(error.contains("binary version 1.2.3 does not match generatorVersion 1.2.4"))
+    }
+
+    @Test
+    func metadataCheckScriptRejectsMissingCoreArtifactMetadata() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = tempURL.appendingPathComponent("habitat-scan")
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            set -euo pipefail
+            if [[ "$1" == "--version" ]]; then
+              printf 'habitat-scan 1.2.3\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" ]]; then
+              printf '{"generatorVersion":"1.2.3","artifacts":[{"name":"scan_result.json"}]}\\n'
+              exit 0
+            fi
+            exit 2
+            """
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/check_habitat_metadata.sh",
+            binaryURL.path,
+            projectURL.path,
+        ]
+
+        let stderr = Pipe()
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 3)
+        #expect(error.contains("missing artifact metadata for agent_context.md, command_policy.md"))
     }
 
     @Test
