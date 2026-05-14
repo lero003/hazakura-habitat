@@ -60,6 +60,8 @@ review_after:
 - Accepted generated report filenames such as `agent_context.md` and
   `scan_result.json` as `--stdout` aliases, so scripts can pass artifact
   metadata names back to the CLI without translating them into dash-form tokens.
+- Tightened the helper contract again so local scripts verify the same filename
+  aliases before trusting metadata-driven artifact consumption.
 
 ## Reason
 
@@ -88,6 +90,9 @@ review_after:
 - Scripts that read generated artifact metadata can request the same artifact by
   report filename through `--stdout`, reducing filename/token conversion
   mistakes.
+- The bundled helper rejects binaries where dash-form stdout tokens work but
+  filename aliases do not, before downstream scripts depend on metadata-driven
+  artifact names.
 
 ## Review After
 
@@ -117,6 +122,7 @@ review_after:
   error instead of leaving stale `habitat-report/` files looking current.
 - Scripts can round-trip artifact names from metadata to `--stdout` without
   maintaining a separate dash-token map.
+- The helper test suite catches regressions in that filename-alias round trip.
 
 ## Failure Signals
 

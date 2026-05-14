@@ -9,6 +9,7 @@ Checks that:
 - habitat-scan --version reports the same version as scan_result.json generatorVersion
 - scan_result.json includes the core generated Markdown artifact names, roles, paths, formats, read order, read triggers, and agent-use hints
 - --stdout agent-context, command-policy, and environment-report return the core Markdown artifacts
+- --stdout filename aliases return the matching core artifacts
 - optional expected-version matches both values
 
 This script reads scan_result.json through --stdout scan-result and does not
@@ -139,6 +140,39 @@ fi
 if [[ -n "$expected_version" && "$binary_version" != "$expected_version" ]]; then
   printf 'error: version %s does not match expected version %s\n' "$binary_version" "$expected_version" >&2
   exit 1
+fi
+
+scan_json_by_name="$("$habitat_scan" scan --project "$project_path" --stdout scan_result.json)"
+agent_context_by_name="$("$habitat_scan" scan --project "$project_path" --stdout agent_context.md)"
+command_policy_by_name="$("$habitat_scan" scan --project "$project_path" --stdout command_policy.md)"
+environment_report_by_name="$("$habitat_scan" scan --project "$project_path" --stdout environment_report.md)"
+
+generator_version_by_name="$(printf '%s' "$scan_json_by_name" | /usr/bin/env python3 -c '
+import json
+import sys
+
+data = json.load(sys.stdin)
+print(data.get("generatorVersion", ""))
+')"
+
+if [[ "$generator_version_by_name" != "$generator_version" ]]; then
+  printf 'error: --stdout scan_result.json generatorVersion %s does not match scan-result generatorVersion %s\n' "$generator_version_by_name" "$generator_version" >&2
+  exit 4
+fi
+
+if [[ "$agent_context_by_name" != \#\ Agent\ Context* ]]; then
+  printf 'error: --stdout agent_context.md did not return agent_context.md\n' >&2
+  exit 4
+fi
+
+if [[ "$command_policy_by_name" != \#\ Command\ Policy* ]]; then
+  printf 'error: --stdout command_policy.md did not return command_policy.md\n' >&2
+  exit 4
+fi
+
+if [[ "$environment_report_by_name" != \#\ Environment\ Report* ]]; then
+  printf 'error: --stdout environment_report.md did not return environment_report.md\n' >&2
+  exit 4
 fi
 
 printf 'binaryVersion=%s\n' "$binary_version"

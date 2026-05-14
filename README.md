@@ -216,6 +216,8 @@ formats, read order, read triggers, and agent-use hints, checks that
 `--stdout agent-context`, `--stdout command-policy`, and
 `--stdout environment-report` return the expected Markdown artifacts,
 and leaves `habitat-report/` untouched.
+It also checks the matching `--stdout` filename aliases, so scripts can use
+artifact names read from metadata without translating them back to CLI tokens.
 
 ## Run
 

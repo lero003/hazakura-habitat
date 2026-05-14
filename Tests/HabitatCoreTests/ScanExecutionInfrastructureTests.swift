@@ -303,6 +303,22 @@ struct ScanExecutionInfrastructureTests {
               printf '# Environment Report\\n\\n## Diagnostics\\n'
               exit 0
             fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan_result.json" ]]; then
+              printf '{"generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent_context.md" ]]; then
+              printf '# Agent Context\\n\\n## Use\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command_policy.md" ]]; then
+              printf '# Command Policy\\n\\n## Allowed\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment_report.md" ]]; then
+              printf '# Environment Report\\n\\n## Diagnostics\\n'
+              exit 0
+            fi
             exit 2
             """
         )
