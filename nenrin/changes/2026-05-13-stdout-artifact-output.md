@@ -126,6 +126,10 @@ review_after:
 - The CLI and print helper also accept `habitat-report/filename` artifact
   paths, so automation can copy a saved report path into a direct stdout
   command without maintaining a separate token mapping.
+- The CLI and print helper also accept absolute saved-report paths containing
+  `habitat-report/filename`, so automation output that already names a full
+  report file can be reused as a direct stdout selector without path/token
+  translation.
 - The bundled helper rejects scan-result JSON with an unexpected
   `schemaVersion`, so generator-version agreement alone is not treated as a
   complete machine-consumption contract.

@@ -84,7 +84,7 @@ struct CLI {
 
         Note:
           Use --stdout for one direct artifact, or --output for durable report files; do not combine them.
-          --stdout accepts the artifact token, matching generated report filename, ./filename, or habitat-report/filename.
+          --stdout accepts the artifact token, matching generated report filename, ./filename, habitat-report/filename, or an absolute saved-report path.
         """
     }
 

@@ -119,18 +119,22 @@ struct ScanExecutionInfrastructureTests {
             ("./scan_result.json", .scanResult),
             ("habitat-report/scan_result.json", .scanResult),
             ("./habitat-report/scan_result.json", .scanResult),
+            ("/tmp/project/habitat-report/scan_result.json", .scanResult),
             ("agent_context.md", .agentContext),
             ("./agent_context.md", .agentContext),
             ("habitat-report/agent_context.md", .agentContext),
             ("./habitat-report/agent_context.md", .agentContext),
+            ("/tmp/project/habitat-report/agent_context.md", .agentContext),
             ("command_policy.md", .commandPolicy),
             ("./command_policy.md", .commandPolicy),
             ("habitat-report/command_policy.md", .commandPolicy),
             ("./habitat-report/command_policy.md", .commandPolicy),
+            ("/tmp/project/habitat-report/command_policy.md", .commandPolicy),
             ("environment_report.md", .environmentReport),
             ("./environment_report.md", .environmentReport),
             ("habitat-report/environment_report.md", .environmentReport),
             ("./habitat-report/environment_report.md", .environmentReport),
+            ("/tmp/project/habitat-report/environment_report.md", .environmentReport),
         ]
 
         for (value, artifact) in aliases {
@@ -929,7 +933,7 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
-    func printArtifactScriptAcceptsReportRelativeArtifactPath() throws {
+    func printArtifactScriptAcceptsReportArtifactPaths() throws {
         let fileManager = FileManager.default
         let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         let projectURL = tempURL.appendingPathComponent("project")
@@ -958,28 +962,33 @@ struct ScanExecutionInfrastructureTests {
             """
         )
 
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/bin/bash")
-        process.arguments = [
-            "scripts/print_habitat_artifact.sh",
-            binaryURL.path,
-            projectURL.path,
+        for requestedArtifact in [
             "habitat-report/agent_context.md",
-            "1.2.3",
-        ]
+            reportURL.appendingPathComponent("agent_context.md").path,
+        ] {
+            let process = Process()
+            process.executableURL = URL(fileURLWithPath: "/bin/bash")
+            process.arguments = [
+                "scripts/print_habitat_artifact.sh",
+                binaryURL.path,
+                projectURL.path,
+                requestedArtifact,
+                "1.2.3",
+            ]
 
-        let stdout = Pipe()
-        let stderr = Pipe()
-        process.standardOutput = stdout
-        process.standardError = stderr
-        try process.run()
-        process.waitUntilExit()
+            let stdout = Pipe()
+            let stderr = Pipe()
+            process.standardOutput = stdout
+            process.standardError = stderr
+            try process.run()
+            process.waitUntilExit()
 
-        let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
-        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
-        #expect(process.terminationStatus == 0)
-        #expect(output == "# Agent Context\n\n## Use\n- Use SwiftPM.\n")
-        #expect(error.isEmpty)
+            let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+            let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+            #expect(process.terminationStatus == 0)
+            #expect(output == "# Agent Context\n\n## Use\n- Use SwiftPM.\n")
+            #expect(error.isEmpty)
+        }
         #expect(!fileManager.fileExists(atPath: reportURL.path))
     }
 

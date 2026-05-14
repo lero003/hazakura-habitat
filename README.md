@@ -255,15 +255,16 @@ requested artifact:
 scripts/print_habitat_artifact.sh ./dist/habitat-scan . agent_context.md 0.6.0
 scripts/print_habitat_artifact.sh ./dist/habitat-scan . command_policy.md 0.6.0
 scripts/print_habitat_artifact.sh ./dist/habitat-scan . habitat-report/agent_context.md 0.6.0
+scripts/print_habitat_artifact.sh ./dist/habitat-scan . /path/to/project/habitat-report/agent_context.md 0.6.0
 ```
 
 This helper verifies the binary version, `generatorVersion`, expected preview
 `schemaVersion`, and requested artifact metadata before printing. For Markdown
 artifacts, that metadata includes the expected role, path, format, read order,
 read trigger, and agent-use hint. It does not create or update
-`habitat-report/`. The `habitat-report/filename` form is accepted as a
-report-path alias; it still prints a direct stdout artifact rather than reading
-a saved report file.
+`habitat-report/`. The `habitat-report/filename` and absolute saved-report
+forms are accepted as report-path aliases; they still print a direct stdout
+artifact rather than reading a saved report file.
 
 For downloaded release directories, use the release print helper when a script
 needs a verified artifact from the zip or standalone release asset without
@@ -299,9 +300,10 @@ artifact directly instead of creating a report directory:
 `--stdout` keeps stdout limited to the requested artifact. It accepts the
 artifact tokens above or the matching generated report filenames:
 `scan_result.json`, `agent_context.md`, `command_policy.md`, and
-`environment_report.md`, including `./filename` and `habitat-report/filename`
-forms. Use `--output` when you need durable report files; do not combine
-`--stdout` and `--output` in one scan command.
+`environment_report.md`, including `./filename`, `habitat-report/filename`, and
+absolute saved-report paths containing `habitat-report/filename` forms. Use
+`--output` when you need durable report files; do not combine `--stdout` and
+`--output` in one scan command.
 Use `scan --help` for scan-specific output and file-consumption forms.
 
 Optional comparison against a previous scan:
