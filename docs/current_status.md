@@ -52,7 +52,8 @@ Keep the current cycle focused:
   refreshed when they actually requested direct stdout output.
 - `scripts/check_habitat_metadata.sh` gives local scripts a small checked path
   for comparing a binary's `--version` output with `scan_result.json`
-  `generatorVersion` and verifying generated Markdown artifact metadata for
+  `generatorVersion`, verifying the expected preview `schemaVersion`, and
+  verifying generated Markdown artifact metadata for
   `agent_context.md`, `command_policy.md`, and `environment_report.md` through
   `--stdout scan-result`, including expected names, roles, relative paths,
   formats, read order, read triggers, and agent-use metadata, plus the direct stdout

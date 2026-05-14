@@ -7,6 +7,7 @@ Usage: check_habitat_metadata.sh /path/to/habitat-scan /path/to/project [expecte
 
 Checks that:
 - habitat-scan --version reports the same version as scan_result.json generatorVersion
+- scan_result.json reports the expected schemaVersion for this helper
 - scan_result.json includes the core generated Markdown artifact names, roles, paths, formats, read order, read triggers, and agent-use hints
 - --stdout agent-context, command-policy, and environment-report return the core Markdown artifacts
 - --stdout filename aliases return the matching core artifacts
@@ -30,6 +31,7 @@ fi
 habitat_scan="$1"
 project_path="$2"
 expected_version="${3:-}"
+expected_schema_version="0.1"
 
 if [[ ! -x "$habitat_scan" ]]; then
   printf 'error: habitat-scan binary is not executable: %s\n' "$habitat_scan" >&2
@@ -64,13 +66,20 @@ if [[ "$environment_report" != \#\ Environment\ Report* ]]; then
   exit 4
 fi
 
-generator_version="$(printf '%s' "$scan_json" | /usr/bin/env python3 -c '
+metadata_values="$(printf '%s' "$scan_json" | EXPECTED_SCHEMA_VERSION="$expected_schema_version" /usr/bin/env python3 -c '
 import json
+import os
 import sys
 
 data = json.load(sys.stdin)
+schema_version = data.get("schemaVersion", "")
 generator_version = data.get("generatorVersion", "")
 artifacts = data.get("artifacts", [])
+expected_schema_version = os.environ["EXPECTED_SCHEMA_VERSION"]
+
+if schema_version != expected_schema_version:
+    print(f"error: scan_result.json schemaVersion {schema_version!r} does not match expected {expected_schema_version!r}", file=sys.stderr)
+    sys.exit(3)
 
 required_artifacts = {
     "agent_context.md": {
@@ -124,8 +133,12 @@ if missing_artifacts or metadata_errors:
     print("error: scan_result.json missing or invalid core artifact metadata: " + "; ".join(details), file=sys.stderr)
     sys.exit(3)
 
+print(schema_version)
 print(generator_version)
 ')"
+
+schema_version="$(printf '%s\n' "$metadata_values" | sed -n '1p')"
+generator_version="$(printf '%s\n' "$metadata_values" | sed -n '2p')"
 
 if [[ -z "$generator_version" ]]; then
   printf 'error: scan_result.json did not include generatorVersion\n' >&2
@@ -147,12 +160,19 @@ agent_context_by_name="$("$habitat_scan" scan --project "$project_path" --stdout
 command_policy_by_name="$("$habitat_scan" scan --project "$project_path" --stdout command_policy.md)"
 environment_report_by_name="$("$habitat_scan" scan --project "$project_path" --stdout environment_report.md)"
 
-generator_version_by_name="$(printf '%s' "$scan_json_by_name" | /usr/bin/env python3 -c '
+generator_version_by_name="$(printf '%s' "$scan_json_by_name" | EXPECTED_SCHEMA_VERSION="$expected_schema_version" /usr/bin/env python3 -c '
 import json
+import os
 import sys
 
 data = json.load(sys.stdin)
-print(data.get("generatorVersion", ""))
+schema_version = data.get("schemaVersion", "")
+generator_version = data.get("generatorVersion", "")
+expected_schema_version = os.environ["EXPECTED_SCHEMA_VERSION"]
+if schema_version != expected_schema_version:
+    print(f"error: --stdout scan_result.json schemaVersion {schema_version!r} does not match expected {expected_schema_version!r}", file=sys.stderr)
+    sys.exit(3)
+print(generator_version)
 ')"
 
 if [[ "$generator_version_by_name" != "$generator_version" ]]; then
@@ -176,6 +196,7 @@ if [[ "$environment_report_by_name" != \#\ Environment\ Report* ]]; then
 fi
 
 printf 'binaryVersion=%s\n' "$binary_version"
+printf 'schemaVersion=%s\n' "$schema_version"
 printf 'generatorVersion=%s\n' "$generator_version"
 printf 'agentContext=ok\n'
 printf 'commandPolicy=ok\n'

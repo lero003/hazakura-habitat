@@ -7,6 +7,9 @@
 - Added `scripts/check_habitat_metadata.sh` so local scripts can compare
   `habitat-scan --version` with `scan_result.json` `generatorVersion` through
   `--stdout scan-result` without creating or updating `habitat-report/`.
+- Tightened `scripts/check_habitat_metadata.sh` so it also rejects unexpected
+  `scan_result.json` `schemaVersion` values and prints the verified schema in
+  successful script output.
 - Added `habitat-scan scan --stdout scan-result` so automation and local scripts can consume `scan_result.json` metadata without creating a report directory.
 - Added the Hazakura Habitat logo asset and surfaced it at the top of `README.md`.
 - Moved the bundled agent skill entrypoint into the top of `README.md` so AI agents can discover `skills/hazakura-habitat/SKILL.md` during an initial repository read.

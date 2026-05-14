@@ -62,6 +62,9 @@ review_after:
   metadata names back to the CLI without translating them into dash-form tokens.
 - Tightened the helper contract again so local scripts verify the same filename
   aliases before trusting metadata-driven artifact consumption.
+- Tightened the helper contract again so local scripts reject unexpected
+  `schemaVersion` values before trusting `scan_result.json` as the expected
+  preview metadata shape.
 
 ## Reason
 
@@ -93,6 +96,9 @@ review_after:
 - The bundled helper rejects binaries where dash-form stdout tokens work but
   filename aliases do not, before downstream scripts depend on metadata-driven
   artifact names.
+- The bundled helper rejects scan-result JSON with an unexpected
+  `schemaVersion`, so generator-version agreement alone is not treated as a
+  complete machine-consumption contract.
 
 ## Review After
 
@@ -123,6 +129,8 @@ review_after:
 - Scripts can round-trip artifact names from metadata to `--stdout` without
   maintaining a separate dash-token map.
 - The helper test suite catches regressions in that filename-alias round trip.
+- The helper test suite catches unexpected `schemaVersion` values and prints
+  the verified schema in successful logs.
 
 ## Failure Signals
 
@@ -143,6 +151,8 @@ review_after:
   directory because the stdout-only scan did not refresh it.
 - Scripts derive `agent_context.md` from metadata, pass it to `--stdout`, and
   fail even though the requested artifact exists.
+- A helper accepts a future or malformed schema because `generatorVersion`
+  still matches the binary.
 
 ## Result
 
