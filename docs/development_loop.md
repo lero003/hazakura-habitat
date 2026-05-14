@@ -61,12 +61,12 @@ assets immutable unless the user explicitly asks for a patch release.
 
 Default priority for automation:
 
-- first, observe whether the published `v0.7.0` artifacts are actually easy for
-  agents, automation, and local scripts to obtain, verify, and consume
-- second, fix only concrete consumption, freshness, or release-trust failures
-  that change a command decision or published-artifact trust decision
-- third, turn repeated observations into focused policy, output-contract,
-  fixture, docs, or helper changes
+- first, use observation as the work selector, not as the deliverable
+- second, choose one small code, test, docs, fixture, helper, or output-contract
+  slice when published `v0.7.0` artifact consumption, report freshness, or
+  release-trust evidence changes a command decision
+- third, end as no-op only after checking that no safe repo-local slice is
+  justified
 
 For validation-purpose work, do not build a broad taxonomy by default. The
 ordinary-local-validation versus release/artifact-validation split shipped in
@@ -87,6 +87,14 @@ checks, and generated metadata verification over remote script piping,
 package-manager mutation, or automatic installation. Consider `--format`, a
 thin read-only MCP prototype, Linux feasibility notes, or setup-guide expansion
 only after file/stdout consumption proves insufficient in real use.
+
+Handoff, automation prompt, and Nenrin-only changes are allowed when stale
+guidance would make future runs choose the wrong work. After the post-`v0.7`
+transition is complete, they should not be the default automation slice. A
+normal run should prefer a focused development improvement such as a weak output
+contract, helper friction, representative example drift, stale-context handling
+gap, release-consumption mismatch, or maintainability boundary adjacent to
+command-decision behavior.
 
 Do not let external project backlogs choose Habitat work. Cross-project intake
 may supply one bounded carry-back, and Nenrin may record durable judgment

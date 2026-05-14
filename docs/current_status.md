@@ -25,6 +25,10 @@ Keep the current cycle focused:
 - add representative examples only when self-use evidence shows a new command-decision boundary
 - refine issue and contribution guidance when real feedback exposes a misunderstanding
 - harden output contract and behavior evaluation
+- make recurring automation development-forward: use observation to select one
+  small repo-local code, test, docs, fixture, helper, or output-contract slice,
+  and treat handoff or Nenrin-only work as a fallback for stale guidance rather
+  than the default outcome
 - use cross-project Habitat reports only as observation input for Habitat itself; the `hazakura-ai-mobile` report produced one bounded carry-back: executable Gradle wrappers can now become local validation guidance without expanding into Android environment auditing
 
 ## Implemented

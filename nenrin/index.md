@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 155
+- observing: 156
 - reviewed: 11
 
 ## Active Changes
@@ -162,6 +162,7 @@
 - `validation-claim-meta-discussion-filter` - [changes/2026-05-13-validation-claim-meta-discussion-filter.md](changes/2026-05-13-validation-claim-meta-discussion-filter.md)
 - `validation-command-purpose` - [changes/2026-05-13-validation-command-purpose.md](changes/2026-05-13-validation-command-purpose.md)
 - `post-v0-7-automation-handoff` - [changes/2026-05-15-post-v0-7-automation-handoff.md](changes/2026-05-15-post-v0-7-automation-handoff.md)
+- `development-forward-automation` - [changes/2026-05-15-development-forward-automation.md](changes/2026-05-15-development-forward-automation.md)
 
 ## Review Due
 
