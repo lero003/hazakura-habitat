@@ -272,11 +272,14 @@ managing the extracted binary path:
 
 ```bash
 scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . agent_context.md 0.6.0
+scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . habitat-report/agent_context.md 0.6.0
 ```
 
 This helper keeps the same checksum-first release boundary, writes verification
 output to stderr, delegates artifact metadata checks to the print helper, and
-keeps stdout limited to the requested artifact.
+keeps stdout limited to the requested artifact. It accepts the same
+report-filename and saved-report path aliases as the local print helper while
+still regenerating the requested stdout artifact from the verified binary.
 
 ## Run
 

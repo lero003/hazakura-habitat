@@ -84,6 +84,10 @@ review_after:
   consumers can preserve checksum-first verification and still pipe one
   generated artifact to stdout without managing a temporary extracted binary
   path.
+- Tightened the release artifact print contract so report-filename and
+  saved-report path aliases such as `habitat-report/agent_context.md` work
+  through the checksum-first release path too, while still regenerating the
+  artifact from the verified binary instead of reading an old report file.
 - Tightened release-directory helpers so the selected zip or standalone binary
   asset must be listed in `SHA256SUMS` before it can be extracted or executed.
 - Added `docs/distribution_foundations.md` so agents, automation, and local
@@ -136,6 +140,9 @@ review_after:
 - Scripts can pipe a verified single artifact such as `agent_context.md` or
   `command_policy.md` to an agent or automation step without parsing status
   output or creating durable report files.
+- Release-directory consumers can pass the same artifact path names that a
+  saved `habitat-report/` gave them, reducing path/token conversion mistakes
+  while keeping the checksum-first regeneration boundary.
 - The print helper rejects a requested Markdown artifact whose metadata would
   make an agent read the wrong artifact first or treat policy/detail output as
   ordinary working context.

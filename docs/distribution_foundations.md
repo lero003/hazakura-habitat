@@ -93,12 +93,16 @@ To pipe one verified release artifact to an agent or automation step:
 
 ```bash
 scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . agent_context.md 0.6.0
+scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . habitat-report/agent_context.md 0.6.0
 ```
 
 The release helpers reject checksum paths that escape the release directory,
 selected release assets that are missing from `SHA256SUMS`, zip entries that
 escape the temporary extraction directory, symlinked verified binaries, and
-non-regular binary paths before metadata or artifact checks run.
+non-regular binary paths before metadata or artifact checks run. The release
+artifact print helper accepts the same report-filename and saved-report path
+aliases as `scripts/print_habitat_artifact.sh`; it still regenerates and prints
+the requested stdout artifact rather than reading an old report file.
 
 ## What Not To Do
 
