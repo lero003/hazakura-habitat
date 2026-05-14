@@ -7,6 +7,9 @@
 - Added `scripts/check_habitat_metadata.sh` so local scripts can compare
   `habitat-scan --version` with `scan_result.json` `generatorVersion` through
   `--stdout scan-result` without creating or updating `habitat-report/`.
+- Added `scripts/print_habitat_artifact.sh` so local scripts can print one
+  verified generated artifact to stdout while keeping version/schema/artifact
+  metadata failures on stderr.
 - Tightened `scripts/check_habitat_metadata.sh` so it also rejects unexpected
   `scan_result.json` `schemaVersion` values and prints the verified schema in
   successful script output.

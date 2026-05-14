@@ -222,6 +222,19 @@ artifact names read from metadata without translating them back to CLI tokens.
 Successful output includes `binaryVersion`, `schemaVersion`, and
 `generatorVersion` lines for script logs.
 
+For local scripts that need one verified artifact on stdout, use the matching
+print helper. Verification failures go to stderr, so stdout remains the
+requested artifact:
+
+```bash
+scripts/print_habitat_artifact.sh ./dist/habitat-scan . agent_context.md 0.6.0
+scripts/print_habitat_artifact.sh ./dist/habitat-scan . command_policy.md 0.6.0
+```
+
+This helper verifies the binary version, `generatorVersion`, expected preview
+`schemaVersion`, and requested artifact metadata before printing. It does not
+create or update `habitat-report/`.
+
 ## Run
 
 ```bash

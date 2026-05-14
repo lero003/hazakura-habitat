@@ -9,6 +9,7 @@ related_files:
   - Sources/HabitatCore/ReportWriter.swift
   - Sources/habitat-scan/main.swift
   - scripts/check_habitat_metadata.sh
+  - scripts/print_habitat_artifact.sh
   - Tests/HabitatCoreTests/ScanExecutionInfrastructureTests.swift
   - Tests/HabitatCoreTests/CoreInfrastructureTests.swift
   - README.md
@@ -65,6 +66,11 @@ review_after:
 - Tightened the helper contract again so local scripts reject unexpected
   `schemaVersion` values before trusting `scan_result.json` as the expected
   preview metadata shape.
+- Added `scripts/print_habitat_artifact.sh` so local scripts can print one
+  verified generated artifact to stdout after checking binary version,
+  `generatorVersion`, expected preview `schemaVersion`, and requested artifact
+  metadata, while sending verification failures to stderr and leaving
+  `habitat-report/` untouched.
 
 ## Reason
 
@@ -99,6 +105,9 @@ review_after:
 - The bundled helper rejects scan-result JSON with an unexpected
   `schemaVersion`, so generator-version agreement alone is not treated as a
   complete machine-consumption contract.
+- Scripts can pipe a verified single artifact such as `agent_context.md` or
+  `command_policy.md` to an agent or automation step without parsing status
+  output or creating durable report files.
 
 ## Review After
 
@@ -131,6 +140,8 @@ review_after:
 - The helper test suite catches regressions in that filename-alias round trip.
 - The helper test suite catches unexpected `schemaVersion` values and prints
   the verified schema in successful logs.
+- The print helper test suite catches stdout pollution and verifies that
+  version mismatches fail before an artifact is printed.
 
 ## Failure Signals
 
@@ -153,6 +164,10 @@ review_after:
   fail even though the requested artifact exists.
 - A helper accepts a future or malformed schema because `generatorVersion`
   still matches the binary.
+- A print helper writes status logs to stdout, causing downstream agents or
+  scripts to receive a mixed artifact.
+- A print helper prints an artifact before checking binary, generator, schema,
+  or requested-artifact metadata.
 
 ## Result
 
