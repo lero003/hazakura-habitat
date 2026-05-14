@@ -591,6 +591,57 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func releaseVerificationScriptRejectsNonRegularZipBinaryBeforeMetadataChecks() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let releaseURL = tempURL.appendingPathComponent("release")
+        let projectURL = tempURL.appendingPathComponent("project")
+        let zipRootURL = tempURL.appendingPathComponent("zip-root")
+        let zipBinaryURL = zipRootURL.appendingPathComponent("dist/habitat-scan")
+        let zipURL = releaseURL.appendingPathComponent("habitat-scan-macos.zip")
+        try fileManager.createDirectory(at: releaseURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: zipBinaryURL, withIntermediateDirectories: true)
+
+        let zipProcess = Process()
+        zipProcess.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
+        zipProcess.currentDirectoryURL = zipRootURL
+        zipProcess.arguments = ["-qry", zipURL.path, "dist/habitat-scan"]
+        try zipProcess.run()
+        zipProcess.waitUntilExit()
+        #expect(zipProcess.terminationStatus == 0)
+
+        let checksum = try sha256(zipURL)
+        try "\(checksum)  habitat-scan-macos.zip\n".write(
+            to: releaseURL.appendingPathComponent("SHA256SUMS"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/verify_habitat_release.sh",
+            releaseURL.path,
+            projectURL.path,
+            "1.2.3",
+        ]
+
+        let stdout = Pipe()
+        let stderr = Pipe()
+        process.standardOutput = stdout
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 1)
+        #expect(output.contains("habitat-scan-macos.zip: OK"))
+        #expect(error.contains("verified release binary is not a regular executable file"))
+    }
+
+    @Test
     func releasePrintArtifactScriptVerifiesChecksumBeforePrintingArtifact() throws {
         let fileManager = FileManager.default
         let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -899,6 +950,39 @@ struct ScanExecutionInfrastructureTests {
         #expect(process.terminationStatus == 1)
         #expect(output.isEmpty)
         #expect(error.contains("version 1.2.3 does not match expected version 9.9.9"))
+    }
+
+    @Test
+    func printArtifactScriptRejectsNonRegularBinaryPathBeforeVersionCheck() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = tempURL.appendingPathComponent("habitat-scan")
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: binaryURL, withIntermediateDirectories: true)
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/print_habitat_artifact.sh",
+            binaryURL.path,
+            projectURL.path,
+            "agent_context.md",
+            "1.2.3",
+        ]
+
+        let stdout = Pipe()
+        let stderr = Pipe()
+        process.standardOutput = stdout
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 1)
+        #expect(output.isEmpty)
+        #expect(error.contains("habitat-scan binary is not a regular executable file"))
     }
 
     @Test

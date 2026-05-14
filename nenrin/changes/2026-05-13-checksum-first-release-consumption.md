@@ -43,6 +43,9 @@ review_after:
 - Added `scripts/print_habitat_release_artifact.sh` so checksum-first release
   verification can feed a single generated artifact to stdout without exposing
   the temporary extracted binary path or creating `habitat-report/`.
+- Tightened the metadata and artifact helpers so local or verified release
+  binary paths must be regular executable files before version or metadata
+  checks run.
 
 ## Reason
 
@@ -59,6 +62,8 @@ review_after:
 - Local scripts reject release zips that try to extract paths outside the
   temporary verification directory.
 - Local scripts reject symlinked verified binaries before metadata checks run.
+- Local scripts reject non-regular binary paths before version or metadata
+  checks run.
 - Local scripts can consume `agent_context.md` or another generated artifact
   from a downloaded release directory while preserving checksum-first order and
   keeping verification output off stdout.
@@ -80,6 +85,8 @@ review_after:
   and binary execution.
 - Release-helper tests prove symlinked zip binaries stop before binary
   execution.
+- Release-helper tests prove non-regular binary paths stop before metadata
+  checks.
 - Release artifact-print tests prove stdout stays artifact-only after checksum
   verification and that checksum failure stops before binary execution.
 
@@ -91,6 +98,8 @@ review_after:
 - The helper accepts checksum entries that escape the release directory.
 - The helper accepts zip entries that escape the temporary extraction directory.
 - The helper follows a symlinked release binary during metadata verification.
+- The helper attempts version or metadata checks against a non-regular binary
+  path.
 - The release artifact print helper writes checksum status to stdout or runs the
   downloaded binary after a checksum failure.
 

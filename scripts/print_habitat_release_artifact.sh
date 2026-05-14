@@ -103,8 +103,8 @@ else
   exit 1
 fi
 
-if [[ ! -x "$release_binary" ]]; then
-  printf 'error: verified release binary is not executable: %s\n' "$release_binary" >&2
+if [[ ! -f "$release_binary" || ! -x "$release_binary" ]]; then
+  printf 'error: verified release binary is not a regular executable file: %s\n' "$release_binary" >&2
   exit 1
 fi
 
