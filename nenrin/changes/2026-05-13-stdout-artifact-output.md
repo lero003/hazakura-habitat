@@ -71,6 +71,9 @@ review_after:
   `generatorVersion`, expected preview `schemaVersion`, and requested artifact
   metadata, while sending verification failures to stderr and leaving
   `habitat-report/` untouched.
+- Tightened the print helper contract so it also requires the requested
+  Markdown artifact to carry the expected read order, read trigger, and
+  agent-use metadata before printing it to stdout.
 
 ## Reason
 
@@ -108,6 +111,9 @@ review_after:
 - Scripts can pipe a verified single artifact such as `agent_context.md` or
   `command_policy.md` to an agent or automation step without parsing status
   output or creating durable report files.
+- The print helper rejects a requested Markdown artifact whose metadata would
+  make an agent read the wrong artifact first or treat policy/detail output as
+  ordinary working context.
 
 ## Review After
 
@@ -168,6 +174,9 @@ review_after:
   scripts to receive a mixed artifact.
 - A print helper prints an artifact before checking binary, generator, schema,
   or requested-artifact metadata.
+- A print helper accepts a requested Markdown artifact with the wrong read
+  order, read trigger, or agent-use hint and pipes misleading context to an
+  agent.
 
 ## Result
 

@@ -10,6 +10,9 @@
 - Added `scripts/print_habitat_artifact.sh` so local scripts can print one
   verified generated artifact to stdout while keeping version/schema/artifact
   metadata failures on stderr.
+- Tightened `scripts/print_habitat_artifact.sh` so it rejects requested
+  Markdown artifacts whose metadata has the wrong read order, read trigger, or
+  agent-use hint before printing to stdout.
 - Tightened `scripts/check_habitat_metadata.sh` so it also rejects unexpected
   `scan_result.json` `schemaVersion` values and prints the verified schema in
   successful script output.

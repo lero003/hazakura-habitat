@@ -232,8 +232,10 @@ scripts/print_habitat_artifact.sh ./dist/habitat-scan . command_policy.md 0.6.0
 ```
 
 This helper verifies the binary version, `generatorVersion`, expected preview
-`schemaVersion`, and requested artifact metadata before printing. It does not
-create or update `habitat-report/`.
+`schemaVersion`, and requested artifact metadata before printing. For Markdown
+artifacts, that metadata includes the expected role, path, format, read order,
+read trigger, and agent-use hint. It does not create or update
+`habitat-report/`.
 
 ## Run
 

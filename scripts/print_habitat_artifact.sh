@@ -8,7 +8,8 @@ Usage: print_habitat_artifact.sh /path/to/habitat-scan /path/to/project artifact
 Prints one generated Habitat artifact to stdout after verifying:
 - habitat-scan --version matches scan_result.json generatorVersion
 - scan_result.json reports the expected schemaVersion for this helper
-- the requested artifact is present in generated metadata with the expected role
+- the requested artifact is present in generated metadata with the expected role,
+  path, format, read order, read trigger, and agent-use hint
 - optional expected-version matches both values
 
 Artifact may be one of:
@@ -70,21 +71,45 @@ binary_version = os.environ["BINARY_VERSION"]
 expected_version = os.environ["EXPECTED_VERSION"]
 
 artifact_map = {
-    "scan-result": ("scan_result.json", "scan_result", "scan-result"),
-    "scan_result.json": ("scan_result.json", "scan_result", "scan_result.json"),
-    "agent-context": ("agent_context.md", "agent_context", "agent-context"),
-    "agent_context.md": ("agent_context.md", "agent_context", "agent_context.md"),
-    "command-policy": ("command_policy.md", "command_policy", "command-policy"),
-    "command_policy.md": ("command_policy.md", "command_policy", "command_policy.md"),
-    "environment-report": ("environment_report.md", "environment_report", "environment-report"),
-    "environment_report.md": ("environment_report.md", "environment_report", "environment_report.md"),
+    "scan-result": ("scan_result.json", "scan_result", "scan-result", None),
+    "scan_result.json": ("scan_result.json", "scan_result", "scan_result.json", None),
+    "agent-context": ("agent_context.md", "agent_context", "agent-context", {
+        "readOrder": 1,
+        "readTrigger": "before_any_project_command",
+        "agentUse": "read_first",
+    }),
+    "agent_context.md": ("agent_context.md", "agent_context", "agent_context.md", {
+        "readOrder": 1,
+        "readTrigger": "before_any_project_command",
+        "agentUse": "read_first",
+    }),
+    "command-policy": ("command_policy.md", "command_policy", "command-policy", {
+        "readOrder": 2,
+        "readTrigger": "before_risky_remote_mutating_secret_or_environment_sensitive_commands",
+        "agentUse": "consult_before_risky_commands",
+    }),
+    "command_policy.md": ("command_policy.md", "command_policy", "command_policy.md", {
+        "readOrder": 2,
+        "readTrigger": "before_risky_remote_mutating_secret_or_environment_sensitive_commands",
+        "agentUse": "consult_before_risky_commands",
+    }),
+    "environment-report": ("environment_report.md", "environment_report", "environment-report", {
+        "readOrder": 3,
+        "readTrigger": "only_for_diagnostics_or_audit",
+        "agentUse": "debug_audit_only",
+    }),
+    "environment_report.md": ("environment_report.md", "environment_report", "environment_report.md", {
+        "readOrder": 3,
+        "readTrigger": "only_for_diagnostics_or_audit",
+        "agentUse": "debug_audit_only",
+    }),
 }
 
 if requested not in artifact_map:
     print(f"error: unsupported artifact {requested!r}", file=sys.stderr)
     sys.exit(2)
 
-expected_name, expected_role, stdout_value = artifact_map[requested]
+expected_name, expected_role, stdout_value, artifact_reading_contract = artifact_map[requested]
 data = json.load(sys.stdin)
 schema_version = data.get("schemaVersion", "")
 generator_version = data.get("generatorVersion", "")
@@ -127,6 +152,8 @@ required_fields = {
     "relativePath": expected_name,
     "format": "markdown",
 }
+if artifact_reading_contract:
+    required_fields.update(artifact_reading_contract)
 errors = []
 for field, expected in required_fields.items():
     actual = artifact.get(field)
