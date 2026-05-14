@@ -48,7 +48,8 @@ struct CLI {
             let outputURL = URL(fileURLWithPath: options.outputPath).standardizedFileURL
             var result = scanner.scan(projectURL: projectURL)
             if let previousScanPath = options.previousScanPath {
-                result = result.withChanges(changes(fromPreviousScanAt: previousScanPath, current: result))
+                let comparisonCurrent = writer.render(scanResult: result).scanResult
+                result = result.withChanges(changes(fromPreviousScanAt: previousScanPath, current: comparisonCurrent))
             }
             if let stdoutArtifact = options.stdoutArtifact {
                 let report = writer.render(scanResult: result)

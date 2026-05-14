@@ -505,6 +505,74 @@ struct ScanComparisonTests {
     }
 
     @Test
+    func scanComparisonUsesRenderedPreferredCommandsForProjectLocalScripts() throws {
+        let projectURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let scriptsURL = projectURL.appendingPathComponent("scripts")
+        let scriptURL = scriptsURL.appendingPathComponent("assemble-debug.sh")
+        try FileManager.default.createDirectory(at: scriptsURL, withIntermediateDirectories: true)
+        FileManager.default.createFile(atPath: scriptURL.path, contents: Data("#!/bin/sh\n".utf8))
+        try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptURL.path)
+
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-05-14T05:56:40Z",
+            projectPath: projectURL.path,
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: [
+                    "gradlew",
+                    "settings.gradle.kts",
+                    "build.gradle.kts",
+                    "docs/development_loop.md",
+                    "scripts/assemble-debug.sh",
+                ],
+                packageManager: "gradle",
+                packageManagerVersion: nil,
+                packageScripts: [],
+                validationCommandClaims: [
+                    ValidationCommandClaim(source: "docs/development_loop.md", command: "./scripts/assemble-debug.sh")
+                ],
+                runtimeHints: .init(node: nil, python: nil)
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["./scripts/assemble-debug.sh", "./gradlew test", "./gradlew build"],
+                askFirstCommands: ["modifying lockfiles"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+        let currentBeforeRender = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-05-14T23:03:50Z",
+            projectPath: projectURL.path,
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: previous.project,
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["./gradlew test", "./gradlew build"],
+                askFirstCommands: ["modifying lockfiles"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let current = ReportWriter().render(scanResult: currentBeforeRender).scanResult
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(current.policy.preferredCommands.prefix(3) == [
+            "./scripts/assemble-debug.sh",
+            "./gradlew test",
+            "./gradlew build",
+        ])
+        #expect(!changes.contains(where: { $0.category == "preferred_commands" }))
+    }
+
+    @Test
     func scanComparisonSeparatesCommandPolicyRiskTransitions() throws {
         let previous = ScanResult(
             schemaVersion: "0.1",
