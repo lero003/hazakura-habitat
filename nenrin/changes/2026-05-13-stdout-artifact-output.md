@@ -105,6 +105,9 @@ review_after:
 - The bundled helper rejects binaries where dash-form stdout tokens work but
   filename aliases do not, before downstream scripts depend on metadata-driven
   artifact names.
+- The CLI and print helper accept report-relative `./filename` artifact paths,
+  so metadata-driven scripts can pass simple relative paths back without
+  maintaining a separate normalization step.
 - The bundled helper rejects scan-result JSON with an unexpected
   `schemaVersion`, so generator-version agreement alone is not treated as a
   complete machine-consumption contract.
@@ -167,6 +170,8 @@ review_after:
 - Scripts pass both `--stdout` and `--output`, then trust an old report
   directory because the stdout-only scan did not refresh it.
 - Scripts derive `agent_context.md` from metadata, pass it to `--stdout`, and
+  fail even though the requested artifact exists.
+- Scripts derive `./agent_context.md` from metadata-adjacent path handling and
   fail even though the requested artifact exists.
 - A helper accepts a future or malformed schema because `generatorVersion`
   still matches the binary.

@@ -83,7 +83,7 @@ struct CLI {
 
         Note:
           Use --stdout for one direct artifact, or --output for durable report files; do not combine them.
-          --stdout accepts the artifact token or the matching generated report filename.
+          --stdout accepts the artifact token, matching generated report filename, or ./filename.
         """
     }
 

@@ -219,6 +219,8 @@ formats, read order, read triggers, and agent-use hints, checks that
 and leaves `habitat-report/` untouched.
 It also checks the matching `--stdout` filename aliases, so scripts can use
 artifact names read from metadata without translating them back to CLI tokens.
+The CLI and print helper also accept those filenames with a leading `./`, which
+keeps report-relative path handling simple for metadata-driven scripts.
 Successful output includes `binaryVersion`, `schemaVersion`, and
 `generatorVersion` lines for script logs.
 
@@ -276,8 +278,9 @@ artifact directly instead of creating a report directory:
 `--stdout` keeps stdout limited to the requested artifact. It accepts the
 artifact tokens above or the matching generated report filenames:
 `scan_result.json`, `agent_context.md`, `command_policy.md`, and
-`environment_report.md`. Use `--output` when you need durable report files; do
-not combine `--stdout` and `--output` in one scan command.
+`environment_report.md`, including `./filename` forms. Use `--output` when you
+need durable report files; do not combine `--stdout` and `--output` in one scan
+command.
 Use `scan --help` for scan-specific output and file-consumption forms.
 
 Optional comparison against a previous scan:
