@@ -19,6 +19,9 @@
 - Added `scripts/verify_habitat_release.sh` so local scripts can verify
   `SHA256SUMS` before executing a downloaded release binary, then reuse the
   metadata helper without installing Habitat or creating `habitat-report/`.
+- Added `scripts/print_habitat_release_artifact.sh` so local scripts can verify
+  a downloaded release directory checksum-first and print one generated
+  artifact to stdout without managing the extracted binary path.
 - Added `habitat-scan scan --stdout scan-result` so automation and local scripts can consume `scan_result.json` metadata without creating a report directory.
 - Added the Hazakura Habitat logo asset and surfaced it at the top of `README.md`.
 - Moved the bundled agent skill entrypoint into the top of `README.md` so AI agents can discover `skills/hazakura-habitat/SKILL.md` during an initial repository read.

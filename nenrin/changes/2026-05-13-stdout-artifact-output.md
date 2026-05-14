@@ -10,6 +10,7 @@ related_files:
   - Sources/habitat-scan/main.swift
   - scripts/check_habitat_metadata.sh
   - scripts/print_habitat_artifact.sh
+  - scripts/print_habitat_release_artifact.sh
   - Tests/HabitatCoreTests/ScanExecutionInfrastructureTests.swift
   - Tests/HabitatCoreTests/CoreInfrastructureTests.swift
   - README.md
@@ -74,6 +75,10 @@ review_after:
 - Tightened the print helper contract so it also requires the requested
   Markdown artifact to carry the expected read order, read trigger, and
   agent-use metadata before printing it to stdout.
+- Added `scripts/print_habitat_release_artifact.sh` so release-directory
+  consumers can preserve checksum-first verification and still pipe one
+  generated artifact to stdout without managing a temporary extracted binary
+  path.
 
 ## Reason
 
@@ -117,6 +122,9 @@ review_after:
 - The print helper rejects a requested Markdown artifact whose metadata would
   make an agent read the wrong artifact first or treat policy/detail output as
   ordinary working context.
+- Release-directory artifact printing keeps checksum and extraction diagnostics
+  on stderr, so stdout remains safe to pipe directly into an agent or
+  automation step.
 
 ## Review After
 
@@ -151,6 +159,8 @@ review_after:
   the verified schema in successful logs.
 - The print helper test suite catches stdout pollution and verifies that
   version mismatches fail before an artifact is printed.
+- Release zip consumption can print the verified `agent_context.md` without a
+  downstream script needing to duplicate extraction or binary-path selection.
 
 ## Failure Signals
 
@@ -182,6 +192,8 @@ review_after:
 - A print helper accepts a requested Markdown artifact with the wrong read
   order, read trigger, or agent-use hint and pipes misleading context to an
   agent.
+- Release artifact printing leaks checksum output into stdout or runs the
+  downloaded binary before checksum verification.
 
 ## Result
 

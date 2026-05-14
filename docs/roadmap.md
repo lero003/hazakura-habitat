@@ -512,6 +512,10 @@ First shipped slice:
 - `scripts/verify_habitat_release.sh` now packages that checksum-first order
   for local scripts without installing Habitat, mutating shell startup files,
   or treating version checks as a substitute for asset verification.
+- `scripts/print_habitat_release_artifact.sh` applies the same checksum-first
+  release-directory verification before printing one generated artifact to
+  stdout, so agents and automation can consume a downloaded release zip without
+  inventing their own extraction or binary-path plumbing.
 - Python validation-runner fit now avoids promoting `.venv/bin/python -m pytest` unless project pytest is runnable, and prefers project-virtualenv unittest when repo docs or top-level tests indicate unittest.
 
 Candidate work:

@@ -10,6 +10,7 @@ related_files:
   - docs/current_status.md
   - docs/roadmap.md
   - scripts/verify_habitat_release.sh
+  - scripts/print_habitat_release_artifact.sh
   - Tests/HabitatCoreTests/ScanExecutionInfrastructureTests.swift
 review_after:
   tasks: 3
@@ -39,6 +40,9 @@ review_after:
   path must not be a symlink before metadata verification or execution, keeping
   zip-based consumption from following an extracted binary link outside the
   temporary verification directory.
+- Added `scripts/print_habitat_release_artifact.sh` so checksum-first release
+  verification can feed a single generated artifact to stdout without exposing
+  the temporary extracted binary path or creating `habitat-report/`.
 
 ## Reason
 
@@ -55,6 +59,9 @@ review_after:
 - Local scripts reject release zips that try to extract paths outside the
   temporary verification directory.
 - Local scripts reject symlinked verified binaries before metadata checks run.
+- Local scripts can consume `agent_context.md` or another generated artifact
+  from a downloaded release directory while preserving checksum-first order and
+  keeping verification output off stdout.
 - Missing or failed checksum verification stops release-binary use instead of falling through to remote script piping, global installs, or package-manager mutation.
 
 ## Review After
@@ -73,6 +80,8 @@ review_after:
   and binary execution.
 - Release-helper tests prove symlinked zip binaries stop before binary
   execution.
+- Release artifact-print tests prove stdout stays artifact-only after checksum
+  verification and that checksum failure stops before binary execution.
 
 ## Failure Signals
 
@@ -82,6 +91,8 @@ review_after:
 - The helper accepts checksum entries that escape the release directory.
 - The helper accepts zip entries that escape the temporary extraction directory.
 - The helper follows a symlinked release binary during metadata verification.
+- The release artifact print helper writes checksum status to stdout or runs the
+  downloaded binary after a checksum failure.
 
 ## Result
 

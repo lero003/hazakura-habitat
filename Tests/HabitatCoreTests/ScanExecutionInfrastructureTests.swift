@@ -591,6 +591,99 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func releasePrintArtifactScriptVerifiesChecksumBeforePrintingArtifact() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let releaseURL = tempURL.appendingPathComponent("release")
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = releaseURL.appendingPathComponent("habitat-scan")
+        let reportURL = projectURL.appendingPathComponent("habitat-report")
+        try fileManager.createDirectory(at: releaseURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: releaseVerificationFakeBinaryScript(version: "1.2.3")
+        )
+        let checksum = try sha256(binaryURL)
+        try "\(checksum)  habitat-scan\n".write(
+            to: releaseURL.appendingPathComponent("SHA256SUMS"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/print_habitat_release_artifact.sh",
+            releaseURL.path,
+            projectURL.path,
+            "agent_context.md",
+            "1.2.3",
+        ]
+
+        let stdout = Pipe()
+        let stderr = Pipe()
+        process.standardOutput = stdout
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 0)
+        #expect(output == "# Agent Context\n\n## Use\n")
+        #expect(error.contains("habitat-scan: OK"))
+        #expect(!fileManager.fileExists(atPath: reportURL.path))
+    }
+
+    @Test
+    func releasePrintArtifactScriptRejectsBadChecksumBeforeRunningBinary() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let releaseURL = tempURL.appendingPathComponent("release")
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = releaseURL.appendingPathComponent("habitat-scan")
+        let markerURL = tempURL.appendingPathComponent("binary-ran")
+        try fileManager.createDirectory(at: releaseURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            printf 'ran\\n' > "\(markerURL.path)"
+            exit 0
+            """
+        )
+        try "0000000000000000000000000000000000000000000000000000000000000000  habitat-scan\n".write(
+            to: releaseURL.appendingPathComponent("SHA256SUMS"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/print_habitat_release_artifact.sh",
+            releaseURL.path,
+            projectURL.path,
+            "agent_context.md",
+            "1.2.3",
+        ]
+
+        let stdout = Pipe()
+        process.standardOutput = stdout
+        try process.run()
+        process.waitUntilExit()
+
+        let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus != 0)
+        #expect(output.isEmpty)
+        #expect(!fileManager.fileExists(atPath: markerURL.path))
+    }
+
+    @Test
     func printArtifactScriptPrintsRequestedArtifactWithoutReportDirectory() throws {
         let fileManager = FileManager.default
         let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)

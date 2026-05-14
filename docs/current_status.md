@@ -76,6 +76,12 @@ Keep the current cycle focused:
   symlinked verified binaries, then reuses the metadata helper without
   installing Habitat, mutating shell startup files, or creating
   `habitat-report/`.
+- `scripts/print_habitat_release_artifact.sh` gives local scripts the same
+  checksum-first release-directory path when they need one verified generated
+  artifact on stdout from a downloaded zip or standalone release asset:
+  checksum and extraction diagnostics stay on stderr, artifact metadata checks
+  are delegated to `print_habitat_artifact.sh`, and stdout stays limited to the
+  requested artifact without installing Habitat or creating `habitat-report/`.
 - `habitat-scan scan --help` now succeeds and shows the scan output forms,
   including stdout-only scan-result, agent-context, command-policy, and
   environment-report usage, so agents do not have to recover from an argument

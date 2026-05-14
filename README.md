@@ -256,6 +256,18 @@ artifacts, that metadata includes the expected role, path, format, read order,
 read trigger, and agent-use hint. It does not create or update
 `habitat-report/`.
 
+For downloaded release directories, use the release print helper when a script
+needs a verified artifact from the zip or standalone release asset without
+managing the extracted binary path:
+
+```bash
+scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . agent_context.md 0.6.0
+```
+
+This helper keeps the same checksum-first release boundary, writes verification
+output to stderr, delegates artifact metadata checks to the print helper, and
+keeps stdout limited to the requested artifact.
+
 ## Run
 
 ```bash
