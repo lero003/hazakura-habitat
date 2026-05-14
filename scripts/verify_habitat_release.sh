@@ -9,6 +9,7 @@ Verifies a downloaded Habitat release bundle before using its binary:
 - SHA256SUMS exists and verifies all downloaded release assets
 - SHA256SUMS entries stay inside the release directory
 - habitat-scan-macos.zip is extracted into a temporary directory when present
+- habitat-scan-macos.zip entries stay inside the extraction directory
 - otherwise, the standalone habitat-scan asset is used
 - binary version, scan_result.json generatorVersion, schemaVersion, generated
   artifact metadata, and core stdout artifacts pass check_habitat_metadata.sh
@@ -81,6 +82,13 @@ if [[ -f "$release_dir/habitat-scan-macos.zip" ]]; then
     printf 'error: unzip is required to verify habitat-scan-macos.zip\n' >&2
     exit 1
   fi
+  while IFS= read -r zip_entry || [[ -n "$zip_entry" ]]; do
+    [[ -z "$zip_entry" ]] && continue
+    if [[ "$zip_entry" == /* || "$zip_entry" == ".." || "$zip_entry" == ../* || "$zip_entry" == */.. || "$zip_entry" == */../* ]]; then
+      printf 'error: habitat-scan-macos.zip entry must stay inside extraction directory: %s\n' "$zip_entry" >&2
+      exit 1
+    fi
+  done < <(unzip -Z1 "$release_dir/habitat-scan-macos.zip")
   temp_dir="$(mktemp -d "${TMPDIR:-/tmp}/hazakura-habitat-release.XXXXXX")"
   unzip -q "$release_dir/habitat-scan-macos.zip" -d "$temp_dir"
   release_binary="$temp_dir/dist/habitat-scan"

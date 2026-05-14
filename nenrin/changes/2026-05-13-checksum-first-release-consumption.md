@@ -9,6 +9,8 @@ related_files:
   - skills/hazakura-habitat/SKILL.md
   - docs/current_status.md
   - docs/roadmap.md
+  - scripts/verify_habitat_release.sh
+  - Tests/HabitatCoreTests/ScanExecutionInfrastructureTests.swift
 review_after:
   tasks: 3
   days: 7
@@ -29,6 +31,10 @@ review_after:
   absolute paths or parent-directory segments fail before `shasum` or the
   downloaded binary can run, keeping release verification scoped to the release
   directory.
+- Tightened `scripts/verify_habitat_release.sh` so
+  `habitat-scan-macos.zip` entries with absolute paths or parent-directory
+  segments fail before extraction or binary execution, keeping release
+  verification scoped to the temporary extraction directory.
 
 ## Reason
 
@@ -42,6 +48,8 @@ review_after:
   before executing the binary when checksums do not match.
 - Local scripts reject checksum files that try to verify paths outside the
   downloaded release directory.
+- Local scripts reject release zips that try to extract paths outside the
+  temporary verification directory.
 - Missing or failed checksum verification stops release-binary use instead of falling through to remote script piping, global installs, or package-manager mutation.
 
 ## Review After
@@ -56,6 +64,8 @@ review_after:
 - Release-helper tests prove checksum mismatch stops before binary execution.
 - Release-helper tests prove path-escaping checksum entries stop before
   checksum verification and binary execution.
+- Release-helper tests prove path-escaping zip entries stop before extraction
+  and binary execution.
 
 ## Failure Signals
 
@@ -63,6 +73,7 @@ review_after:
 - Version checks are treated as a substitute for checksum verification.
 - The guidance expands into automatic installation or repair behavior.
 - The helper accepts checksum entries that escape the release directory.
+- The helper accepts zip entries that escape the temporary extraction directory.
 
 ## Result
 
