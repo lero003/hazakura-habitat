@@ -23,7 +23,8 @@
   a downloaded release directory checksum-first and print one generated
   artifact to stdout without managing the extracted binary path.
 - Tightened Habitat metadata and artifact helper scripts so binary paths must
-  be regular executable files before version, metadata, or artifact checks run.
+  be regular non-symlink executable files before version, metadata, or artifact
+  checks run.
 - Added `docs/distribution_foundations.md` to document the supported
   consumption paths for durable reports, direct stdout artifacts, verified local
   binaries, and checksum-first release directories without adding installer or

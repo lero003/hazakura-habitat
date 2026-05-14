@@ -78,6 +78,8 @@ review_after:
 - Tightened the print helper contract again so `scan_result.json` filename
   requests verify the filename alias returns the same preview schema and
   generator version as the dash-form `scan-result` path before printing.
+- Tightened the local helper trust boundary so both metadata and print helpers
+  reject symlinked binary paths before version, metadata, or artifact checks run.
 - Added `scripts/print_habitat_release_artifact.sh` so release-directory
   consumers can preserve checksum-first verification and still pipe one
   generated artifact to stdout without managing a temporary extracted binary

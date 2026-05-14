@@ -33,8 +33,8 @@ project_path="$2"
 expected_version="${3:-}"
 expected_schema_version="0.1"
 
-if [[ ! -f "$habitat_scan" || ! -x "$habitat_scan" ]]; then
-  printf 'error: habitat-scan binary is not a regular executable file: %s\n' "$habitat_scan" >&2
+if [[ ! -f "$habitat_scan" || ! -x "$habitat_scan" || -L "$habitat_scan" ]]; then
+  printf 'error: habitat-scan binary is not a regular non-symlink executable file: %s\n' "$habitat_scan" >&2
   exit 1
 fi
 

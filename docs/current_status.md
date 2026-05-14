@@ -59,6 +59,8 @@ Keep the current cycle focused:
   formats, read order, read triggers, and agent-use metadata, plus the direct stdout
   availability of `agent_context.md`, `command_policy.md`, and
   `environment_report.md`, without creating or updating `habitat-report/`.
+  It rejects binary paths that are not regular non-symlink executable files
+  before attempting version or metadata checks.
 - `scripts/print_habitat_artifact.sh` gives local scripts a checked stdout path
   for printing one generated artifact after verifying binary version,
   `generatorVersion`, expected preview `schemaVersion`, and requested artifact
@@ -70,7 +72,7 @@ Keep the current cycle focused:
   so stdout can be piped directly to an agent,
   automation step, or local script without creating or updating
   `habitat-report/`. The helper rejects binary paths that are not regular
-  executable files before attempting version or metadata checks.
+  non-symlink executable files before attempting version or metadata checks.
 - `scripts/verify_habitat_release.sh` gives local scripts a checksum-first
   release-directory verification path: it runs `shasum -c SHA256SUMS` before
   executing any downloaded binary, rejects absolute or parent-directory

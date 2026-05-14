@@ -1091,7 +1091,90 @@ struct ScanExecutionInfrastructureTests {
         let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
         #expect(process.terminationStatus == 1)
         #expect(output.isEmpty)
-        #expect(error.contains("habitat-scan binary is not a regular executable file"))
+        #expect(error.contains("habitat-scan binary is not a regular non-symlink executable file"))
+    }
+
+    @Test
+    func printArtifactScriptRejectsSymlinkBinaryPathBeforeVersionCheck() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = tempURL.appendingPathComponent("habitat-scan-real")
+        let symlinkURL = tempURL.appendingPathComponent("habitat-scan")
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            printf 'unexpected execution\\n'
+            exit 9
+            """
+        )
+        try fileManager.createSymbolicLink(at: symlinkURL, withDestinationURL: binaryURL)
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/print_habitat_artifact.sh",
+            symlinkURL.path,
+            projectURL.path,
+            "agent_context.md",
+            "1.2.3",
+        ]
+
+        let stdout = Pipe()
+        let stderr = Pipe()
+        process.standardOutput = stdout
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 1)
+        #expect(output.isEmpty)
+        #expect(error.contains("habitat-scan binary is not a regular non-symlink executable file"))
+    }
+
+    @Test
+    func metadataCheckScriptRejectsSymlinkBinaryPathBeforeVersionCheck() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = tempURL.appendingPathComponent("habitat-scan-real")
+        let symlinkURL = tempURL.appendingPathComponent("habitat-scan")
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            printf 'unexpected execution\\n'
+            exit 9
+            """
+        )
+        try fileManager.createSymbolicLink(at: symlinkURL, withDestinationURL: binaryURL)
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/check_habitat_metadata.sh",
+            symlinkURL.path,
+            projectURL.path,
+            "1.2.3",
+        ]
+
+        let stdout = Pipe()
+        let stderr = Pipe()
+        process.standardOutput = stdout
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 1)
+        #expect(output.isEmpty)
+        #expect(error.contains("habitat-scan binary is not a regular non-symlink executable file"))
     }
 
     @Test
