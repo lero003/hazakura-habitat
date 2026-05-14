@@ -46,6 +46,9 @@ review_after:
 - Tightened the metadata and artifact helpers so local or verified release
   binary paths must be regular executable files before version or metadata
   checks run.
+- Added `docs/distribution_foundations.md` as the compact decision guide for
+  release-directory and local-binary consumption, keeping the setup path
+  checksum-first without introducing installer or repair behavior.
 
 ## Reason
 
@@ -67,6 +70,9 @@ review_after:
 - Local scripts can consume `agent_context.md` or another generated artifact
   from a downloaded release directory while preserving checksum-first order and
   keeping verification output off stdout.
+- Agents and automation can choose the release-directory helper from a short
+  setup guide instead of inferring the verification order from scattered README
+  examples.
 - Missing or failed checksum verification stops release-binary use instead of falling through to remote script piping, global installs, or package-manager mutation.
 
 ## Review After
@@ -77,6 +83,8 @@ review_after:
 ## Success Signals
 
 - Future setup or automation work follows checksum-first consumption without needing extra user correction.
+- Future agents use the setup guide to select release verification before
+  binary execution.
 - Agents distinguish a stale saved report from a verified current binary.
 - Release-helper tests prove checksum mismatch stops before binary execution.
 - Release-helper tests prove path-escaping checksum entries stop before

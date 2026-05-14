@@ -24,6 +24,10 @@
   artifact to stdout without managing the extracted binary path.
 - Tightened Habitat metadata and artifact helper scripts so binary paths must
   be regular executable files before version, metadata, or artifact checks run.
+- Added `docs/distribution_foundations.md` to document the supported
+  consumption paths for durable reports, direct stdout artifacts, verified local
+  binaries, and checksum-first release directories without adding installer or
+  enforcement behavior.
 - Added `habitat-scan scan --stdout scan-result` so automation and local scripts can consume `scan_result.json` metadata without creating a report directory.
 - Added the Hazakura Habitat logo asset and surfaced it at the top of `README.md`.
 - Moved the bundled agent skill entrypoint into the top of `README.md` so AI agents can discover `skills/hazakura-habitat/SKILL.md` during an initial repository read.

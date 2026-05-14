@@ -157,6 +157,7 @@ Runtime version hints from `.nvmrc`, `.node-version`, `.python-version`, `.ruby-
 - [Known Limitations](docs/known_limitations.md)
 - [Contributing](CONTRIBUTING.md)
 - [Agent Contract](docs/agent_contract.md)
+- [Distribution Foundations](docs/distribution_foundations.md)
 - [Evaluation](docs/evaluation.md)
 - [Development Loop](docs/development_loop.md)
 - [Self-Use Loop](docs/self_use.md)
@@ -177,6 +178,10 @@ See [Public Readiness](docs/public_readiness.md) for the completed `v0.1.0` publ
 - Swift 6.1 toolchain or a compatible Xcode toolchain.
 
 ## Install From Release
+
+For the short decision guide covering source checkouts, verified local binaries,
+direct stdout artifacts, and downloaded release directories, see
+[Distribution Foundations](docs/distribution_foundations.md).
 
 Download `habitat-scan-macos.zip`, `habitat-scan`, and `SHA256SUMS` from the latest GitHub Release, keep them in the same directory, then verify checksums before running the downloaded binary:
 

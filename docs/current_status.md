@@ -83,6 +83,11 @@ Keep the current cycle focused:
   checksum and extraction diagnostics stay on stderr, artifact metadata checks
   are delegated to `print_habitat_artifact.sh`, and stdout stays limited to the
   requested artifact without installing Habitat or creating `habitat-report/`.
+- `docs/distribution_foundations.md` gives agents, automation, and local
+  scripts a compact setup guide for choosing durable report output, direct
+  stdout artifacts, verified local binary consumption, or checksum-first release
+  directory consumption without turning Habitat into an installer or command
+  enforcement layer.
 - `habitat-scan scan --help` now succeeds and shows the scan output forms,
   including stdout-only scan-result, agent-context, command-policy, and
   environment-report usage, so agents do not have to recover from an argument

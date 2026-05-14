@@ -79,6 +79,9 @@ review_after:
   consumers can preserve checksum-first verification and still pipe one
   generated artifact to stdout without managing a temporary extracted binary
   path.
+- Added `docs/distribution_foundations.md` so agents, automation, and local
+  scripts can choose between durable report files and verified stdout artifacts
+  from one compact setup guide.
 
 ## Reason
 
@@ -125,6 +128,8 @@ review_after:
 - Release-directory artifact printing keeps checksum and extraction diagnostics
   on stderr, so stdout remains safe to pipe directly into an agent or
   automation step.
+- Future local scripts can use the setup guide to decide when stdout is enough
+  and when a durable `habitat-report/` snapshot is the right artifact boundary.
 
 ## Review After
 
@@ -134,6 +139,8 @@ review_after:
 ## Success Signals
 
 - Future automation can replace temporary report-file reads with stdout when only one generated artifact is needed.
+- Future automation can point at a single setup guide instead of reconstructing
+  stdout/file consumption rules from README snippets.
 - The stdout path stays byte-for-byte aligned with the generated report renderer.
 - Metadata checks catch missing core artifact entries before downstream scripts
   assume the report is consumable.
