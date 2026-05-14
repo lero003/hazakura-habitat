@@ -24,6 +24,21 @@ public enum StdoutArtifact: String, Equatable {
     case agentContext = "agent-context"
     case commandPolicy = "command-policy"
     case environmentReport = "environment-report"
+
+    public static func parse(_ value: String) -> StdoutArtifact? {
+        switch value {
+        case "scan-result", "scan_result.json":
+            return .scanResult
+        case "agent-context", "agent_context.md":
+            return .agentContext
+        case "command-policy", "command_policy.md":
+            return .commandPolicy
+        case "environment-report", "environment_report.md":
+            return .environmentReport
+        default:
+            return nil
+        }
+    }
 }
 
 public enum ScanArgumentError: LocalizedError, Equatable {
@@ -45,7 +60,7 @@ public enum ScanArgumentError: LocalizedError, Equatable {
         case .unknownArgument(let argument):
             return "Unknown scan argument: `\(argument)`."
         case .invalidStdoutArtifact(let value):
-            return "Unsupported `--stdout` artifact `\(value)`; use `scan-result`, `agent-context`, `command-policy`, or `environment-report`."
+            return "Unsupported `--stdout` artifact `\(value)`; use `scan-result`, `agent-context`, `command-policy`, `environment-report`, or the matching report filename."
         case .incompatibleFlags(let first, let second):
             return "`\(first)` and `\(second)` cannot be used together."
         }
@@ -83,7 +98,7 @@ public struct ScanArgumentParser {
 
         let stdoutArtifact: StdoutArtifact?
         if let stdoutValue = values["--stdout"] {
-            guard let parsed = StdoutArtifact(rawValue: stdoutValue) else {
+            guard let parsed = StdoutArtifact.parse(stdoutValue) else {
                 throw ScanArgumentError.invalidStdoutArtifact(stdoutValue)
             }
             if values["--output"] != nil {

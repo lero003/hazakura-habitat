@@ -236,9 +236,11 @@ artifact directly instead of creating a report directory:
 ./.build/debug/habitat-scan scan --help
 ```
 
-`--stdout` keeps stdout limited to the requested artifact. Use `--output` when
-you need durable report files; do not combine `--stdout` and `--output` in one
-scan command.
+`--stdout` keeps stdout limited to the requested artifact. It accepts the
+artifact tokens above or the matching generated report filenames:
+`scan_result.json`, `agent_context.md`, `command_policy.md`, and
+`environment_report.md`. Use `--output` when you need durable report files; do
+not combine `--stdout` and `--output` in one scan command.
 Use `scan --help` for scan-specific output and file-consumption forms.
 
 Optional comparison against a previous scan:

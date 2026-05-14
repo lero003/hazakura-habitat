@@ -111,6 +111,31 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func scanArgumentParserAcceptsStdoutArtifactFilenames() throws {
+        let parser = ScanArgumentParser()
+
+        let aliases: [(String, StdoutArtifact)] = [
+            ("scan_result.json", .scanResult),
+            ("agent_context.md", .agentContext),
+            ("command_policy.md", .commandPolicy),
+            ("environment_report.md", .environmentReport),
+        ]
+
+        for (value, artifact) in aliases {
+            let options = try parser.parse(
+                arguments: ["--project", "/tmp/project", "--stdout", value],
+                currentDirectory: "/tmp/current"
+            )
+            #expect(options == ScanOptions(
+                projectPath: "/tmp/project",
+                outputPath: "/tmp/current/habitat-report",
+                previousScanPath: nil,
+                stdoutArtifact: artifact
+            ))
+        }
+    }
+
+    @Test
     func processCommandRunnerMarksEnvMissingTargetAsUnavailable() throws {
         let missingTool = "hazakura-definitely-missing-tool-\(UUID().uuidString)"
         let result = ProcessCommandRunner().run(

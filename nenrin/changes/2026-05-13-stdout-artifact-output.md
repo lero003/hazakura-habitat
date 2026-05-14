@@ -57,6 +57,9 @@ review_after:
 - Documented when to use stdout versus durable `habitat-report/` files.
 - Rejected combined `--stdout` and `--output` scan flags, so direct artifact
   consumption cannot silently ignore a requested durable report path.
+- Accepted generated report filenames such as `agent_context.md` and
+  `scan_result.json` as `--stdout` aliases, so scripts can pass artifact
+  metadata names back to the CLI without translating them into dash-form tokens.
 
 ## Reason
 
@@ -82,6 +85,9 @@ review_after:
 - File output remains the path for durable report snapshots.
 - Agents and scripts choose either a direct stdout artifact or durable report
   files for one scan command; they do not assume both happened.
+- Scripts that read generated artifact metadata can request the same artifact by
+  report filename through `--stdout`, reducing filename/token conversion
+  mistakes.
 
 ## Review After
 
@@ -109,6 +115,8 @@ review_after:
 - Agents checking scan usage use `scan --help` successfully before choosing `--stdout` or `--output`.
 - Miscombined stdout/file-output commands fail early with a clear argument
   error instead of leaving stale `habitat-report/` files looking current.
+- Scripts can round-trip artifact names from metadata to `--stdout` without
+  maintaining a separate dash-token map.
 
 ## Failure Signals
 
@@ -127,6 +135,8 @@ review_after:
   scripts unsure when to read policy or diagnostics.
 - Scripts pass both `--stdout` and `--output`, then trust an old report
   directory because the stdout-only scan did not refresh it.
+- Scripts derive `agent_context.md` from metadata, pass it to `--stdout`, and
+  fail even though the requested artifact exists.
 
 ## Result
 
