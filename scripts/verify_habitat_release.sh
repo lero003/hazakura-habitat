@@ -104,4 +104,9 @@ if [[ ! -x "$release_binary" ]]; then
   exit 1
 fi
 
+if [[ -L "$release_binary" ]]; then
+  printf 'error: verified release binary must not be a symlink: %s\n' "$release_binary" >&2
+  exit 1
+fi
+
 "$metadata_helper" "$release_binary" "$project_path" "$expected_version"

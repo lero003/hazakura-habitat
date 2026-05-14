@@ -235,8 +235,9 @@ and then delegates to `check_habitat_metadata.sh`. It does not install Habitat,
 edit shell startup files, or create `habitat-report/`. It also rejects
 `SHA256SUMS` entries that use absolute paths or parent-directory segments before
 running `shasum`, and rejects zip entries that would extract outside the
-temporary directory, so verification stays scoped to the downloaded release
-directory and its temporary extraction path.
+temporary directory. The verified `habitat-scan` path must be a regular
+executable, not a symlink, so verification stays scoped to the downloaded
+release directory and its temporary extraction path.
 
 For local scripts that need one verified artifact on stdout, use the matching
 print helper. Verification failures go to stderr, so stdout remains the

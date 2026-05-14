@@ -526,6 +526,67 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func releaseVerificationScriptRejectsSymlinkedZipBinaryBeforeRunningBinary() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let releaseURL = tempURL.appendingPathComponent("release")
+        let projectURL = tempURL.appendingPathComponent("project")
+        let zipRootURL = tempURL.appendingPathComponent("zip-root")
+        let zipDistURL = zipRootURL.appendingPathComponent("dist")
+        let zipBinaryURL = zipDistURL.appendingPathComponent("habitat-scan")
+        let outsideBinaryURL = tempURL.appendingPathComponent("outside-habitat-scan")
+        let markerURL = tempURL.appendingPathComponent("binary-ran")
+        let zipURL = releaseURL.appendingPathComponent("habitat-scan-macos.zip")
+        try fileManager.createDirectory(at: releaseURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: zipDistURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            outsideBinaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            printf 'ran\\n' > "\(markerURL.path)"
+            exit 0
+            """
+        )
+        try fileManager.createSymbolicLink(at: zipBinaryURL, withDestinationURL: outsideBinaryURL)
+
+        let zipProcess = Process()
+        zipProcess.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
+        zipProcess.currentDirectoryURL = zipRootURL
+        zipProcess.arguments = ["-qry", zipURL.path, "dist/habitat-scan"]
+        try zipProcess.run()
+        zipProcess.waitUntilExit()
+        #expect(zipProcess.terminationStatus == 0)
+
+        let checksum = try sha256(zipURL)
+        try "\(checksum)  habitat-scan-macos.zip\n".write(
+            to: releaseURL.appendingPathComponent("SHA256SUMS"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/verify_habitat_release.sh",
+            releaseURL.path,
+            projectURL.path,
+            "1.2.3",
+        ]
+
+        let stderr = Pipe()
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 1)
+        #expect(error.contains("verified release binary must not be a symlink"))
+        #expect(!fileManager.fileExists(atPath: markerURL.path))
+    }
+
+    @Test
     func printArtifactScriptPrintsRequestedArtifactWithoutReportDirectory() throws {
         let fileManager = FileManager.default
         let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)

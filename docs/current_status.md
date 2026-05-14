@@ -72,9 +72,10 @@ Keep the current cycle focused:
   executing any downloaded binary, rejects absolute or parent-directory
   checksum entries so verification stays inside the release directory, rejects
   zip entries that would extract outside the temporary directory, extracts
-  `habitat-scan-macos.zip` into that temporary directory when present, then
-  reuses the metadata helper without installing Habitat, mutating shell startup
-  files, or creating `habitat-report/`.
+  `habitat-scan-macos.zip` into that temporary directory when present, rejects
+  symlinked verified binaries, then reuses the metadata helper without
+  installing Habitat, mutating shell startup files, or creating
+  `habitat-report/`.
 - `habitat-scan scan --help` now succeeds and shows the scan output forms,
   including stdout-only scan-result, agent-context, command-policy, and
   environment-report usage, so agents do not have to recover from an argument

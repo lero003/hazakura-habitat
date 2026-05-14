@@ -35,6 +35,10 @@ review_after:
   `habitat-scan-macos.zip` entries with absolute paths or parent-directory
   segments fail before extraction or binary execution, keeping release
   verification scoped to the temporary extraction directory.
+- Tightened `scripts/verify_habitat_release.sh` so the verified release binary
+  path must not be a symlink before metadata verification or execution, keeping
+  zip-based consumption from following an extracted binary link outside the
+  temporary verification directory.
 
 ## Reason
 
@@ -50,6 +54,7 @@ review_after:
   downloaded release directory.
 - Local scripts reject release zips that try to extract paths outside the
   temporary verification directory.
+- Local scripts reject symlinked verified binaries before metadata checks run.
 - Missing or failed checksum verification stops release-binary use instead of falling through to remote script piping, global installs, or package-manager mutation.
 
 ## Review After
@@ -66,6 +71,8 @@ review_after:
   checksum verification and binary execution.
 - Release-helper tests prove path-escaping zip entries stop before extraction
   and binary execution.
+- Release-helper tests prove symlinked zip binaries stop before binary
+  execution.
 
 ## Failure Signals
 
@@ -74,6 +81,7 @@ review_after:
 - The guidance expands into automatic installation or repair behavior.
 - The helper accepts checksum entries that escape the release directory.
 - The helper accepts zip entries that escape the temporary extraction directory.
+- The helper follows a symlinked release binary during metadata verification.
 
 ## Result
 
