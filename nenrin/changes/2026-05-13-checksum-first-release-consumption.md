@@ -22,6 +22,9 @@ review_after:
 - Clarified that agents should not run downloaded release binaries when `SHA256SUMS` verification fails or omits the asset.
 - Added release-binary version and saved-report `generatorVersion` checks to the bundled Habitat skill.
 - Moved checksum-first release consumption and binary/report metadata verification out of the `v0.7` roadmap candidate list and into shipped slice wording after the helper/docs work landed.
+- Added `scripts/verify_habitat_release.sh` so local scripts can preserve the
+  checksum-first order before delegating to metadata verification, without
+  installing Habitat or creating `habitat-report/`.
 
 ## Reason
 
@@ -31,6 +34,8 @@ review_after:
 
 - Agents verify downloaded release artifacts before running them.
 - Automation checks both the binary version and saved report generator metadata before trusting generated Markdown from a release binary.
+- Local scripts can run one release-directory verification command that fails
+  before executing the binary when checksums do not match.
 - Missing or failed checksum verification stops release-binary use instead of falling through to remote script piping, global installs, or package-manager mutation.
 
 ## Review After
@@ -42,6 +47,7 @@ review_after:
 
 - Future setup or automation work follows checksum-first consumption without needing extra user correction.
 - Agents distinguish a stale saved report from a verified current binary.
+- Release-helper tests prove checksum mismatch stops before binary execution.
 
 ## Failure Signals
 

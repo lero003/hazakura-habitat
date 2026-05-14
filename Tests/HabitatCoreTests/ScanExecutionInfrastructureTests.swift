@@ -348,6 +348,90 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func releaseVerificationScriptChecksumsBeforeMetadataChecks() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let releaseURL = tempURL.appendingPathComponent("release")
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = releaseURL.appendingPathComponent("habitat-scan")
+        try fileManager.createDirectory(at: releaseURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: releaseVerificationFakeBinaryScript(version: "1.2.3")
+        )
+        let checksum = try sha256(binaryURL)
+        try "\(checksum)  habitat-scan\n".write(
+            to: releaseURL.appendingPathComponent("SHA256SUMS"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/verify_habitat_release.sh",
+            releaseURL.path,
+            projectURL.path,
+            "1.2.3",
+        ]
+
+        let stdout = Pipe()
+        process.standardOutput = stdout
+        try process.run()
+        process.waitUntilExit()
+
+        let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 0)
+        #expect(output.contains("habitat-scan: OK"))
+        #expect(output.contains("binaryVersion=1.2.3"))
+        #expect(output.contains("schemaVersion=0.1"))
+        #expect(output.contains("generatorVersion=1.2.3"))
+    }
+
+    @Test
+    func releaseVerificationScriptRejectsBadChecksumBeforeRunningBinary() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let releaseURL = tempURL.appendingPathComponent("release")
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = releaseURL.appendingPathComponent("habitat-scan")
+        let markerURL = tempURL.appendingPathComponent("binary-ran")
+        try fileManager.createDirectory(at: releaseURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            printf 'ran\\n' > "\(markerURL.path)"
+            exit 0
+            """
+        )
+        try "0000000000000000000000000000000000000000000000000000000000000000  habitat-scan\n".write(
+            to: releaseURL.appendingPathComponent("SHA256SUMS"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/verify_habitat_release.sh",
+            releaseURL.path,
+            projectURL.path,
+            "1.2.3",
+        ]
+
+        try process.run()
+        process.waitUntilExit()
+
+        #expect(process.terminationStatus != 0)
+        #expect(!fileManager.fileExists(atPath: markerURL.path))
+    }
+
+    @Test
     func printArtifactScriptPrintsRequestedArtifactWithoutReportDirectory() throws {
         let fileManager = FileManager.default
         let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -855,5 +939,61 @@ struct ScanExecutionInfrastructureTests {
         #expect(observedFiles.allSatisfy { !$0.modifiedAt.contains(projectURL.path) })
         #expect(result.project.latestObservedFilePath == "docs/current_status.md")
         #expect(result.project.latestObservedFileModifiedAt == observedFiles.first { $0.path == "docs/current_status.md" }?.modifiedAt)
+    }
+
+    private func releaseVerificationFakeBinaryScript(version: String) -> String {
+        """
+        #!/usr/bin/env bash
+        set -euo pipefail
+        if [[ "$1" == "--version" ]]; then
+          printf 'habitat-scan \(version)\\n'
+          exit 0
+        fi
+        if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
+          printf '{"schemaVersion":"0.1","generatorVersion":"\(version)","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+          exit 0
+        fi
+        if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
+          printf '# Agent Context\\n\\n## Use\\n'
+          exit 0
+        fi
+        if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
+          printf '# Command Policy\\n\\n## Allowed\\n'
+          exit 0
+        fi
+        if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment-report" ]]; then
+          printf '# Environment Report\\n\\n## Diagnostics\\n'
+          exit 0
+        fi
+        if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan_result.json" ]]; then
+          printf '{"schemaVersion":"0.1","generatorVersion":"\(version)","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+          exit 0
+        fi
+        if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent_context.md" ]]; then
+          printf '# Agent Context\\n\\n## Use\\n'
+          exit 0
+        fi
+        if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command_policy.md" ]]; then
+          printf '# Command Policy\\n\\n## Allowed\\n'
+          exit 0
+        fi
+        if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment_report.md" ]]; then
+          printf '# Environment Report\\n\\n## Diagnostics\\n'
+          exit 0
+        fi
+        exit 2
+        """
+    }
+
+    private func sha256(_ url: URL) throws -> String {
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/bin/shasum")
+        process.arguments = ["-a", "256", url.path]
+        let stdout = Pipe()
+        process.standardOutput = stdout
+        try process.run()
+        process.waitUntilExit()
+        let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        return String(output.split(separator: " ").first ?? "")
     }
 }

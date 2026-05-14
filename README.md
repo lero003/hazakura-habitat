@@ -222,6 +222,18 @@ artifact names read from metadata without translating them back to CLI tokens.
 Successful output includes `binaryVersion`, `schemaVersion`, and
 `generatorVersion` lines for script logs.
 
+For downloaded release directories, use the release verification helper before
+any script depends on the binary:
+
+```bash
+scripts/verify_habitat_release.sh /path/to/downloaded-release . 0.6.0
+```
+
+The helper runs `shasum -c SHA256SUMS` first, extracts
+`habitat-scan-macos.zip` into a temporary directory when that asset is present,
+and then delegates to `check_habitat_metadata.sh`. It does not install Habitat,
+edit shell startup files, or create `habitat-report/`.
+
 For local scripts that need one verified artifact on stdout, use the matching
 print helper. Verification failures go to stderr, so stdout remains the
 requested artifact:
