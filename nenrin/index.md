@@ -3,7 +3,7 @@
 ## Active Summary
 
 - observing: 155
-- reviewed: 10
+- reviewed: 11
 
 ## Active Changes
 
@@ -31,7 +31,6 @@
 - `ruby-bundler-command-family` - [changes/2026-05-06-ruby-bundler-command-family.md](changes/2026-05-06-ruby-bundler-command-family.md)
 - `secret-bearing-evidence-boundary` - [changes/2026-05-06-secret-bearing-evidence-boundary.md](changes/2026-05-06-secret-bearing-evidence-boundary.md)
 - `secret-search-command-family` - [changes/2026-05-06-secret-search-command-family.md](changes/2026-05-06-secret-search-command-family.md)
-- `self-use-trigger-and-report-freshness` - [changes/2026-05-06-self-use-trigger-and-report-freshness.md](changes/2026-05-06-self-use-trigger-and-report-freshness.md)
 - `speculative-context-annotation-framing` - [changes/2026-05-06-speculative-context-annotation-framing.md](changes/2026-05-06-speculative-context-annotation-framing.md)
 - `ssh-private-key-command-family` - [changes/2026-05-06-ssh-private-key-command-family.md](changes/2026-05-06-ssh-private-key-command-family.md)
 - `workspace-mutation-command-family` - [changes/2026-05-06-workspace-mutation-command-family.md](changes/2026-05-06-workspace-mutation-command-family.md)
@@ -147,6 +146,7 @@
 - `project-local-validation-script-uncertainty` - [changes/2026-05-12-project-local-validation-script-uncertainty.md](changes/2026-05-12-project-local-validation-script-uncertainty.md)
 - `roadmap-scanner-size-sync` - [changes/2026-05-12-roadmap-scanner-size-sync.md](changes/2026-05-12-roadmap-scanner-size-sync.md)
 - `venv-python-symlink-guidance` - [changes/2026-05-12-venv-python-symlink-guidance.md](changes/2026-05-12-venv-python-symlink-guidance.md)
+- `checksum-first-release-consumption` - [changes/2026-05-13-checksum-first-release-consumption.md](changes/2026-05-13-checksum-first-release-consumption.md)
 - `command-family-model-boundary` - [changes/2026-05-13-command-family-model-boundary.md](changes/2026-05-13-command-family-model-boundary.md)
 - `cross-project-behavior-test-boundary` - [changes/2026-05-13-cross-project-behavior-test-boundary.md](changes/2026-05-13-cross-project-behavior-test-boundary.md)
 - `cross-project-device-install-blocker-fixture` - [changes/2026-05-13-cross-project-device-install-blocker-fixture.md](changes/2026-05-13-cross-project-device-install-blocker-fixture.md)
@@ -155,41 +155,88 @@
 - `preferred-command-json-sync` - [changes/2026-05-13-preferred-command-json-sync.md](changes/2026-05-13-preferred-command-json-sync.md)
 - `project-local-validation-script-boundary` - [changes/2026-05-13-project-local-validation-script-boundary.md](changes/2026-05-13-project-local-validation-script-boundary.md)
 - `python-unittest-validation-preference` - [changes/2026-05-13-python-unittest-validation-preference.md](changes/2026-05-13-python-unittest-validation-preference.md)
-- `checksum-first-release-consumption` - [changes/2026-05-13-checksum-first-release-consumption.md](changes/2026-05-13-checksum-first-release-consumption.md)
 - `secret-bearing-behavior-test-boundary` - [changes/2026-05-13-secret-bearing-behavior-test-boundary.md](changes/2026-05-13-secret-bearing-behavior-test-boundary.md)
 - `stdout-artifact-output` - [changes/2026-05-13-stdout-artifact-output.md](changes/2026-05-13-stdout-artifact-output.md)
 - `validation-claim-command-dedup` - [changes/2026-05-13-validation-claim-command-dedup.md](changes/2026-05-13-validation-claim-command-dedup.md)
 - `validation-claim-freshness-metadata` - [changes/2026-05-13-validation-claim-freshness-metadata.md](changes/2026-05-13-validation-claim-freshness-metadata.md)
 - `validation-claim-meta-discussion-filter` - [changes/2026-05-13-validation-claim-meta-discussion-filter.md](changes/2026-05-13-validation-claim-meta-discussion-filter.md)
 - `validation-command-purpose` - [changes/2026-05-13-validation-command-purpose.md](changes/2026-05-13-validation-command-purpose.md)
+- `post-v0-7-automation-handoff` - [changes/2026-05-15-post-v0-7-automation-handoff.md](changes/2026-05-15-post-v0-7-automation-handoff.md)
 
 ## Review Due
 
-- cli-auth-credential-command-family: 10 day(s) old, review_after.days=7
-- cloud-container-credential-command-family: 10 day(s) old, review_after.days=7
-- package-manager-credential-command-family: 10 day(s) old, review_after.days=7
-- package-registry-reason-code: 10 day(s) old, review_after.days=7
-- corepack-package-manager-activation-reason: 9 day(s) old, review_after.days=7
-- host-private-command-family: 9 day(s) old, review_after.days=7
-- instruction-alignment-roadmap: 9 day(s) old, review_after.days=7
-- javascript-package-manager-mutation-command-families: 9 day(s) old, review_after.days=7
-- package-manager-mutation-review-map: 9 day(s) old, review_after.days=7
-- roadmap-policy-finding-foundation: 9 day(s) old, review_after.days=7
-- swiftpm-dependency-resolution-command-family: 9 day(s) old, review_after.days=7
-- maintainability-roadmap-guardrails: 8 day(s) old, review_after.days=7
-- apple-package-manager-command-family: 7 day(s) old, review_after.days=7
-- baseline-policy-list-assembly: 7 day(s) old, review_after.days=7
-- executable-test-annotation-coverage: 7 day(s) old, review_after.days=7
-- go-cargo-command-family: 7 day(s) old, review_after.days=7
-- homebrew-command-family: 7 day(s) old, review_after.days=7
-- host-environment-command-family: 7 day(s) old, review_after.days=7
-- policy-reason-catalog-test-boundary: 7 day(s) old, review_after.days=7
-- project-environment-command-family: 7 day(s) old, review_after.days=7
-- python-package-manager-command-family: 7 day(s) old, review_after.days=7
-- ruby-bundler-command-family: 7 day(s) old, review_after.days=7
-- secret-bearing-evidence-boundary: 7 day(s) old, review_after.days=7
-- secret-search-command-family: 7 day(s) old, review_after.days=7
-- self-use-trigger-and-report-freshness: 7 day(s) old, review_after.days=7
-- speculative-context-annotation-framing: 7 day(s) old, review_after.days=7
-- ssh-private-key-command-family: 7 day(s) old, review_after.days=7
-- workspace-mutation-command-family: 7 day(s) old, review_after.days=7
+- cli-auth-credential-command-family: 12 day(s) old, review_after.days=7
+- cloud-container-credential-command-family: 12 day(s) old, review_after.days=7
+- package-manager-credential-command-family: 12 day(s) old, review_after.days=7
+- package-registry-reason-code: 12 day(s) old, review_after.days=7
+- corepack-package-manager-activation-reason: 11 day(s) old, review_after.days=7
+- host-private-command-family: 11 day(s) old, review_after.days=7
+- instruction-alignment-roadmap: 11 day(s) old, review_after.days=7
+- javascript-package-manager-mutation-command-families: 11 day(s) old, review_after.days=7
+- package-manager-mutation-review-map: 11 day(s) old, review_after.days=7
+- roadmap-policy-finding-foundation: 11 day(s) old, review_after.days=7
+- swiftpm-dependency-resolution-command-family: 11 day(s) old, review_after.days=7
+- maintainability-roadmap-guardrails: 10 day(s) old, review_after.days=7
+- apple-package-manager-command-family: 9 day(s) old, review_after.days=7
+- baseline-policy-list-assembly: 9 day(s) old, review_after.days=7
+- executable-test-annotation-coverage: 9 day(s) old, review_after.days=7
+- go-cargo-command-family: 9 day(s) old, review_after.days=7
+- homebrew-command-family: 9 day(s) old, review_after.days=7
+- host-environment-command-family: 9 day(s) old, review_after.days=7
+- policy-reason-catalog-test-boundary: 9 day(s) old, review_after.days=7
+- project-environment-command-family: 9 day(s) old, review_after.days=7
+- python-package-manager-command-family: 9 day(s) old, review_after.days=7
+- ruby-bundler-command-family: 9 day(s) old, review_after.days=7
+- secret-bearing-evidence-boundary: 9 day(s) old, review_after.days=7
+- secret-search-command-family: 9 day(s) old, review_after.days=7
+- speculative-context-annotation-framing: 9 day(s) old, review_after.days=7
+- ssh-private-key-command-family: 9 day(s) old, review_after.days=7
+- workspace-mutation-command-family: 9 day(s) old, review_after.days=7
+- agent-context-output-contract-test-boundary: 8 day(s) old, review_after.days=7
+- baseline-command-policy-test-boundary: 8 day(s) old, review_after.days=7
+- behavior-evidence-sanitization-test-boundary: 8 day(s) old, review_after.days=7
+- credential-policy-test-boundary: 8 day(s) old, review_after.days=7
+- go-cargo-policy-test-boundary: 8 day(s) old, review_after.days=7
+- homebrew-apple-policy-test-boundary: 8 day(s) old, review_after.days=7
+- host-private-data-policy-test-boundary: 8 day(s) old, review_after.days=7
+- javascript-command-policy-test-boundary: 8 day(s) old, review_after.days=7
+- javascript-metadata-policy-test-boundary: 8 day(s) old, review_after.days=7
+- javascript-package-policy-test-boundary: 8 day(s) old, review_after.days=7
+- package-registry-policy-test-boundary: 8 day(s) old, review_after.days=7
+- policy-output-contract-test-boundary: 8 day(s) old, review_after.days=7
+- project-symlink-safety-test-boundary: 8 day(s) old, review_after.days=7
+- python-package-policy-test-boundary: 8 day(s) old, review_after.days=7
+- representative-example-test-boundary: 8 day(s) old, review_after.days=7
+- roadmap-feedback-during-work: 8 day(s) old, review_after.days=7
+- ruby-bundler-policy-test-boundary: 8 day(s) old, review_after.days=7
+- scan-execution-infrastructure-test-boundary: 8 day(s) old, review_after.days=7
+- secret-file-policy-test-boundary: 8 day(s) old, review_after.days=7
+- swift-package-policy-test-boundary: 8 day(s) old, review_after.days=7
+- test-coverage-contract: 8 day(s) old, review_after.days=7
+- workspace-mutation-policy-test-boundary: 8 day(s) old, review_after.days=7
+- agent-context-hidden-reason-overflow-contract: 7 day(s) old, review_after.days=7
+- baseline-policy-catalog-dedup-contract: 7 day(s) old, review_after.days=7
+- ci-workflow-local-validation-uncertainty: 7 day(s) old, review_after.days=7
+- command-policy-reason-line-sync-contract: 7 day(s) old, review_after.days=7
+- command-reason-coverage-contract: 7 day(s) old, review_after.days=7
+- command-reason-order-contract: 7 day(s) old, review_after.days=7
+- core-infrastructure-test-file-boundary: 7 day(s) old, review_after.days=7
+- documented-validation-command-evidence: 7 day(s) old, review_after.days=7
+- github-cli-local-remote-contract: 7 day(s) old, review_after.days=7
+- markdown-reason-legend-contract: 7 day(s) old, review_after.days=7
+- multiple-validation-claim-uncertainty: 7 day(s) old, review_after.days=7
+- negated-validation-claim-filter: 7 day(s) old, review_after.days=7
+- package-auth-config-policy-test-boundary: 7 day(s) old, review_after.days=7
+- policy-index-conditional-section-contract: 7 day(s) old, review_after.days=7
+- policy-index-count-sync-contract: 7 day(s) old, review_after.days=7
+- post-v0-5-review-automation-guidance: 7 day(s) old, review_after.days=7
+- pre-commit-warning-doc-sync: 7 day(s) old, review_after.days=7
+- reason-legend-coverage-contract: 7 day(s) old, review_after.days=7
+- reason-legend-text-contract: 7 day(s) old, review_after.days=7
+- review-first-markdown-sync-contract: 7 day(s) old, review_after.days=7
+- review-first-reason-subset-contract: 7 day(s) old, review_after.days=7
+- skill-helper-sandbox-fallback: 7 day(s) old, review_after.days=7
+- unsupported-validation-workflow-uncertainty: 7 day(s) old, review_after.days=7
+- v0-5-instruction-alignment-release-gate: 7 day(s) old, review_after.days=7
+- workspace-mutation-reason-routing: 7 day(s) old, review_after.days=7
+- xcodebuild-validation-claim-scheme-discovery: 7 day(s) old, review_after.days=7

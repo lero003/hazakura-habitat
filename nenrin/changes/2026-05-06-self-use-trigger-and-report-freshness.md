@@ -2,8 +2,8 @@
 type: nenrin_change
 id: self-use-trigger-and-report-freshness
 date: 2026-05-06
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - docs/self_use.md
   - docs/development_loop.md
