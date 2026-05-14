@@ -53,24 +53,26 @@ Keep the correction narrow:
 
 This is part of finishing the work, not a separate planning project.
 
-## Post-v0.6 Automation Handoff
+## Post-v0.7 Automation Handoff
 
-After the `v0.6.0 Developer Preview`, recurring Habitat work should start from
-the `v0.7` Distribution Foundations phase. Keep the public `v0.6.0` tag and
-release assets immutable unless the user explicitly asks for a patch release.
+After the `v0.7.0 Developer Preview`, recurring Habitat work should start from
+the `v0.8` Observation -> Action phase. Keep public tags and GitHub Release
+assets immutable unless the user explicitly asks for a patch release.
 
 Default priority for automation:
 
-- first, remove friction in how agents obtain, verify, or consume Habitat output
-- second, take a minimal validation-command purpose slice when it prevents a real first-command mistake
-- third, keep cross-project and Nenrin evidence observational unless it changes a Habitat command decision
+- first, observe whether the published `v0.7.0` artifacts are actually easy for
+  agents, automation, and local scripts to obtain, verify, and consume
+- second, fix only concrete consumption, freshness, or release-trust failures
+  that change a command decision or published-artifact trust decision
+- third, turn repeated observations into focused policy, output-contract,
+  fixture, docs, or helper changes
 
 For validation-purpose work, do not build a broad taxonomy by default. The
-current measured gap is narrower: ordinary local validation such as `swift test`
-should remain distinct from release-prep or artifact validation such as
-`./scripts/build_release_artifacts.sh`. If the distinction is unclear, preserve
-bounded `Open uncertainty` instead of promoting a release or packaging script as
-the first ordinary validation command.
+ordinary-local-validation versus release/artifact-validation split shipped in
+`v0.7.0`; deeper setup/lint/smoke/package/CI-mirror distinctions belong in
+`v0.8` only when repeated traces show they change command preference or bounded
+`Open uncertainty`.
 
 The first concrete Python validation-purpose follow-up is now covered: Habitat
 does not promote virtualenv pytest guidance from interpreter existence alone.
@@ -79,12 +81,12 @@ top-level test files point to unittest before rendering a pytest preference.
 Future runner taxonomy should still wait for repeated command-decision
 evidence.
 
-For distribution work, model Habitat's own command policy philosophy. Prefer
-checksum verification, explicit binary version checks, `generatorVersion`
+For distribution carry-over, model Habitat's own command policy philosophy.
+Prefer checksum verification, explicit binary version checks, `generatorVersion`
 checks, and generated metadata verification over remote script piping,
-package-manager mutation, or automatic installation. Finish the stdout/file
-consumption path first; pull a read-only MCP prototype forward only after that
-path exists and file/CLI-based consumption remains the measured blocker.
+package-manager mutation, or automatic installation. Consider `--format`, a
+thin read-only MCP prototype, Linux feasibility notes, or setup-guide expansion
+only after file/stdout consumption proves insufficient in real use.
 
 Do not let external project backlogs choose Habitat work. Cross-project intake
 may supply one bounded carry-back, and Nenrin may record durable judgment
@@ -93,7 +95,7 @@ changelog storage.
 
 ## Historical Post-v0.5 Observation Handoff
 
-This handoff describes the observation loop that led from the public `v0.5.0 Developer Preview` toward `v0.6.0`. Use it as historical context when reviewing that release boundary, not as the default starting prompt for new post-`v0.6` work:
+This handoff describes the observation loop that led from the public `v0.5.0 Developer Preview` toward `v0.6.0`. Use it as historical context when reviewing that release boundary, not as the default starting prompt for new post-`v0.7` work:
 
 ```text
 Start post-v0.5 work from the current public v0.5.0 Developer Preview. Keep released tags immutable.
