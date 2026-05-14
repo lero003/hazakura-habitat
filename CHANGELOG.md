@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+No changes yet.
+
+## v0.7.0 Developer Preview - 2026-05-15
+
+Distribution Foundations release.
+
+`v0.7.0` makes Habitat easier for agents, automations, and local scripts to
+obtain, verify, and consume while preserving the advisory, read-only boundary.
+`scan_result.json` remains preview metadata during `v0.x`; individual fields
+may still change before `v1.0`.
+
 ### Changed
 
 - Added `scripts/check_habitat_metadata.sh` so local scripts can compare
@@ -45,6 +56,7 @@
 - Updated automation-facing phase guidance so recurring Habitat work does not keep pursuing the post-`v0.5` observation loop or broaden validation taxonomy without repeated command-decision evidence.
 - Clarified that `v0.7` distribution work should verify binary version, `generatorVersion`, and generated metadata, and should prefer stdout/file consumption before considering a thin read-only MCP prototype.
 - Changed Python project guidance so Habitat only promotes `.venv/bin/python -m pytest` after verifying project pytest is runnable, and prefers project-virtualenv unittest when repo docs or top-level test files point to unittest.
+- Updated generated artifact metadata to report generator version `0.7.0`.
 
 ## v0.6.0 Developer Preview - 2026-05-13
 
