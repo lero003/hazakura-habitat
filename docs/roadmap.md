@@ -505,6 +505,10 @@ First shipped slice:
   `--stdout environment-report` let automation and local scripts consume one
   generated Markdown artifact without managing `habitat-report/` files, while
   `--stdout scan-result` covers the machine-readable metadata path.
+- Release consumption guidance is checksum-first: agents and automation verify
+  `SHA256SUMS` before running downloaded release binaries, then compare
+  `habitat-scan --version`, `scan_result.json` `generatorVersion`, and core
+  generated artifact metadata before trusting saved Markdown context.
 - Python validation-runner fit now avoids promoting `.venv/bin/python -m pytest` unless project pytest is runnable, and prefers project-virtualenv unittest when repo docs or top-level tests indicate unittest.
 
 Candidate work:
@@ -513,8 +517,6 @@ Candidate work:
 - more stable machine-readable policy output
 - setup guide for agent workflows
 - release install guidance that models Habitat's own caution around remote scripts
-- checksum verification in the default install path
-- binary version, `generatorVersion`, and generated metadata verification
 - a minimal validation-purpose distinction between ordinary local validation and release/artifact validation, only where it changes command preference or bounded `Open uncertainty`
 - minimal read-only MCP prototype after the stdout path exists, and only if file/CLI-based consumption remains a measured blocker and the CLI contract is mature enough
 - Linux feasibility notes for read-only scan paths, without promising support before portability risks are known

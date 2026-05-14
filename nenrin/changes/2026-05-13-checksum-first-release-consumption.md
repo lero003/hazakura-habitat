@@ -8,6 +8,7 @@ related_files:
   - README.md
   - skills/hazakura-habitat/SKILL.md
   - docs/current_status.md
+  - docs/roadmap.md
 review_after:
   tasks: 3
   days: 7
@@ -20,6 +21,7 @@ review_after:
 - Made release consumption guidance checksum-first in README.
 - Clarified that agents should not run downloaded release binaries when `SHA256SUMS` verification fails or omits the asset.
 - Added release-binary version and saved-report `generatorVersion` checks to the bundled Habitat skill.
+- Moved checksum-first release consumption and binary/report metadata verification out of the `v0.7` roadmap candidate list and into shipped slice wording after the helper/docs work landed.
 
 ## Reason
 
