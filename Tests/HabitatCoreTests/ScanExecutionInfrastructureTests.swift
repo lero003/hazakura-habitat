@@ -117,12 +117,20 @@ struct ScanExecutionInfrastructureTests {
         let aliases: [(String, StdoutArtifact)] = [
             ("scan_result.json", .scanResult),
             ("./scan_result.json", .scanResult),
+            ("habitat-report/scan_result.json", .scanResult),
+            ("./habitat-report/scan_result.json", .scanResult),
             ("agent_context.md", .agentContext),
             ("./agent_context.md", .agentContext),
+            ("habitat-report/agent_context.md", .agentContext),
+            ("./habitat-report/agent_context.md", .agentContext),
             ("command_policy.md", .commandPolicy),
             ("./command_policy.md", .commandPolicy),
+            ("habitat-report/command_policy.md", .commandPolicy),
+            ("./habitat-report/command_policy.md", .commandPolicy),
             ("environment_report.md", .environmentReport),
             ("./environment_report.md", .environmentReport),
+            ("habitat-report/environment_report.md", .environmentReport),
+            ("./habitat-report/environment_report.md", .environmentReport),
         ]
 
         for (value, artifact) in aliases {
@@ -956,7 +964,7 @@ struct ScanExecutionInfrastructureTests {
             "scripts/print_habitat_artifact.sh",
             binaryURL.path,
             projectURL.path,
-            "./agent_context.md",
+            "habitat-report/agent_context.md",
             "1.2.3",
         ]
 

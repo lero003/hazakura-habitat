@@ -504,7 +504,11 @@ First shipped slice:
 - `--stdout agent-context` / `--stdout command-policy` /
   `--stdout environment-report` let automation and local scripts consume one
   generated Markdown artifact without managing `habitat-report/` files, while
-  `--stdout scan-result` covers the machine-readable metadata path.
+  `--stdout scan-result` covers the machine-readable metadata path. Generated
+  filenames and report-relative paths such as
+  `habitat-report/agent_context.md` are accepted as aliases, so scripts can move
+  between saved report paths and direct stdout consumption without their own
+  artifact-token mapping.
 - Release consumption guidance is checksum-first: agents and automation verify
   `SHA256SUMS` before running downloaded release binaries, then compare
   `habitat-scan --version`, `scan_result.json` `generatorVersion`, and core

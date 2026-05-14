@@ -32,6 +32,9 @@
   consumption paths for durable reports, direct stdout artifacts, verified local
   binaries, and checksum-first release directories without adding installer or
   enforcement behavior.
+- Changed direct stdout artifact aliases so `habitat-report/agent_context.md`
+  style report paths are accepted alongside generated filenames, reducing
+  saved-report-to-stdout plumbing in local scripts.
 - Added `habitat-scan scan --stdout scan-result` so automation and local scripts can consume `scan_result.json` metadata without creating a report directory.
 - Added the Hazakura Habitat logo asset and surfaced it at the top of `README.md`.
 - Moved the bundled agent skill entrypoint into the top of `README.md` so AI agents can discover `skills/hazakura-habitat/SKILL.md` during an initial repository read.

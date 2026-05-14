@@ -26,7 +26,10 @@ public enum StdoutArtifact: String, Equatable {
     case environmentReport = "environment-report"
 
     public static func parse(_ value: String) -> StdoutArtifact? {
-        let normalizedValue = value.hasPrefix("./") ? String(value.dropFirst(2)) : value
+        var normalizedValue = value.hasPrefix("./") ? String(value.dropFirst(2)) : value
+        if normalizedValue.hasPrefix("habitat-report/") {
+            normalizedValue = String(normalizedValue.dropFirst("habitat-report/".count))
+        }
         switch normalizedValue {
         case "scan-result", "scan_result.json":
             return .scanResult
@@ -61,7 +64,7 @@ public enum ScanArgumentError: LocalizedError, Equatable {
         case .unknownArgument(let argument):
             return "Unknown scan argument: `\(argument)`."
         case .invalidStdoutArtifact(let value):
-            return "Unsupported `--stdout` artifact `\(value)`; use `scan-result`, `agent-context`, `command-policy`, `environment-report`, or the matching report filename or ./filename."
+            return "Unsupported `--stdout` artifact `\(value)`; use `scan-result`, `agent-context`, `command-policy`, `environment-report`, or the matching report filename, ./filename, or habitat-report/filename."
         case .incompatibleFlags(let first, let second):
             return "`\(first)` and `\(second)` cannot be used together."
         }

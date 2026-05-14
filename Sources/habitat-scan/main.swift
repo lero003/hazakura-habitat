@@ -77,13 +77,14 @@ struct CLI {
           habitat-scan scan --project /path/to/project --stdout command-policy
           habitat-scan scan --project /path/to/project --stdout environment-report
           habitat-scan scan --project /path/to/project --stdout agent_context.md
+          habitat-scan scan --project /path/to/project --stdout habitat-report/agent_context.md
           habitat-scan scan --help
           habitat-scan --help
           habitat-scan --version
 
         Note:
           Use --stdout for one direct artifact, or --output for durable report files; do not combine them.
-          --stdout accepts the artifact token, matching generated report filename, or ./filename.
+          --stdout accepts the artifact token, matching generated report filename, ./filename, or habitat-report/filename.
         """
     }
 

@@ -49,7 +49,12 @@ For metadata-driven scripts, report filenames can be passed back directly:
 ```bash
 ./.build/debug/habitat-scan scan --project . --stdout agent_context.md
 ./.build/debug/habitat-scan scan --project . --stdout ./command_policy.md
+./.build/debug/habitat-scan scan --project . --stdout habitat-report/agent_context.md
 ```
+
+The `habitat-report/filename` form is normalized to the generated artifact
+name. It is useful when an automation already has a saved report path in hand
+but wants to switch to direct stdout consumption.
 
 ## Verified Local Binary
 

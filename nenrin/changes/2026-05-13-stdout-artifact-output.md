@@ -123,6 +123,9 @@ review_after:
 - The CLI and print helper accept report-relative `./filename` artifact paths,
   so metadata-driven scripts can pass simple relative paths back without
   maintaining a separate normalization step.
+- The CLI and print helper also accept `habitat-report/filename` artifact
+  paths, so automation can copy a saved report path into a direct stdout
+  command without maintaining a separate token mapping.
 - The bundled helper rejects scan-result JSON with an unexpected
   `schemaVersion`, so generator-version agreement alone is not treated as a
   complete machine-consumption contract.

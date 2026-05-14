@@ -18,7 +18,7 @@ Artifact may be one of:
 - command-policy or command_policy.md
 - environment-report or environment_report.md
 
-Filename forms may also be passed as ./filename.
+Filename forms may also be passed as ./filename or habitat-report/filename.
 
 This script does not create or update a habitat-report directory. Diagnostics
 and verification failures are written to stderr so stdout remains the requested
@@ -70,6 +70,8 @@ import sys
 requested = os.environ["REQUESTED_ARTIFACT"]
 if requested.startswith("./"):
     requested = requested[2:]
+if requested.startswith("habitat-report/"):
+    requested = requested[len("habitat-report/"):]
 expected_schema_version = os.environ["EXPECTED_SCHEMA_VERSION"]
 binary_version = os.environ["BINARY_VERSION"]
 expected_version = os.environ["EXPECTED_VERSION"]
