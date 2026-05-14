@@ -52,7 +52,7 @@ Keep the current cycle focused:
   `generatorVersion` and verifying generated Markdown artifact metadata for
   `agent_context.md`, `command_policy.md`, and `environment_report.md` through
   `--stdout scan-result`, including expected names, roles, relative paths,
-  formats, read order, and agent-use metadata, plus the direct stdout
+  formats, read order, read triggers, and agent-use metadata, plus the direct stdout
   availability of `agent_context.md`, `command_policy.md`, and
   `environment_report.md`, without creating or updating `habitat-report/`.
 - `habitat-scan scan --help` now succeeds and shows the scan output forms,

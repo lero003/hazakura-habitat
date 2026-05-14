@@ -212,9 +212,9 @@ The helper reads `scan_result.json` through `--stdout scan-result`, compares
 `generatorVersion` with `habitat-scan --version`, verifies the generated
 Markdown artifact metadata for `agent_context.md`, `command_policy.md`, and
 `environment_report.md` includes the expected names, roles, relative paths,
-formats, read order, and agent-use hints, checks that `--stdout agent-context`,
-`--stdout command-policy`, and `--stdout environment-report` return the
-expected Markdown artifacts,
+formats, read order, read triggers, and agent-use hints, checks that
+`--stdout agent-context`, `--stdout command-policy`, and
+`--stdout environment-report` return the expected Markdown artifacts,
 and leaves `habitat-report/` untouched.
 
 ## Run

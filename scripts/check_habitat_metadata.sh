@@ -7,7 +7,7 @@ Usage: check_habitat_metadata.sh /path/to/habitat-scan /path/to/project [expecte
 
 Checks that:
 - habitat-scan --version reports the same version as scan_result.json generatorVersion
-- scan_result.json includes the core generated Markdown artifact names, roles, paths, formats, read order, and agent-use hints
+- scan_result.json includes the core generated Markdown artifact names, roles, paths, formats, read order, read triggers, and agent-use hints
 - --stdout agent-context, command-policy, and environment-report return the core Markdown artifacts
 - optional expected-version matches both values
 
@@ -77,6 +77,7 @@ required_artifacts = {
         "relativePath": "agent_context.md",
         "format": "markdown",
         "readOrder": 1,
+        "readTrigger": "before_any_project_command",
         "agentUse": "read_first",
     },
     "command_policy.md": {
@@ -84,6 +85,7 @@ required_artifacts = {
         "relativePath": "command_policy.md",
         "format": "markdown",
         "readOrder": 2,
+        "readTrigger": "before_risky_remote_mutating_secret_or_environment_sensitive_commands",
         "agentUse": "consult_before_risky_commands",
     },
     "environment_report.md": {
@@ -91,6 +93,7 @@ required_artifacts = {
         "relativePath": "environment_report.md",
         "format": "markdown",
         "readOrder": 3,
+        "readTrigger": "only_for_diagnostics_or_audit",
         "agentUse": "debug_audit_only",
     },
 }

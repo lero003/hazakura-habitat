@@ -37,7 +37,8 @@ review_after:
   `agent_context.md` or `command_policy.md`.
 - Tightened the helper contract again so local scripts require those core
   artifacts to carry the expected role, relative path, Markdown format, read
-  order, and agent-use metadata before trusting a binary's consumption path.
+  order, read triggers, and agent-use metadata before trusting a binary's
+  consumption path.
 - Tightened the helper contract again so local scripts also fail when
   `--stdout agent-context` or `--stdout command-policy` does not return the
   expected generated Markdown artifact.
@@ -48,6 +49,9 @@ review_after:
 - Tightened the helper contract again so local scripts also fail when
   `--stdout environment-report` does not return the expected diagnostic
   Markdown artifact.
+- Tightened the helper contract again so local scripts also require the
+  expected generated artifact `readTrigger` values before trusting stdout/file
+  consumption guidance.
 - Reused the same report rendering path as file output, so stdout output does not fork the artifact contract.
 - Allowed `habitat-scan scan --help` as a scan-specific help entrypoint, so agents can discover stdout/file output forms without triggering an argument error.
 - Documented when to use stdout versus durable `habitat-report/` files.
@@ -66,12 +70,15 @@ review_after:
 - Scripts can reject a malformed or incomplete generated-Markdown metadata
   contract before trusting generated Markdown paths or roles.
 - Scripts can reject subtly incomplete artifact metadata where the name exists
-  but the agent-facing role, path, format, or read-order contract is wrong.
+  but the agent-facing role, path, format, read-order, or read-trigger contract
+  is wrong.
 - Scripts can reject a broken direct stdout Markdown path before wiring agents
   or automation to a binary.
 - Scripts can reject a binary whose machine-readable artifact list omits the
   diagnostic report metadata or whose direct diagnostic stdout path is
   unavailable.
+- Scripts can reject artifact metadata whose read triggers would point agents
+  at the wrong generated file or make policy/detail consultation ambiguous.
 - File output remains the path for durable report snapshots.
 - Agents and scripts choose either a direct stdout artifact or durable report
   files for one scan command; they do not assume both happened.
@@ -88,7 +95,8 @@ review_after:
 - Metadata checks catch missing core artifact entries before downstream scripts
   assume the report is consumable.
 - Metadata checks catch wrong core artifact roles, paths, formats, read order,
-  or agent-use hints before downstream scripts wire agents to the wrong file.
+  read triggers, or agent-use hints before downstream scripts wire agents to the
+  wrong file.
 - Metadata checks catch broken direct stdout Markdown output before downstream
   scripts consume it.
 - Metadata checks catch an incomplete generated report metadata set, including
@@ -96,6 +104,8 @@ review_after:
   binary for durable file output.
 - Metadata checks catch broken direct diagnostic stdout output before
   downstream scripts depend on audit/detail consumption.
+- Metadata checks catch wrong generated artifact read triggers before
+  downstream scripts rely on automated read-order or consultation decisions.
 - Agents checking scan usage use `scan --help` successfully before choosing `--stdout` or `--output`.
 - Miscombined stdout/file-output commands fail early with a clear argument
   error instead of leaving stale `habitat-report/` files looking current.
@@ -107,12 +117,14 @@ review_after:
 - A helper accepts scan-result JSON without the core artifact metadata that
   agents and scripts rely on for consumption.
 - A helper accepts named artifact entries whose role, path, format, read order,
-  or agent-use hints would make downstream consumption ambiguous.
+  read triggers, or agent-use hints would make downstream consumption ambiguous.
 - A helper accepts a binary whose metadata says the Markdown artifacts exist but
   whose direct stdout Markdown output is unavailable or malformed.
 - A helper accepts a binary whose file-output metadata omits the diagnostic
   report artifact even though scripts may later depend on durable report files.
 - A helper accepts a binary whose diagnostic stdout path is missing or malformed.
+- A helper accepts artifact metadata with wrong read triggers, leaving agents or
+  scripts unsure when to read policy or diagnostics.
 - Scripts pass both `--stdout` and `--output`, then trust an old report
   directory because the stdout-only scan did not refresh it.
 
