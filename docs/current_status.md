@@ -69,10 +69,11 @@ Keep the current cycle focused:
   `habitat-report/`.
 - `scripts/verify_habitat_release.sh` gives local scripts a checksum-first
   release-directory verification path: it runs `shasum -c SHA256SUMS` before
-  executing any downloaded binary, extracts `habitat-scan-macos.zip` into a
-  temporary directory when present, then reuses the metadata helper without
-  installing Habitat, mutating shell startup files, or creating
-  `habitat-report/`.
+  executing any downloaded binary, rejects absolute or parent-directory
+  checksum entries so verification stays inside the release directory, extracts
+  `habitat-scan-macos.zip` into a temporary directory when present, then reuses
+  the metadata helper without installing Habitat, mutating shell startup files,
+  or creating `habitat-report/`.
 - `habitat-scan scan --help` now succeeds and shows the scan output forms,
   including stdout-only scan-result, agent-context, command-policy, and
   environment-report usage, so agents do not have to recover from an argument

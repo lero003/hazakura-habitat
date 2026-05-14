@@ -7,6 +7,7 @@ Usage: verify_habitat_release.sh /path/to/release-dir /path/to/project [expected
 
 Verifies a downloaded Habitat release bundle before using its binary:
 - SHA256SUMS exists and verifies all downloaded release assets
+- SHA256SUMS entries stay inside the release directory
 - habitat-scan-macos.zip is extracted into a temporary directory when present
 - otherwise, the standalone habitat-scan asset is used
 - binary version, scan_result.json generatorVersion, schemaVersion, generated
@@ -47,6 +48,19 @@ if [[ ! -x "$metadata_helper" ]]; then
   printf 'error: metadata helper is not executable: %s\n' "$metadata_helper" >&2
   exit 1
 fi
+
+while IFS= read -r checksum_line || [[ -n "$checksum_line" ]]; do
+  [[ -z "$checksum_line" ]] && continue
+  if [[ ! "$checksum_line" =~ ^[[:xdigit:]]{64}[[:space:]][\ \*](.+)$ ]]; then
+    printf 'error: unsupported SHA256SUMS entry: %s\n' "$checksum_line" >&2
+    exit 1
+  fi
+  checksum_path="${BASH_REMATCH[1]}"
+  if [[ -z "$checksum_path" || "$checksum_path" == /* || "$checksum_path" == ".." || "$checksum_path" == ../* || "$checksum_path" == */.. || "$checksum_path" == */../* ]]; then
+    printf 'error: SHA256SUMS entry must stay inside release directory: %s\n' "$checksum_path" >&2
+    exit 1
+  fi
+done < "$release_dir/SHA256SUMS"
 
 (
   cd "$release_dir"

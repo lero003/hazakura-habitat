@@ -232,7 +232,10 @@ scripts/verify_habitat_release.sh /path/to/downloaded-release . 0.6.0
 The helper runs `shasum -c SHA256SUMS` first, extracts
 `habitat-scan-macos.zip` into a temporary directory when that asset is present,
 and then delegates to `check_habitat_metadata.sh`. It does not install Habitat,
-edit shell startup files, or create `habitat-report/`.
+edit shell startup files, or create `habitat-report/`. It also rejects
+`SHA256SUMS` entries that use absolute paths or parent-directory segments before
+running `shasum`, so verification stays scoped to the downloaded release
+directory.
 
 For local scripts that need one verified artifact on stdout, use the matching
 print helper. Verification failures go to stderr, so stdout remains the

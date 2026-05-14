@@ -432,6 +432,51 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func releaseVerificationScriptRejectsChecksumEntriesOutsideReleaseDirectory() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let releaseURL = tempURL.appendingPathComponent("release")
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = releaseURL.appendingPathComponent("habitat-scan")
+        let markerURL = tempURL.appendingPathComponent("binary-ran")
+        try fileManager.createDirectory(at: releaseURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            printf 'ran\\n' > "\(markerURL.path)"
+            exit 0
+            """
+        )
+        try "0000000000000000000000000000000000000000000000000000000000000000  ../habitat-scan\n".write(
+            to: releaseURL.appendingPathComponent("SHA256SUMS"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/verify_habitat_release.sh",
+            releaseURL.path,
+            projectURL.path,
+            "1.2.3",
+        ]
+
+        let stderr = Pipe()
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 1)
+        #expect(error.contains("SHA256SUMS entry must stay inside release directory"))
+        #expect(!fileManager.fileExists(atPath: markerURL.path))
+    }
+
+    @Test
     func printArtifactScriptPrintsRequestedArtifactWithoutReportDirectory() throws {
         let fileManager = FileManager.default
         let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)

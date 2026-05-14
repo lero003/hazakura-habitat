@@ -25,6 +25,10 @@ review_after:
 - Added `scripts/verify_habitat_release.sh` so local scripts can preserve the
   checksum-first order before delegating to metadata verification, without
   installing Habitat or creating `habitat-report/`.
+- Tightened `scripts/verify_habitat_release.sh` so `SHA256SUMS` entries with
+  absolute paths or parent-directory segments fail before `shasum` or the
+  downloaded binary can run, keeping release verification scoped to the release
+  directory.
 
 ## Reason
 
@@ -36,6 +40,8 @@ review_after:
 - Automation checks both the binary version and saved report generator metadata before trusting generated Markdown from a release binary.
 - Local scripts can run one release-directory verification command that fails
   before executing the binary when checksums do not match.
+- Local scripts reject checksum files that try to verify paths outside the
+  downloaded release directory.
 - Missing or failed checksum verification stops release-binary use instead of falling through to remote script piping, global installs, or package-manager mutation.
 
 ## Review After
@@ -48,12 +54,15 @@ review_after:
 - Future setup or automation work follows checksum-first consumption without needing extra user correction.
 - Agents distinguish a stale saved report from a verified current binary.
 - Release-helper tests prove checksum mismatch stops before binary execution.
+- Release-helper tests prove path-escaping checksum entries stop before
+  checksum verification and binary execution.
 
 ## Failure Signals
 
 - Agents still run release binaries before checksum verification.
 - Version checks are treated as a substitute for checksum verification.
 - The guidance expands into automatic installation or repair behavior.
+- The helper accepts checksum entries that escape the release directory.
 
 ## Result
 
