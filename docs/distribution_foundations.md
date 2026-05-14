@@ -89,8 +89,9 @@ scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . agent_co
 ```
 
 The release helpers reject checksum paths that escape the release directory,
-zip entries that escape the temporary extraction directory, symlinked verified
-binaries, and non-regular binary paths before metadata or artifact checks run.
+selected release assets that are missing from `SHA256SUMS`, zip entries that
+escape the temporary extraction directory, symlinked verified binaries, and
+non-regular binary paths before metadata or artifact checks run.
 
 ## What Not To Do
 
@@ -100,4 +101,3 @@ binaries, and non-regular binary paths before metadata or artifact checks run.
 - Do not edit shell startup files or install globally unless a user explicitly
   asks for that environment mutation.
 - Do not treat Habitat output as command approval or enforcement.
-

@@ -84,6 +84,8 @@ review_after:
   consumers can preserve checksum-first verification and still pipe one
   generated artifact to stdout without managing a temporary extracted binary
   path.
+- Tightened release-directory helpers so the selected zip or standalone binary
+  asset must be listed in `SHA256SUMS` before it can be extracted or executed.
 - Added `docs/distribution_foundations.md` so agents, automation, and local
   scripts can choose between durable report files and verified stdout artifacts
   from one compact setup guide.
@@ -135,6 +137,8 @@ review_after:
 - Release-directory artifact printing keeps checksum and extraction diagnostics
   on stderr, so stdout remains safe to pipe directly into an agent or
   automation step.
+- Release-directory helpers fail closed when a selected release asset is present
+  beside `SHA256SUMS` but not covered by it.
 - Future local scripts can use the setup guide to decide when stdout is enough
   and when a durable `habitat-report/` snapshot is the right artifact boundary.
 
@@ -212,6 +216,8 @@ review_after:
   `scan-result` output without checking the requested filename path.
 - Release artifact printing leaks checksum output into stdout or runs the
   downloaded binary before checksum verification.
+- Release helpers select an unlisted zip or standalone binary asset after
+  `SHA256SUMS` verified some other file in the same directory.
 
 ## Result
 

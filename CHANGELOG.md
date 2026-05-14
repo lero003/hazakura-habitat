@@ -25,6 +25,9 @@
 - Tightened Habitat metadata and artifact helper scripts so binary paths must
   be regular non-symlink executable files before version, metadata, or artifact
   checks run.
+- Tightened release-directory helper scripts so the selected zip or standalone
+  binary asset must be present in `SHA256SUMS` before it can be extracted or
+  executed.
 - Added `docs/distribution_foundations.md` to document the supported
   consumption paths for durable reports, direct stdout artifacts, verified local
   binaries, and checksum-first release directories without adding installer or

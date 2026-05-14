@@ -38,6 +38,7 @@ requested_artifact="$3"
 expected_version="${4:-}"
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 print_helper="$script_dir/print_habitat_artifact.sh"
+checksum_paths=""
 
 if [[ ! -d "$release_dir" ]]; then
   printf 'error: release directory does not exist: %s\n' "$release_dir" >&2
@@ -65,7 +66,19 @@ while IFS= read -r checksum_line || [[ -n "$checksum_line" ]]; do
     printf 'error: SHA256SUMS entry must stay inside release directory: %s\n' "$checksum_path" >&2
     exit 1
   fi
+  checksum_paths+="${checksum_path}"$'\n'
 done < "$release_dir/SHA256SUMS"
+
+checksum_includes_asset() {
+  local asset="$1"
+  while IFS= read -r checksum_path || [[ -n "$checksum_path" ]]; do
+    [[ -z "$checksum_path" ]] && continue
+    if [[ "$checksum_path" == "$asset" || "$checksum_path" == "./$asset" ]]; then
+      return 0
+    fi
+  done <<< "$checksum_paths"
+  return 1
+}
 
 (
   cd "$release_dir"
@@ -82,6 +95,10 @@ cleanup() {
 trap cleanup EXIT
 
 if [[ -f "$release_dir/habitat-scan-macos.zip" ]]; then
+  if ! checksum_includes_asset "habitat-scan-macos.zip"; then
+    printf 'error: selected release asset is missing from SHA256SUMS: habitat-scan-macos.zip\n' >&2
+    exit 1
+  fi
   if ! command -v unzip >/dev/null 2>&1; then
     printf 'error: unzip is required to verify habitat-scan-macos.zip\n' >&2
     exit 1
@@ -97,6 +114,10 @@ if [[ -f "$release_dir/habitat-scan-macos.zip" ]]; then
   unzip -q "$release_dir/habitat-scan-macos.zip" -d "$temp_dir"
   release_binary="$temp_dir/dist/habitat-scan"
 elif [[ -f "$release_dir/habitat-scan" ]]; then
+  if ! checksum_includes_asset "habitat-scan"; then
+    printf 'error: selected release asset is missing from SHA256SUMS: habitat-scan\n' >&2
+    exit 1
+  fi
   release_binary="$release_dir/habitat-scan"
 else
   printf 'error: release directory must contain habitat-scan-macos.zip or habitat-scan\n' >&2

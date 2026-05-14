@@ -241,7 +241,8 @@ The helper runs `shasum -c SHA256SUMS` first, extracts
 and then delegates to `check_habitat_metadata.sh`. It does not install Habitat,
 edit shell startup files, or create `habitat-report/`. It also rejects
 `SHA256SUMS` entries that use absolute paths or parent-directory segments before
-running `shasum`, and rejects zip entries that would extract outside the
+running `shasum`, rejects a selected zip or standalone asset that is missing
+from `SHA256SUMS`, and rejects zip entries that would extract outside the
 temporary directory. The verified `habitat-scan` path must be a regular
 executable, not a symlink, so verification stays scoped to the downloaded
 release directory and its temporary extraction path.

@@ -436,6 +436,69 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func releaseVerificationScriptRejectsSelectedZipMissingFromChecksumsBeforeRunningBinary() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let releaseURL = tempURL.appendingPathComponent("release")
+        let projectURL = tempURL.appendingPathComponent("project")
+        let zipRootURL = tempURL.appendingPathComponent("zip-root")
+        let zipDistURL = zipRootURL.appendingPathComponent("dist")
+        let zipBinaryURL = zipDistURL.appendingPathComponent("habitat-scan")
+        let zipURL = releaseURL.appendingPathComponent("habitat-scan-macos.zip")
+        let standaloneBinaryURL = releaseURL.appendingPathComponent("habitat-scan")
+        let markerURL = tempURL.appendingPathComponent("binary-ran")
+        try fileManager.createDirectory(at: releaseURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: zipDistURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            zipBinaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            printf 'ran\\n' > "\(markerURL.path)"
+            exit 0
+            """
+        )
+        let zipProcess = Process()
+        zipProcess.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
+        zipProcess.currentDirectoryURL = zipRootURL
+        zipProcess.arguments = ["-qry", zipURL.path, "dist/habitat-scan"]
+        try zipProcess.run()
+        zipProcess.waitUntilExit()
+        #expect(zipProcess.terminationStatus == 0)
+
+        try writeExecutableScript(
+            standaloneBinaryURL,
+            contents: releaseVerificationFakeBinaryScript(version: "1.2.3")
+        )
+        let checksum = try sha256(standaloneBinaryURL)
+        try "\(checksum)  habitat-scan\n".write(
+            to: releaseURL.appendingPathComponent("SHA256SUMS"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/verify_habitat_release.sh",
+            releaseURL.path,
+            projectURL.path,
+            "1.2.3",
+        ]
+
+        let stderr = Pipe()
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 1)
+        #expect(error.contains("selected release asset is missing from SHA256SUMS: habitat-scan-macos.zip"))
+        #expect(!fileManager.fileExists(atPath: markerURL.path))
+    }
+
+    @Test
     func releaseVerificationScriptRejectsChecksumEntriesOutsideReleaseDirectory() throws {
         let fileManager = FileManager.default
         let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
@@ -731,6 +794,74 @@ struct ScanExecutionInfrastructureTests {
         let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
         #expect(process.terminationStatus != 0)
         #expect(output.isEmpty)
+        #expect(!fileManager.fileExists(atPath: markerURL.path))
+    }
+
+    @Test
+    func releasePrintArtifactScriptRejectsSelectedZipMissingFromChecksumsBeforeRunningBinary() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let releaseURL = tempURL.appendingPathComponent("release")
+        let projectURL = tempURL.appendingPathComponent("project")
+        let zipRootURL = tempURL.appendingPathComponent("zip-root")
+        let zipDistURL = zipRootURL.appendingPathComponent("dist")
+        let zipBinaryURL = zipDistURL.appendingPathComponent("habitat-scan")
+        let zipURL = releaseURL.appendingPathComponent("habitat-scan-macos.zip")
+        let standaloneBinaryURL = releaseURL.appendingPathComponent("habitat-scan")
+        let markerURL = tempURL.appendingPathComponent("binary-ran")
+        try fileManager.createDirectory(at: releaseURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: zipDistURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            zipBinaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            printf 'ran\\n' > "\(markerURL.path)"
+            exit 0
+            """
+        )
+        let zipProcess = Process()
+        zipProcess.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
+        zipProcess.currentDirectoryURL = zipRootURL
+        zipProcess.arguments = ["-qry", zipURL.path, "dist/habitat-scan"]
+        try zipProcess.run()
+        zipProcess.waitUntilExit()
+        #expect(zipProcess.terminationStatus == 0)
+
+        try writeExecutableScript(
+            standaloneBinaryURL,
+            contents: releaseVerificationFakeBinaryScript(version: "1.2.3")
+        )
+        let checksum = try sha256(standaloneBinaryURL)
+        try "\(checksum)  habitat-scan\n".write(
+            to: releaseURL.appendingPathComponent("SHA256SUMS"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/print_habitat_release_artifact.sh",
+            releaseURL.path,
+            projectURL.path,
+            "agent_context.md",
+            "1.2.3",
+        ]
+
+        let stdout = Pipe()
+        let stderr = Pipe()
+        process.standardOutput = stdout
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 1)
+        #expect(output.isEmpty)
+        #expect(error.contains("selected release asset is missing from SHA256SUMS: habitat-scan-macos.zip"))
         #expect(!fileManager.fileExists(atPath: markerURL.path))
     }
 
