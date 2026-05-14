@@ -178,7 +178,35 @@ artifact_name="$(printf '%s\n' "$artifact_metadata" | sed -n '2p')"
 artifact_role="$(printf '%s\n' "$artifact_metadata" | sed -n '3p')"
 
 if [[ "$artifact_name" == "scan_result.json" ]]; then
-  printf '%s\n' "$scan_json"
+  if [[ "$stdout_value" == "scan-result" ]]; then
+    printf '%s\n' "$scan_json"
+    exit 0
+  fi
+
+  scan_json_by_name="$("$habitat_scan" scan --project "$project_path" --stdout "$stdout_value")"
+  printf '%s' "$scan_json_by_name" \
+    | EXPECTED_SCHEMA_VERSION="$expected_schema_version" \
+      EXPECTED_GENERATOR_VERSION="$binary_version" \
+      /usr/bin/env python3 -c '
+import json
+import os
+import sys
+
+data = json.load(sys.stdin)
+schema_version = data.get("schemaVersion", "")
+generator_version = data.get("generatorVersion", "")
+expected_schema_version = os.environ["EXPECTED_SCHEMA_VERSION"]
+expected_generator_version = os.environ["EXPECTED_GENERATOR_VERSION"]
+
+if schema_version != expected_schema_version:
+    print(f"error: --stdout scan_result.json schemaVersion {schema_version!r} does not match expected {expected_schema_version!r}", file=sys.stderr)
+    sys.exit(3)
+
+if generator_version != expected_generator_version:
+    print(f"error: --stdout scan_result.json generatorVersion {generator_version!r} does not match scan-result generatorVersion {expected_generator_version!r}", file=sys.stderr)
+    sys.exit(4)
+'
+  printf '%s\n' "$scan_json_by_name"
   exit 0
 fi
 
