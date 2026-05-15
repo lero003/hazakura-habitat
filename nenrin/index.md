@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 171
+- observing: 172
 - reviewed: 12
 
 ## Active Changes
@@ -173,11 +173,12 @@
 - `skill-helper-previous-scan` - [changes/2026-05-15-skill-helper-previous-scan.md](changes/2026-05-15-skill-helper-previous-scan.md)
 - `skill-helper-source-build-first` - [changes/2026-05-15-skill-helper-source-build-first.md](changes/2026-05-15-skill-helper-source-build-first.md)
 - `skill-helper-unique-temp-output` - [changes/2026-05-15-skill-helper-unique-temp-output.md](changes/2026-05-15-skill-helper-unique-temp-output.md)
+- `agent-context-generator-note` - [changes/2026-05-16-agent-context-generator-note.md](changes/2026-05-16-agent-context-generator-note.md)
 - `previous-scan-command-policy-values` - [changes/2026-05-16-previous-scan-command-policy-values.md](changes/2026-05-16-previous-scan-command-policy-values.md)
 - `previous-scan-observed-file-freshness` - [changes/2026-05-16-previous-scan-observed-file-freshness.md](changes/2026-05-16-previous-scan-observed-file-freshness.md)
 - `previous-scan-preferred-values` - [changes/2026-05-16-previous-scan-preferred-values.md](changes/2026-05-16-previous-scan-preferred-values.md)
 - `skill-helper-auto-previous-scan` - [changes/2026-05-16-skill-helper-auto-previous-scan.md](changes/2026-05-16-skill-helper-auto-previous-scan.md)
-- `agent-context-generator-note` - [changes/2026-05-16-agent-context-generator-note.md](changes/2026-05-16-agent-context-generator-note.md)
+- `v0-8-release-prep` - [changes/2026-05-16-v0-8-release-prep.md](changes/2026-05-16-v0-8-release-prep.md)
 
 ## Review Due
 

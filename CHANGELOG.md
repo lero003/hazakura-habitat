@@ -2,21 +2,67 @@
 
 ## Unreleased
 
-- Clarified the post-`v0.7` roadmap so Habitat stays narrow and macOS-first:
-  Linux is not a default expansion lane, and portability notes should only
-  protect the core advisory CLI contract.
+## v0.8.0 Developer Preview - 2026-05-16
+
+Observation -> Action hardening release.
+
+`v0.8.0` tightens Habitat after the `v0.7` distribution work by making
+saved-report reuse, previous-scan comparison, report freshness, preferred
+command changes, and generated context traceability more visible to agents and
+local scripts. Habitat remains advisory, read-only, and macOS-first; this
+release does not add command enforcement, sandboxing, broad platform support,
+or a new scanner domain.
+
+### Added
+
+- Added previous-scan support to the bundled `hazakura-habitat` skill helper,
+  including automatic reuse of an existing `habitat-report/scan_result.json`
+  when refreshing into a separate output directory.
+- Added previous-scan observed-file freshness deltas so stale saved reports can
+  surface command-relevant changes in key project files without turning Habitat
+  into a general file-diff dashboard.
+- Added structured preferred-command deltas, including previous and current
+  preferred command values, so agents can see when the likely first validation
+  command changed between scans.
+- Added structured command-policy transition deltas for previous-scan
+  comparison, making policy additions, removals, and classification changes
+  easier to review as command-decision signals.
+- Added the Habitat generator version to `agent_context.md` notes so short
+  AI-facing context can be traced back to the generator that produced it.
 - Added an AI agent adoption guide that defines partial Habitat adoption levels,
   copyable agent instructions, and boundaries for using Habitat without
   replacing existing project docs.
+
+### Changed
+
+- Improved the bundled skill helper so Habitat source checkouts prefer the
+  freshly built local `./.build/debug/habitat-scan`, use unique temporary report
+  output paths, and print canonical generated report paths after a scan.
+- Clarified the post-`v0.7` roadmap so the first `v0.8` work is Observation ->
+  Action hardening, not broad scanner expansion.
 - Separated the observed `./scripts/dev-env-check.sh` environment preflight
   script from ordinary local validation claims, so it is not promoted as a
   normal `Prefer` command when a project also documents its real validation
   wrapper.
-- Clarified that `docs/public_readiness.md` is the historical first-public
-  audit trail, not the active release checklist for current Developer Preview
-  releases.
+- Clarified validation-purpose guidance around ordinary local validation,
+  release/artifact validation, device verification, and environment checks
+  where those distinctions affect first-command guidance or bounded
+  uncertainty.
 - Clarified README release consumption wording to say Developer Preview GitHub
-  Release.
+  Release and clarified that `docs/public_readiness.md` is the historical
+  first-public audit trail, not the active release checklist for current
+  Developer Preview releases.
+- Updated generated artifact metadata to report generator version `0.8.0`.
+
+### Deferred
+
+- Cross-project observation remains bounded and non-authoritative; watched
+  repositories may supply one Habitat carry-back, but their backlogs do not
+  choose Habitat work.
+- Thin read-only MCP, `--format` modes, setup-guide expansion, Linux
+  portability notes, and deeper setup/lint/smoke/package/CI-mirror validation
+  taxonomy remain future work unless repeated observations show they change a
+  command decision.
 
 ## v0.7.0 Developer Preview - 2026-05-15
 

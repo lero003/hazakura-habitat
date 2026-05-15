@@ -394,7 +394,7 @@ struct CoreInfrastructureTests {
 
         ## Notes
         - Scanned at: 2026-04-25T00:00:00Z
-        - Generator: 0.7.0
+        - Generator: 0.8.0
         - Project: /tmp/project
         - Freshness: regenerate if key project files changed after this timestamp; compare key files with `scan_result.json` observed file mtimes.
         - Latest observed file: pnpm-lock.yaml modified at 2026-04-25T00:00:00Z (shortcut only; other observed files may become stale later).

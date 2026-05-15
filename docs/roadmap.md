@@ -573,6 +573,17 @@ Purpose:
 
 Turn repeated observations into the next layer of measured command-decision behavior after the `v0.7` consumption and distribution path is usable.
 
+First shipped slice:
+
+- `v0.8.0` hardens the post-`v0.7` consumption loop without claiming that all
+  `v0.8` work is complete. It adds previous-scan helper reuse, observed-file
+  freshness deltas, preferred-command deltas, command-policy transition
+  visibility, generator version visibility in `agent_context.md`, skill-helper
+  reliability improvements, and the AI agent adoption guide.
+- The slice keeps Habitat advisory, read-only, and macOS-first. It does not add
+  command enforcement, sandboxing, broad platform support, full cross-project
+  observation, MCP integration, or a new scanner domain.
+
 Focus:
 
 - validation command taxonomy beyond the minimal ordinary-vs-release/artifact split, but only where setup, lint, smoke, package, or CI-mirror distinctions change command preference
@@ -592,7 +603,7 @@ Future macOS distribution candidates:
 - signed binary
 - notarization
 
-These are trust and reach improvements, not a reason to expand scanner behavior. If users repeatedly fail to install or verify the preview before `v0.8`, move the smallest distribution fix earlier rather than waiting for a broader hardening phase.
+These are trust and reach improvements, not a reason to expand scanner behavior. If users repeatedly fail to install or verify the preview during `v0.8`, take the smallest distribution fix rather than waiting for a broader hardening phase.
 
 Avoid recommending `curl | sh` install flows. Habitat itself treats remote script piping as dangerous, so distribution should model the same caution.
 
