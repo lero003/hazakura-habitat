@@ -295,7 +295,9 @@ public struct ScanComparator {
             changes.append(ScanChange(
                 category: "command_policy",
                 summary: "Commands changed from Ask First to Forbidden: \(summarize(escalatedToForbidden)).",
-                impact: "Refuse these commands under the current scan policy."
+                impact: "Refuse these commands under the current scan policy.",
+                previousValues: escalatedToForbidden,
+                currentValues: escalatedToForbidden
             ))
         }
 
@@ -304,7 +306,9 @@ public struct ScanComparator {
             changes.append(ScanChange(
                 category: "command_policy",
                 summary: "Commands changed from Forbidden to Ask First: \(summarize(downgradedToAskFirst)).",
-                impact: "Ask before these commands; do not refuse solely because a previous scan did."
+                impact: "Ask before these commands; do not refuse solely because a previous scan did.",
+                previousValues: downgradedToAskFirst,
+                currentValues: downgradedToAskFirst
             ))
         }
 
@@ -316,7 +320,9 @@ public struct ScanComparator {
             changes.append(ScanChange(
                 category: "command_policy",
                 summary: "New Ask First commands: \(summarize(addedAskFirst)).",
-                impact: "Ask before these commands even if a previous scan did not require it."
+                impact: "Ask before these commands even if a previous scan did not require it.",
+                previousValues: [],
+                currentValues: addedAskFirst
             ))
         }
 
@@ -328,7 +334,9 @@ public struct ScanComparator {
             changes.append(ScanChange(
                 category: "command_policy",
                 summary: "New Forbidden commands: \(summarize(addedForbidden)).",
-                impact: "Refuse these commands under the current scan policy."
+                impact: "Refuse these commands under the current scan policy.",
+                previousValues: [],
+                currentValues: addedForbidden
             ))
         }
 
@@ -340,7 +348,9 @@ public struct ScanComparator {
             changes.append(ScanChange(
                 category: "command_policy",
                 summary: "Ask First commands no longer highlighted: \(summarize(resolvedAskFirst)).",
-                impact: "Do not ask solely because a previous scan did; apply the current command policy."
+                impact: "Do not ask solely because a previous scan did; apply the current command policy.",
+                previousValues: resolvedAskFirst,
+                currentValues: []
             ))
         }
 
@@ -352,7 +362,9 @@ public struct ScanComparator {
             changes.append(ScanChange(
                 category: "command_policy",
                 summary: "Forbidden commands no longer highlighted: \(summarize(removedForbidden)).",
-                impact: "Do not refuse solely because a previous scan did; apply the current command policy."
+                impact: "Do not refuse solely because a previous scan did; apply the current command policy.",
+                previousValues: removedForbidden,
+                currentValues: []
             ))
         }
 
