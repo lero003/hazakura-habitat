@@ -191,7 +191,7 @@ For the short decision guide covering source checkouts, verified local binaries,
 direct stdout artifacts, and downloaded release directories, see
 [Distribution Foundations](docs/distribution_foundations.md).
 
-Download `habitat-scan-macos.zip`, `habitat-scan`, and `SHA256SUMS` from the latest GitHub Release, keep them in the same directory, then verify checksums before running the downloaded binary:
+Download `habitat-scan-macos.zip`, `habitat-scan`, and `SHA256SUMS` from the latest Developer Preview GitHub Release, keep them in the same directory, then verify checksums before running the downloaded binary:
 
 ```bash
 shasum -c SHA256SUMS

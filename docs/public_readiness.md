@@ -1,8 +1,18 @@
 # Public Readiness
 
+Status: Historical
+Scope: First public preview readiness audit, not the current release checklist
+Authority: Medium
+Last reviewed: 2026-05-15
+
 This document captures the completed publication plan for `v0.1.0 Developer Preview`.
 
 The repository is now public. This checklist remains as an audit trail for the first public preview and as a reminder that the next step is not broad feature expansion. The next step is keeping the project safe to understand, safe to review, and hard to misinterpret.
+
+For the current Developer Preview state, use [Current Status](current_status.md),
+[Changelog](../CHANGELOG.md), and [Distribution Foundations](distribution_foundations.md).
+Do not treat this document as the active release checklist for post-`v0.1`
+previews.
 
 ## Release Positioning
 

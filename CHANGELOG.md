@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-No changes yet.
+- Clarified that `docs/public_readiness.md` is the historical first-public
+  audit trail, not the active release checklist for current Developer Preview
+  releases.
+- Clarified README release consumption wording to say Developer Preview GitHub
+  Release.
 
 ## v0.7.0 Developer Preview - 2026-05-15
 
