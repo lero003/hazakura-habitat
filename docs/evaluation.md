@@ -876,7 +876,7 @@ Summary:
 - Result: Pass.
 - Primary metric: risk-aware behavior.
 - Context mode: fresh temporary scan with a saved sibling-project report passed as `--previous-scan`.
-- Observation: A stale ai-mobile report still listed raw Gradle peers next to the project-local validation wrapper, and later watched-project docs changed after the saved report's scan time. Running a fresh temporary scan with `--previous-scan` now surfaces observed-file freshness drift as stale context, surfaces the preferred-command delta in `agent_context.md`, keeps `./scripts/assemble-debug.sh` as the only current preferred command, and avoids watched-project edits.
+- Observation: A stale ai-mobile report still listed raw Gradle peers next to the project-local validation wrapper, and later watched-project docs changed after the saved report's scan time. Running a fresh temporary scan with `--previous-scan` now surfaces observed-file freshness drift as stale context, preserves the sanitized changed-file set when the Markdown summary is compact, surfaces the preferred-command delta in `agent_context.md`, keeps `./scripts/assemble-debug.sh` as the only current preferred command, and avoids watched-project edits.
 - Boundary: this records a consumption pattern for stale saved reports. It does not add report lifecycle automation, Android environment auditing, or new scanner behavior.
 
 Follow-up:

@@ -74,8 +74,14 @@
       "./scripts/assemble-debug.sh"
     ],
     "previousScanFreshnessChangeCategory": "observed_files",
-    "previousScanFreshnessChangeSummary": "Observed project files changed: modified docs/current_status.md, docs/development_automation.md, docs/development_loop.md.",
+    "previousScanFreshnessChangeSummary": "Observed project files changed: modified docs/current_status.md, docs/development_automation.md, docs/development_loop.md, and 1 more.",
     "previousScanFreshnessChangeImpact": "Treat the previous report as stale context; use the current generated context before choosing commands.",
+    "previousScanFreshnessChangedFiles": [
+      "docs/current_status.md",
+      "docs/development_automation.md",
+      "docs/development_loop.md",
+      "docs/roadmap.md"
+    ],
     "previousScanChangeCategory": "preferred_commands",
     "previousScanChangeSummary": "Preferred commands changed from ./scripts/assemble-debug.sh, ./gradlew test, ./gradlew build to ./scripts/assemble-debug.sh.",
     "previousScanChangeImpact": "Re-check command_policy.md; use only current allowed preferred commands.",

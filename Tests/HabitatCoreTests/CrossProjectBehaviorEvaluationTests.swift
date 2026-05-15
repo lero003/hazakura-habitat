@@ -304,6 +304,7 @@ struct CrossProjectBehaviorEvaluationTests {
         let actuallyRun = withContext?["commandsActuallyRun"] as? [String] ?? []
         let preferredCommands = withContext?["preferredCommands"] as? [String] ?? []
         let stalePreferredCommands = savedReport?["stalePreferredCommands"] as? [String] ?? []
+        let staleObservedFiles = withContext?["previousScanFreshnessChangedFiles"] as? [String] ?? []
         let avoidedCommands = withContext?["avoidedCommands"] as? [String] ?? []
         let avoidedForbidden = withContext?["avoidedForbidden"] as? [String] ?? []
         let fixtureText = try String(contentsOf: fixtureURL, encoding: .utf8)
@@ -320,8 +321,14 @@ struct CrossProjectBehaviorEvaluationTests {
             "./gradlew build",
         ])
         #expect(withContext?["previousScanFreshnessChangeCategory"] as? String == "observed_files")
-        #expect(withContext?["previousScanFreshnessChangeSummary"] as? String == "Observed project files changed: modified docs/current_status.md, docs/development_automation.md, docs/development_loop.md.")
+        #expect(withContext?["previousScanFreshnessChangeSummary"] as? String == "Observed project files changed: modified docs/current_status.md, docs/development_automation.md, docs/development_loop.md, and 1 more.")
         #expect(withContext?["previousScanFreshnessChangeImpact"] as? String == "Treat the previous report as stale context; use the current generated context before choosing commands.")
+        #expect(staleObservedFiles == [
+            "docs/current_status.md",
+            "docs/development_automation.md",
+            "docs/development_loop.md",
+            "docs/roadmap.md",
+        ])
         #expect(withContext?["previousScanChangeCategory"] as? String == "preferred_commands")
         #expect(withContext?["previousScanChangeSummary"] as? String == "Preferred commands changed from ./scripts/assemble-debug.sh, ./gradlew test, ./gradlew build to ./scripts/assemble-debug.sh.")
         #expect(withContext?["previousScanChangeImpact"] as? String == "Re-check command_policy.md; use only current allowed preferred commands.")
