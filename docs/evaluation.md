@@ -822,6 +822,7 @@ Summary:
 - Observation: Cross-project intake treated an older saved Android report as bounded uncertainty, refreshed into temporary output, confirmed the same Gradle wrapper guidance, and kept the watched projects read-only instead of expanding Habitat into Android or Python workflow work.
 - Follow-up observation: A later ai-mobile intake showed `app/build.gradle.kts` can change after a saved report while top-level Gradle files remain stable. Habitat now observes the common module-level `app/build.gradle` / `app/build.gradle.kts` paths for freshness metadata without using them as a broader Android package-manager signal.
 - Follow-up observation: A post-`v0.7` ai-mobile intake showed README changed after a saved report and the fresh scan removed raw `./gradlew` peers from `Prefer`, while `latestObservedFilePath` alone was not enough to reveal that specific stale file. `agent_context.md` now says to compare key files with `scan_result.json` `observedFiles` and labels the latest observed file as a shortcut only.
+- Follow-up observation: A later saved ai-mobile report still carried stale validation-purpose metadata for `./scripts/device-test.sh`; fresh temporary scan reclassified it as `device_verification` and kept it out of ordinary `Prefer`, so stale-report checks now explicitly include validation-purpose drift.
 - No-op boundary: when the temporary scans confirm existing guidance and reveal no new Habitat-side command-decision change, continue to a local Habitat slice instead of manufacturing watched-project work.
 
 Follow-up:
