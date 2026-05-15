@@ -95,13 +95,13 @@ AI agents do not need a beautiful inventory of everything installed on a machine
 4. Secret presence over secret contents.
 5. Short agent context over exhaustive reports.
 
-Hazakura Habitat is developed around output quality, not feature breadth. The `v0.8` Developer Preview is a post-`v0.7` Observation -> Action hardening release: it improves previous-scan comparison, report freshness signals, preferred-command deltas, generated context traceability, and skill-helper reliability while preserving the advisory, read-only boundary.
+Hazakura Habitat is developed around output quality, not feature breadth. The published `v0.8` Developer Preview is the shipped Observation -> Action hardening release: it improves previous-scan comparison, report freshness signals, preferred-command deltas, generated context traceability, and skill-helper reliability while preserving the advisory, read-only boundary. Current main-branch work is `v0.9` Pre-1.0 hardening: sorting which contracts can become stable for v1, which metadata remains preview, and which guidance should stay docs-only.
 
 The roadmap now prioritizes:
 
-1. More Observation -> Action hardening, including deeper validation taxonomy, cross-project observation boundaries, and Nenrin review hygiene only after repeated command-decision evidence justifies them.
-2. Pre-1.0 stability boundaries (v0.9)
-3. Stable advisory generator scope (v1.0)
+1. Pre-1.0 stability boundaries (v0.9)
+2. Stable advisory generator scope (v1.0)
+3. Post-v1 expansion only when repeated command-decision or release-trust evidence justifies it
 
 The goal is not to inspect everything on the machine. The goal is to generate concise, conservative context that changes an AI coding agent's next command choice.
 

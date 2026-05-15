@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 173
+- observing: 174
 - reviewed: 12
 
 ## Active Changes
@@ -179,6 +179,7 @@
 - `previous-scan-preferred-values` - [changes/2026-05-16-previous-scan-preferred-values.md](changes/2026-05-16-previous-scan-preferred-values.md)
 - `previous-scan-schema-version-delta` - [changes/2026-05-16-previous-scan-schema-version-delta.md](changes/2026-05-16-previous-scan-schema-version-delta.md)
 - `skill-helper-auto-previous-scan` - [changes/2026-05-16-skill-helper-auto-previous-scan.md](changes/2026-05-16-skill-helper-auto-previous-scan.md)
+- `v0-9-phase-boundary` - [changes/2026-05-16-v0-9-phase-boundary.md](changes/2026-05-16-v0-9-phase-boundary.md)
 - `v0-8-release-prep` - [changes/2026-05-16-v0-8-release-prep.md](changes/2026-05-16-v0-8-release-prep.md)
 
 ## Review Due
