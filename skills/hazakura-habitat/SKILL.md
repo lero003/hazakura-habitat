@@ -35,6 +35,14 @@ scripts/run_habitat_scan.sh .
 
 Resolve the script path relative to this skill directory. In a source checkout of this repository, the same helper is available at `skills/hazakura-habitat/scripts/run_habitat_scan.sh`.
 
+When refreshing a stale saved report, pass the previous report directory or
+`scan_result.json` as the third argument so Habitat can surface concise
+command-changing deltas without updating the old report:
+
+```bash
+scripts/run_habitat_scan.sh . "$output_dir" ./habitat-report
+```
+
 Or run manually:
 
 ```bash

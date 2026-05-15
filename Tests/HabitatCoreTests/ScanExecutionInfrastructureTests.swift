@@ -334,6 +334,53 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func habitatSkillHelperPassesPreviousScanWhenProvided() throws {
+        let fileManager = FileManager.default
+        let tempRootURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempRootURL.appendingPathComponent("project")
+        let outputURL = tempRootURL.appendingPathComponent("fresh-report")
+        let previousReportURL = tempRootURL.appendingPathComponent("old-report")
+        let binaryURL = tempRootURL.appendingPathComponent("habitat-scan")
+        let markerURL = tempRootURL.appendingPathComponent("args.txt")
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: previousReportURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            printf '%s\\n' "$*" > "$HABITAT_HELPER_MARKER"
+            """
+        )
+
+        let scriptURL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
+            .appendingPathComponent("skills/hazakura-habitat/scripts/run_habitat_scan.sh")
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            scriptURL.path,
+            projectURL.path,
+            outputURL.path,
+            previousReportURL.path,
+        ]
+        process.environment = ProcessInfo.processInfo.environment.merging([
+            "HABITAT_SCAN": binaryURL.path,
+            "HABITAT_HELPER_MARKER": markerURL.path,
+        ]) { _, new in new }
+
+        try process.run()
+        process.waitUntilExit()
+
+        let args = try String(contentsOf: markerURL, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        #expect(process.terminationStatus == 0)
+        #expect(args.hasPrefix("scan --project "))
+        #expect(args.contains("/project --output \(outputURL.path)"))
+        #expect(args.hasSuffix("--previous-scan \(previousReportURL.path)"))
+    }
+
+    @Test
     func metadataCheckScriptAcceptsMatchingBinaryAndGeneratorVersions() throws {
         let fileManager = FileManager.default
         let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)

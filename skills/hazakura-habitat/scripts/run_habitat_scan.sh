@@ -3,6 +3,7 @@ set -euo pipefail
 
 PROJECT="${1:-.}"
 OUTPUT="${2:-}"
+PREVIOUS_SCAN="${3:-}"
 
 PROJECT_ABS="$(cd "$PROJECT" && pwd -P)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
@@ -90,7 +91,12 @@ if [[ -z "$OUTPUT" ]]; then
   OUTPUT="$(default_output)"
 fi
 
-"$BIN" scan --project "$PROJECT_ABS" --output "$OUTPUT"
+scan_args=(scan --project "$PROJECT_ABS" --output "$OUTPUT")
+if [[ -n "$PREVIOUS_SCAN" ]]; then
+  scan_args+=(--previous-scan "$PREVIOUS_SCAN")
+fi
+
+"$BIN" "${scan_args[@]}"
 
 cat <<EOF
 
