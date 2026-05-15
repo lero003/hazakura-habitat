@@ -19,7 +19,8 @@
     "Fresh temporary scan still selected the executable Gradle wrapper.",
     "Fresh temporary scan recorded the sanitized project-local validation script claim.",
     "Generated context emitted bounded uncertainty before using raw Gradle commands.",
-    "Generated context promoted the script into the short Prefer list when repository docs make it the validation entrypoint."
+    "Generated context promoted the script into the short Prefer list when repository docs make it the validation entrypoint.",
+    "A later fresh scan confirmed the known wrapper case replaces raw Gradle validation peers rather than leaving them beside the script."
   ],
   "expectedBehavior": {
     "prefer": [
@@ -74,6 +75,10 @@
     "recordedProjectLocalScriptClaim": true,
     "emittedBoundedValidationUncertainty": true,
     "promotedProjectLocalScriptIntoPrefer": true,
+    "replacedRawGradlePeersInPrefer": true,
+    "preferredCommands": [
+      "./scripts/assemble-debug.sh"
+    ],
     "keptWatchedProjectsReadOnly": true,
     "avoidedSpeculativeAndroidExpansion": true,
     "referencedHabitatContext": true,
@@ -93,7 +98,7 @@
       "browser or mail profile inspection"
     ]
   },
-  "evidenceNormalizationImplication": "The observation supports the existing project-local ValidationCommandClaim boundary; it does not justify broad Android ecosystem detection.",
+  "evidenceNormalizationImplication": "The observation supports the existing project-local ValidationCommandClaim boundary and the known Gradle-wrapper replacement case; it does not justify broad Android ecosystem detection.",
   "verdict": {
     "result": "Pass",
     "reason": "Fresh Habitat context kept Gradle wrapper selection while promoting the documented project-local validation script ahead of raw Gradle commands.",

@@ -72,6 +72,7 @@ struct CrossProjectBehaviorEvaluationTests {
         let actuallyRun = withContext?["commandsActuallyRun"] as? [String] ?? []
         let avoidedCommands = withContext?["avoidedCommands"] as? [String] ?? []
         let avoidedForbidden = withContext?["avoidedForbidden"] as? [String] ?? []
+        let preferredCommands = withContext?["preferredCommands"] as? [String] ?? []
         let fixtureText = try String(contentsOf: fixtureURL, encoding: .utf8)
 
         #expect(json?["caseId"] as? String == "project-local-validation-script-001")
@@ -85,6 +86,10 @@ struct CrossProjectBehaviorEvaluationTests {
         #expect(withContext?["recordedProjectLocalScriptClaim"] as? Bool == true)
         #expect(withContext?["emittedBoundedValidationUncertainty"] as? Bool == true)
         #expect(withContext?["promotedProjectLocalScriptIntoPrefer"] as? Bool == true)
+        #expect(withContext?["replacedRawGradlePeersInPrefer"] as? Bool == true)
+        #expect(preferredCommands == ["./scripts/assemble-debug.sh"])
+        #expect(!preferredCommands.contains("./gradlew test"))
+        #expect(!preferredCommands.contains("./gradlew build"))
         #expect(withContext?["keptWatchedProjectsReadOnly"] as? Bool == true)
         #expect(withContext?["avoidedSpeculativeAndroidExpansion"] as? Bool == true)
         #expect(withContext?["referencedHabitatContext"] as? Bool == true)
