@@ -138,7 +138,11 @@ public struct DocumentedValidationCommandEvidence {
             lines.append("Open uncertainty: Verify the project-local validation script before using it as the local check.")
         }
 
-        lines.append("Hint: Prefer `\(claim.command)` when repository docs make it the validation entrypoint.")
+        if preferredCommands.contains(claim.command) {
+            lines.append("Hint: Prefer `\(claim.command)` when repository docs make it the validation entrypoint.")
+        } else {
+            lines.append("Hint: Do not prefer `\(claim.command)` until the script exists and is executable.")
+        }
         return lines
     }
 

@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 159
+- observing: 160
 - reviewed: 12
 
 ## Active Changes
@@ -164,6 +164,7 @@
 - `freshness-shortcut-wording` - [changes/2026-05-15-freshness-shortcut-wording.md](changes/2026-05-15-freshness-shortcut-wording.md)
 - `gradle-wrapper-script-preference` - [changes/2026-05-15-gradle-wrapper-script-preference.md](changes/2026-05-15-gradle-wrapper-script-preference.md)
 - `known-wrapper-confidence` - [changes/2026-05-15-known-wrapper-confidence.md](changes/2026-05-15-known-wrapper-confidence.md)
+- `missing-wrapper-hint-contract` - [changes/2026-05-15-missing-wrapper-hint-contract.md](changes/2026-05-15-missing-wrapper-hint-contract.md)
 - `post-v0-7-automation-handoff` - [changes/2026-05-15-post-v0-7-automation-handoff.md](changes/2026-05-15-post-v0-7-automation-handoff.md)
 - `skill-helper-unique-temp-output` - [changes/2026-05-15-skill-helper-unique-temp-output.md](changes/2026-05-15-skill-helper-unique-temp-output.md)
 
