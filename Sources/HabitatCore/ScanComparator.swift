@@ -34,6 +34,10 @@ public struct ScanComparator {
             changes.append(symlinkedProjectSignalChange)
         }
 
+        if let observedFileChange = observedFileChange(previous: previous, current: current) {
+            changes.append(observedFileChange)
+        }
+
         changes.append(contentsOf: missingToolChanges(previous: previous, current: current))
         changes.append(contentsOf: toolVerificationChanges(previous: previous, current: current))
         changes.append(contentsOf: preferredCommandChanges(previous: previous, current: current))
@@ -146,6 +150,36 @@ public struct ScanComparator {
             category: "project_symlinks",
             summary: "Project symlink signals changed: \(parts.joined(separator: "; ")).",
             impact: "Review symlink targets before following linked metadata or using dependency signals."
+        )
+    }
+
+    private func observedFileChange(previous: ScanResult, current: ScanResult) -> ScanChange? {
+        let previousFiles = Dictionary(uniqueKeysWithValues: previous.project.observedFiles.map { ($0.path, $0.modifiedAt) })
+        let currentFiles = Dictionary(uniqueKeysWithValues: current.project.observedFiles.map { ($0.path, $0.modifiedAt) })
+        guard !previousFiles.isEmpty || !currentFiles.isEmpty else { return nil }
+
+        let previousPaths = Set(previousFiles.keys)
+        let currentPaths = Set(currentFiles.keys)
+        let added = currentPaths.subtracting(previousPaths).sorted()
+        let removed = previousPaths.subtracting(currentPaths).sorted()
+        let modified = previousPaths.intersection(currentPaths)
+            .filter { previousFiles[$0] != currentFiles[$0] }
+            .sorted()
+
+        guard !added.isEmpty || !removed.isEmpty || !modified.isEmpty else { return nil }
+
+        let parts = [
+            modified.isEmpty ? nil : "modified \(summarize(modified))",
+            added.isEmpty ? nil : "added \(summarize(added))",
+            removed.isEmpty ? nil : "removed \(summarize(removed))",
+        ].compactMap { $0 }
+
+        return ScanChange(
+            category: "observed_files",
+            summary: "Observed project files changed: \(parts.joined(separator: "; ")).",
+            impact: "Treat the previous report as stale context; use the current generated context before choosing commands.",
+            previousValues: observedFileLabels(paths: modified + removed, in: previousFiles),
+            currentValues: observedFileLabels(paths: modified + added, in: currentFiles)
         )
     }
 
@@ -463,6 +497,13 @@ public struct ScanComparator {
 
     private func summarizeCommands(_ values: [String]) -> String {
         values.isEmpty ? "none" : summarize(values)
+    }
+
+    private func observedFileLabels(paths: [String], in files: [String: String]) -> [String] {
+        paths.compactMap { path in
+            guard let modifiedAt = files[path] else { return nil }
+            return "\(path) @ \(modifiedAt)"
+        }
     }
 
     private func packageManagerVersionLabel(for project: ProjectInfo) -> String {

@@ -319,6 +319,9 @@ struct CrossProjectBehaviorEvaluationTests {
             "./gradlew test",
             "./gradlew build",
         ])
+        #expect(withContext?["previousScanFreshnessChangeCategory"] as? String == "observed_files")
+        #expect(withContext?["previousScanFreshnessChangeSummary"] as? String == "Observed project files changed: modified docs/current_status.md, docs/development_automation.md, docs/development_loop.md.")
+        #expect(withContext?["previousScanFreshnessChangeImpact"] as? String == "Treat the previous report as stale context; use the current generated context before choosing commands.")
         #expect(withContext?["previousScanChangeCategory"] as? String == "preferred_commands")
         #expect(withContext?["previousScanChangeSummary"] as? String == "Preferred commands changed from ./scripts/assemble-debug.sh, ./gradlew test, ./gradlew build to ./scripts/assemble-debug.sh.")
         #expect(withContext?["previousScanChangeImpact"] as? String == "Re-check command_policy.md; use only current allowed preferred commands.")

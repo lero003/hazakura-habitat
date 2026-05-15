@@ -4,7 +4,7 @@
   "date": "2026-05-15",
   "habitatVersion": "post-v0.7 self-use observation loop",
   "agentTool": "Codex automation, sanitized behavior summary",
-  "scenario": "Cross-project intake uses previous-scan comparison to expose stale preferred commands",
+  "scenario": "Cross-project intake uses previous-scan comparison to expose stale observed files and preferred commands",
   "result": "Pass",
   "primaryMetric": "risk-aware behavior",
   "contextMode": "fresh temporary scan with saved report passed as --previous-scan",
@@ -16,6 +16,7 @@
   "taskSummary": "Check whether a saved sibling-project Habitat report still matches current command guidance before selecting local Habitat work.",
   "relevantHabitatSignals": [
     "The saved Android report was stale after project guidance changed.",
+    "--previous-scan surfaced observed-file freshness drift so the previous report could be treated as stale context.",
     "A fresh temporary scan selected the project-local validation wrapper as the only preferred command.",
     "--previous-scan surfaced that the old preferred command set contained raw Gradle peers that the fresh scan removed.",
     "The fresh comparison changed the agent's next command from raw package-manager fallback toward the wrapper entrypoint and policy review.",
@@ -72,6 +73,9 @@
     "preferredCommands": [
       "./scripts/assemble-debug.sh"
     ],
+    "previousScanFreshnessChangeCategory": "observed_files",
+    "previousScanFreshnessChangeSummary": "Observed project files changed: modified docs/current_status.md, docs/development_automation.md, docs/development_loop.md.",
+    "previousScanFreshnessChangeImpact": "Treat the previous report as stale context; use the current generated context before choosing commands.",
     "previousScanChangeCategory": "preferred_commands",
     "previousScanChangeSummary": "Preferred commands changed from ./scripts/assemble-debug.sh, ./gradlew test, ./gradlew build to ./scripts/assemble-debug.sh.",
     "previousScanChangeImpact": "Re-check command_policy.md; use only current allowed preferred commands.",
@@ -96,10 +100,10 @@
       "browser or mail profile inspection"
     ]
   },
-  "evidenceNormalizationImplication": "No new scanner evidence shape is justified. The useful behavior is consumption-side: when a saved cross-project report exists, --previous-scan can turn stale command drift into a short, AI-actionable note without editing the watched project.",
+  "evidenceNormalizationImplication": "No new scanner breadth is justified. The useful behavior is consumption-side: when a saved cross-project report exists, --previous-scan can turn stale observed files and command drift into short, AI-actionable notes without editing the watched project.",
   "verdict": {
     "result": "Pass",
-    "reason": "The fresh comparison exposed stale preferred-command peers, kept the current wrapper as the only preferred command, and avoided watched-project mutation or broad Android expansion.",
+    "reason": "The fresh comparison exposed stale observed-file context plus stale preferred-command peers, kept the current wrapper as the only preferred command, and avoided watched-project mutation or broad Android expansion.",
     "followUpImprovement": "If agents still hand-compare stale reports instead of using --previous-scan, update automation wording before adding report lifecycle features."
   },
   "artifactImprovementIfFailed": "If previous-scan preferred-command drift is not visible enough in agent_context.md, tighten the previous-scan note before adding broader stale-report automation.",
