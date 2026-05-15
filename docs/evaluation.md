@@ -901,6 +901,25 @@ Follow-up:
 
 - Only expand Python validation taxonomy if repeated observations show additional runner kinds changing first-command guidance.
 
+### environment-check-script-purpose-001
+
+Fixture:
+
+- Local output-contract test:
+  `InstructionAlignmentPolicyTests.scanSeparatesEnvironmentCheckScriptFromOrdinaryValidationClaim`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: fresh cross-project scan after ai-mobile guidance changed.
+- Observation: A fresh ai-mobile scan showed `./scripts/dev-env-check.sh` beside the real `./scripts/assemble-debug.sh` validation wrapper. Habitat now records the environment preflight as `environment_check`, keeps it out of ordinary `Prefer`, and still prefers the validation wrapper for local checks.
+- Scope boundary: this is a single observed setup/preflight distinction, not a broad validation-purpose taxonomy.
+
+Follow-up:
+
+- Add more setup, lint, smoke, or package distinctions only when repeated traces show they change the next command.
+
 ## Acceptance Criteria
 
 - `docs/evaluation.md` defines the evidence policy and verdict scale.

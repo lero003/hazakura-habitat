@@ -503,6 +503,11 @@ public struct ProjectDetector {
         }
 
         if command.hasPrefix("./scripts/"),
+           ProjectLocalValidationScript.isEnvironmentCheckCommand(command) {
+            return .environmentCheck
+        }
+
+        if command.hasPrefix("./scripts/"),
            (ProjectLocalValidationScript.isReleaseArtifactCommand(command)
                || lineMentionsReleaseArtifactValidation(line)) {
             return .releaseArtifact

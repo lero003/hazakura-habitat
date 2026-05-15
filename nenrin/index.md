@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 161
+- observing: 162
 - reviewed: 12
 
 ## Active Changes
@@ -168,6 +168,7 @@
 - `post-v0-7-automation-handoff` - [changes/2026-05-15-post-v0-7-automation-handoff.md](changes/2026-05-15-post-v0-7-automation-handoff.md)
 - `previous-scan-stale-preferred-delta` - [changes/2026-05-15-previous-scan-stale-preferred-delta.md](changes/2026-05-15-previous-scan-stale-preferred-delta.md)
 - `skill-helper-unique-temp-output` - [changes/2026-05-15-skill-helper-unique-temp-output.md](changes/2026-05-15-skill-helper-unique-temp-output.md)
+- `environment-check-validation-purpose` - [changes/2026-05-15-environment-check-validation-purpose.md](changes/2026-05-15-environment-check-validation-purpose.md)
 
 ## Review Due
 

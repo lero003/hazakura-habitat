@@ -43,6 +43,10 @@ enum ProjectLocalValidationScript {
         command == "./scripts/device-test.sh"
     }
 
+    static func isEnvironmentCheckCommand(_ command: String) -> Bool {
+        command == "./scripts/dev-env-check.sh"
+    }
+
     private static func isReleaseArtifactScript(_ command: String) -> Bool {
         isReleaseArtifactCommand(command)
     }

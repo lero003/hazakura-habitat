@@ -418,6 +418,61 @@ struct InstructionAlignmentPolicyTests {
     }
 
     @Test
+    func scanSeparatesEnvironmentCheckScriptFromOrdinaryValidationClaim() throws {
+        let projectURL = try makeProject(files: [
+            "settings.gradle.kts": "pluginManagement {}\n",
+            "build.gradle.kts": "plugins { kotlin(\"jvm\") version \"2.0.0\" }\n",
+            "docs/development_environment.md": """
+            Include environment checks when needed:
+
+            ./scripts/dev-env-check.sh
+            Then run ./scripts/assemble-debug.sh to validate the build.
+            """
+        ])
+        try writeExecutableScript(
+            projectURL.appendingPathComponent("gradlew"),
+            contents: "#!/bin/sh\n"
+        )
+        try writeExecutableScript(
+            projectURL.appendingPathComponent("scripts/dev-env-check.sh"),
+            contents: "#!/bin/sh\n"
+        )
+        try writeExecutableScript(
+            projectURL.appendingPathComponent("scripts/assemble-debug.sh"),
+            contents: "#!/bin/sh\n"
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let scanJSON = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let writtenResult = try JSONDecoder().decode(
+            ScanResult.self,
+            from: Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        )
+
+        assertAgentContextContract(context)
+        #expect(result.project.validationCommandClaims == [
+            ValidationCommandClaim(
+                source: "docs/development_environment.md",
+                command: "./scripts/dev-env-check.sh",
+                purpose: .environmentCheck
+            ),
+            ValidationCommandClaim(
+                source: "docs/development_environment.md",
+                command: "./scripts/assemble-debug.sh"
+            )
+        ])
+        #expect(writtenResult.policy.preferredCommands == ["./scripts/assemble-debug.sh"])
+        #expect(!writtenResult.policy.preferredCommands.contains("./scripts/dev-env-check.sh"))
+        #expect(context.contains("Fact: Project instructions mention environment check `./scripts/dev-env-check.sh`; keep it for setup/preflight checks, not ordinary local validation."))
+        #expect(context.contains("Hint: Prefer `./scripts/assemble-debug.sh` when repository docs make it the validation entrypoint."))
+        #expect(!context.contains("- Prefer `./scripts/dev-env-check.sh`."))
+        #expect(scanJSON.contains("\"purpose\" : \"environment_check\""))
+    }
+
+    @Test
     func scanDeduplicatesSameValidationCommandAcrossInstructionFiles() throws {
         let projectURL = try makeProject(files: [
             "settings.gradle.kts": "pluginManagement {}\n",

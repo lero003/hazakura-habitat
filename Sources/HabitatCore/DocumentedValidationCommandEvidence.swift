@@ -17,37 +17,38 @@ public struct DocumentedValidationCommandEvidence {
         let ordinaryClaims = claims.filter { $0.purpose == .ordinaryLocal }
         let releaseArtifactClaims = claims.filter { $0.purpose == .releaseArtifact }
         let deviceVerificationClaims = claims.filter { $0.purpose == .deviceVerification }
+        let environmentCheckClaims = claims.filter { $0.purpose == .environmentCheck }
+        let scopedAnnotations = releaseArtifactAnnotations(for: releaseArtifactClaims.first)
+            + deviceVerificationAnnotations(for: deviceVerificationClaims.first)
+            + environmentCheckAnnotations(for: environmentCheckClaims.first)
         guard let firstClaim = ordinaryClaims.first else {
-            return releaseArtifactAnnotations(for: releaseArtifactClaims.first)
-                + deviceVerificationAnnotations(for: deviceVerificationClaims.first)
+            return scopedAnnotations
         }
 
-        let releaseArtifactAnnotations = releaseArtifactAnnotations(for: releaseArtifactClaims.first)
-        let deviceVerificationAnnotations = deviceVerificationAnnotations(for: deviceVerificationClaims.first)
         if let uncertainAnnotations = multipleClaimUncertaintyAnnotations {
-            return uncertainAnnotations + releaseArtifactAnnotations + deviceVerificationAnnotations
+            return uncertainAnnotations + scopedAnnotations
         }
 
         let claimedWorkflow = workflow(for: firstClaim.command)
         let actualWorkflow = project.packageManager
 
         if let claimedWorkflow, claimedWorkflow == actualWorkflow {
-            return alignedAnnotations(claim: firstClaim) + releaseArtifactAnnotations + deviceVerificationAnnotations
+            return alignedAnnotations(claim: firstClaim) + scopedAnnotations
         }
 
         if claimedWorkflow == "project_script" {
-            return projectScriptAnnotations(claim: firstClaim) + releaseArtifactAnnotations + deviceVerificationAnnotations
+            return projectScriptAnnotations(claim: firstClaim) + scopedAnnotations
         }
 
         if claimedWorkflow != nil, actualWorkflow == nil {
-            return unknownRepositoryWorkflowAnnotations(claim: firstClaim) + releaseArtifactAnnotations + deviceVerificationAnnotations
+            return unknownRepositoryWorkflowAnnotations(claim: firstClaim) + scopedAnnotations
         }
 
         if claimedWorkflow != nil {
-            return conflictingAnnotations(claim: firstClaim) + releaseArtifactAnnotations + deviceVerificationAnnotations
+            return conflictingAnnotations(claim: firstClaim) + scopedAnnotations
         }
 
-        return releaseArtifactAnnotations + deviceVerificationAnnotations
+        return scopedAnnotations
     }
 
     private var multipleClaimUncertaintyAnnotations: [String]? {
@@ -78,6 +79,13 @@ public struct DocumentedValidationCommandEvidence {
         guard let claim else { return [] }
         return [
             "Fact: Project instructions mention device verification `\(claim.command)`; keep it for connected-device checks, not ordinary local validation."
+        ]
+    }
+
+    private func environmentCheckAnnotations(for claim: ValidationCommandClaim?) -> [String] {
+        guard let claim else { return [] }
+        return [
+            "Fact: Project instructions mention environment check `\(claim.command)`; keep it for setup/preflight checks, not ordinary local validation."
         ]
     }
 

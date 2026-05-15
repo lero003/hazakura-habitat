@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Separated the observed `./scripts/dev-env-check.sh` environment preflight
+  script from ordinary local validation claims, so it is not promoted as a
+  normal `Prefer` command when a project also documents its real validation
+  wrapper.
 - Clarified that `docs/public_readiness.md` is the historical first-public
   audit trail, not the active release checklist for current Developer Preview
   releases.
