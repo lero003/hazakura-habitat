@@ -23,6 +23,7 @@
 
 ## Notes
 - Scanned at: example timestamp
+- Generator: 0.7.0
 - Project: example SwiftPM package
 - Freshness: regenerate if key project files changed after this timestamp; compare key files with `scan_result.json` observed file mtimes.
 - Latest observed file: Package.swift modified at 2026-04-25T00:00:00Z (shortcut only; other observed files may become stale later).

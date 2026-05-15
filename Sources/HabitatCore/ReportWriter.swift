@@ -267,6 +267,7 @@ public struct ReportWriter {
 
         ## Notes
         - Scanned at: \(result.scannedAt)
+        - Generator: \(result.generatorVersion)
         - Project: \(result.projectPath)
         \(freshnessNoteLines(result.project))
         - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.

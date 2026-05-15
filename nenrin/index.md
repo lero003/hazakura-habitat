@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 170
+- observing: 171
 - reviewed: 12
 
 ## Active Changes
@@ -177,6 +177,7 @@
 - `previous-scan-observed-file-freshness` - [changes/2026-05-16-previous-scan-observed-file-freshness.md](changes/2026-05-16-previous-scan-observed-file-freshness.md)
 - `previous-scan-preferred-values` - [changes/2026-05-16-previous-scan-preferred-values.md](changes/2026-05-16-previous-scan-preferred-values.md)
 - `skill-helper-auto-previous-scan` - [changes/2026-05-16-skill-helper-auto-previous-scan.md](changes/2026-05-16-skill-helper-auto-previous-scan.md)
+- `agent-context-generator-note` - [changes/2026-05-16-agent-context-generator-note.md](changes/2026-05-16-agent-context-generator-note.md)
 
 ## Review Due
 

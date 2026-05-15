@@ -35,6 +35,7 @@ Required base sections:
 
 ## Notes
 - Scanned at:
+- Generator:
 - Project:
 - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
 - Scope: short working context; full approval detail is in `command_policy.md`.
@@ -87,6 +88,7 @@ Example:
 
 ## Notes
 - Scanned at: 2026-04-25T00:00:00Z
+- Generator: 0.7.0
 - Project: /path/to/project
 ```
 
