@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 172
+- observing: 173
 - reviewed: 12
 
 ## Active Changes
@@ -177,6 +177,7 @@
 - `previous-scan-command-policy-values` - [changes/2026-05-16-previous-scan-command-policy-values.md](changes/2026-05-16-previous-scan-command-policy-values.md)
 - `previous-scan-observed-file-freshness` - [changes/2026-05-16-previous-scan-observed-file-freshness.md](changes/2026-05-16-previous-scan-observed-file-freshness.md)
 - `previous-scan-preferred-values` - [changes/2026-05-16-previous-scan-preferred-values.md](changes/2026-05-16-previous-scan-preferred-values.md)
+- `previous-scan-schema-version-delta` - [changes/2026-05-16-previous-scan-schema-version-delta.md](changes/2026-05-16-previous-scan-schema-version-delta.md)
 - `skill-helper-auto-previous-scan` - [changes/2026-05-16-skill-helper-auto-previous-scan.md](changes/2026-05-16-skill-helper-auto-previous-scan.md)
 - `v0-8-release-prep` - [changes/2026-05-16-v0-8-release-prep.md](changes/2026-05-16-v0-8-release-prep.md)
 

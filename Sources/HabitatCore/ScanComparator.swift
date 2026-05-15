@@ -6,6 +6,10 @@ public struct ScanComparator {
     public func compare(previous: ScanResult, current: ScanResult) -> [ScanChange] {
         var changes: [ScanChange] = []
 
+        if let schemaVersionChange = schemaVersionChange(previous: previous, current: current) {
+            changes.append(schemaVersionChange)
+        }
+
         if let generatorVersionChange = generatorVersionChange(previous: previous, current: current) {
             changes.append(generatorVersionChange)
         }
@@ -44,6 +48,16 @@ public struct ScanComparator {
         changes.append(contentsOf: policyChanges(previous: previous, current: current))
 
         return changes
+    }
+
+    private func schemaVersionChange(previous: ScanResult, current: ScanResult) -> ScanChange? {
+        guard previous.schemaVersion != current.schemaVersion else { return nil }
+
+        return ScanChange(
+            category: "schema",
+            summary: "Scan result schema changed from \(previous.schemaVersion) to \(current.schemaVersion).",
+            impact: "Treat previous scan metadata as preview-format context; rely on the current generated Markdown before making command decisions."
+        )
     }
 
     private func generatorVersionChange(previous: ScanResult, current: ScanResult) -> ScanChange? {

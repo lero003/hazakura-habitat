@@ -120,6 +120,54 @@ struct ScanComparisonTests {
     }
 
     @Test
+    func scanComparisonSurfacesSchemaVersionDeltasBeforeGeneratorDeltas() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.0",
+            generatorVersion: "0.0.9",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["swift test"], askFirstCommands: [], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: HabitatMetadata.schemaVersion,
+            generatorVersion: HabitatMetadata.generatorVersion,
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["swift test"], askFirstCommands: [], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.count == 2)
+        #expect(changes[0].category == "schema")
+        #expect(changes[0].summary == "Scan result schema changed from 0.0 to \(HabitatMetadata.schemaVersion).")
+        #expect(changes[0].impact == "Treat previous scan metadata as preview-format context; rely on the current generated Markdown before making command decisions.")
+        #expect(changes[1].category == "generator")
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"category\" : \"schema\""))
+        #expect(context.contains("Scan result schema changed from 0.0 to \(HabitatMetadata.schemaVersion). Treat previous scan metadata as preview-format context; rely on the current generated Markdown before making command decisions."))
+        #expect(report.contains("[schema] Scan result schema changed from 0.0 to \(HabitatMetadata.schemaVersion)."))
+    }
+
+    @Test
     func scanComparisonSurfacesObservedFileFreshnessDeltas() throws {
         let previous = ScanResult(
             schemaVersion: "0.1",
