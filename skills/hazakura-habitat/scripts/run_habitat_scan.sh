@@ -120,14 +120,19 @@ fi
 
 "$BIN" "${scan_args[@]}"
 
+DISPLAY_OUTPUT="$OUTPUT"
+if [[ -d "$OUTPUT" ]]; then
+  DISPLAY_OUTPUT="$(cd "$OUTPUT" && pwd -P)"
+fi
+
 cat <<EOF
 
 Hazakura Habitat scan complete.
-Output: $OUTPUT
+Output: $DISPLAY_OUTPUT
 
 Read first:
-- $OUTPUT/agent_context.md
+- $DISPLAY_OUTPUT/agent_context.md
 
 Consult before risky or mutating commands:
-- $OUTPUT/command_policy.md
+- $DISPLAY_OUTPUT/command_policy.md
 EOF

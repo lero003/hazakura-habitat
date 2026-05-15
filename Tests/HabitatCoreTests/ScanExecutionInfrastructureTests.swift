@@ -381,6 +381,61 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func habitatSkillHelperPrintsCanonicalGeneratedReportPaths() throws {
+        let fileManager = FileManager.default
+        let tempRootURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempRootURL.appendingPathComponent("project")
+        let binaryURL = tempRootURL.appendingPathComponent("habitat-scan")
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            while [[ "$#" -gt 0 ]]; do
+              if [[ "$1" == "--output" ]]; then
+                mkdir -p "$2"
+                exit 0
+              fi
+              shift
+            done
+            exit 1
+            """
+        )
+
+        let scriptURL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
+            .appendingPathComponent("skills/hazakura-habitat/scripts/run_habitat_scan.sh")
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            scriptURL.path,
+            projectURL.path,
+            "\(tempRootURL.path)//fresh-report",
+        ]
+        process.environment = ProcessInfo.processInfo.environment.merging([
+            "HABITAT_SCAN": binaryURL.path,
+        ]) { _, new in new }
+
+        let outputPipe = Pipe()
+        process.standardOutput = outputPipe
+
+        try process.run()
+        process.waitUntilExit()
+
+        let helperOutput = String(
+            data: outputPipe.fileHandleForReading.readDataToEndOfFile(),
+            encoding: .utf8
+        ) ?? ""
+
+        #expect(process.terminationStatus == 0)
+        #expect(helperOutput.contains("Output: "))
+        #expect(helperOutput.contains("/fresh-report"))
+        #expect(helperOutput.contains("/fresh-report/agent_context.md"))
+        #expect(helperOutput.contains("/fresh-report/command_policy.md"))
+        #expect(!helperOutput.contains("//fresh-report"))
+    }
+
+    @Test
     func habitatSkillHelperRebuildsSourceCheckoutBeforeUsingExistingBinary() throws {
         let fileManager = FileManager.default
         let tempRootURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
