@@ -220,7 +220,7 @@ struct InstructionAlignmentPolicyTests {
     }
 
     @Test
-    func scanSurfacesDocumentedProjectLocalValidationScriptAsUncertainty() throws {
+    func scanPromotesKnownProjectLocalValidationScriptWithoutExtraUncertainty() throws {
         let projectURL = try makeProject(files: [
             "settings.gradle.kts": "pluginManagement {}\n",
             "build.gradle.kts": "plugins { kotlin(\"jvm\") version \"2.0.0\" }\n",
@@ -255,7 +255,7 @@ struct InstructionAlignmentPolicyTests {
             ValidationCommandClaim(source: "docs/development_loop.md", command: "./scripts/assemble-debug.sh")
         ])
         #expect(context.contains("Fact: Project instructions mention project-local validation script `./scripts/assemble-debug.sh`."))
-        #expect(context.contains("Open uncertainty: Verify whether the script wraps Gradle validation before using raw package-manager commands."))
+        #expect(!context.contains("Open uncertainty: Verify whether the script wraps Gradle validation before using raw package-manager commands."))
         #expect(context.contains("Hint: Prefer `./scripts/assemble-debug.sh` when repository docs make it the validation entrypoint."))
         #expect(context.contains("Prefer `./scripts/assemble-debug.sh`."))
         #expect(!context.contains("Prefer `./gradlew test`."))

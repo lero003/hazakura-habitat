@@ -124,6 +124,14 @@ public struct DocumentedValidationCommandEvidence {
             "Fact: Project instructions mention project-local validation script `\(claim.command)`."
         ]
 
+        let isKnownPreferredScript = ProjectLocalValidationScript.knownValidationCommands.contains(claim.command)
+            && preferredCommands.contains(claim.command)
+
+        if isKnownPreferredScript {
+            lines.append("Hint: Prefer `\(claim.command)` when repository docs make it the validation entrypoint.")
+            return lines
+        }
+
         if let actualWorkflow = project.packageManager {
             lines.append("Open uncertainty: Verify whether the script wraps \(workflowName(actualWorkflow)) validation before using raw package-manager commands.")
         } else {

@@ -62,7 +62,7 @@ struct CrossProjectBehaviorEvaluationTests {
     }
 
     @Test
-    func crossProjectValidationScriptFixtureRecordsBoundedGradleUncertainty() throws {
+    func crossProjectValidationScriptFixtureRecordsKnownWrapperPreference() throws {
         let rootURL = URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
         let fixtureURL = rootURL.appendingPathComponent("examples/behavior-evaluation/project-local-validation-script-001.json")
         let data = try Data(contentsOf: fixtureURL)
@@ -87,7 +87,7 @@ struct CrossProjectBehaviorEvaluationTests {
         #expect(savedReport?["missedProjectLocalScriptClaim"] as? Bool == true)
         #expect(withContext?["freshScanSelectedGradleWrapper"] as? Bool == true)
         #expect(withContext?["recordedProjectLocalScriptClaim"] as? Bool == true)
-        #expect(withContext?["emittedBoundedValidationUncertainty"] as? Bool == true)
+        #expect(withContext?["omittedRedundantKnownWrapperUncertainty"] as? Bool == true)
         #expect(withContext?["promotedProjectLocalScriptIntoPrefer"] as? Bool == true)
         #expect(withContext?["replacedRawGradlePeersInPrefer"] as? Bool == true)
         #expect(preferredCommands == ["./scripts/assemble-debug.sh"])
@@ -98,7 +98,6 @@ struct CrossProjectBehaviorEvaluationTests {
         #expect(withContext?["referencedHabitatContext"] as? Bool == true)
         #expect(withContext?["referencedHabitatPolicy"] as? Bool == true)
         #expect(proposedCommands.contains("habitat-scan scan --project <android-project> --output <temporary-report-dir>"))
-        #expect(proposedCommands.contains("verify whether ./scripts/assemble-debug.sh wraps Gradle validation"))
         #expect(proposedCommands.contains("./scripts/assemble-debug.sh"))
         #expect(actuallyRun == [
             "habitat-scan scan --project <android-project> --output <temporary-report-dir>",
