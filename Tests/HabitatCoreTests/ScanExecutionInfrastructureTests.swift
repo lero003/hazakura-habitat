@@ -287,6 +287,53 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func habitatSkillHelperUsesUniqueTemporaryOutputWhenReportIsNotIgnored() throws {
+        let fileManager = FileManager.default
+        let tempRootURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempRootURL.appendingPathComponent("project-with-report")
+        let binaryURL = tempRootURL.appendingPathComponent("habitat-scan")
+        let markerURL = tempRootURL.appendingPathComponent("selected-output.txt")
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            while [[ "$#" -gt 0 ]]; do
+              if [[ "$1" == "--output" ]]; then
+                printf '%s\\n' "$2" > "$HABITAT_HELPER_MARKER"
+                exit 0
+              fi
+              shift
+            done
+            exit 1
+            """
+        )
+
+        let scriptURL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
+            .appendingPathComponent("skills/hazakura-habitat/scripts/run_habitat_scan.sh")
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [scriptURL.path, projectURL.path]
+        process.environment = ProcessInfo.processInfo.environment.merging([
+            "HABITAT_SCAN": binaryURL.path,
+            "HABITAT_HELPER_MARKER": markerURL.path,
+            "TMPDIR": tempRootURL.path,
+        ]) { _, new in new }
+
+        try process.run()
+        process.waitUntilExit()
+
+        let outputPath = try String(contentsOf: markerURL, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        #expect(process.terminationStatus == 0)
+        #expect(outputPath.hasPrefix(tempRootURL.appendingPathComponent("hazakura-habitat").path))
+        #expect(outputPath.contains("project-with-report"))
+        #expect(outputPath != tempRootURL.appendingPathComponent("hazakura-habitat/project-with-report").path)
+    }
+
+    @Test
     func metadataCheckScriptAcceptsMatchingBinaryAndGeneratorVersions() throws {
         let fileManager = FileManager.default
         let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)

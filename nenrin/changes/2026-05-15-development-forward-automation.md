@@ -1,13 +1,17 @@
 ---
+type: nenrin_change
 id: development-forward-automation
+date: 2026-05-15
 status: observing
 owner: Codex
-created: 2026-05-15
-review_after: 2026-05-22
-tracked_files:
+impact: unknown
+related_files:
   - docs/development_loop.md
   - docs/current_status.md
   - /Users/keisetsu/.codex/automations/hazakura-habitat-1/automation.toml
+review_after:
+  tasks: 3
+  days: 7
 ---
 
 # Change: development-forward-automation

@@ -63,7 +63,10 @@ default_output() {
 
   local safe_name
   safe_name="$(basename "$PROJECT_ABS" | tr -c 'A-Za-z0-9._-' '_')"
-  printf '%s\n' "${TMPDIR:-/tmp}/hazakura-habitat/${safe_name}"
+  local base_dir
+  base_dir="${TMPDIR:-/tmp}/hazakura-habitat"
+  mkdir -p "$base_dir"
+  mktemp -d "$base_dir/${safe_name}.XXXXXX"
 }
 
 BIN="$(find_binary || true)"

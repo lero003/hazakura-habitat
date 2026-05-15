@@ -44,8 +44,13 @@ habitat-scan scan --project . --output ./habitat-report
 If the repository does not already ignore `habitat-report/`, prefer a temporary output directory and do not commit generated reports:
 
 ```bash
-habitat-scan scan --project . --output "${TMPDIR:-/tmp}/hazakura-habitat/$(basename "$PWD")"
+output_dir="$(mktemp -d "${TMPDIR:-/tmp}/hazakura-habitat.$(basename "$PWD").XXXXXX")"
+habitat-scan scan --project . --output "$output_dir"
 ```
+
+Use a new temporary directory instead of deleting an older report directory before
+rescanning. Cleanup of temporary reports is ordinary local housekeeping, not a
+Habitat command-decision step.
 
 ## If Habitat Is Missing
 
