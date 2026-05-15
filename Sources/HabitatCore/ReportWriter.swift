@@ -277,7 +277,7 @@ public struct ReportWriter {
 
     private func freshnessNoteLines(_ project: ProjectInfo) -> String {
         var lines = [
-            "- Freshness: regenerate if key project files changed after this timestamp; `scan_result.json` includes observed file mtimes."
+            "- Freshness: regenerate if key project files changed after this timestamp; compare key files with `scan_result.json` observed file mtimes."
         ]
 
         guard let path = project.latestObservedFilePath,
@@ -285,7 +285,7 @@ public struct ReportWriter {
             return lines.joined(separator: "\n")
         }
 
-        lines.append("- Latest observed file: \(path) modified at \(modifiedAt).")
+        lines.append("- Latest observed file: \(path) modified at \(modifiedAt) (shortcut only; other observed files may become stale later).")
         return lines.joined(separator: "\n")
     }
 

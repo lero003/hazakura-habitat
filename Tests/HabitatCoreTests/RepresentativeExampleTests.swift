@@ -22,12 +22,12 @@ struct RepresentativeExampleTests {
             #expect(!context.contains("## Avoid"), "Representative examples should use Do Not for current output shape: \(path)")
             #expect(!context.contains("## Warnings"), "Representative examples should keep warning details in Notes: \(path)")
             #expect(
-                context.contains("- Freshness: regenerate if key project files changed after this timestamp; `scan_result.json` includes observed file mtimes."),
+                context.contains("- Freshness: regenerate if key project files changed after this timestamp; compare key files with `scan_result.json` observed file mtimes."),
                 "Representative examples should point stale-report checks to scan_result.json observed file metadata: \(path)"
             )
             #expect(
-                context.contains("- Latest observed file: "),
-                "Representative examples should show the newest observed project file in the short context: \(path)"
+                context.contains(" (shortcut only; other observed files may become stale later)."),
+                "Representative examples should not imply the latest observed file is enough for stale-report checks: \(path)"
             )
             #expect(
                 context.contains("- Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics."),

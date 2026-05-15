@@ -28,8 +28,8 @@
 ## Notes
 - Scanned at: example timestamp
 - Project: example Cargo project
-- Freshness: regenerate if key project files changed after this timestamp; `scan_result.json` includes observed file mtimes.
-- Latest observed file: Cargo.toml modified at example timestamp.
+- Freshness: regenerate if key project files changed after this timestamp; compare key files with `scan_result.json` observed file mtimes.
+- Latest observed file: Cargo.toml modified at example timestamp (shortcut only; other observed files may become stale later).
 - Read order: this file first; `command_policy.md` before risky commands; `environment_report.md` only for diagnostics.
 - Scope: short working context; full approval detail is in `command_policy.md`.
 - Warning: Project files prefer Cargo, but cargo version could not be verified; ask before running Cargo commands.

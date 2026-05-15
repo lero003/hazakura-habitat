@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 157
+- observing: 158
 - reviewed: 12
 
 ## Active Changes
@@ -162,6 +162,7 @@
 - `validation-command-purpose` - [changes/2026-05-13-validation-command-purpose.md](changes/2026-05-13-validation-command-purpose.md)
 - `development-forward-automation` - [changes/2026-05-15-development-forward-automation.md](changes/2026-05-15-development-forward-automation.md)
 - `gradle-wrapper-script-preference` - [changes/2026-05-15-gradle-wrapper-script-preference.md](changes/2026-05-15-gradle-wrapper-script-preference.md)
+- `freshness-shortcut-wording` - [changes/2026-05-15-freshness-shortcut-wording.md](changes/2026-05-15-freshness-shortcut-wording.md)
 - `post-v0-7-automation-handoff` - [changes/2026-05-15-post-v0-7-automation-handoff.md](changes/2026-05-15-post-v0-7-automation-handoff.md)
 - `skill-helper-unique-temp-output` - [changes/2026-05-15-skill-helper-unique-temp-output.md](changes/2026-05-15-skill-helper-unique-temp-output.md)
 

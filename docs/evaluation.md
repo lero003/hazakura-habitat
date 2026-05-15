@@ -820,11 +820,12 @@ Summary:
 - Context mode: comparison between saved `agent_context.md` and a fresh temporary scan.
 - Observation: Cross-project intake treated an older saved Android report as bounded uncertainty, refreshed into temporary output, confirmed the same Gradle wrapper guidance, and kept the watched projects read-only instead of expanding Habitat into Android or Python workflow work.
 - Follow-up observation: A later ai-mobile intake showed `app/build.gradle.kts` can change after a saved report while top-level Gradle files remain stable. Habitat now observes the common module-level `app/build.gradle` / `app/build.gradle.kts` paths for freshness metadata without using them as a broader Android package-manager signal.
+- Follow-up observation: A post-`v0.7` ai-mobile intake showed README changed after a saved report and the fresh scan removed raw `./gradlew` peers from `Prefer`, while `latestObservedFilePath` alone was not enough to reveal that specific stale file. `agent_context.md` now says to compare key files with `scan_result.json` `observedFiles` and labels the latest observed file as a shortcut only.
 - No-op boundary: when the temporary scans confirm existing guidance and reveal no new Habitat-side command-decision change, continue to a local Habitat slice instead of manufacturing watched-project work.
 
 Follow-up:
 
-- If stale-report checks still require opening full JSON for the common case, refine the short latest-observed-file hint before adding broad report lifecycle automation.
+- If stale-report checks still cause agents to miss command-changing stale files after this wording change, add a narrow stale-report behavior fixture before adding broad report lifecycle automation.
 
 ### cross-project-nenrin-freshness-001
 
