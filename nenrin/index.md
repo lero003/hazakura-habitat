@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 156
+- observing: 157
 - reviewed: 12
 
 ## Active Changes
@@ -161,6 +161,7 @@
 - `validation-claim-meta-discussion-filter` - [changes/2026-05-13-validation-claim-meta-discussion-filter.md](changes/2026-05-13-validation-claim-meta-discussion-filter.md)
 - `validation-command-purpose` - [changes/2026-05-13-validation-command-purpose.md](changes/2026-05-13-validation-command-purpose.md)
 - `development-forward-automation` - [changes/2026-05-15-development-forward-automation.md](changes/2026-05-15-development-forward-automation.md)
+- `gradle-wrapper-script-preference` - [changes/2026-05-15-gradle-wrapper-script-preference.md](changes/2026-05-15-gradle-wrapper-script-preference.md)
 - `post-v0-7-automation-handoff` - [changes/2026-05-15-post-v0-7-automation-handoff.md](changes/2026-05-15-post-v0-7-automation-handoff.md)
 - `skill-helper-unique-temp-output` - [changes/2026-05-15-skill-helper-unique-temp-output.md](changes/2026-05-15-skill-helper-unique-temp-output.md)
 

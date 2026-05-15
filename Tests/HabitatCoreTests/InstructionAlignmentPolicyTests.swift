@@ -258,13 +258,10 @@ struct InstructionAlignmentPolicyTests {
         #expect(context.contains("Open uncertainty: Verify whether the script wraps Gradle validation before using raw package-manager commands."))
         #expect(context.contains("Hint: Prefer `./scripts/assemble-debug.sh` when repository docs make it the validation entrypoint."))
         #expect(context.contains("Prefer `./scripts/assemble-debug.sh`."))
-        #expect(context.contains("Prefer `./gradlew test`."))
+        #expect(!context.contains("Prefer `./gradlew test`."))
         #expect(!context.contains("Prefer `./gradlew build`."))
         #expect(policy.contains("- `./scripts/assemble-debug.sh`"))
-        #expect(writtenResult.policy.preferredCommands.prefix(2) == [
-            "./scripts/assemble-debug.sh",
-            "./gradlew test"
-        ])
+        #expect(writtenResult.policy.preferredCommands == ["./scripts/assemble-debug.sh"])
         #expect(writtenResult.policy.commandCounts.preferred == writtenResult.policy.preferredCommands.count)
         #expect(scanJSON.contains("\"source\" : \"docs/development_loop.md\""))
         #expect(scanJSON.contains("\"command\" : \"./scripts/assemble-debug.sh\""))

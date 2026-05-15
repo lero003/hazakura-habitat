@@ -537,7 +537,7 @@ struct ScanComparisonTests {
             ),
             tools: .init(resolvedPaths: [], versions: []),
             policy: .init(
-                preferredCommands: ["./scripts/assemble-debug.sh", "./gradlew test", "./gradlew build"],
+                preferredCommands: ["./scripts/assemble-debug.sh"],
                 askFirstCommands: ["modifying lockfiles"],
                 forbiddenCommands: ["sudo"]
             ),
@@ -564,11 +564,7 @@ struct ScanComparisonTests {
         let current = ReportWriter().render(scanResult: currentBeforeRender).scanResult
         let changes = ScanComparator().compare(previous: previous, current: current)
 
-        #expect(current.policy.preferredCommands.prefix(3) == [
-            "./scripts/assemble-debug.sh",
-            "./gradlew test",
-            "./gradlew build",
-        ])
+        #expect(current.policy.preferredCommands == ["./scripts/assemble-debug.sh"])
         #expect(!changes.contains(where: { $0.category == "preferred_commands" }))
     }
 

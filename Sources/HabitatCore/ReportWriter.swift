@@ -866,11 +866,26 @@ public struct ReportWriter {
             where claim.purpose == .ordinaryLocal
                 && isAvailableProjectLocalValidationScriptCommand(claim.command, result: result) {
             commands.removeAll { $0 == claim.command }
+            commands.removeAll { rawPreferredCommandReplacedByProjectLocalScript($0, claim: claim, result: result) }
             commands.insert(claim.command, at: 0)
             break
         }
 
         return commands
+    }
+
+    private func rawPreferredCommandReplacedByProjectLocalScript(
+        _ command: String,
+        claim: ValidationCommandClaim,
+        result: ScanResult
+    ) -> Bool {
+        guard claim.command == "./scripts/assemble-debug.sh",
+              result.project.packageManager == "gradle"
+        else {
+            return false
+        }
+
+        return command == "./gradlew test" || command == "./gradlew build"
     }
 
     private func xcodeToolingNeedsVerification(_ result: ScanResult) -> Bool {
