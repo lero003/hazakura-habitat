@@ -105,4 +105,4 @@
 
 ## Suggested Actions
 
-- None
+- changes/2026-05-15-narrow-depth-platform-boundary.md: frontmatter is missing `type`, so Nenrin ignores this file

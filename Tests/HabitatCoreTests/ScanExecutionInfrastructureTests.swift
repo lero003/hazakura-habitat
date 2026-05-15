@@ -381,6 +381,151 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func habitatSkillHelperRebuildsSourceCheckoutBeforeUsingExistingBinary() throws {
+        let fileManager = FileManager.default
+        let tempRootURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempRootURL.appendingPathComponent("habitat-source")
+        let sourceURL = projectURL.appendingPathComponent("Sources/habitat-scan")
+        let buildURL = projectURL.appendingPathComponent(".build/debug")
+        let fakeBinURL = tempRootURL.appendingPathComponent("bin")
+        let swiftURL = fakeBinURL.appendingPathComponent("swift")
+        let markerURL = tempRootURL.appendingPathComponent("marker.txt")
+        let argsURL = tempRootURL.appendingPathComponent("args.txt")
+        try fileManager.createDirectory(at: sourceURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: buildURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: fakeBinURL, withIntermediateDirectories: true)
+        try "placeholder".write(to: projectURL.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+        try "placeholder".write(to: sourceURL.appendingPathComponent("main.swift"), atomically: true, encoding: .utf8)
+
+        try writeExecutableScript(
+            buildURL.appendingPathComponent("habitat-scan"),
+            contents: """
+            #!/usr/bin/env bash
+            printf 'stale-binary\\n' > "\(markerURL.path)"
+            """
+        )
+        try writeExecutableScript(
+            swiftURL,
+            contents: """
+            #!/usr/bin/env bash
+            set -euo pipefail
+            printf 'swift build %s\\n' "$*" > "\(markerURL.path)"
+            cat > "\(buildURL.appendingPathComponent("habitat-scan").path)" <<'EOS'
+            #!/usr/bin/env bash
+            printf '%s\\n' "$*" > "$HABITAT_HELPER_MARKER"
+            EOS
+            chmod +x "\(buildURL.appendingPathComponent("habitat-scan").path)"
+            """
+        )
+
+        let scriptURL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
+            .appendingPathComponent("skills/hazakura-habitat/scripts/run_habitat_scan.sh")
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            scriptURL.path,
+            projectURL.path,
+            tempRootURL.appendingPathComponent("report").path,
+        ]
+        process.environment = ProcessInfo.processInfo.environment.merging([
+            "PATH": "\(fakeBinURL.path):\(ProcessInfo.processInfo.environment["PATH"] ?? "")",
+            "HABITAT_HELPER_MARKER": argsURL.path,
+        ]) { _, new in new }
+
+        try process.run()
+        process.waitUntilExit()
+
+        let marker = try String(contentsOf: markerURL, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let args = try String(contentsOf: argsURL, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedProjectPath = projectURL.path.hasPrefix("/var/")
+            ? "/private\(projectURL.path)"
+            : projectURL.resolvingSymlinksInPath().path
+
+        #expect(process.terminationStatus == 0)
+        #expect(marker.contains("build --package-path \(resolvedProjectPath)"))
+        #expect(args.hasPrefix("scan --project \(resolvedProjectPath) --output "))
+    }
+
+    @Test
+    func habitatSkillHelperBuildsBundledSourceBeforePathBinaryForExternalProjects() throws {
+        let fileManager = FileManager.default
+        let tempRootURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let helperRootURL = tempRootURL.appendingPathComponent("helper-root")
+        let scriptURL = helperRootURL.appendingPathComponent("skills/hazakura-habitat/scripts/run_habitat_scan.sh")
+        let sourceURL = helperRootURL.appendingPathComponent("Sources/habitat-scan")
+        let buildURL = helperRootURL.appendingPathComponent(".build/debug")
+        let externalProjectURL = tempRootURL.appendingPathComponent("external-project")
+        let fakeBinURL = tempRootURL.appendingPathComponent("bin")
+        let swiftURL = fakeBinURL.appendingPathComponent("swift")
+        let pathHabitatURL = fakeBinURL.appendingPathComponent("habitat-scan")
+        let markerURL = tempRootURL.appendingPathComponent("marker.txt")
+        let argsURL = tempRootURL.appendingPathComponent("args.txt")
+        try fileManager.createDirectory(at: scriptURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: sourceURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: buildURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: externalProjectURL, withIntermediateDirectories: true)
+        try fileManager.createDirectory(at: fakeBinURL, withIntermediateDirectories: true)
+        let realScriptURL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
+            .appendingPathComponent("skills/hazakura-habitat/scripts/run_habitat_scan.sh")
+        try fileManager.copyItem(at: realScriptURL, to: scriptURL)
+        try "placeholder".write(to: helperRootURL.appendingPathComponent("Package.swift"), atomically: true, encoding: .utf8)
+        try "placeholder".write(to: sourceURL.appendingPathComponent("main.swift"), atomically: true, encoding: .utf8)
+
+        try writeExecutableScript(
+            pathHabitatURL,
+            contents: """
+            #!/usr/bin/env bash
+            printf 'path-binary\\n' > "\(markerURL.path)"
+            """
+        )
+        try writeExecutableScript(
+            swiftURL,
+            contents: """
+            #!/usr/bin/env bash
+            set -euo pipefail
+            printf 'repo-root-build %s\\n' "$*" > "\(markerURL.path)"
+            cat > "\(buildURL.appendingPathComponent("habitat-scan").path)" <<'EOS'
+            #!/usr/bin/env bash
+            printf '%s\\n' "$*" > "$HABITAT_HELPER_MARKER"
+            EOS
+            chmod +x "\(buildURL.appendingPathComponent("habitat-scan").path)"
+            """
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            scriptURL.path,
+            externalProjectURL.path,
+            tempRootURL.appendingPathComponent("report").path,
+        ]
+        process.environment = ProcessInfo.processInfo.environment.merging([
+            "PATH": "\(fakeBinURL.path):\(ProcessInfo.processInfo.environment["PATH"] ?? "")",
+            "HABITAT_HELPER_MARKER": argsURL.path,
+        ]) { _, new in new }
+
+        try process.run()
+        process.waitUntilExit()
+
+        let marker = try String(contentsOf: markerURL, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let args = try String(contentsOf: argsURL, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+        let resolvedHelperRootPath = helperRootURL.path.hasPrefix("/var/")
+            ? "/private\(helperRootURL.path)"
+            : helperRootURL.resolvingSymlinksInPath().path
+        let resolvedExternalProjectPath = externalProjectURL.path.hasPrefix("/var/")
+            ? "/private\(externalProjectURL.path)"
+            : externalProjectURL.resolvingSymlinksInPath().path
+
+        #expect(process.terminationStatus == 0)
+        #expect(marker.contains("repo-root-build build --package-path \(resolvedHelperRootPath)"))
+        #expect(args.hasPrefix("scan --project \(resolvedExternalProjectPath) --output "))
+    }
+
+    @Test
     func metadataCheckScriptAcceptsMatchingBinaryAndGeneratorVersions() throws {
         let fileManager = FileManager.default
         let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)

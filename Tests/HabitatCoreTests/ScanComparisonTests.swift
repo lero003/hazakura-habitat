@@ -569,6 +569,60 @@ struct ScanComparisonTests {
     }
 
     @Test
+    func renderedPreferredCommandsKeepKnownProjectLocalScriptAheadOfOtherScriptClaims() throws {
+        let projectURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let scriptsURL = projectURL.appendingPathComponent("scripts")
+        let assembleURL = scriptsURL.appendingPathComponent("assemble-debug.sh")
+        let envCheckURL = scriptsURL.appendingPathComponent("dev-env-check.sh")
+        let deviceURL = scriptsURL.appendingPathComponent("device-test.sh")
+        try FileManager.default.createDirectory(at: scriptsURL, withIntermediateDirectories: true)
+        for scriptURL in [assembleURL, envCheckURL, deviceURL] {
+            FileManager.default.createFile(atPath: scriptURL.path, contents: Data("#!/bin/sh\n".utf8))
+            try FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: scriptURL.path)
+        }
+
+        let currentBeforeRender = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-05-15T13:03:50Z",
+            projectPath: projectURL.path,
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: [
+                    "gradlew",
+                    "settings.gradle.kts",
+                    "build.gradle.kts",
+                    "docs/development_loop.md",
+                    "scripts/assemble-debug.sh",
+                    "scripts/dev-env-check.sh",
+                    "scripts/device-test.sh",
+                ],
+                packageManager: "gradle",
+                packageManagerVersion: nil,
+                packageScripts: [],
+                validationCommandClaims: [
+                    ValidationCommandClaim(source: "docs/development_loop.md", command: "./scripts/assemble-debug.sh"),
+                    ValidationCommandClaim(source: "docs/development_loop.md", command: "./scripts/dev-env-check.sh"),
+                    ValidationCommandClaim(source: "docs/development_environment.md", command: "./scripts/device-test.sh"),
+                ],
+                runtimeHints: .init(node: nil, python: nil)
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["./scripts/assemble-debug.sh", "./gradlew test", "./gradlew build"],
+                askFirstCommands: ["modifying lockfiles"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let current = ReportWriter().render(scanResult: currentBeforeRender).scanResult
+
+        #expect(current.policy.preferredCommands == ["./scripts/assemble-debug.sh"])
+    }
+
+    @Test
     func scanComparisonSeparatesCommandPolicyRiskTransitions() throws {
         let previous = ScanResult(
             schemaVersion: "0.1",

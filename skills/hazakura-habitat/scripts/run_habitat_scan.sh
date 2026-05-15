@@ -9,32 +9,54 @@ PROJECT_ABS="$(cd "$PROJECT" && pwd -P)"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
 REPO_ROOT="$(cd "$SCRIPT_DIR/../../.." && pwd -P)"
 
+build_source_checkout() {
+  local source_root="$1"
+
+  if swift build --package-path "$source_root" >/dev/null 2>/dev/null; then
+    return 0
+  fi
+
+  local cache_dir
+  cache_dir="${TMPDIR:-/tmp}/hazakura-habitat/module-cache"
+  mkdir -p "$cache_dir"
+  if CLANG_MODULE_CACHE_PATH="$cache_dir" swift build --package-path "$source_root" --disable-sandbox >/dev/null 2>/dev/null; then
+    return 0
+  fi
+
+  return 1
+}
+
+source_checkout_binary() {
+  local source_root="$1"
+
+  if [[ -f "$source_root/Package.swift" && -f "$source_root/Sources/habitat-scan/main.swift" ]]; then
+    if build_source_checkout "$source_root"; then
+      printf '%s\n' "$source_root/.build/debug/habitat-scan"
+      return 0
+    fi
+
+    if [[ -x "$source_root/.build/debug/habitat-scan" ]]; then
+      printf 'warning: using existing habitat-scan after source checkout rebuild failed\n' >&2
+      printf '%s\n' "$source_root/.build/debug/habitat-scan"
+      return 0
+    fi
+  fi
+
+  return 1
+}
+
 find_binary() {
   if [[ -n "${HABITAT_SCAN:-}" && -x "$HABITAT_SCAN" ]]; then
     printf '%s\n' "$HABITAT_SCAN"
     return 0
   fi
 
-  if [[ -f "$PROJECT_ABS/Package.swift" && -f "$PROJECT_ABS/Sources/habitat-scan/main.swift" ]]; then
-    if [[ -x "$PROJECT_ABS/.build/debug/habitat-scan" ]]; then
-      printf '%s\n' "$PROJECT_ABS/.build/debug/habitat-scan"
-      return 0
-    fi
+  if source_checkout_binary "$PROJECT_ABS"; then
+    return 0
+  fi
 
-    if swift build --package-path "$PROJECT_ABS" >/dev/null; then
-      printf '%s\n' "$PROJECT_ABS/.build/debug/habitat-scan"
-      return 0
-    fi
-
-    local cache_dir
-    cache_dir="${TMPDIR:-/tmp}/hazakura-habitat/module-cache"
-    mkdir -p "$cache_dir"
-    if CLANG_MODULE_CACHE_PATH="$cache_dir" swift build --package-path "$PROJECT_ABS" --disable-sandbox >/dev/null; then
-      printf '%s\n' "$PROJECT_ABS/.build/debug/habitat-scan"
-      return 0
-    fi
-
-    return 1
+  if source_checkout_binary "$REPO_ROOT"; then
+    return 0
   fi
 
   if command -v habitat-scan >/dev/null 2>&1; then

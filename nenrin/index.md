@@ -169,9 +169,9 @@
 - `missing-wrapper-hint-contract` - [changes/2026-05-15-missing-wrapper-hint-contract.md](changes/2026-05-15-missing-wrapper-hint-contract.md)
 - `post-v0-7-automation-handoff` - [changes/2026-05-15-post-v0-7-automation-handoff.md](changes/2026-05-15-post-v0-7-automation-handoff.md)
 - `previous-scan-stale-preferred-delta` - [changes/2026-05-15-previous-scan-stale-preferred-delta.md](changes/2026-05-15-previous-scan-stale-preferred-delta.md)
-- `skill-helper-unique-temp-output` - [changes/2026-05-15-skill-helper-unique-temp-output.md](changes/2026-05-15-skill-helper-unique-temp-output.md)
 - `skill-helper-previous-scan` - [changes/2026-05-15-skill-helper-previous-scan.md](changes/2026-05-15-skill-helper-previous-scan.md)
-- `narrow-depth-platform-boundary` - [changes/2026-05-15-narrow-depth-platform-boundary.md](changes/2026-05-15-narrow-depth-platform-boundary.md)
+- `skill-helper-source-build-first` - [changes/2026-05-15-skill-helper-source-build-first.md](changes/2026-05-15-skill-helper-source-build-first.md)
+- `skill-helper-unique-temp-output` - [changes/2026-05-15-skill-helper-unique-temp-output.md](changes/2026-05-15-skill-helper-unique-temp-output.md)
 
 ## Review Due
 
