@@ -60,3 +60,4 @@ The purpose is to make the product value visible:
 - `behavior-evaluation/cross-project-stale-report-001.json`: sanitized behavior fixture for bounded stale-report refresh during cross-project intake.
 - `behavior-evaluation/cross-project-nenrin-freshness-001.json`: sanitized behavior fixture for treating Nenrin ledger files as report-freshness signals.
 - `behavior-evaluation/cross-project-intake-noop-001.json`: sanitized behavior fixture for stopping external intake as no-op when fresh scans confirm existing guidance.
+- `behavior-evaluation/cross-project-previous-scan-preferred-delta-001.json`: sanitized behavior fixture for using `--previous-scan` to expose stale preferred-command drift during cross-project intake.

@@ -865,6 +865,24 @@ Follow-up:
 
 - Only add another external-intake fixture if a fresh scan changes command guidance beyond the existing stale-report, wrapper-script, ledger, or blocker cases.
 
+### cross-project-previous-scan-preferred-delta-001
+
+Fixture:
+
+- `examples/behavior-evaluation/cross-project-previous-scan-preferred-delta-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: fresh temporary scan with a saved sibling-project report passed as `--previous-scan`.
+- Observation: A stale ai-mobile report still listed raw Gradle peers next to the project-local validation wrapper. Running a fresh temporary scan with `--previous-scan` surfaced the preferred-command delta in `agent_context.md`, kept `./scripts/assemble-debug.sh` as the only current preferred command, and avoided watched-project edits.
+- Boundary: this records a consumption pattern for stale saved reports. It does not add report lifecycle automation, Android environment auditing, or new scanner behavior.
+
+Follow-up:
+
+- If agents still hand-compare stale reports instead of using `--previous-scan`, update automation wording before adding report lifecycle features.
+
 ### python-unittest-validation-001
 
 Fixture:
