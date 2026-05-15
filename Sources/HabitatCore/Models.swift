@@ -419,6 +419,7 @@ public struct ProjectFileSnapshot: Codable, Equatable {
 public enum ValidationCommandPurpose: String, Codable, Equatable {
     case ordinaryLocal = "ordinary_local"
     case releaseArtifact = "release_artifact"
+    case deviceVerification = "device_verification"
 }
 
 public struct ValidationCommandClaim: Codable, Equatable {

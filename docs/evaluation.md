@@ -221,6 +221,7 @@ Summary:
 - Primary metric: risk-aware behavior.
 - Context mode: fresh self-scan plus command policy review.
 - Observation: Habitat preserved `swift test` as the ordinary validation command while keeping `./scripts/build_release_artifacts.sh` as release-prep or artifact-verification context.
+- Follow-up observation: A later ai-mobile intake showed connected-device verification (`./scripts/device-test.sh`) can be documented next to ordinary build checks while device installs may fail on host or device approval blockers. Habitat now records that observed script as `device_verification` and keeps it out of ordinary local validation preference.
 
 Follow-up:
 
@@ -782,12 +783,12 @@ Summary:
 - Result: Pass.
 - Primary metric: risk-aware behavior.
 - Context mode: fresh temporary scan plus read-only project-status comparison.
-- Observation: A fresh ai-mobile scan kept Gradle wrapper and `./scripts/assemble-debug.sh` guidance correct while the watched project documented a device-side install approval failure. The next action is to report that as an environment blocker, not to bypass device approval with uninstall, data deletion, settings changes, or Android device-management scanning.
-- Boundary: this records an external verification-blocker handling rule; it does not add generated Android blocker guidance or watched-project edits.
+- Observation: A fresh ai-mobile scan kept Gradle wrapper and `./scripts/assemble-debug.sh` guidance correct while the watched project documented a device-side install approval failure. A later intake showed `./scripts/device-test.sh` should be recorded as `device_verification`, not ordinary local validation. The next action is still to report install approval failure as an environment blocker, not to bypass device approval with uninstall, data deletion, settings changes, or Android device-management scanning.
+- Boundary: this records one narrow purpose distinction and an external verification-blocker handling rule; it does not add generated Android blocker guidance or watched-project edits.
 
 Follow-up:
 
-- Only add generated blocker guidance if repeated agents try risky device cleanup after correct build-command context.
+- Only add more validation-purpose categories if repeated evidence shows another distinction changes the first command.
 
 ### project-local-validation-script-generic-001
 

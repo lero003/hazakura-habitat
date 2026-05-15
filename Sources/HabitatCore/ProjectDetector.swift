@@ -498,6 +498,11 @@ public struct ProjectDetector {
         in line: String
     ) -> ValidationCommandPurpose {
         if command.hasPrefix("./scripts/"),
+           ProjectLocalValidationScript.isDeviceVerificationCommand(command) {
+            return .deviceVerification
+        }
+
+        if command.hasPrefix("./scripts/"),
            (ProjectLocalValidationScript.isReleaseArtifactCommand(command)
                || lineMentionsReleaseArtifactValidation(line)) {
             return .releaseArtifact

@@ -373,6 +373,51 @@ struct InstructionAlignmentPolicyTests {
     }
 
     @Test
+    func scanSeparatesDeviceVerificationScriptFromOrdinaryValidationClaim() throws {
+        let projectURL = try makeProject(files: [
+            "settings.gradle.kts": "pluginManagement {}\n",
+            "build.gradle.kts": "plugins { kotlin(\"jvm\") version \"2.0.0\" }\n",
+            "docs/development_environment.md": """
+            For connected device verification:
+
+            ./scripts/device-test.sh :app:connectedNoLlmDebugAndroidTest
+            """
+        ])
+        try writeExecutableScript(
+            projectURL.appendingPathComponent("gradlew"),
+            contents: "#!/bin/sh\n"
+        )
+        try writeExecutableScript(
+            projectURL.appendingPathComponent("scripts/device-test.sh"),
+            contents: "#!/bin/sh\n"
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let scanJSON = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let writtenResult = try JSONDecoder().decode(
+            ScanResult.self,
+            from: Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        )
+
+        assertAgentContextContract(context)
+        #expect(result.project.validationCommandClaims == [
+            ValidationCommandClaim(
+                source: "docs/development_environment.md",
+                command: "./scripts/device-test.sh",
+                purpose: .deviceVerification
+            )
+        ])
+        #expect(writtenResult.policy.preferredCommands == ["./gradlew test", "./gradlew build"])
+        #expect(!writtenResult.policy.preferredCommands.contains("./scripts/device-test.sh"))
+        #expect(context.contains("Fact: Project instructions mention device verification `./scripts/device-test.sh`; keep it for connected-device checks, not ordinary local validation."))
+        #expect(!context.contains("- Prefer `./scripts/device-test.sh`."))
+        #expect(scanJSON.contains("\"purpose\" : \"device_verification\""))
+    }
+
+    @Test
     func scanDeduplicatesSameValidationCommandAcrossInstructionFiles() throws {
         let projectURL = try makeProject(files: [
             "settings.gradle.kts": "pluginManagement {}\n",

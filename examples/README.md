@@ -56,7 +56,7 @@ The purpose is to make the product value visible:
 - `behavior-evaluation/gradle-wrapper-validation-001.json`: sanitized behavior fixture for executable Gradle wrapper validation guidance.
 - `behavior-evaluation/project-local-validation-script-001.json`: sanitized behavior fixture for project-local validation script uncertainty alongside Gradle wrapper guidance.
 - `behavior-evaluation/project-local-validation-script-generic-001.json`: sanitized behavior fixture for generic safe `./scripts/*.sh` validation script detection.
-- `behavior-evaluation/cross-project-device-install-blocker-001.json`: sanitized behavior fixture for treating Android device install approval failures as environment blockers.
+- `behavior-evaluation/cross-project-device-install-blocker-001.json`: sanitized behavior fixture for keeping connected-device scripts out of ordinary validation and treating Android device install approval failures as environment blockers.
 - `behavior-evaluation/cross-project-stale-report-001.json`: sanitized behavior fixture for bounded stale-report refresh during cross-project intake.
 - `behavior-evaluation/cross-project-nenrin-freshness-001.json`: sanitized behavior fixture for treating Nenrin ledger files as report-freshness signals.
 - `behavior-evaluation/cross-project-intake-noop-001.json`: sanitized behavior fixture for stopping external intake as no-op when fresh scans confirm existing guidance.

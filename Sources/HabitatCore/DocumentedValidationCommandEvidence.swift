@@ -16,35 +16,38 @@ public struct DocumentedValidationCommandEvidence {
     public var agentContextAnnotations: [String] {
         let ordinaryClaims = claims.filter { $0.purpose == .ordinaryLocal }
         let releaseArtifactClaims = claims.filter { $0.purpose == .releaseArtifact }
+        let deviceVerificationClaims = claims.filter { $0.purpose == .deviceVerification }
         guard let firstClaim = ordinaryClaims.first else {
             return releaseArtifactAnnotations(for: releaseArtifactClaims.first)
+                + deviceVerificationAnnotations(for: deviceVerificationClaims.first)
         }
 
         let releaseArtifactAnnotations = releaseArtifactAnnotations(for: releaseArtifactClaims.first)
+        let deviceVerificationAnnotations = deviceVerificationAnnotations(for: deviceVerificationClaims.first)
         if let uncertainAnnotations = multipleClaimUncertaintyAnnotations {
-            return uncertainAnnotations + releaseArtifactAnnotations
+            return uncertainAnnotations + releaseArtifactAnnotations + deviceVerificationAnnotations
         }
 
         let claimedWorkflow = workflow(for: firstClaim.command)
         let actualWorkflow = project.packageManager
 
         if let claimedWorkflow, claimedWorkflow == actualWorkflow {
-            return alignedAnnotations(claim: firstClaim) + releaseArtifactAnnotations
+            return alignedAnnotations(claim: firstClaim) + releaseArtifactAnnotations + deviceVerificationAnnotations
         }
 
         if claimedWorkflow == "project_script" {
-            return projectScriptAnnotations(claim: firstClaim) + releaseArtifactAnnotations
+            return projectScriptAnnotations(claim: firstClaim) + releaseArtifactAnnotations + deviceVerificationAnnotations
         }
 
         if claimedWorkflow != nil, actualWorkflow == nil {
-            return unknownRepositoryWorkflowAnnotations(claim: firstClaim) + releaseArtifactAnnotations
+            return unknownRepositoryWorkflowAnnotations(claim: firstClaim) + releaseArtifactAnnotations + deviceVerificationAnnotations
         }
 
         if claimedWorkflow != nil {
-            return conflictingAnnotations(claim: firstClaim) + releaseArtifactAnnotations
+            return conflictingAnnotations(claim: firstClaim) + releaseArtifactAnnotations + deviceVerificationAnnotations
         }
 
-        return releaseArtifactAnnotations
+        return releaseArtifactAnnotations + deviceVerificationAnnotations
     }
 
     private var multipleClaimUncertaintyAnnotations: [String]? {
@@ -68,6 +71,13 @@ public struct DocumentedValidationCommandEvidence {
         return [
             "Fact: Project instructions mention release/artifact validation `\(claim.command)`.",
             "Hint: Keep `\(claim.command)` for release prep or artifact verification, not ordinary local validation."
+        ]
+    }
+
+    private func deviceVerificationAnnotations(for claim: ValidationCommandClaim?) -> [String] {
+        guard let claim else { return [] }
+        return [
+            "Fact: Project instructions mention device verification `\(claim.command)`; keep it for connected-device checks, not ordinary local validation."
         ]
     }
 

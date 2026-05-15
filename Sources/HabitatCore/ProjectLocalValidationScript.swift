@@ -39,6 +39,10 @@ enum ProjectLocalValidationScript {
             || command.contains("package")
     }
 
+    static func isDeviceVerificationCommand(_ command: String) -> Bool {
+        command == "./scripts/device-test.sh"
+    }
+
     private static func isReleaseArtifactScript(_ command: String) -> Bool {
         isReleaseArtifactCommand(command)
     }
