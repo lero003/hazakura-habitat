@@ -6,6 +6,10 @@ This document defines the contract between Hazakura Habitat and AI coding agents
 
 The generated artifacts should make the agent's next action safer and more specific.
 
+This contract defines Habitat output, not a replacement documentation system.
+For partial adoption in an existing repository, see
+[AI Agent Adoption Guide](adoption_guide.md).
+
 ## Primary Artifact: agent_context.md
 
 `agent_context.md` is the most important human-readable output.

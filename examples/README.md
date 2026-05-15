@@ -8,6 +8,9 @@ The purpose is to make the product value visible:
 
 > short, conservative, project-derived context that changes an AI coding agent's next command choice.
 
+For guidance on how much of this pattern to adopt in another repository, see
+[AI Agent Adoption Guide](../docs/adoption_guide.md).
+
 ## Available Examples
 
 - `swift-package/agent_context.md`: representative output for a simple SwiftPM package.

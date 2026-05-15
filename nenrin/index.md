@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 162
+- observing: 163
 - reviewed: 12
 
 ## Active Changes
@@ -160,7 +160,9 @@
 - `validation-claim-freshness-metadata` - [changes/2026-05-13-validation-claim-freshness-metadata.md](changes/2026-05-13-validation-claim-freshness-metadata.md)
 - `validation-claim-meta-discussion-filter` - [changes/2026-05-13-validation-claim-meta-discussion-filter.md](changes/2026-05-13-validation-claim-meta-discussion-filter.md)
 - `validation-command-purpose` - [changes/2026-05-13-validation-command-purpose.md](changes/2026-05-13-validation-command-purpose.md)
+- `ai-agent-adoption-guide` - [changes/2026-05-15-ai-agent-adoption-guide.md](changes/2026-05-15-ai-agent-adoption-guide.md)
 - `development-forward-automation` - [changes/2026-05-15-development-forward-automation.md](changes/2026-05-15-development-forward-automation.md)
+- `environment-check-validation-purpose` - [changes/2026-05-15-environment-check-validation-purpose.md](changes/2026-05-15-environment-check-validation-purpose.md)
 - `freshness-shortcut-wording` - [changes/2026-05-15-freshness-shortcut-wording.md](changes/2026-05-15-freshness-shortcut-wording.md)
 - `gradle-wrapper-script-preference` - [changes/2026-05-15-gradle-wrapper-script-preference.md](changes/2026-05-15-gradle-wrapper-script-preference.md)
 - `known-wrapper-confidence` - [changes/2026-05-15-known-wrapper-confidence.md](changes/2026-05-15-known-wrapper-confidence.md)
@@ -168,7 +170,6 @@
 - `post-v0-7-automation-handoff` - [changes/2026-05-15-post-v0-7-automation-handoff.md](changes/2026-05-15-post-v0-7-automation-handoff.md)
 - `previous-scan-stale-preferred-delta` - [changes/2026-05-15-previous-scan-stale-preferred-delta.md](changes/2026-05-15-previous-scan-stale-preferred-delta.md)
 - `skill-helper-unique-temp-output` - [changes/2026-05-15-skill-helper-unique-temp-output.md](changes/2026-05-15-skill-helper-unique-temp-output.md)
-- `environment-check-validation-purpose` - [changes/2026-05-15-environment-check-validation-purpose.md](changes/2026-05-15-environment-check-validation-purpose.md)
 
 ## Review Due
 

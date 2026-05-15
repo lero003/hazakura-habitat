@@ -25,6 +25,11 @@ Git/GitHub mutations, unfamiliar-repo onboarding, or secret-adjacent operations.
 The skill explains when to run Habitat, which generated file to read first, and
 how to proceed if `habitat-scan` is not installed yet.
 
+For partial adoption in an existing repository, see
+[AI Agent Adoption Guide](docs/adoption_guide.md). Habitat can be used as a
+small pre-work context layer without replacing existing `README.md`,
+`AGENTS.md`, changelogs, roadmaps, or project development docs.
+
 The MVP is not a human dashboard. It is a pre-work contract for AI agents: a map before the agent walks, not a fence around the agent.
 
 Hazakura Habitat does not make an AI coding agent safe by itself. It only generates advisory context that an agent or user may choose to follow.
@@ -159,6 +164,7 @@ For AI agents and automation:
 
 - [Agent Skill](skills/hazakura-habitat/SKILL.md)
 - [Agent Contract](docs/agent_contract.md)
+- [AI Agent Adoption Guide](docs/adoption_guide.md)
 - [Evaluation](docs/evaluation.md)
 - [Development Loop](docs/development_loop.md)
 - [Self-Use Loop](docs/self_use.md)

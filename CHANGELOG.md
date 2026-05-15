@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Added an AI agent adoption guide that defines partial Habitat adoption levels,
+  copyable agent instructions, and boundaries for using Habitat without
+  replacing existing project docs.
 - Separated the observed `./scripts/dev-env-check.sh` environment preflight
   script from ordinary local validation claims, so it is not promoted as a
   normal `Prefer` command when a project also documents its real validation
