@@ -2,12 +2,11 @@
 
 ## Active Summary
 
-- observing: 157
-- reviewed: 11
+- observing: 156
+- reviewed: 12
 
 ## Active Changes
 
-- `cli-auth-credential-command-family` - [changes/2026-05-03-cli-auth-credential-command-family.md](changes/2026-05-03-cli-auth-credential-command-family.md)
 - `cloud-container-credential-command-family` - [changes/2026-05-03-cloud-container-credential-command-family.md](changes/2026-05-03-cloud-container-credential-command-family.md)
 - `package-manager-credential-command-family` - [changes/2026-05-03-package-manager-credential-command-family.md](changes/2026-05-03-package-manager-credential-command-family.md)
 - `package-registry-reason-code` - [changes/2026-05-03-package-registry-reason-code.md](changes/2026-05-03-package-registry-reason-code.md)
@@ -167,7 +166,6 @@
 
 ## Review Due
 
-- cli-auth-credential-command-family: 12 day(s) old, review_after.days=7
 - cloud-container-credential-command-family: 12 day(s) old, review_after.days=7
 - package-manager-credential-command-family: 12 day(s) old, review_after.days=7
 - package-registry-reason-code: 12 day(s) old, review_after.days=7

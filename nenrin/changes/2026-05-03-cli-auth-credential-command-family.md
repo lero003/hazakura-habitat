@@ -2,8 +2,8 @@
 type: nenrin_change
 id: cli-auth-credential-command-family
 date: 2026-05-03
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog.swift
   - Sources/HabitatCore/Scanner.swift
@@ -50,4 +50,4 @@ The v0.3 self-use policy review kept the next command on SwiftPM validation and 
 
 ## Result
 
-Unjudged.
+Reviewed on 2026-05-15: keep. Later credential-policy cleanup used this record to keep the next change inside one cohesive CLI auth and credential-store command family, and current tests/docs still pin the `secret_or_credential_access` routing without broadening the scanner boundary.

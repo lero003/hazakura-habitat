@@ -4,17 +4,17 @@
 
 - Change records: 168
 - Observation records: 55
-- Review overdue: 75
+- Review overdue: 74
 
 ## Status
 
-- observing: 157
-- reviewed: 11
+- observing: 156
+- reviewed: 12
 
 ## Change Impact
 
-- effective: 11
-- unknown: 157
+- effective: 12
+- unknown: 156
 
 ## Observation Impact Judgment
 
@@ -24,7 +24,6 @@
 
 ## Review Overdue
 
-- cli-auth-credential-command-family (changes/2026-05-03-cli-auth-credential-command-family.md): 12 day(s) old, review_after.days=7
 - cloud-container-credential-command-family (changes/2026-05-03-cloud-container-credential-command-family.md): 12 day(s) old, review_after.days=7
 - package-manager-credential-command-family (changes/2026-05-03-package-manager-credential-command-family.md): 12 day(s) old, review_after.days=7
 - package-registry-reason-code (changes/2026-05-03-package-registry-reason-code.md): 12 day(s) old, review_after.days=7
