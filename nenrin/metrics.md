@@ -2,19 +2,19 @@
 
 ## Summary
 
-- Change records: 178
+- Change records: 179
 - Observation records: 57
 - Review overdue: 74
 
 ## Status
 
-- observing: 166
+- observing: 167
 - reviewed: 12
 
 ## Change Impact
 
 - effective: 12
-- unknown: 166
+- unknown: 167
 
 ## Observation Impact Judgment
 

@@ -381,6 +381,106 @@ struct ScanExecutionInfrastructureTests {
     }
 
     @Test
+    func habitatSkillHelperInfersPreviousScanForSeparateFreshOutput() throws {
+        let fileManager = FileManager.default
+        let tempRootURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempRootURL.appendingPathComponent("project")
+        let savedReportURL = projectURL.appendingPathComponent("habitat-report")
+        let outputURL = tempRootURL.appendingPathComponent("fresh-report")
+        let binaryURL = tempRootURL.appendingPathComponent("habitat-scan")
+        let markerURL = tempRootURL.appendingPathComponent("args.txt")
+        try fileManager.createDirectory(at: savedReportURL, withIntermediateDirectories: true)
+        try "{}".write(
+            to: savedReportURL.appendingPathComponent("scan_result.json"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            printf '%s\\n' "$*" > "$HABITAT_HELPER_MARKER"
+            """
+        )
+
+        let scriptURL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
+            .appendingPathComponent("skills/hazakura-habitat/scripts/run_habitat_scan.sh")
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            scriptURL.path,
+            projectURL.path,
+            outputURL.path,
+        ]
+        process.environment = ProcessInfo.processInfo.environment.merging([
+            "HABITAT_SCAN": binaryURL.path,
+            "HABITAT_HELPER_MARKER": markerURL.path,
+        ]) { _, new in new }
+
+        try process.run()
+        process.waitUntilExit()
+
+        let args = try String(contentsOf: markerURL, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        #expect(process.terminationStatus == 0)
+        #expect(args.hasPrefix("scan --project "))
+        #expect(args.contains("/project --output \(outputURL.path)"))
+        #expect(args.contains("--previous-scan "))
+        #expect(args.hasSuffix("/project/habitat-report"))
+    }
+
+    @Test
+    func habitatSkillHelperDoesNotInferPreviousScanWhenRefreshingSavedReportInPlace() throws {
+        let fileManager = FileManager.default
+        let tempRootURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempRootURL.appendingPathComponent("project")
+        let savedReportURL = projectURL.appendingPathComponent("habitat-report")
+        let binaryURL = tempRootURL.appendingPathComponent("habitat-scan")
+        let markerURL = tempRootURL.appendingPathComponent("args.txt")
+        try fileManager.createDirectory(at: savedReportURL, withIntermediateDirectories: true)
+        try "{}".write(
+            to: savedReportURL.appendingPathComponent("scan_result.json"),
+            atomically: true,
+            encoding: .utf8
+        )
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            printf '%s\\n' "$*" > "$HABITAT_HELPER_MARKER"
+            """
+        )
+
+        let scriptURL = URL(fileURLWithPath: fileManager.currentDirectoryPath)
+            .appendingPathComponent("skills/hazakura-habitat/scripts/run_habitat_scan.sh")
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            scriptURL.path,
+            projectURL.path,
+            savedReportURL.path,
+        ]
+        process.environment = ProcessInfo.processInfo.environment.merging([
+            "HABITAT_SCAN": binaryURL.path,
+            "HABITAT_HELPER_MARKER": markerURL.path,
+        ]) { _, new in new }
+
+        try process.run()
+        process.waitUntilExit()
+
+        let args = try String(contentsOf: markerURL, encoding: .utf8)
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        #expect(process.terminationStatus == 0)
+        #expect(args.hasPrefix("scan --project "))
+        #expect(args.contains("/project --output \(savedReportURL.path)"))
+        #expect(!args.contains("--previous-scan"))
+    }
+
+    @Test
     func habitatSkillHelperPrintsCanonicalGeneratedReportPaths() throws {
         let fileManager = FileManager.default
         let tempRootURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)

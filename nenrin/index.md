@@ -169,6 +169,7 @@
 - `missing-wrapper-hint-contract` - [changes/2026-05-15-missing-wrapper-hint-contract.md](changes/2026-05-15-missing-wrapper-hint-contract.md)
 - `post-v0-7-automation-handoff` - [changes/2026-05-15-post-v0-7-automation-handoff.md](changes/2026-05-15-post-v0-7-automation-handoff.md)
 - `previous-scan-stale-preferred-delta` - [changes/2026-05-15-previous-scan-stale-preferred-delta.md](changes/2026-05-15-previous-scan-stale-preferred-delta.md)
+- `skill-helper-auto-previous-scan` - [changes/2026-05-16-skill-helper-auto-previous-scan.md](changes/2026-05-16-skill-helper-auto-previous-scan.md)
 - `skill-helper-canonical-output-paths` - [changes/2026-05-15-skill-helper-canonical-output-paths.md](changes/2026-05-15-skill-helper-canonical-output-paths.md)
 - `skill-helper-previous-scan` - [changes/2026-05-15-skill-helper-previous-scan.md](changes/2026-05-15-skill-helper-previous-scan.md)
 - `skill-helper-source-build-first` - [changes/2026-05-15-skill-helper-source-build-first.md](changes/2026-05-15-skill-helper-source-build-first.md)

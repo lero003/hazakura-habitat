@@ -92,6 +92,38 @@ default_output() {
   mktemp -d "$base_dir/${safe_name}.XXXXXX"
 }
 
+output_path_candidate() {
+  local raw_output
+  case "$OUTPUT" in
+    /*) raw_output="$OUTPUT" ;;
+    *) raw_output="$(pwd -P)/$OUTPUT" ;;
+  esac
+
+  local output_dir
+  local output_name
+  output_dir="$(dirname "$raw_output")"
+  output_name="$(basename "$raw_output")"
+  if [[ -d "$output_dir" ]]; then
+    printf '%s/%s\n' "$(cd "$output_dir" && pwd -P)" "$output_name"
+    return 0
+  fi
+
+  printf '%s\n' "$raw_output"
+}
+
+infer_previous_scan() {
+  local saved_report="$PROJECT_ABS/habitat-report"
+  local output_candidate
+  output_candidate="$(output_path_candidate)"
+
+  if [[ -z "$PREVIOUS_SCAN" \
+      && -f "$saved_report/scan_result.json" \
+      && "$output_candidate" != "$saved_report" \
+      && "$output_candidate" != "$saved_report/" ]]; then
+    PREVIOUS_SCAN="$saved_report"
+  fi
+}
+
 BIN="$(find_binary || true)"
 
 if [[ -z "$BIN" ]]; then
@@ -112,6 +144,8 @@ fi
 if [[ -z "$OUTPUT" ]]; then
   OUTPUT="$(default_output)"
 fi
+
+infer_previous_scan
 
 scan_args=(scan --project "$PROJECT_ABS" --output "$OUTPUT")
 if [[ -n "$PREVIOUS_SCAN" ]]; then
