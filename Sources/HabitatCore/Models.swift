@@ -216,11 +216,21 @@ public struct ScanChange: Codable, Equatable {
     public let category: String
     public let summary: String
     public let impact: String
+    public let previousValues: [String]?
+    public let currentValues: [String]?
 
-    public init(category: String, summary: String, impact: String) {
+    public init(
+        category: String,
+        summary: String,
+        impact: String,
+        previousValues: [String]? = nil,
+        currentValues: [String]? = nil
+    ) {
         self.category = category
         self.summary = summary
         self.impact = impact
+        self.previousValues = previousValues
+        self.currentValues = currentValues
     }
 }
 

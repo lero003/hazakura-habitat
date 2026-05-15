@@ -242,7 +242,9 @@ public struct ScanComparator {
             ScanChange(
                 category: "preferred_commands",
                 summary: "Preferred commands changed from \(summarizeCommands(previous.policy.preferredCommands)) to \(summarizeCommands(current.policy.preferredCommands)).",
-                impact: "Re-check command_policy.md; use only current allowed preferred commands."
+                impact: "Re-check command_policy.md; use only current allowed preferred commands.",
+                previousValues: previous.policy.preferredCommands,
+                currentValues: current.policy.preferredCommands
             )
         ]
     }

@@ -494,6 +494,8 @@ struct ScanComparisonTests {
 
         #expect(preferredChange?.summary == "Preferred commands changed from npm run to npm run test, npm run build.")
         #expect(preferredChange?.impact == "Re-check command_policy.md; use only current allowed preferred commands.")
+        #expect(preferredChange?.previousValues == ["npm run"])
+        #expect(preferredChange?.currentValues == ["npm run test", "npm run build"])
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
@@ -501,6 +503,8 @@ struct ScanComparisonTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains("\"category\" : \"preferred_commands\""))
+        #expect(scanResult.contains("\"previousValues\" : ["))
+        #expect(scanResult.contains("\"currentValues\" : ["))
         #expect(context.contains("Preferred commands changed from npm run to npm run test, npm run build. Re-check command_policy.md; use only current allowed preferred commands."))
     }
 
