@@ -148,21 +148,29 @@ Runtime version hints from `.nvmrc`, `.node-version`, `.python-version`, `.ruby-
 
 ## Start Here
 
-- [Product Direction](docs/product_direction.md)
-- [MVP Plan](docs/mvp_plan.md)
+For new users:
+
 - [Current Status](docs/current_status.md)
-- [Public Readiness](docs/public_readiness.md)
 - [Roadmap](docs/roadmap.md)
-- [Positioning](docs/positioning.md)
 - [Known Limitations](docs/known_limitations.md)
-- [Contributing](CONTRIBUTING.md)
-- [Agent Contract](docs/agent_contract.md)
 - [Distribution Foundations](docs/distribution_foundations.md)
+
+For AI agents and automation:
+
+- [Agent Skill](skills/hazakura-habitat/SKILL.md)
+- [Agent Contract](docs/agent_contract.md)
 - [Evaluation](docs/evaluation.md)
 - [Development Loop](docs/development_loop.md)
 - [Self-Use Loop](docs/self_use.md)
-- [Agent Skill](skills/hazakura-habitat/SKILL.md)
+
+For project context and contribution:
+
+- [Product Direction](docs/product_direction.md)
+- [MVP Plan](docs/mvp_plan.md)
+- [Positioning](docs/positioning.md)
+- [Public Readiness](docs/public_readiness.md) - historical first-public audit trail
 - [GitHub Workflow](docs/github_workflow.md)
+- [Contributing](CONTRIBUTING.md)
 - [ADR 0001](docs/adr/0001-ai-first-core-cli.md)
 - [ADR 0002](docs/adr/0002-agent-safe-secret-handling.md)
 
