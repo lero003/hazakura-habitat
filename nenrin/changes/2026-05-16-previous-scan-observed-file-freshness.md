@@ -24,6 +24,9 @@ review_after:
   added, removed, or modified between a saved report and a fresh scan.
 - Included structured `previousValues` and `currentValues` labels with file path
   and modification time for the changed observed files.
+- Added a contract test for the repeated ai-mobile shape where more than three
+  observed files change: the short summary stays compact while structured
+  values retain every changed path and mtime.
 - Kept the behavior scoped to `--previous-scan` comparison output.
 
 ## Reason
@@ -39,6 +42,8 @@ only from a changed preferred-command list.
   use the current generated context before choosing commands.
 - Machine consumers can identify which observed files changed without parsing
   summary prose.
+- Long stale-report notes stay readable in `agent_context.md` without hiding
+  the full changed-file detail from `scan_result.json`.
 - Habitat remains an advisory freshness comparator, not a report lifecycle or
   workspace intelligence tool.
 

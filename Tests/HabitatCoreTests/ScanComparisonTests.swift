@@ -181,6 +181,100 @@ struct ScanComparisonTests {
     }
 
     @Test
+    func scanComparisonKeepsObservedFileSummaryCompactWhenManyFilesChange() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-05-15T11:44:17Z",
+            projectPath: "/tmp/android-project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: [
+                    "gradlew",
+                    "docs/current_status.md",
+                    "docs/development_automation.md",
+                    "docs/development_loop.md",
+                    "docs/roadmap.md",
+                ],
+                observedFiles: [
+                    .init(path: "docs/current_status.md", modifiedAt: "2026-05-15T11:42:06Z"),
+                    .init(path: "docs/development_automation.md", modifiedAt: "2026-05-14T23:03:07Z"),
+                    .init(path: "docs/development_loop.md", modifiedAt: "2026-05-13T12:40:21Z"),
+                    .init(path: "docs/roadmap.md", modifiedAt: "2026-05-15T05:13:51Z"),
+                ],
+                packageManager: "gradle",
+                packageManagerVersion: nil,
+                packageScripts: [],
+                runtimeHints: .init(node: nil, python: nil)
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(
+                preferredCommands: ["./scripts/assemble-debug.sh", "./gradlew test", "./gradlew build"],
+                askFirstCommands: ["modifying lockfiles"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-05-15T18:02:19Z",
+            projectPath: "/tmp/android-project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: [
+                    "gradlew",
+                    "docs/current_status.md",
+                    "docs/development_automation.md",
+                    "docs/development_loop.md",
+                    "docs/roadmap.md",
+                ],
+                observedFiles: [
+                    .init(path: "docs/current_status.md", modifiedAt: "2026-05-15T17:13:48Z"),
+                    .init(path: "docs/development_automation.md", modifiedAt: "2026-05-15T11:45:10Z"),
+                    .init(path: "docs/development_loop.md", modifiedAt: "2026-05-15T11:45:20Z"),
+                    .init(path: "docs/roadmap.md", modifiedAt: "2026-05-15T17:13:48Z"),
+                ],
+                packageManager: "gradle",
+                packageManagerVersion: nil,
+                packageScripts: [],
+                runtimeHints: .init(node: nil, python: nil)
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["./scripts/assemble-debug.sh"], askFirstCommands: ["modifying lockfiles"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let observedFileChange = changes.first(where: { $0.category == "observed_files" })
+
+        #expect(observedFileChange?.summary == "Observed project files changed: modified docs/current_status.md, docs/development_automation.md, docs/development_loop.md, and 1 more.")
+        #expect(observedFileChange?.previousValues == [
+            "docs/current_status.md @ 2026-05-15T11:42:06Z",
+            "docs/development_automation.md @ 2026-05-14T23:03:07Z",
+            "docs/development_loop.md @ 2026-05-13T12:40:21Z",
+            "docs/roadmap.md @ 2026-05-15T05:13:51Z",
+        ])
+        #expect(observedFileChange?.currentValues == [
+            "docs/current_status.md @ 2026-05-15T17:13:48Z",
+            "docs/development_automation.md @ 2026-05-15T11:45:10Z",
+            "docs/development_loop.md @ 2026-05-15T11:45:20Z",
+            "docs/roadmap.md @ 2026-05-15T17:13:48Z",
+        ])
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(context.contains("Observed project files changed: modified docs/current_status.md, docs/development_automation.md, docs/development_loop.md, and 1 more. Treat the previous report as stale context; use the current generated context before choosing commands."))
+        #expect(scanResult.contains("\"docs/roadmap.md @ 2026-05-15T05:13:51Z\""))
+        #expect(scanResult.contains("\"docs/roadmap.md @ 2026-05-15T17:13:48Z\""))
+    }
+
+    @Test
     func scanComparisonSeparatesResolvedAndIrrelevantMissingTools() throws {
         let previous = ScanResult(
             schemaVersion: "0.1",
