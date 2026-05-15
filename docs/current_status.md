@@ -8,9 +8,9 @@ The goal is not broad Mac environment coverage. The goal is to keep AI-facing ou
 
 The `v0.7.0 Developer Preview` milestone keeps Habitat advisory while making the preview easier to obtain, verify, and consume from agent workflows, automation, and local scripts. Direct stdout artifacts, artifact-path aliases, checksum-first release helpers, binary/generator metadata checks, and minimal validation-purpose clarity are now the shipped Distribution Foundations slice.
 
-Treat post-`v0.7` work as `v0.8` Observation -> Action unless release verification finds a concrete `v0.7` trust issue. The next phase should observe how distributed Habitat is actually used before adding deeper validation taxonomy, cross-project behavior, Nenrin coupling, or distribution carry-over such as `--format`, MCP, or Linux feasibility notes.
+Treat post-`v0.7` work as `v0.8` Observation -> Action unless release verification finds a concrete `v0.7` trust issue. The next phase should observe how distributed Habitat is actually used before adding deeper validation taxonomy, cross-project behavior, Nenrin coupling, or distribution carry-over such as `--format` or a thin read-only MCP prototype. Linux should not be treated as a natural next expansion lane; at most, record portability risks when they protect the macOS-first advisory CLI contract.
 
-Do not add broad scanner domains, command enforcement, install repair, full MCP integration, or a generic evidence layer just because the release number advanced. Further distribution work belongs in `v0.8+` only when repeated consumption failures show it changes the next command or release trust decision.
+Do not add broad scanner domains, command enforcement, install repair, full MCP integration, Linux support work, or a generic evidence layer just because the release number advanced. Further distribution work belongs in `v0.8+` only when repeated consumption failures show it changes the next command or release trust decision.
 
 The working framing is still not plan generation. Habitat should keep making a repository map, then cut out short, evidence-backed context annotations that can affect the next command: `Facts` for observed repository state, `Hints` for tentative next-command guidance, `Warnings` for constraints or risks, and `Open uncertainty` for what Habitat cannot decide. Confidence should start as coarse `high` / `medium` / `low` labels used to reduce overstatement, not as a scoring system.
 
@@ -300,7 +300,8 @@ Keep the current cycle focused:
 - Additional Node package-manager version metadata beyond `package.json`, Volta pins, `engines.node`, `.tool-versions`, `mise.toml`, and `.mise.toml`.
 - Swift/Xcode scanner detail beyond safe first-command guidance; this should stay focused on build/test command selection and safety.
 - Broader scan comparison beyond the initial AI-actionable deltas; avoid adding this unless it changes agent behavior.
-- Linux support guarantee. A narrow Linux feasibility spike may be useful before `v1.0`, but the current published promise remains macOS-first.
+- Linux support guarantee. Portability notes may be useful before `v1.0` only
+  to protect the macOS-first CLI contract from accidental platform assumptions.
 - Structured concurrency in scanner execution. Keep synchronous command capture until a measured scan-size or timeout problem justifies parallel execution.
 - GUI, MCP server, and redaction modes.
 
@@ -321,7 +322,11 @@ Keep the current cycle focused:
 - The 2026-05-12 `hazakura-ai-mobile` intake showed a narrower instruction-drift shape: repository facts selected Gradle wrapper validation, but development docs route validation through `./scripts/assemble-debug.sh`. Habitat now records that project-local script claim without raw prose and emits bounded uncertainty before agents choose raw `./gradlew` commands.
 - The `v0.7` Distribution Foundations slice is shipped: safer install guidance, checksum-first release consumption, binary version / `generatorVersion` / generated metadata verification, stdout/file-consumption improvements, and the ordinary local validation versus release/artifact validation split.
 - README and the bundled agent skill make release consumption checksum-first: verify `SHA256SUMS` before running downloaded binaries, check `habitat-scan --version`, and compare saved `scan_result.json` `generatorVersion` before trusting generated Markdown from a release binary.
-- Treat `--format`, thin read-only MCP, Linux feasibility notes, setup-guide expansion, and broader validation-purpose taxonomy as `v0.8+` observation-driven carry-over. Do not implement them until real consumption or command-decision evidence justifies the extra surface area.
+- Treat `--format`, thin read-only MCP, setup-guide expansion, portability-risk
+  notes, and broader validation-purpose taxonomy as `v0.8+`
+  observation-driven carry-over. Do not implement them until real consumption
+  or command-decision evidence justifies the extra surface area, and do not
+  turn portability notes into Linux support work.
 - The Nenrin-derived Python validation-purpose candidate is now covered: Habitat no longer prefers `.venv/bin/python -m pytest` merely because `.venv/bin/python` exists, and repo-backed unittest signals win when pytest is not confirmed runnable. Do not expand Python runner taxonomy further unless repeated evidence shows another runner distinction changes the first command.
 - Keep cross-project observation and Nenrin integration thin during `v0.8`. Watched repositories may surface bounded uncertainty or a single Habitat carry-back, but their backlogs should not choose Habitat's work. Nenrin should record durable judgment changes, not changelog history.
 - Shape future evidence around `repo fact -> short annotation -> command decision`: Habitat should produce `Facts`, `Hints`, `Warnings`, and `Open uncertainty`, not plans.

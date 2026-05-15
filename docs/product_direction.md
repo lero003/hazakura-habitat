@@ -47,6 +47,11 @@ The public roadmap should strengthen the reliability of this decision context be
 
 Behavior evidence should be allowed to re-rank the roadmap. If Habitat proves most useful in a smaller set of high-confidence scenarios, deepen those scenarios instead of turning the product into a generic tool for every project type.
 
+Habitat should prefer narrow depth over platform breadth. macOS / SwiftPM-first
+workflows are the current proving ground; Linux or Windows reach is not a
+product goal by itself. Portability notes are useful only when they protect the
+core advisory CLI contract from accidental macOS-only assumptions.
+
 Habitat should not compete with `AGENTS.md` as the place for durable project rules. Instead, it should help an agent verify whether the current repository state supports those rules: which package manager is actually signaled, whether validation commands are available, whether secret-bearing files change search shape, and whether release, CI, or generated-output facts create approval points that the written guidance does not mention.
 
 ## Positioning

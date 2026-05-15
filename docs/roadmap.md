@@ -532,7 +532,7 @@ release-blocking need:
 - setup guide for agent workflows
 - release install guidance that models Habitat's own caution around remote scripts
 - minimal read-only MCP prototype after the stdout path exists, and only if file/CLI-based consumption remains a measured blocker and the CLI contract is mature enough
-- Linux feasibility notes for read-only scan paths, without promising support before portability risks are known
+- portability notes only when they protect the macOS-first advisory CLI contract from accidental platform assumptions; this is not a Linux support lane
 
 Possible read-only MCP surface:
 
@@ -582,8 +582,9 @@ Focus:
 - release trust follow-through that remains after `v0.7`: compatibility notes, upgrade clarity, and source/archive expectations
 - distribution carry-over from `v0.7`, such as limited `--format` modes,
   machine-readable policy stabilization, setup-guide refinement, a thin
-  read-only MCP prototype, or Linux feasibility notes, only when observed
-  consumption friction justifies the extra surface area
+  read-only MCP prototype, or portability notes, only when observed consumption
+  friction justifies the extra surface area. Linux support work is not a
+  default `v0.8` expansion target.
 
 Future macOS distribution candidates:
 
@@ -721,7 +722,7 @@ Stable advisory context generation for AI coding agents.
 - previous-scan command-changing deltas
 - stdout or format modes
 - read-only MCP prototype
-- Linux feasibility spike
+- portability-risk notes for the macOS-first CLI contract
 
 ### Parking Lot
 

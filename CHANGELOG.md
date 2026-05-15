@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Clarified the post-`v0.7` roadmap so Habitat stays narrow and macOS-first:
+  Linux is not a default expansion lane, and portability notes should only
+  protect the core advisory CLI contract.
 - Added an AI agent adoption guide that defines partial Habitat adoption levels,
   copyable agent instructions, and boundaries for using Habitat without
   replacing existing project docs.

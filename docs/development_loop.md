@@ -85,8 +85,10 @@ For distribution carry-over, model Habitat's own command policy philosophy.
 Prefer checksum verification, explicit binary version checks, `generatorVersion`
 checks, and generated metadata verification over remote script piping,
 package-manager mutation, or automatic installation. Consider `--format`, a
-thin read-only MCP prototype, Linux feasibility notes, or setup-guide expansion
-only after file/stdout consumption proves insufficient in real use.
+thin read-only MCP prototype, or setup-guide expansion only after file/stdout
+consumption proves insufficient in real use. Do not treat Linux as a default
+follow-up; record portability notes only when they protect the macOS-first CLI
+contract from a concrete release-trust or command-decision mistake.
 
 Handoff, automation prompt, and Nenrin-only changes are allowed when stale
 guidance would make future runs choose the wrong work. After the post-`v0.7`
