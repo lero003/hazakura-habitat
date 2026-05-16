@@ -544,6 +544,78 @@ struct ScanComparisonTests {
     }
 
     @Test
+    func scanComparisonReportsRecoveredMissingToolsWithCurrentPaths() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "package-lock.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: ["test"], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: []),
+                    .init(name: "npm", paths: []),
+                ],
+                versions: []
+            ),
+            policy: .init(
+                preferredCommands: ["npm run test"],
+                askFirstCommands: [
+                    "running JavaScript commands before node is available",
+                    "running npm commands before npm is available",
+                    "npm install",
+                ],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["package.json", "package-lock.json"], packageManager: "npm", packageManagerVersion: nil, packageScripts: ["test"], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: ["/opt/homebrew/bin/node"]),
+                    .init(name: "npm", paths: ["/opt/homebrew/bin/npm"]),
+                ],
+                versions: [
+                    .init(name: "node", version: "v22.0.0", available: true),
+                    .init(name: "npm", version: "10.5.0", available: true),
+                ]
+            ),
+            policy: .init(preferredCommands: ["npm run test"], askFirstCommands: ["npm install"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let missingToolChange = changes.first(where: {
+            $0.summary == "Project-relevant tools are now available: node, npm."
+        })
+
+        #expect(missingToolChange?.impact == "Preferred project commands may be runnable without missing-tool fallback.")
+        #expect(missingToolChange?.previousValues == ["node", "npm"])
+        #expect(missingToolChange?.currentValues == [
+            "node @ /opt/homebrew/bin/node",
+            "npm @ /opt/homebrew/bin/npm",
+        ])
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"node @ /opt/homebrew/bin/node\""))
+        #expect(scanResult.contains("\"npm @ /opt/homebrew/bin/npm\""))
+        #expect(context.contains("Project-relevant tools are now available: node, npm. Preferred project commands may be runnable without missing-tool fallback."))
+    }
+
+    @Test
     func scanComparisonSeparatesResolvedAndIrrelevantMissingTools() throws {
         let previous = ScanResult(
             schemaVersion: "0.1",

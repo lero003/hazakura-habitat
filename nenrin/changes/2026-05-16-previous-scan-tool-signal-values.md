@@ -22,6 +22,9 @@ review_after:
   `missing_tools` and `tool_verification` changes.
 - Kept the short Markdown change summaries unchanged while making
   `scan_result.json` expose affected tool names directly.
+- Tightened recovered `missing_tools` `currentValues` so currently relevant
+  recovered tools carry their resolved current paths, while previous values
+  remain the missing tool names.
 - Updated the agent contract and current status wording so the structured
   `changes` boundary includes missing-tool and tool-verification deltas.
 
@@ -36,6 +39,9 @@ missing-tool or version-check evidence.
 
 - Machine consumers can inspect affected tool names from structured values
   before trusting stale preferred-command or policy guidance.
+- Machine consumers can distinguish a recovered relevant tool from an
+  irrelevant old missing tool by reading the recovered tool's current resolved
+  path in `currentValues`.
 - Agents still use the current generated Markdown and command policy as the
   authority for whether a tool-backed command is allowed, Ask First, or absent.
 
@@ -48,6 +54,8 @@ missing-tool or version-check evidence.
 
 - Future stale-report checks use structured tool-signal values instead of
   scraping `missing_tools` or `tool_verification` summary sentences.
+- Recovered-tool checks use path-bearing current values when deciding whether
+  a saved report's missing-tool blocker was resolved in the current scan.
 - Tool-signal values stay scoped to command-changing previous-scan deltas rather
   than becoming a full tool inventory stability promise.
 

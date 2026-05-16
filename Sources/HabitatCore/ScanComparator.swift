@@ -254,7 +254,7 @@ public struct ScanComparator {
                 summary: "Project-relevant tools are now available: \(resolved.joined(separator: ", ")).",
                 impact: "Preferred project commands may be runnable without missing-tool fallback.",
                 previousValues: resolved,
-                currentValues: resolved
+                currentValues: availableToolLabels(for: resolved, in: current)
             ))
         }
 
@@ -564,6 +564,18 @@ public struct ScanComparator {
         paths.compactMap { path in
             guard let modifiedAt = files[path] else { return nil }
             return "\(path) @ \(modifiedAt)"
+        }
+    }
+
+    private func availableToolLabels(for toolNames: [String], in result: ScanResult) -> [String] {
+        toolNames.map { toolName in
+            guard let resolvedTool = result.tools.resolvedPaths.first(where: { $0.name == toolName }),
+                  !resolvedTool.paths.isEmpty
+            else {
+                return toolName
+            }
+
+            return "\(toolName) @ \(resolvedTool.paths.joined(separator: ", "))"
         }
     }
 
