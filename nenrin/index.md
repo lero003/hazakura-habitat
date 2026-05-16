@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 186
+- observing: 188
 - reviewed: 12
 
 ## Active Changes
@@ -175,24 +175,26 @@
 - `skill-helper-source-build-first` - [changes/2026-05-15-skill-helper-source-build-first.md](changes/2026-05-15-skill-helper-source-build-first.md)
 - `skill-helper-unique-temp-output` - [changes/2026-05-15-skill-helper-unique-temp-output.md](changes/2026-05-15-skill-helper-unique-temp-output.md)
 - `agent-context-generator-note` - [changes/2026-05-16-agent-context-generator-note.md](changes/2026-05-16-agent-context-generator-note.md)
+- `core-markdown-artifact-contract` - [changes/2026-05-16-core-markdown-artifact-contract.md](changes/2026-05-16-core-markdown-artifact-contract.md)
+- `failure-mode-contract-doc` - [changes/2026-05-16-failure-mode-contract-doc.md](changes/2026-05-16-failure-mode-contract-doc.md)
+- `operational-intuition-readme-framing` - [changes/2026-05-16-operational-intuition-readme-framing.md](changes/2026-05-16-operational-intuition-readme-framing.md)
 - `previous-scan-command-policy-values` - [changes/2026-05-16-previous-scan-command-policy-values.md](changes/2026-05-16-previous-scan-command-policy-values.md)
-- `previous-scan-metadata-values` - [changes/2026-05-16-previous-scan-metadata-values.md](changes/2026-05-16-previous-scan-metadata-values.md)
-- `previous-scan-version-guidance-values` - [changes/2026-05-16-previous-scan-version-guidance-values.md](changes/2026-05-16-previous-scan-version-guidance-values.md)
 - `previous-scan-generator-compatibility-gate` - [changes/2026-05-16-previous-scan-generator-compatibility-gate.md](changes/2026-05-16-previous-scan-generator-compatibility-gate.md)
+- `previous-scan-metadata-values` - [changes/2026-05-16-previous-scan-metadata-values.md](changes/2026-05-16-previous-scan-metadata-values.md)
 - `previous-scan-observed-file-freshness` - [changes/2026-05-16-previous-scan-observed-file-freshness.md](changes/2026-05-16-previous-scan-observed-file-freshness.md)
 - `previous-scan-preferred-values` - [changes/2026-05-16-previous-scan-preferred-values.md](changes/2026-05-16-previous-scan-preferred-values.md)
 - `previous-scan-project-signal-values` - [changes/2026-05-16-previous-scan-project-signal-values.md](changes/2026-05-16-previous-scan-project-signal-values.md)
-- `previous-scan-tool-signal-values` - [changes/2026-05-16-previous-scan-tool-signal-values.md](changes/2026-05-16-previous-scan-tool-signal-values.md)
-- `previous-scan-sensitive-signal-values` - [changes/2026-05-16-previous-scan-sensitive-signal-values.md](changes/2026-05-16-previous-scan-sensitive-signal-values.md)
-- `previous-scan-schema-version-delta` - [changes/2026-05-16-previous-scan-schema-version-delta.md](changes/2026-05-16-previous-scan-schema-version-delta.md)
 - `previous-scan-schema-compatibility-gate` - [changes/2026-05-16-previous-scan-schema-compatibility-gate.md](changes/2026-05-16-previous-scan-schema-compatibility-gate.md)
+- `previous-scan-schema-version-delta` - [changes/2026-05-16-previous-scan-schema-version-delta.md](changes/2026-05-16-previous-scan-schema-version-delta.md)
+- `previous-scan-sensitive-signal-values` - [changes/2026-05-16-previous-scan-sensitive-signal-values.md](changes/2026-05-16-previous-scan-sensitive-signal-values.md)
+- `previous-scan-tool-signal-values` - [changes/2026-05-16-previous-scan-tool-signal-values.md](changes/2026-05-16-previous-scan-tool-signal-values.md)
 - `previous-scan-unreadable-boundary` - [changes/2026-05-16-previous-scan-unreadable-boundary.md](changes/2026-05-16-previous-scan-unreadable-boundary.md)
+- `previous-scan-version-guidance-values` - [changes/2026-05-16-previous-scan-version-guidance-values.md](changes/2026-05-16-previous-scan-version-guidance-values.md)
+- `scan-result-stability-boundary` - [changes/2026-05-16-scan-result-stability-boundary.md](changes/2026-05-16-scan-result-stability-boundary.md)
+- `scoped-evidence-large-repo-guidance` - [changes/2026-05-16-scoped-evidence-large-repo-guidance.md](changes/2026-05-16-scoped-evidence-large-repo-guidance.md)
 - `skill-helper-auto-previous-scan` - [changes/2026-05-16-skill-helper-auto-previous-scan.md](changes/2026-05-16-skill-helper-auto-previous-scan.md)
 - `v0-8-release-prep` - [changes/2026-05-16-v0-8-release-prep.md](changes/2026-05-16-v0-8-release-prep.md)
 - `v0-9-phase-boundary` - [changes/2026-05-16-v0-9-phase-boundary.md](changes/2026-05-16-v0-9-phase-boundary.md)
-- `core-markdown-artifact-contract` - [changes/2026-05-16-core-markdown-artifact-contract.md](changes/2026-05-16-core-markdown-artifact-contract.md)
-- `failure-mode-contract-doc` - [changes/2026-05-16-failure-mode-contract-doc.md](changes/2026-05-16-failure-mode-contract-doc.md)
-- `scan-result-stability-boundary` - [changes/2026-05-16-scan-result-stability-boundary.md](changes/2026-05-16-scan-result-stability-boundary.md)
 
 ## Review Due
 

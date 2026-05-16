@@ -41,6 +41,14 @@ Habitat does not produce plans. It produces short, evidence-backed context annot
 
 Initial confidence should be coarse (`high`, `medium`, `low`) and used to soften claims, not to create a numerical planning score. The durable loop is `repo fact -> short annotation -> command decision`; Nenrin can later record whether the annotation helped, misled, or should be pruned.
 
+Habitat should also avoid the false confidence that comes from trying to read
+everything. This matters most in large repositories and monorepos: the roadmap
+should favor scoped reading, repository entrypoints, nearby files, and
+command-relevant evidence over broad project interpretation. The desired output
+is not "Habitat understood the whole project"; it is a bounded first-command
+map with explicit uncertainty about what was not inspected or could not be
+decided from repository facts.
+
 ## Maintenance Guardrails
 
 Do not let the narrow product scope hide codebase risk.
@@ -69,7 +77,7 @@ If behavior evaluation shows Habitat is most useful in a smaller set of high-con
 | 6 | `v0.6` | Agent behavior feedback loop | Turning observations into measured policy changes |
 | 7 | `v0.7` | Distribution Foundations | Easier consumption, safer installation path, and minimal validation-purpose clarity |
 | 8 | `v0.8` | Observation -> Action | Deeper validation taxonomy, cross-project boundaries, and Nenrin review hygiene when evidence justifies them |
-| 9 | `v0.9` | Pre-1.0 hardening | Stability boundaries |
+| 9 | `v0.9` | Pre-1.0 hardening | Stability boundaries and scoped evidence |
 | 10 | `v1.0` | Stable advisory generator | Narrow, reliable, documented behavior |
 
 ## v0.1.x: Public Stabilization

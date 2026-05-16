@@ -6,6 +6,12 @@ Every iteration should improve the AI agent's ability to make a safer next move.
 
 If a scanner or report section does not affect AI behavior, defer it.
 
+The loop should also protect agents from false confidence. Do not respond to a
+large or unfamiliar repository by trying to summarize everything. Prefer the
+repository entrypoints, files near the likely work area, command-relevant
+configuration, and explicit `Open uncertainty` when the scan cannot support a
+claim.
+
 ## Iteration Loop
 
 1. Choose one coherent AI decision or safety risk to improve.
@@ -74,6 +80,8 @@ Default priority for automation:
   agent can act on
 - fourth, end as a verified no-op when no concrete hardening slice is
   justified; do not create changes just because the loop ran
+- fifth, when considering large-repository or monorepo behavior, improve scope
+  selection and explicit uncertainty before increasing scan breadth
 
 Good `v0.9` slices classify a small existing boundary. Examples include whether
 `schemaVersion`, `generatorVersion`, artifact filenames and roles,
@@ -94,6 +102,8 @@ Keep the recurring loop narrow:
 - do not turn Habitat into a planner, command-enforcement layer, installer,
   repair tool, GUI, broad MCP surface, Linux support lane, or workspace
   intelligence tool
+- do not treat large repositories as permission for whole-project
+  interpretation; prefer scoped entrypoint and nearby-evidence guidance
 - do not let cross-project observation or Nenrin backlog pressure choose the
   work; they may supply one bounded Habitat carry-back only when the signal
   changes command choice, report freshness handling, generated guidance,

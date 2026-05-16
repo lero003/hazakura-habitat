@@ -18,6 +18,11 @@ an agent can start with better context and fewer unsafe assumptions: "prefer
 this command", "ask first", "treat this as release-only", or "refresh the report
 before trusting it."
 
+Habitat also helps agents avoid the false confidence that comes from trying to
+read everything. It favors repository entrypoints, nearby files, and
+command-relevant evidence over broad project interpretation, leaving uncertainty
+explicit when the repository facts are not enough.
+
 It does not execute, approve, block, or sandbox commands.
 
 Status: `v0.8.0 Developer Preview` - advisory only - no command enforcement - macOS-first.
@@ -109,6 +114,11 @@ SwiftPM and macOS-local CLI workflows are the current proving ground. Other
 ecosystems are added only where repository facts support the same first-command
 judgment without implying broad platform support.
 
+For large repositories or monorepos, Habitat should become more scoped, not
+more sweeping. The useful answer is usually not "this is the whole project";
+it is "for this entrypoint or nearby work area, these facts affect the first
+safe command, and these questions remain unknown."
+
 ## Product Principles
 
 1. Command decisions over environment inventory.
@@ -116,6 +126,7 @@ judgment without implying broad platform support.
 3. Conservative guidance over automatic mutation.
 4. Secret presence over secret contents.
 5. Short agent context over exhaustive reports.
+6. Scoped evidence over broad project interpretation.
 
 Hazakura Habitat is developed around output quality, not feature breadth. The published `v0.8` Developer Preview is the shipped Observation -> Action hardening release: it improves previous-scan comparison, report freshness signals, preferred-command deltas, generated context traceability, and skill-helper reliability while preserving the advisory, read-only boundary. Current main-branch work is `v0.9` Pre-1.0 hardening: sorting which contracts can become stable for v1, which metadata remains preview, and which guidance should stay docs-only.
 

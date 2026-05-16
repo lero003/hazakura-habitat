@@ -28,6 +28,9 @@
 - Clarified README/product-direction positioning around Habitat as
   evidence-backed, bounded first-pass repository guidance for AI agents, not
   broad language or environment coverage.
+- Added large-repository development guidance that favors scoped entrypoints,
+  nearby files, command-relevant evidence, and explicit uncertainty over
+  whole-project interpretation.
 
 ## v0.8.0 Developer Preview - 2026-05-16
 

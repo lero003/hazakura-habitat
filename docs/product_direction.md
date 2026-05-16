@@ -36,6 +36,12 @@ knows when not to overclaim. Every suggestion must still be grounded in visible
 repository facts, and weak evidence should become `Open uncertainty` rather
 than confident guidance.
 
+This also means Habitat should teach agents a disciplined way not to read
+everything. In unfamiliar or very large repositories, the product should avoid
+false confidence by preferring repository entrypoints, nearby files, and
+command-relevant evidence over broad project interpretation. "Unknown" and
+"not inspected" are useful output states when they keep the next command honest.
+
 ## Product Principles
 
 1. Command decisions over environment inventory.
@@ -44,6 +50,7 @@ than confident guidance.
 4. Secret presence over secret contents.
 5. Short agent context over exhaustive reports.
 6. Repository reality over instruction repetition.
+7. Scoped evidence over broad project interpretation.
 
 Every proposed feature should pass this question:
 
@@ -59,6 +66,11 @@ Habitat should prefer narrow depth over platform breadth. macOS / SwiftPM-first
 workflows are the current proving ground; Linux or Windows reach is not a
 product goal by itself. Portability notes are useful only when they protect the
 core advisory CLI contract from accidental macOS-only assumptions.
+
+Large-repository support should follow the same rule. Do not widen Habitat into
+whole-project intelligence just because a repository is large. Prefer scope
+selection, nearby evidence, entrypoint detection, explicit uncertainty, and
+command-relevant summaries that help the agent make the first safe move.
 
 Habitat should not compete with `AGENTS.md` as the place for durable project rules. Instead, it should help an agent verify whether the current repository state supports those rules: which package manager is actually signaled, whether validation commands are available, whether secret-bearing files change search shape, and whether release, CI, or generated-output facts create approval points that the written guidance does not mention.
 
