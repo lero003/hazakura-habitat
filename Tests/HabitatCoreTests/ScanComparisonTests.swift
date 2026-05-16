@@ -1174,20 +1174,28 @@ struct ScanComparisonTests {
 
         let changes = ScanComparator().compare(previous: previous, current: current)
 
-        #expect(changes.contains(where: {
+        let askFirstToForbidden = changes.first(where: {
             $0.summary == "Commands changed from Ask First to Forbidden: npx."
-                && $0.impact == "Refuse these commands under the current scan policy."
-        }))
-        #expect(changes.contains(where: {
+        })
+        #expect(askFirstToForbidden?.impact == "Refuse these commands under the current scan policy.")
+        #expect(askFirstToForbidden?.previousValues == ["npx"])
+        #expect(askFirstToForbidden?.currentValues == ["npx"])
+        let forbiddenToAskFirst = changes.first(where: {
             $0.summary == "Commands changed from Forbidden to Ask First: brew upgrade."
-                && $0.impact == "Ask before these commands; do not refuse solely because a previous scan did."
-        }))
-        #expect(changes.contains(where: {
+        })
+        #expect(forbiddenToAskFirst?.impact == "Ask before these commands; do not refuse solely because a previous scan did.")
+        #expect(forbiddenToAskFirst?.previousValues == ["brew upgrade"])
+        #expect(forbiddenToAskFirst?.currentValues == ["brew upgrade"])
+        let newAskFirst = changes.first(where: {
             $0.summary == "New Ask First commands: pnpm install."
-        }))
-        #expect(changes.contains(where: {
+        })
+        #expect(newAskFirst?.previousValues == [])
+        #expect(newAskFirst?.currentValues == ["pnpm install"])
+        let newForbidden = changes.first(where: {
             $0.summary == "New Forbidden commands: npm install -g."
-        }))
+        })
+        #expect(newForbidden?.previousValues == [])
+        #expect(newForbidden?.currentValues == ["npm install -g"])
         #expect(!changes.contains(where: {
             $0.summary.contains("New Ask First commands") && $0.summary.contains("brew upgrade")
         }))
@@ -1240,14 +1248,18 @@ struct ScanComparisonTests {
 
         let changes = ScanComparator().compare(previous: previous, current: current)
 
-        #expect(changes.contains(where: {
+        let resolvedAskFirst = changes.first(where: {
             $0.summary == "Ask First commands no longer highlighted: running pnpm commands before pnpm is available."
-                && $0.impact == "Do not ask solely because a previous scan did; apply the current command policy."
-        }))
-        #expect(changes.contains(where: {
+        })
+        #expect(resolvedAskFirst?.impact == "Do not ask solely because a previous scan did; apply the current command policy.")
+        #expect(resolvedAskFirst?.previousValues == ["running pnpm commands before pnpm is available"])
+        #expect(resolvedAskFirst?.currentValues == [])
+        let resolvedForbidden = changes.first(where: {
             $0.summary == "Forbidden commands no longer highlighted: legacy forbidden command."
-                && $0.impact == "Do not refuse solely because a previous scan did; apply the current command policy."
-        }))
+        })
+        #expect(resolvedForbidden?.impact == "Do not refuse solely because a previous scan did; apply the current command policy.")
+        #expect(resolvedForbidden?.previousValues == ["legacy forbidden command"])
+        #expect(resolvedForbidden?.currentValues == [])
         #expect(!changes.contains(where: {
             $0.summary.contains("changed from Ask First to Forbidden")
         }))
