@@ -8,6 +8,16 @@ Hazakura Habitat is a macOS-first SwiftPM CLI for developers using AI coding age
 
 Run it before an agent starts work. It generates short, advisory project context that tells the agent which tools to prefer, which commands require approval, and which secret-bearing paths to avoid.
 
+Hazakura Habitat turns the kind of first-pass repository judgment a veteran
+maintainer would make in the first few minutes into evidence-backed, bounded
+guidance for AI agents.
+
+It does not plan the work, execute commands, or claim full understanding of the
+project. Instead, it surfaces grounded repository facts, warnings, and hints so
+an agent can start with better context and fewer unsafe assumptions: "prefer
+this command", "ask first", "treat this as release-only", or "refresh the report
+before trusting it."
+
 It does not execute, approve, block, or sandbox commands.
 
 Status: `v0.8.0 Developer Preview` - advisory only - no command enforcement - macOS-first.
@@ -86,6 +96,18 @@ AI agents do not need a beautiful inventory of everything installed on a machine
 - Which tools or commands should I avoid?
 - Are the active runtimes inconsistent with project files?
 - Should I execute a command now, ask first, or refuse?
+
+This is deliberate veteran first-pass judgment, not broad environment coverage.
+Habitat does not try to become a deep expert in every language ecosystem.
+Instead, it encodes reusable command-decision shapes that show up across real
+projects: a repository-local script may be the intended validation entrypoint,
+a release helper should not become the ordinary test command, a device check may
+be environment-dependent, and an old report should be treated as bounded
+uncertainty before an agent trusts it.
+
+SwiftPM and macOS-local CLI workflows are the current proving ground. Other
+ecosystems are added only where repository facts support the same first-command
+judgment without implying broad platform support.
 
 ## Product Principles
 

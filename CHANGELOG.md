@@ -25,6 +25,9 @@
   because the loop ran.
 - Added `hazakura-llm-manager` to the bounded cross-project Habitat intake
   guidance as a SwiftPM macOS-app usage source.
+- Clarified README/product-direction positioning around Habitat as
+  evidence-backed, bounded first-pass repository guidance for AI agents, not
+  broad language or environment coverage.
 
 ## v0.8.0 Developer Preview - 2026-05-16
 

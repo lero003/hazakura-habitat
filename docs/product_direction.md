@@ -28,6 +28,14 @@ AI agents working on local projects often lack reliable context about:
 
 Hazakura Habitat exists to generate that context before work begins.
 
+A useful shorthand: Habitat turns veteran first-pass repository judgment into
+evidence-backed, bounded guidance for AI agents. It should feel less like an
+encyclopedia of environments and more like the first few minutes of a maintainer
+who reads the repository shape, recognizes likely entrypoints and risks, and
+knows when not to overclaim. Every suggestion must still be grounded in visible
+repository facts, and weak evidence should become `Open uncertainty` rather
+than confident guidance.
+
 ## Product Principles
 
 1. Command decisions over environment inventory.
