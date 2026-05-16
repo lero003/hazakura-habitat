@@ -88,8 +88,10 @@ For local scripts that only need one generated artifact, `habitat-scan scan --pr
 `--stdout environment-report` print that artifact without creating a report
 directory. `--stdout` also accepts the matching generated report filenames:
 `scan_result.json`, `agent_context.md`, `command_policy.md`, and
-`environment_report.md`. Use `--output` for durable report files; do not
-combine `--stdout` and `--output` in one scan command.
+`environment_report.md`, plus `./filename`, `habitat-report/filename`, or an
+absolute saved-report path where `habitat-report` is a real path component
+followed by the artifact filename. Use `--output` for durable report files; do
+not combine `--stdout` and `--output` in one scan command.
 
 Then consult `command_policy.md` before:
 

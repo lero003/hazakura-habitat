@@ -54,9 +54,10 @@ For metadata-driven scripts, report filenames can be passed back directly:
 ```
 
 The `habitat-report/filename` form, including an absolute saved-report path, is
-normalized to the generated artifact name. It is useful when an automation
-already has a saved report path in hand but wants to switch to direct stdout
-consumption.
+normalized to the generated artifact name only when `habitat-report` is a real
+path component followed by the artifact filename. It is useful when an
+automation already has a saved report path in hand but wants to switch to direct
+stdout consumption.
 
 ## Verified Local Binary
 

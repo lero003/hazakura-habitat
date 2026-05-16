@@ -49,6 +49,13 @@ struct ScanExecutionInfrastructureTests {
             try parser.parse(arguments: ["--stdout", "environment-json"], currentDirectory: "/tmp/project")
         }
 
+        #expect(throws: ScanArgumentError.invalidStdoutArtifact("/tmp/project/not-habitat-report/agent_context.md")) {
+            try parser.parse(
+                arguments: ["--stdout", "/tmp/project/not-habitat-report/agent_context.md"],
+                currentDirectory: "/tmp/project"
+            )
+        }
+
         #expect(throws: ScanArgumentError.incompatibleFlags("--stdout", "--output")) {
             try parser.parse(
                 arguments: ["--stdout", "agent-context", "--output", "/tmp/report"],
@@ -1436,6 +1443,63 @@ struct ScanExecutionInfrastructureTests {
             #expect(error.isEmpty)
         }
         #expect(!fileManager.fileExists(atPath: reportURL.path))
+    }
+
+    @Test
+    func printArtifactScriptRejectsSimilarReportDirectoryNames() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = tempURL.appendingPathComponent("habitat-scan")
+        let misleadingReportPath = projectURL
+            .appendingPathComponent("not-habitat-report")
+            .appendingPathComponent("agent_context.md")
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            set -euo pipefail
+            if [[ "$1" == "--version" ]]; then
+              printf 'habitat-scan 1.2.3\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
+              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"}]}\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent_context.md" ]]; then
+              printf '# Agent Context\\n\\n## Use\\n- Use SwiftPM.\\n'
+              exit 0
+            fi
+            exit 2
+            """
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/print_habitat_artifact.sh",
+            binaryURL.path,
+            projectURL.path,
+            misleadingReportPath.path,
+            "1.2.3",
+        ]
+
+        let stdout = Pipe()
+        let stderr = Pipe()
+        process.standardOutput = stdout
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let output = String(decoding: stdout.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 2)
+        #expect(output.isEmpty)
+        #expect(error.contains("unsupported artifact"))
+        #expect(error.contains("not-habitat-report/agent_context.md"))
     }
 
     @Test

@@ -26,10 +26,7 @@ public enum StdoutArtifact: String, Equatable {
     case environmentReport = "environment-report"
 
     public static func parse(_ value: String) -> StdoutArtifact? {
-        var normalizedValue = value.hasPrefix("./") ? String(value.dropFirst(2)) : value
-        if let reportPathRange = normalizedValue.range(of: "habitat-report/") {
-            normalizedValue = String(normalizedValue[reportPathRange.upperBound...])
-        }
+        let normalizedValue = normalizedArtifactName(value)
         switch normalizedValue {
         case "scan-result", "scan_result.json":
             return .scanResult
@@ -42,6 +39,36 @@ public enum StdoutArtifact: String, Equatable {
         default:
             return nil
         }
+    }
+
+    private static func normalizedArtifactName(_ value: String) -> String {
+        var normalizedValue = value
+        while normalizedValue.hasPrefix("./") {
+            normalizedValue = String(normalizedValue.dropFirst(2))
+        }
+
+        switch normalizedValue {
+        case "scan-result", "scan_result.json":
+            return normalizedValue
+        case "agent-context", "agent_context.md":
+            return normalizedValue
+        case "command-policy", "command_policy.md":
+            return normalizedValue
+        case "environment-report", "environment_report.md":
+            return normalizedValue
+        default:
+            break
+        }
+
+        let components = normalizedValue
+            .split(separator: "/", omittingEmptySubsequences: true)
+            .map(String.init)
+        guard components.count >= 2,
+              components[components.count - 2] == "habitat-report" else {
+            return normalizedValue
+        }
+
+        return components.last ?? normalizedValue
     }
 }
 
@@ -64,7 +91,7 @@ public enum ScanArgumentError: LocalizedError, Equatable {
         case .unknownArgument(let argument):
             return "Unknown scan argument: `\(argument)`."
         case .invalidStdoutArtifact(let value):
-            return "Unsupported `--stdout` artifact `\(value)`; use `scan-result`, `agent-context`, `command-policy`, `environment-report`, or the matching report filename, ./filename, habitat-report/filename, or an absolute saved-report path."
+            return "Unsupported `--stdout` artifact `\(value)`; use `scan-result`, `agent-context`, `command-policy`, `environment-report`, or the matching report filename, ./filename, habitat-report/filename, or an absolute saved-report path with a habitat-report path component."
         case .incompatibleFlags(let first, let second):
             return "`\(first)` and `\(second)` cannot be used together."
         }

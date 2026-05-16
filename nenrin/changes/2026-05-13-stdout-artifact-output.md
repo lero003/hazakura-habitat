@@ -88,6 +88,10 @@ review_after:
   saved-report path aliases such as `habitat-report/agent_context.md` work
   through the checksum-first release path too, while still regenerating the
   artifact from the verified binary instead of reading an old report file.
+- Tightened saved-report path alias parsing so `habitat-report` must be a real
+  path component followed by the artifact filename, preventing misleading
+  directory names such as `not-habitat-report` from being accepted as artifact
+  selectors.
 - Tightened release-directory helpers so the selected zip or standalone binary
   asset must be listed in `SHA256SUMS` before it can be extracted or executed.
 - Added `docs/distribution_foundations.md` so agents, automation, and local
@@ -143,6 +147,9 @@ review_after:
 - Release-directory consumers can pass the same artifact path names that a
   saved `habitat-report/` gave them, reducing path/token conversion mistakes
   while keeping the checksum-first regeneration boundary.
+- Scripts that pass an absolute saved-report path get alias behavior only for
+  a real `habitat-report/<artifact>` path, not for arbitrary directory names
+  that merely contain the same substring.
 - The print helper rejects a requested Markdown artifact whose metadata would
   make an agent read the wrong artifact first or treat policy/detail output as
   ordinary working context.
@@ -195,6 +202,8 @@ review_after:
   before metadata-driven scripts depend on report filenames.
 - Release zip consumption can print the verified `agent_context.md` without a
   downstream script needing to duplicate extraction or binary-path selection.
+- The CLI parser and print helper reject `not-habitat-report/agent_context.md`
+  instead of silently normalizing it to `agent_context.md`.
 
 ## Failure Signals
 
@@ -230,6 +239,8 @@ review_after:
   `scan-result` output without checking the requested filename path.
 - Release artifact printing leaks checksum output into stdout or runs the
   downloaded binary before checksum verification.
+- The CLI or print helper accepts an arbitrary path containing the substring
+  `habitat-report/` even when `habitat-report` is not a path component.
 - Release helpers select an unlisted zip or standalone binary asset after
   `SHA256SUMS` verified some other file in the same directory.
 

@@ -50,8 +50,10 @@ Keep the current cycle focused:
   directory. The same `--stdout` path also accepts generated report filenames
   such as `agent_context.md` and `scan_result.json`, plus report-relative paths
   such as `habitat-report/agent_context.md` or absolute saved-report paths
-  containing that form, so scripts can reuse artifact metadata names or
-  saved-report paths directly instead of translating them into CLI tokens.
+  where `habitat-report` is a real path component followed by the artifact
+  filename, so scripts can reuse artifact metadata names or saved-report paths
+  directly instead of translating them into CLI tokens while rejecting
+  misleading directory names such as `not-habitat-report`.
   File output remains the path for durable report snapshots.
 - `habitat-scan scan` rejects combined `--stdout` and `--output` flags, so
   local scripts do not accidentally believe a durable report snapshot was

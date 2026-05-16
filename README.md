@@ -277,8 +277,9 @@ This helper verifies the binary version, `generatorVersion`, expected preview
 artifacts, that metadata includes the expected role, path, format, read order,
 read trigger, and agent-use hint. It does not create or update
 `habitat-report/`. The `habitat-report/filename` and absolute saved-report
-forms are accepted as report-path aliases; they still print a direct stdout
-artifact rather than reading a saved report file.
+forms are accepted only when `habitat-report` is a real path component followed
+by the artifact filename; they still print a direct stdout artifact rather than
+reading a saved report file.
 
 For downloaded release directories, use the release print helper when a script
 needs a verified artifact from the zip or standalone release asset without
@@ -318,7 +319,7 @@ artifact directly instead of creating a report directory:
 artifact tokens above or the matching generated report filenames:
 `scan_result.json`, `agent_context.md`, `command_policy.md`, and
 `environment_report.md`, including `./filename`, `habitat-report/filename`, and
-absolute saved-report paths containing `habitat-report/filename` forms. Use
+absolute saved-report paths where `habitat-report` is a real path component. Use
 `--output` when you need durable report files; do not combine `--stdout` and
 `--output` in one scan command.
 Use `scan --help` for scan-specific output and file-consumption forms.

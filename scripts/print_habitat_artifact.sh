@@ -19,7 +19,8 @@ Artifact may be one of:
 - environment-report or environment_report.md
 
 Filename forms may also be passed as ./filename, habitat-report/filename, or
-an absolute saved-report path containing habitat-report/filename.
+an absolute saved-report path where habitat-report is a path component followed
+by the artifact filename.
 
 This script does not create or update a habitat-report directory. Diagnostics
 and verification failures are written to stderr so stdout remains the requested
@@ -68,12 +69,21 @@ import json
 import os
 import sys
 
+def normalize_requested_artifact(value):
+    requested = value
+    while requested.startswith("./"):
+        requested = requested[2:]
+
+    if requested in artifact_map:
+        return requested
+
+    parts = [part for part in requested.split("/") if part]
+    if len(parts) >= 2 and parts[-2] == "habitat-report":
+        return parts[-1]
+
+    return requested
+
 requested = os.environ["REQUESTED_ARTIFACT"]
-if requested.startswith("./"):
-    requested = requested[2:]
-report_path_marker = "habitat-report/"
-if report_path_marker in requested:
-    requested = requested.split(report_path_marker, 1)[1]
 expected_schema_version = os.environ["EXPECTED_SCHEMA_VERSION"]
 binary_version = os.environ["BINARY_VERSION"]
 expected_version = os.environ["EXPECTED_VERSION"]
@@ -112,6 +122,8 @@ artifact_map = {
         "agentUse": "debug_audit_only",
     }),
 }
+
+requested = normalize_requested_artifact(requested)
 
 if requested not in artifact_map:
     print(f"error: unsupported artifact {requested!r}", file=sys.stderr)
