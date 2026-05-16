@@ -10,11 +10,16 @@ public struct ScanComparator {
             changes.append(schemaVersionChange)
         }
 
+        let generatorVersionChanged = previous.generatorVersion != current.generatorVersion
         if let generatorVersionChange = generatorVersionChange(previous: previous, current: current) {
             changes.append(generatorVersionChange)
         }
 
         guard previous.schemaVersion == current.schemaVersion else {
+            return changes
+        }
+
+        guard !generatorVersionChanged else {
             return changes
         }
 

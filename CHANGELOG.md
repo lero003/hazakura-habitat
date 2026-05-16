@@ -11,6 +11,9 @@
   schema/generator compatibility deltas instead of emitting lower-level
   package, freshness, preferred-command, or policy changes from an incompatible
   previous schema.
+- Changed previous-scan comparison so mismatched `generatorVersion` reports stop
+  at the generator boundary instead of mixing generator-shape drift with
+  lower-level environment, preferred-command, or policy deltas.
 - Added an agent-contract failure-mode table for `v0.9` so checksum,
   metadata, stdout/output, previous-scan, freshness, and diagnostic-report
   mismatches resolve to explicit failure, bounded uncertainty, or docs-only

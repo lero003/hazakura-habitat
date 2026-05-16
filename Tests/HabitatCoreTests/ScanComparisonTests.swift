@@ -153,6 +153,79 @@ struct ScanComparisonTests {
     }
 
     @Test
+    func scanComparisonStopsAtGeneratorDeltaWhenGeneratorVersionDiffers() throws {
+        let previous = ScanResult(
+            schemaVersion: HabitatMetadata.schemaVersion,
+            generatorVersion: "0.0.9",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: ["package.json", "package-lock.json", ".env"],
+                packageManager: "npm",
+                packageManagerVersion: nil,
+                packageScripts: ["test"],
+                runtimeHints: .init(node: "20.11.1", python: nil)
+            ),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "node", paths: []),
+                    .init(name: "npm", paths: []),
+                ],
+                versions: []
+            ),
+            policy: .init(
+                preferredCommands: ["npm run test"],
+                askFirstCommands: ["npm install"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: HabitatMetadata.schemaVersion,
+            generatorVersion: HabitatMetadata.generatorVersion,
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: ["Package.swift"],
+                packageManager: "swiftpm",
+                packageManagerVersion: nil,
+                packageScripts: [],
+                runtimeHints: .init(node: nil, python: nil)
+            ),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "swift", paths: ["/usr/bin/swift"]),
+                    .init(name: "xcode-select", paths: ["/usr/bin/xcode-select"]),
+                ],
+                versions: []
+            ),
+            policy: .init(
+                preferredCommands: ["swift test", "swift build"],
+                askFirstCommands: ["swift package update"],
+                forbiddenCommands: ["sudo", "brew upgrade"]
+            ),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.map(\.category) == ["generator"])
+        #expect(!changes.contains(where: { $0.category == "package_manager" }))
+        #expect(!changes.contains(where: { $0.category == "lockfiles" }))
+        #expect(!changes.contains(where: { $0.category == "runtime_hints" }))
+        #expect(!changes.contains(where: { $0.category == "secret_files" }))
+        #expect(!changes.contains(where: { $0.category == "missing_tools" }))
+        #expect(!changes.contains(where: { $0.category == "preferred_commands" }))
+        #expect(!changes.contains(where: { $0.category == "command_policy" }))
+    }
+
+    @Test
     func scanComparisonSurfacesSchemaVersionDeltasBeforeGeneratorDeltas() throws {
         let previous = ScanResult(
             schemaVersion: "0.0",
