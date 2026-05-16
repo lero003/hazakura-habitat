@@ -180,8 +180,18 @@ if schema_version != expected_schema_version:
 print(generator_version)
 ')"
 
+if [[ "$scan_json_by_name" != "$scan_json" ]]; then
+  printf 'error: --stdout scan_result.json did not match --stdout scan-result output\n' >&2
+  exit 4
+fi
+
 if [[ "$generator_version_by_name" != "$generator_version" ]]; then
   printf 'error: --stdout scan_result.json generatorVersion %s does not match scan-result generatorVersion %s\n' "$generator_version_by_name" "$generator_version" >&2
+  exit 4
+fi
+
+if [[ "$agent_context_by_name" != "$agent_context" ]]; then
+  printf 'error: --stdout agent_context.md did not match --stdout agent-context output\n' >&2
   exit 4
 fi
 
@@ -190,8 +200,18 @@ if [[ "$agent_context_by_name" != \#\ Agent\ Context* ]]; then
   exit 4
 fi
 
+if [[ "$command_policy_by_name" != "$command_policy" ]]; then
+  printf 'error: --stdout command_policy.md did not match --stdout command-policy output\n' >&2
+  exit 4
+fi
+
 if [[ "$command_policy_by_name" != \#\ Command\ Policy* ]]; then
   printf 'error: --stdout command_policy.md did not return command_policy.md\n' >&2
+  exit 4
+fi
+
+if [[ "$environment_report_by_name" != "$environment_report" ]]; then
+  printf 'error: --stdout environment_report.md did not match --stdout environment-report output\n' >&2
   exit 4
 fi
 

@@ -6,7 +6,9 @@ status: observing
 impact: unknown
 related_files:
   - Sources/HabitatCore/ReportWriter.swift
+  - scripts/check_habitat_metadata.sh
   - Tests/HabitatCoreTests/CoreInfrastructureTests.swift
+  - Tests/HabitatCoreTests/ScanExecutionInfrastructureTests.swift
   - docs/agent_contract.md
   - docs/current_status.md
 review_after:
@@ -23,6 +25,9 @@ review_after:
   preferred entry section, and line-limit boundary.
 - Documented this as a narrow v1-stable candidate while keeping detailed
   `scan_result.json` metadata preview-scoped.
+- Tightened release/local metadata helper checks so filename `--stdout` aliases
+  must return the same content as their canonical artifact tokens before scripts
+  pipe Markdown into an agent.
 
 ## Reason
 
@@ -50,6 +55,8 @@ the generated output.
 
 - Helpers and docs continue to agree on the three core Markdown artifact names,
   roles, read order, and read triggers.
+- Release/local helpers reject alias drift instead of accepting a same-heading
+  but different artifact body.
 - Future v0.9 work classifies only narrow stable candidates instead of treating
   all `scan_result.json` fields as frozen.
 
@@ -57,6 +64,8 @@ the generated output.
 
 - A future report adds or renames a core Markdown artifact without updating the
   central contract and output-contract tests together.
+- `--stdout agent_context.md` or another filename alias drifts from its
+  canonical token while still passing helper verification.
 - Scripts start depending on preview-only line counts or section metadata as if
   they were full-schema guarantees.
 
