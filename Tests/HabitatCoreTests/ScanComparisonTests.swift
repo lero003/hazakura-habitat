@@ -148,6 +148,8 @@ struct ScanComparisonTests {
         #expect(changes.first?.category == "generator")
         #expect(changes.first?.summary == "Generator version changed from 0.0.9 to \(HabitatMetadata.generatorVersion).")
         #expect(changes.first?.impact.contains("before assuming the local environment changed") == true)
+        #expect(changes.first?.previousValues == ["0.0.9"])
+        #expect(changes.first?.currentValues == [HabitatMetadata.generatorVersion])
     }
 
     @Test
@@ -185,6 +187,8 @@ struct ScanComparisonTests {
         #expect(changes[0].category == "schema")
         #expect(changes[0].summary == "Scan result schema changed from 0.0 to \(HabitatMetadata.schemaVersion).")
         #expect(changes[0].impact == "Treat previous scan metadata as preview-format context; rely on the current generated Markdown before making command decisions.")
+        #expect(changes[0].previousValues == ["0.0"])
+        #expect(changes[0].currentValues == [HabitatMetadata.schemaVersion])
         #expect(changes[1].category == "generator")
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)

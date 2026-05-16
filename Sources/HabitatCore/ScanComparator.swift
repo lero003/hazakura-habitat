@@ -56,7 +56,9 @@ public struct ScanComparator {
         return ScanChange(
             category: "schema",
             summary: "Scan result schema changed from \(previous.schemaVersion) to \(current.schemaVersion).",
-            impact: "Treat previous scan metadata as preview-format context; rely on the current generated Markdown before making command decisions."
+            impact: "Treat previous scan metadata as preview-format context; rely on the current generated Markdown before making command decisions.",
+            previousValues: [previous.schemaVersion],
+            currentValues: [current.schemaVersion]
         )
     }
 
@@ -66,7 +68,9 @@ public struct ScanComparator {
         return ScanChange(
             category: "generator",
             summary: "Generator version changed from \(previous.generatorVersion) to \(current.generatorVersion).",
-            impact: "Treat report-shape or policy differences as generator changes before assuming the local environment changed."
+            impact: "Treat report-shape or policy differences as generator changes before assuming the local environment changed.",
+            previousValues: [previous.generatorVersion],
+            currentValues: [current.generatorVersion]
         )
     }
 
