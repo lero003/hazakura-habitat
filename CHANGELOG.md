@@ -4,6 +4,9 @@
 
 ### Changed
 
+- Clarified the `scan_result.json` v0.9 boundary so core Markdown artifact
+  metadata is treated as a narrow v1-stable candidate while detailed navigation
+  and previous-scan value metadata remain preview-scoped.
 - Added an agent-contract failure-mode table for `v0.9` so checksum,
   metadata, stdout/output, previous-scan, freshness, and diagnostic-report
   mismatches resolve to explicit failure, bounded uncertainty, or docs-only

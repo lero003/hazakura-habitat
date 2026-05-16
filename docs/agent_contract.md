@@ -876,8 +876,23 @@ Top-level shape:
 
 Preview contract:
 
-- During `v0.x`, `artifacts.relativePath`, `artifacts.agentUse`, `artifacts.readTrigger`, `artifacts.readOrder`, `artifacts.entrySection`, `artifacts.entryLine`, `artifacts.sections`, `artifacts.sectionLines`, `artifacts.lineCount`, `artifacts.characterCount`, `artifacts.lineLimit`, `artifacts.withinLineLimit`, and `policy.commandCounts` are preview reading hints. Agents may use them to choose what to open first, where to start inside a longer artifact, when to continue into policy or diagnostics, and decide whether the full policy is needed, but they should not treat exact values or field presence as a stable `1.0` schema promise yet.
-- Keep these hints additive and backward compatible. Older `0.x` scans may omit them; consumers should fall back to artifact order, Markdown headings, or command array counts.
+- During `v0.9`, the core Markdown artifact metadata is a narrow v1-stable
+  candidate when it identifies the generated Markdown artifacts and their
+  reading contract: `artifacts.name`, `artifacts.relativePath`,
+  `artifacts.role`, `artifacts.format`, `artifacts.agentUse`,
+  `artifacts.readTrigger`, `artifacts.readOrder`, `artifacts.entrySection`,
+  `artifacts.lineLimit`, and `artifacts.withinLineLimit`.
+- Detailed artifact navigation and sizing metadata remains preview-scoped:
+  `artifacts.entryLine`, `artifacts.sections`, `artifacts.sectionLines`,
+  `artifacts.lineCount`, `artifacts.characterCount`, and exact values inside
+  generated output counts may still change before `v1.0`.
+- Agents may use these fields to choose what to open first, where to start
+  inside a longer artifact, when to continue into policy or diagnostics, and
+  decide whether the full policy is needed, but they should not treat the full
+  `scan_result.json` shape as a stable `1.0` schema promise yet.
+- Keep preview hints additive and backward compatible. Older `0.x` scans may
+  omit them; consumers should fall back to artifact order, Markdown headings,
+  or command array counts.
 
 Compatibility:
 
@@ -921,7 +936,7 @@ Compatibility:
 - When Xcode tooling is missing or unverifiable, `agent_context.md` should tell agents to verify Xcode tooling instead of saying to use `xcodebuild`.
 - Markdown artifacts may retain detected executable project-local commands such as `.venv/bin/python -m pytest` even when the selected package-manager executable is missing; in that case, keep broader build commands out of `Allowed` unless the selected executable is available.
 - If the selected project path is not an existing directory, generated Markdown should avoid normal project-use guidance and allow only path existence checks while requiring Ask First for project commands.
-- `changes` is empty unless `--previous-scan` is supplied. `--previous-scan` may point to a previous report directory or a direct `scan_result.json` file. It is limited to AI-actionable deltas such as schema-version changes, generator-version changes, package-manager changes, lockfile changes, runtime version guidance changes, secret-bearing file signal changes, missing-tool changes, project-relevant tool verification failures or recoveries, preferred command changes when the selected package manager stays the same, command-policy risk classification changes, and command-policy entries that are no longer highlighted by the current scan. Schema-version, generator-version, and preferred-command changes include additive `previousValues` and `currentValues` arrays so machine consumers can follow the current command set and compatibility boundary without parsing the human summary.
+- `changes` is empty unless `--previous-scan` is supplied. `--previous-scan` may point to a previous report directory or a direct `scan_result.json` file. It is limited to AI-actionable deltas such as schema-version changes, generator-version changes, package-manager changes, lockfile changes, runtime version guidance changes, secret-bearing file signal changes, observed-file freshness changes, missing-tool changes, project-relevant tool verification failures or recoveries, preferred command changes when the selected package manager stays the same, command-policy risk classification changes, and command-policy entries that are no longer highlighted by the current scan. Schema-version, generator-version, observed-file freshness, preferred-command, and command-policy changes include additive `previousValues` and `currentValues` arrays so machine consumers can follow the current command set, stale-report evidence, and compatibility boundary without parsing the human summary.
 - Missing-tool comparison must not imply a tool became available just because it stopped being relevant to the current project. Report currently relevant tools with paths as available, and report previously missing tools that are no longer relevant as a separate current-policy guidance change.
 - Missing-tool comparison must not report a previously missing tool as recovered when the current version check fails; surface the tool verification failure instead so agents keep related commands Ask First.
 - Secret-bearing file comparison must remain filename-only. It may report added or removed `.env*`, `.envrc*`, package-manager auth config, project-local cloud/container credential files, and common top-level or `.ssh/` private-key filename signals, but must not read or emit their values.

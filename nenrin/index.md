@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 179
+- observing: 180
 - reviewed: 12
 
 ## Active Changes
@@ -186,6 +186,7 @@
 - `v0-9-phase-boundary` - [changes/2026-05-16-v0-9-phase-boundary.md](changes/2026-05-16-v0-9-phase-boundary.md)
 - `core-markdown-artifact-contract` - [changes/2026-05-16-core-markdown-artifact-contract.md](changes/2026-05-16-core-markdown-artifact-contract.md)
 - `failure-mode-contract-doc` - [changes/2026-05-16-failure-mode-contract-doc.md](changes/2026-05-16-failure-mode-contract-doc.md)
+- `scan-result-stability-boundary` - [changes/2026-05-16-scan-result-stability-boundary.md](changes/2026-05-16-scan-result-stability-boundary.md)
 
 ## Review Due
 
