@@ -32,6 +32,24 @@ change details, and project-specific metadata are useful for scripts and
 audits, but they should not be treated as a frozen full-schema promise before
 `v1.0`.
 
+### Failure-Mode Classification
+
+Use these failure-mode boundaries during `v0.9` hardening. They are intentionally
+narrow; they describe how agents and helper scripts should react to existing
+contracts without making Habitat an installer, repair tool, or command
+enforcement layer.
+
+| Condition | Contract posture | Agent action |
+| --- | --- | --- |
+| Release checksum fails, a selected release asset is missing from `SHA256SUMS`, or the verified binary is not a regular non-symlink executable file | Failure | Do not run or print from the downloaded binary; fetch or rebuild through an explicit release-consumption path. |
+| A local/release helper sees binary `--version`, `generatorVersion`, expected preview `schemaVersion`, or core Markdown artifact metadata mismatch | Failure | Stop using that binary/report pairing; refresh the binary or regenerate output before trusting Markdown guidance. |
+| `--stdout` and `--output` are requested together | Failure | Choose either direct stdout for one pipeline step or durable `habitat-report/` output for saved context, not both. |
+| A supplied `--previous-scan` path is unreadable or not a report directory / `scan_result.json` file | Bounded uncertainty | Rely on the current `agent_context.md` and `command_policy.md`; pass a readable previous report before using comparison output. |
+| Previous and current `scan_result.json` `schemaVersion` values differ | Bounded preview-format uncertainty | Treat previous JSON metadata as preview-format context; rely on current generated Markdown before command decisions. |
+| Previous and current `generatorVersion` values differ | Bounded generator-change uncertainty | Treat report-shape or policy differences as generator changes before assuming the local environment changed. |
+| Observed project files changed after a saved report's `Scanned at` timestamp | Bounded stale-context uncertainty | Regenerate or use the fresh scan; do not hand-follow stale preferred commands from the saved report. |
+| `environment_report.md` is used as the normal first agent input | Docs-only misuse | Start from `agent_context.md`; open `environment_report.md` only for diagnostics or audit detail. |
+
 ## Primary Artifact: agent_context.md
 
 `agent_context.md` is the most important human-readable output.

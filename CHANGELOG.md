@@ -4,6 +4,10 @@
 
 ### Changed
 
+- Added an agent-contract failure-mode table for `v0.9` so checksum,
+  metadata, stdout/output, previous-scan, freshness, and diagnostic-report
+  mismatches resolve to explicit failure, bounded uncertainty, or docs-only
+  misuse.
 - Tightened local/release metadata helpers so generated Markdown artifact
   checks include entry sections and the `agent_context.md` line budget.
 - Clarified `v0.9` automation guidance so recurring runs classify stable,
