@@ -10,6 +10,25 @@ This contract defines Habitat output, not a replacement documentation system.
 For partial adoption in an existing repository, see
 [AI Agent Adoption Guide](adoption_guide.md).
 
+## v0.9 Stability Boundary
+
+The core Markdown artifact contract is a narrow v1-stable candidate:
+
+- `agent_context.md` is the first working input.
+- `command_policy.md` is consulted before risky, mutating, remote,
+  secret-adjacent, or environment-sensitive commands.
+- `environment_report.md` is diagnostic and audit detail, not the normal first
+  artifact.
+- Generated artifact metadata should keep the filename, role, `agentUse`,
+  `readTrigger`, `readOrder`, preferred entry section, and
+  `agent_context.md` line limit aligned with that reading contract.
+
+The rest of `scan_result.json` remains preview metadata unless a narrower
+contract says otherwise. Section line numbers, character counts, policy counts,
+change details, and project-specific metadata are useful for scripts and
+audits, but they should not be treated as a frozen full-schema promise before
+`v1.0`.
+
 ## Primary Artifact: agent_context.md
 
 `agent_context.md` is the most important human-readable output.

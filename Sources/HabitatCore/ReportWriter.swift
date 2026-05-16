@@ -21,8 +21,47 @@ public struct GeneratedReport {
     }
 }
 
+private struct MarkdownArtifactContract {
+    let name: String
+    let role: String
+    let agentUse: String
+    let readTrigger: String
+    let readOrder: Int
+    let entrySection: String
+    let lineLimit: Int?
+
+    static let agentContext = MarkdownArtifactContract(
+        name: "agent_context.md",
+        role: "agent_context",
+        agentUse: "read_first",
+        readTrigger: "before_any_project_command",
+        readOrder: 1,
+        entrySection: "Use",
+        lineLimit: 120
+    )
+
+    static let commandPolicy = MarkdownArtifactContract(
+        name: "command_policy.md",
+        role: "command_policy",
+        agentUse: "consult_before_risky_commands",
+        readTrigger: "before_risky_remote_mutating_secret_or_environment_sensitive_commands",
+        readOrder: 2,
+        entrySection: "Review First",
+        lineLimit: nil
+    )
+
+    static let environmentReport = MarkdownArtifactContract(
+        name: "environment_report.md",
+        role: "environment_report",
+        agentUse: "debug_audit_only",
+        readTrigger: "only_for_diagnostics_or_audit",
+        readOrder: 3,
+        entrySection: "Diagnostics",
+        lineLimit: nil
+    )
+}
+
 public struct ReportWriter {
-    private let agentContextLineLimit = 120
     private let searchExclusionGlobLimit = 6
 
     public init() {}
@@ -41,9 +80,9 @@ public struct ReportWriter {
         let commandPolicyText = commandPolicy(result)
         let environmentReportText = environmentReport(result)
         let artifacts = [
-            markdownArtifact(name: "agent_context.md", role: "agent_context", readOrder: 1, text: agentContextText),
-            markdownArtifact(name: "command_policy.md", role: "command_policy", readOrder: 2, text: commandPolicyText),
-            markdownArtifact(name: "environment_report.md", role: "environment_report", readOrder: 3, text: environmentReportText)
+            markdownArtifact(.agentContext, text: agentContextText),
+            markdownArtifact(.commandPolicy, text: commandPolicyText),
+            markdownArtifact(.environmentReport, text: environmentReportText)
         ]
 
         return GeneratedReport(
@@ -79,22 +118,22 @@ public struct ReportWriter {
         try text.write(to: url, atomically: true, encoding: .utf8)
     }
 
-    private func markdownArtifact(name: String, role: String, readOrder: Int, text: String) -> GeneratedArtifact {
+    private func markdownArtifact(_ contract: MarkdownArtifactContract, text: String) -> GeneratedArtifact {
         let artifactLineCount = lineCount(text)
-        let lineLimit = role == "agent_context" ? agentContextLineLimit : nil
+        let lineLimit = contract.lineLimit
         let sectionEntries = markdownSectionEntries(text)
         let sections = sectionEntries.map(\.title)
-        let entrySection = artifactEntrySection(role: role, sections: sections)
+        let entrySection = artifactEntrySection(preferred: contract.entrySection, sections: sections)
         return GeneratedArtifact(
-            name: name,
-            relativePath: name,
-            role: role,
+            name: contract.name,
+            relativePath: contract.name,
+            role: contract.role,
             format: "markdown",
-            agentUse: artifactAgentUse(role: role),
-            readTrigger: artifactReadTrigger(role: role),
+            agentUse: contract.agentUse,
+            readTrigger: contract.readTrigger,
             lineCount: artifactLineCount,
             characterCount: text.count,
-            readOrder: readOrder,
+            readOrder: contract.readOrder,
             entrySection: entrySection,
             entryLine: sectionEntries.first { $0.title == entrySection }?.line,
             sections: sections,
@@ -104,45 +143,7 @@ public struct ReportWriter {
         )
     }
 
-    private func artifactAgentUse(role: String) -> String {
-        switch role {
-        case "agent_context":
-            return "read_first"
-        case "command_policy":
-            return "consult_before_risky_commands"
-        case "environment_report":
-            return "debug_audit_only"
-        default:
-            return "reference"
-        }
-    }
-
-    private func artifactReadTrigger(role: String) -> String {
-        switch role {
-        case "agent_context":
-            return "before_any_project_command"
-        case "command_policy":
-            return "before_risky_remote_mutating_secret_or_environment_sensitive_commands"
-        case "environment_report":
-            return "only_for_diagnostics_or_audit"
-        default:
-            return "as_needed"
-        }
-    }
-
-    private func artifactEntrySection(role: String, sections: [String]) -> String {
-        let preferred: String
-        switch role {
-        case "agent_context":
-            preferred = "Use"
-        case "command_policy":
-            preferred = "Review First"
-        case "environment_report":
-            preferred = "Diagnostics"
-        default:
-            preferred = "Overview"
-        }
-
+    private func artifactEntrySection(preferred: String, sections: [String]) -> String {
         if sections.contains(preferred) {
             return preferred
         }

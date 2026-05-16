@@ -42,6 +42,12 @@ Keep the current cycle focused:
   - `agent_context.md`
   - `command_policy.md`
   - `environment_report.md`
+- `ReportWriter` now keeps the core Markdown artifact contract in one
+  generator-side boundary: filename, role, `agentUse`, `readTrigger`,
+  `readOrder`, preferred entry section, and the `agent_context.md` line limit.
+  Treat that narrow contract as a v1-stable candidate while keeping detailed
+  `scan_result.json` metadata preview-scoped unless a smaller contract hardens
+  it.
 - `habitat-scan scan --project ... --stdout scan-result`, `--stdout agent-context`,
   `--stdout command-policy`, and `--stdout environment-report` print the
   selected generated artifact directly, so automation and local scripts can
