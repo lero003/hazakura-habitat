@@ -49,7 +49,10 @@ struct CLI {
             var result = scanner.scan(projectURL: projectURL)
             if let previousScanPath = options.previousScanPath {
                 let comparisonCurrent = writer.render(scanResult: result).scanResult
-                result = result.withChanges(changes(fromPreviousScanAt: previousScanPath, current: comparisonCurrent))
+                result = result.withChanges(PreviousScanComparison().changes(
+                    fromPreviousScanAt: previousScanPath,
+                    current: comparisonCurrent
+                ))
             }
             if let stdoutArtifact = options.stdoutArtifact {
                 let report = writer.render(scanResult: result)
@@ -89,21 +92,6 @@ struct CLI {
         """
     }
 
-    private func changes(fromPreviousScanAt path: String, current: ScanResult) -> [ScanChange] {
-        do {
-            let previousURL = URL(fileURLWithPath: path).standardizedFileURL
-            let previous = try PreviousScanLoader().load(from: previousURL)
-            return ScanComparator().compare(previous: previous, current: current)
-        } catch {
-            return [
-                ScanChange(
-                    category: "scan_comparison",
-                    summary: "Previous scan could not be read.",
-                    impact: "Pass a scan_result.json file or report directory; rely on the current command policy until comparison succeeds."
-                )
-            ]
-        }
-    }
 }
 
 exit(CLI().run(arguments: CommandLine.arguments))

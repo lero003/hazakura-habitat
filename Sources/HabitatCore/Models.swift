@@ -212,7 +212,7 @@ public struct MarkdownSectionLine: Codable, Equatable {
     }
 }
 
-public struct ScanChange: Codable, Equatable {
+public struct ScanChange: Codable, Equatable, Sendable {
     public let category: String
     public let summary: String
     public let impact: String

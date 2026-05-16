@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 174
+- observing: 175
 - reviewed: 12
 
 ## Active Changes
@@ -175,6 +175,7 @@
 - `skill-helper-unique-temp-output` - [changes/2026-05-15-skill-helper-unique-temp-output.md](changes/2026-05-15-skill-helper-unique-temp-output.md)
 - `agent-context-generator-note` - [changes/2026-05-16-agent-context-generator-note.md](changes/2026-05-16-agent-context-generator-note.md)
 - `previous-scan-command-policy-values` - [changes/2026-05-16-previous-scan-command-policy-values.md](changes/2026-05-16-previous-scan-command-policy-values.md)
+- `previous-scan-unreadable-boundary` - [changes/2026-05-16-previous-scan-unreadable-boundary.md](changes/2026-05-16-previous-scan-unreadable-boundary.md)
 - `previous-scan-observed-file-freshness` - [changes/2026-05-16-previous-scan-observed-file-freshness.md](changes/2026-05-16-previous-scan-observed-file-freshness.md)
 - `previous-scan-preferred-values` - [changes/2026-05-16-previous-scan-preferred-values.md](changes/2026-05-16-previous-scan-preferred-values.md)
 - `previous-scan-schema-version-delta` - [changes/2026-05-16-previous-scan-schema-version-delta.md](changes/2026-05-16-previous-scan-schema-version-delta.md)

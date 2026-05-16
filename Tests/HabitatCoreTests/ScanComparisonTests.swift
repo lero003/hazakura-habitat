@@ -4,6 +4,37 @@ import Foundation
 
 struct ScanComparisonTests {
     @Test
+    func previousScanComparisonTurnsUnreadableInputIntoBoundedUncertainty() throws {
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-05-16T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["swift test"], askFirstCommands: ["swift package update"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let unreadableURL = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString)
+            .appendingPathComponent("missing-report")
+
+        let changes = PreviousScanComparison().changes(fromPreviousScanAt: unreadableURL.path, current: current)
+
+        #expect(changes == [PreviousScanComparison.unreadablePreviousScanChange])
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(context.contains("Previous scan could not be read. Pass a scan_result.json file or report directory; rely on the current command policy until comparison succeeds."))
+        #expect(report.contains("[scan_comparison] Previous scan could not be read."))
+    }
+
+    @Test
     func scanComparisonSurfacesActionableDeltas() throws {
         let previous = ScanResult(
             schemaVersion: "0.1",
