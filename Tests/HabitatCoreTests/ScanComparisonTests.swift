@@ -92,6 +92,9 @@ struct ScanComparisonTests {
         let lockfileChange = changes.first(where: { $0.category == "lockfiles" })
         #expect(lockfileChange?.previousValues == ["package-lock.json"])
         #expect(lockfileChange?.currentValues == ["pnpm-lock.yaml"])
+        let missingToolsChange = changes.first(where: { $0.category == "missing_tools" })
+        #expect(missingToolsChange?.previousValues == [])
+        #expect(missingToolsChange?.currentValues == ["node", "pnpm"])
         let newAskFirstChange = changes.first(where: { $0.category == "command_policy" && $0.summary.contains("New Ask First commands") })
         #expect(newAskFirstChange?.previousValues == [])
         #expect(newAskFirstChange?.currentValues == ["pnpm install", "running pnpm commands before pnpm is available"])
@@ -590,10 +593,12 @@ struct ScanComparisonTests {
 
         let changes = ScanComparator().compare(previous: previous, current: current)
 
-        #expect(changes.contains(where: {
+        let noLongerRelevantToolChange = changes.first(where: {
             $0.summary == "Previously missing tools are no longer project-relevant: go."
-                && $0.impact == "Do not treat them as available; follow the current project signals and command policy."
-        }))
+        })
+        #expect(noLongerRelevantToolChange?.impact == "Do not treat them as available; follow the current project signals and command policy.")
+        #expect(noLongerRelevantToolChange?.previousValues == ["go"])
+        #expect(noLongerRelevantToolChange?.currentValues == [])
         #expect(!changes.contains(where: {
             $0.summary == "Project-relevant tools are now available: go."
         }))
@@ -671,10 +676,12 @@ struct ScanComparisonTests {
         #expect(!changes.contains(where: {
             $0.summary == "Project-relevant tools are now available: node, npm."
         }))
-        #expect(changes.contains(where: {
+        let failingToolChecksChange = changes.first(where: {
             $0.summary == "Project-relevant tool checks now fail: node, npm."
-                && $0.impact == "Treat related build, test, or install commands as Ask First until the current command policy allows them."
-        }))
+        })
+        #expect(failingToolChecksChange?.impact == "Treat related build, test, or install commands as Ask First until the current command policy allows them.")
+        #expect(failingToolChecksChange?.previousValues == ["node", "npm"])
+        #expect(failingToolChecksChange?.currentValues == ["node", "npm"])
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
@@ -739,10 +746,12 @@ struct ScanComparisonTests {
 
         let changes = ScanComparator().compare(previous: previous, current: current)
 
-        #expect(changes.contains(where: {
+        let failingXcodeSelectChange = changes.first(where: {
             $0.summary == "Project-relevant tool checks now fail: xcode-select."
-                && $0.impact == "Treat related build, test, or install commands as Ask First until the current command policy allows them."
-        }))
+        })
+        #expect(failingXcodeSelectChange?.impact == "Treat related build, test, or install commands as Ask First until the current command policy allows them.")
+        #expect(failingXcodeSelectChange?.previousValues == ["xcode-select"])
+        #expect(failingXcodeSelectChange?.currentValues == ["xcode-select"])
         #expect(!changes.contains(where: {
             $0.category == "missing_tools" && $0.summary.contains("xcode-select")
         }))
@@ -754,6 +763,64 @@ struct ScanComparisonTests {
 
         #expect(context.contains("Project-relevant tool checks now fail: xcode-select. Treat related build, test, or install commands as Ask First until the current command policy allows them."))
         #expect(scanResult.contains("\"category\" : \"tool_verification\""))
+    }
+
+    @Test
+    func scanComparisonReportsRecoveredToolVerificationChecksWithStructuredValues() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "swift", paths: ["/usr/bin/swift"]),
+                    .init(name: "xcode-select", paths: ["/usr/bin/xcode-select"]),
+                ],
+                versions: [
+                    .init(name: "swift", version: "Swift version 6.1", available: true),
+                    .init(name: "xcode-select", version: nil, available: false),
+                ]
+            ),
+            policy: .init(
+                preferredCommands: ["swift test", "swift build"],
+                askFirstCommands: ["Swift/Xcode build commands before xcode-select -p succeeds", "swift package update"],
+                forbiddenCommands: ["sudo"]
+            ),
+            warnings: [],
+            diagnostics: ["xcode-select -p failed with exit code 2: xcode-select failed"]
+        )
+        let current = ScanResult(
+            schemaVersion: "0.1",
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(
+                resolvedPaths: [
+                    .init(name: "swift", paths: ["/usr/bin/swift"]),
+                    .init(name: "xcode-select", paths: ["/usr/bin/xcode-select"]),
+                ],
+                versions: [
+                    .init(name: "swift", version: "Swift version 6.1", available: true),
+                    .init(name: "xcode-select", version: "/Applications/Xcode.app/Contents/Developer", available: true),
+                ]
+            ),
+            policy: .init(preferredCommands: ["swift test", "swift build"], askFirstCommands: ["swift package update"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+        let toolVerificationChange = changes.first(where: { $0.category == "tool_verification" })
+
+        #expect(toolVerificationChange?.summary == "Project-relevant tool checks now pass: xcode-select.")
+        #expect(toolVerificationChange?.impact == "Preferred commands may be runnable if the current command policy has no related guard.")
+        #expect(toolVerificationChange?.previousValues == ["xcode-select"])
+        #expect(toolVerificationChange?.currentValues == ["xcode-select"])
     }
 
     @Test

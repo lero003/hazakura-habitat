@@ -234,7 +234,9 @@ public struct ScanComparator {
             changes.append(ScanChange(
                 category: "missing_tools",
                 summary: "Project-relevant tools are now missing: \(newlyMissing.joined(separator: ", ")).",
-                impact: "Ask before running those commands or substituting another tool."
+                impact: "Ask before running those commands or substituting another tool.",
+                previousValues: [],
+                currentValues: newlyMissing
             ))
         }
 
@@ -242,7 +244,9 @@ public struct ScanComparator {
             changes.append(ScanChange(
                 category: "missing_tools",
                 summary: "Project-relevant tools are now available: \(resolved.joined(separator: ", ")).",
-                impact: "Preferred project commands may be runnable without missing-tool fallback."
+                impact: "Preferred project commands may be runnable without missing-tool fallback.",
+                previousValues: resolved,
+                currentValues: resolved
             ))
         }
 
@@ -250,7 +254,9 @@ public struct ScanComparator {
             changes.append(ScanChange(
                 category: "missing_tools",
                 summary: "Previously missing tools are no longer project-relevant: \(noLongerRelevant.joined(separator: ", ")).",
-                impact: "Do not treat them as available; follow the current project signals and command policy."
+                impact: "Do not treat them as available; follow the current project signals and command policy.",
+                previousValues: noLongerRelevant,
+                currentValues: []
             ))
         }
 
@@ -273,7 +279,9 @@ public struct ScanComparator {
             changes.append(ScanChange(
                 category: "tool_verification",
                 summary: "Project-relevant tool checks now fail: \(newlyFailed.joined(separator: ", ")).",
-                impact: "Treat related build, test, or install commands as Ask First until the current command policy allows them."
+                impact: "Treat related build, test, or install commands as Ask First until the current command policy allows them.",
+                previousValues: newlyFailed,
+                currentValues: newlyFailed
             ))
         }
 
@@ -281,7 +289,9 @@ public struct ScanComparator {
             changes.append(ScanChange(
                 category: "tool_verification",
                 summary: "Project-relevant tool checks now pass: \(nowPassing.joined(separator: ", ")).",
-                impact: "Preferred commands may be runnable if the current command policy has no related guard."
+                impact: "Preferred commands may be runnable if the current command policy has no related guard.",
+                previousValues: nowPassing,
+                currentValues: nowPassing
             ))
         }
 
