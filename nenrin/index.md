@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 184
+- observing: 185
 - reviewed: 12
 
 ## Active Changes
@@ -177,6 +177,7 @@
 - `agent-context-generator-note` - [changes/2026-05-16-agent-context-generator-note.md](changes/2026-05-16-agent-context-generator-note.md)
 - `previous-scan-command-policy-values` - [changes/2026-05-16-previous-scan-command-policy-values.md](changes/2026-05-16-previous-scan-command-policy-values.md)
 - `previous-scan-metadata-values` - [changes/2026-05-16-previous-scan-metadata-values.md](changes/2026-05-16-previous-scan-metadata-values.md)
+- `previous-scan-version-guidance-values` - [changes/2026-05-16-previous-scan-version-guidance-values.md](changes/2026-05-16-previous-scan-version-guidance-values.md)
 - `previous-scan-generator-compatibility-gate` - [changes/2026-05-16-previous-scan-generator-compatibility-gate.md](changes/2026-05-16-previous-scan-generator-compatibility-gate.md)
 - `previous-scan-observed-file-freshness` - [changes/2026-05-16-previous-scan-observed-file-freshness.md](changes/2026-05-16-previous-scan-observed-file-freshness.md)
 - `previous-scan-preferred-values` - [changes/2026-05-16-previous-scan-preferred-values.md](changes/2026-05-16-previous-scan-preferred-values.md)

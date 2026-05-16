@@ -131,7 +131,9 @@ public struct ScanComparator {
         return ScanChange(
             category: "package_manager_version",
             summary: "Package manager version guidance changed from \(previousVersion) to \(currentVersion).",
-            impact: "Re-check the active \(packageManager) version before dependency installs; follow current agent_context.md guidance."
+            impact: "Re-check the active \(packageManager) version before dependency installs; follow current agent_context.md guidance.",
+            previousValues: [previousVersion],
+            currentValues: [currentVersion]
         )
     }
 
@@ -142,7 +144,9 @@ public struct ScanComparator {
         return ScanChange(
             category: "runtime_hints",
             summary: "Runtime version guidance changed: \(changedHints.joined(separator: "; ")).",
-            impact: "Re-check active runtimes before dependency installs or build/test commands; follow current command policy."
+            impact: "Re-check active runtimes before dependency installs or build/test commands; follow current command policy.",
+            previousValues: runtimeHintValueLabels(previous: previous.project.runtimeHints, current: current.project.runtimeHints, side: .previous),
+            currentValues: runtimeHintValueLabels(previous: previous.project.runtimeHints, current: current.project.runtimeHints, side: .current)
         )
     }
 
@@ -584,5 +588,29 @@ public struct ScanComparator {
     private func runtimeHintLabel(name: String, previous: String?, current: String?) -> String? {
         guard previous != current else { return nil }
         return "\(name) \(previous ?? "none") -> \(current ?? "none")"
+    }
+
+    private enum RuntimeHintSide {
+        case previous
+        case current
+    }
+
+    private func runtimeHintValueLabels(previous: RuntimeHints, current: RuntimeHints, side: RuntimeHintSide) -> [String] {
+        [
+            runtimeHintValueLabel(name: "Node", previous: previous.node, current: current.node, side: side),
+            runtimeHintValueLabel(name: "Python", previous: previous.python, current: current.python, side: side),
+            runtimeHintValueLabel(name: "Ruby", previous: previous.ruby, current: current.ruby, side: side),
+        ].compactMap { $0 }
+    }
+
+    private func runtimeHintValueLabel(name: String, previous: String?, current: String?, side: RuntimeHintSide) -> String? {
+        guard previous != current else { return nil }
+        let value = switch side {
+        case .previous:
+            previous
+        case .current:
+            current
+        }
+        return "\(name) \(value ?? "none")"
     }
 }

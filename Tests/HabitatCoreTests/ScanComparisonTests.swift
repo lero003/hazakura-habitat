@@ -889,6 +889,8 @@ struct ScanComparisonTests {
 
         #expect(packageManagerVersionChange?.summary == "Package manager version guidance changed from pnpm@9.15.4 via package.json to pnpm@10.0.0 via .tool-versions.")
         #expect(packageManagerVersionChange?.impact == "Re-check the active pnpm version before dependency installs; follow current agent_context.md guidance.")
+        #expect(packageManagerVersionChange?.previousValues == ["pnpm@9.15.4 via package.json"])
+        #expect(packageManagerVersionChange?.currentValues == ["pnpm@10.0.0 via .tool-versions"])
         #expect(!changes.contains(where: { $0.category == "package_manager" }))
         #expect(!changes.contains(where: { $0.category == "preferred_commands" }))
 
@@ -898,6 +900,8 @@ struct ScanComparisonTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains("\"category\" : \"package_manager_version\""))
+        #expect(scanResult.contains("\"pnpm@9.15.4 via package.json\""))
+        #expect(scanResult.contains("\"pnpm@10.0.0 via .tool-versions\""))
         #expect(context.contains("Package manager version guidance changed from pnpm@9.15.4 via package.json to pnpm@10.0.0 via .tool-versions. Re-check the active pnpm version before dependency installs; follow current agent_context.md guidance."))
     }
 
@@ -945,6 +949,8 @@ struct ScanComparisonTests {
 
         #expect(runtimeHintChange?.summary == "Runtime version guidance changed: Node 20.11.1 -> 22.0.0; Python none -> 3.12.2; Ruby 3.2.0 -> none.")
         #expect(runtimeHintChange?.impact == "Re-check active runtimes before dependency installs or build/test commands; follow current command policy.")
+        #expect(runtimeHintChange?.previousValues == ["Node 20.11.1", "Python none", "Ruby 3.2.0"])
+        #expect(runtimeHintChange?.currentValues == ["Node 22.0.0", "Python 3.12.2", "Ruby none"])
         #expect(!changes.contains(where: { $0.category == "package_manager" }))
         #expect(!changes.contains(where: { $0.category == "preferred_commands" }))
 
@@ -954,6 +960,10 @@ struct ScanComparisonTests {
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
         #expect(scanResult.contains("\"category\" : \"runtime_hints\""))
+        #expect(scanResult.contains("\"Node 20.11.1\""))
+        #expect(scanResult.contains("\"Node 22.0.0\""))
+        #expect(scanResult.contains("\"Python none\""))
+        #expect(scanResult.contains("\"Ruby none\""))
         #expect(context.contains("Runtime version guidance changed: Node 20.11.1 -> 22.0.0; Python none -> 3.12.2; Ruby 3.2.0 -> none. Re-check active runtimes before dependency installs or build/test commands; follow current command policy."))
     }
 
