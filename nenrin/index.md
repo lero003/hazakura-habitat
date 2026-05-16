@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 185
+- observing: 186
 - reviewed: 12
 
 ## Active Changes
@@ -183,6 +183,7 @@
 - `previous-scan-preferred-values` - [changes/2026-05-16-previous-scan-preferred-values.md](changes/2026-05-16-previous-scan-preferred-values.md)
 - `previous-scan-project-signal-values` - [changes/2026-05-16-previous-scan-project-signal-values.md](changes/2026-05-16-previous-scan-project-signal-values.md)
 - `previous-scan-tool-signal-values` - [changes/2026-05-16-previous-scan-tool-signal-values.md](changes/2026-05-16-previous-scan-tool-signal-values.md)
+- `previous-scan-sensitive-signal-values` - [changes/2026-05-16-previous-scan-sensitive-signal-values.md](changes/2026-05-16-previous-scan-sensitive-signal-values.md)
 - `previous-scan-schema-version-delta` - [changes/2026-05-16-previous-scan-schema-version-delta.md](changes/2026-05-16-previous-scan-schema-version-delta.md)
 - `previous-scan-schema-compatibility-gate` - [changes/2026-05-16-previous-scan-schema-compatibility-gate.md](changes/2026-05-16-previous-scan-schema-compatibility-gate.md)
 - `previous-scan-unreadable-boundary` - [changes/2026-05-16-previous-scan-unreadable-boundary.md](changes/2026-05-16-previous-scan-unreadable-boundary.md)

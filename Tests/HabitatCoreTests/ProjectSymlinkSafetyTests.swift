@@ -55,11 +55,17 @@ struct ProjectSymlinkSafetyTests {
 
         #expect(symlinkChange?.summary == "Project symlink signals changed: added .nvmrc.")
         #expect(symlinkChange?.impact == "Review symlink targets before following linked metadata or using dependency signals.")
+        #expect(symlinkChange?.previousValues == [])
+        #expect(symlinkChange?.currentValues == [".nvmrc"])
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
         let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
 
+        #expect(scanResult.contains("\"category\" : \"project_symlinks\""))
+        #expect(scanResult.contains("\"currentValues\" : ["))
+        #expect(scanResult.contains(".nvmrc"))
         #expect(context.contains("Project symlink signals changed: added .nvmrc. Review symlink targets before following linked metadata or using dependency signals."))
 
         for name in ["scan_result.json", "agent_context.md", "command_policy.md", "environment_report.md"] {

@@ -525,6 +525,8 @@ struct SecretFileDetectionTests {
 
         #expect(secretChange?.summary == "Secret-bearing file signals changed: added .env.local, .kube/config, .pnpmrc, and 2 more.")
         #expect(secretChange?.impact == "Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Do Not and Forbidden guidance.")
+        #expect(secretChange?.previousValues == [])
+        #expect(secretChange?.currentValues == [".env.local", ".kube/config", ".pnpmrc", "deploy.pem", "id_ed25519"])
 
         let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
@@ -533,6 +535,8 @@ struct SecretFileDetectionTests {
         let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
 
         #expect(scanResult.contains("\"category\" : \"secret_files\""))
+        #expect(scanResult.contains("\"currentValues\" : ["))
+        #expect(scanResult.contains("id_ed25519"))
         #expect(context.contains("Secret-bearing file signals changed: added .env.local, .kube/config, .pnpmrc, and 2 more. Do not read, compare, restore, check out, open, edit, copy, move, sync, upload, archive, or load secret/auth/private-key files; follow current Do Not and Forbidden guidance."))
         #expect(report.contains("[secret_files] Secret-bearing file signals changed"))
 
