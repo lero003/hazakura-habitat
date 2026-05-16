@@ -14,6 +14,10 @@ public struct ScanComparator {
             changes.append(generatorVersionChange)
         }
 
+        guard previous.schemaVersion == current.schemaVersion else {
+            return changes
+        }
+
         if previous.project.packageManager != current.project.packageManager {
             changes.append(packageManagerChange(previous: previous, current: current))
         }

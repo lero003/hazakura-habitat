@@ -7,6 +7,10 @@
 - Clarified the `scan_result.json` v0.9 boundary so core Markdown artifact
   metadata is treated as a narrow v1-stable candidate while detailed navigation
   and previous-scan value metadata remain preview-scoped.
+- Changed previous-scan comparison so mismatched `schemaVersion` reports stop at
+  schema/generator compatibility deltas instead of emitting lower-level
+  package, freshness, preferred-command, or policy changes from an incompatible
+  previous schema.
 - Added an agent-contract failure-mode table for `v0.9` so checksum,
   metadata, stdout/output, previous-scan, freshness, and diagnostic-report
   mismatches resolve to explicit failure, bounded uncertainty, or docs-only
