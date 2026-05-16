@@ -1,6 +1,8 @@
 ---
+type: nenrin_change
 id: narrow-depth-platform-boundary
 status: observing
+impact: unknown
 owner: Codex
 created: 2026-05-15
 review_after: 2026-05-22

@@ -618,27 +618,53 @@ Completion criteria:
 
 Purpose:
 
-Separate stable commitments from still-experimental behavior.
+Separate stable commitments from still-experimental behavior before `v1.0`.
+This is a contract-sorting phase, not the final feature train.
 
-Stabilize:
+Use `v0.9` to decide, one narrow boundary at a time:
+
+- what belongs in the `v1.0` advisory contract
+- what remains preview metadata during `v1.x`
+- what should stay docs-only guidance
+- what should move to post-v1 exploration
+
+Stable candidates:
 
 - basic CLI command shape
 - output filenames
-- `agent_context.md` structure
-- `command_policy.md` classifications
-- core `scan_result.json` schema
-- major reason-code categories
-- exit-code semantics
+- Markdown artifact roles and read order:
+  `agent_context.md` first, `command_policy.md` before risky or unclear
+  commands, and `environment_report.md` for diagnostics or audit detail
+- `schemaVersion` and `generatorVersion`
+- generated artifact names, roles, and report-relative paths
+- `policy.preferredCommands`
+- `policy.reasonCodes`
+- selected `changes` entries where tests and examples show the delta changes
+  command choice or stale-context handling
+- exit-code semantics for argument and output failures
 - read-only scan principle
 - secret value non-emission principle
 
-Keep experimental if needed:
+Keep preview or docs-only unless repeated evidence says otherwise:
 
+- the full `scan_result.json` field set
 - ecosystem-specific rule details
-- previous-scan comparison details
-- MCP integration
+- detailed previous-scan comparison taxonomy
 - package-manager version metadata
 - optional output modes
+- thin read-only MCP
+- portability notes beyond protecting the macOS-first CLI contract
+
+Failure modes are a first-class `v0.9` focus. Before adding broad new behavior,
+decide how a small set of existing risks should surface:
+
+- unreadable or malformed previous scans
+- schema-version mismatch
+- generator-version mismatch
+- stale observed files
+- binary/report version mismatch
+- helper refusal to trust a binary or release directory
+- stdout/file-output confusion
 
 Focus:
 
@@ -649,6 +675,8 @@ Focus:
 - flaky test review
 - docs cleanup
 - issue backlog pruning
+- representative examples for stable/preview boundaries
+- warning, failure, or bounded-uncertainty wording for the failure modes above
 
 Completion criteria:
 
@@ -656,6 +684,8 @@ Completion criteria:
 - Experimental areas are named.
 - Output breaking-change rules exist.
 - Major known risks have documented policies.
+- The project can explain why each v1-stable field or Markdown contract is
+  stable, tested, and still advisory.
 
 ## v1.0: Stable Advisory Context Generator
 

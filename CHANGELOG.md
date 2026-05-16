@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Changed
+
+- Clarified `v0.9` automation guidance so recurring runs classify stable,
+  preview, docs-only, and post-v1 boundaries instead of creating changes just
+  because the loop ran.
+
 ## v0.8.0 Developer Preview - 2026-05-16
 
 Observation -> Action hardening release.

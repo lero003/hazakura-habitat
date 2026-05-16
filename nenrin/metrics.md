@@ -2,19 +2,19 @@
 
 ## Summary
 
-- Change records: 186
+- Change records: 189
 - Observation records: 57
 - Review overdue: 97
 
 ## Status
 
-- observing: 174
+- observing: 177
 - reviewed: 12
 
 ## Change Impact
 
 - effective: 12
-- unknown: 174
+- unknown: 177
 
 ## Observation Impact Judgment
 
@@ -128,4 +128,4 @@
 
 ## Suggested Actions
 
-- changes/2026-05-15-narrow-depth-platform-boundary.md: frontmatter is missing `type`, so Nenrin ignores this file
+- None

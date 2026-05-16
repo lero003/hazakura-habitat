@@ -53,7 +53,53 @@ Keep the correction narrow:
 
 This is part of finishing the work, not a separate planning project.
 
-## Post-v0.7 Automation Handoff
+## Post-v0.8 / v0.9 Automation Handoff
+
+After the `v0.8.0 Developer Preview`, recurring Habitat work should start from
+`v0.9` Pre-1.0 hardening. Treat the `v0.8` Observation -> Action work as a
+shipped first slice, not as permission to keep broadening observation.
+
+Default priority for automation:
+
+- first, decide whether the run has one concrete stability boundary to classify
+  as v1-stable, preview metadata, docs-only guidance, or post-v1 work
+- second, prefer hardening existing contracts: CLI command shape, output
+  filenames, Markdown read order, helper behavior, representative examples,
+  release evidence, reason-code categories, or the narrow `scan_result.json`
+  fields already used by agents and scripts
+- third, make failure modes explicit before adding surface area: unreadable
+  previous scans, schema-version mismatch, generator-version mismatch, stale
+  observed files, binary/report version mismatch, and stdout/file-output
+  confusion should resolve to warning, failure, or bounded uncertainty that an
+  agent can act on
+- fourth, end as a verified no-op when no concrete hardening slice is
+  justified; do not create changes just because the loop ran
+
+Good `v0.9` slices classify a small existing boundary. Examples include whether
+`schemaVersion`, `generatorVersion`, artifact filenames and roles,
+`policy.preferredCommands`, `policy.reasonCodes`, or selected `changes` entries
+are stable enough for `v1.0`, still preview metadata, or only documentation
+guidance. Do not declare the entire JSON schema stable at once.
+
+Docs-only work is appropriate when stale guidance would make the next run pick
+the wrong phase, choose broad observation instead of hardening, or overstate
+Habitat's safety, freshness, platform, enforcement, or automation guarantees.
+Otherwise, prefer a product, test, fixture, helper, example, or output-contract
+slice.
+
+Keep the recurring loop narrow:
+
+- do not move released tags or GitHub Release assets without an explicit patch
+  release handoff
+- do not turn Habitat into a planner, command-enforcement layer, installer,
+  repair tool, GUI, broad MCP surface, Linux support lane, or workspace
+  intelligence tool
+- do not let cross-project observation or Nenrin backlog pressure choose the
+  work; they may supply one bounded Habitat carry-back only when the signal
+  changes command choice, report freshness handling, generated guidance,
+  fixture coverage, helper behavior, or automation wording
+
+## Historical Post-v0.7 Automation Handoff
 
 After the `v0.7.0 Developer Preview`, recurring Habitat work should start from
 the `v0.8` Observation -> Action phase. Keep public tags and GitHub Release

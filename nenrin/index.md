@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 176
+- observing: 177
 - reviewed: 12
 
 ## Active Changes
@@ -167,6 +167,7 @@
 - `gradle-wrapper-script-preference` - [changes/2026-05-15-gradle-wrapper-script-preference.md](changes/2026-05-15-gradle-wrapper-script-preference.md)
 - `known-wrapper-confidence` - [changes/2026-05-15-known-wrapper-confidence.md](changes/2026-05-15-known-wrapper-confidence.md)
 - `missing-wrapper-hint-contract` - [changes/2026-05-15-missing-wrapper-hint-contract.md](changes/2026-05-15-missing-wrapper-hint-contract.md)
+- `narrow-depth-platform-boundary` - [changes/2026-05-15-narrow-depth-platform-boundary.md](changes/2026-05-15-narrow-depth-platform-boundary.md)
 - `post-v0-7-automation-handoff` - [changes/2026-05-15-post-v0-7-automation-handoff.md](changes/2026-05-15-post-v0-7-automation-handoff.md)
 - `previous-scan-stale-preferred-delta` - [changes/2026-05-15-previous-scan-stale-preferred-delta.md](changes/2026-05-15-previous-scan-stale-preferred-delta.md)
 - `skill-helper-canonical-output-paths` - [changes/2026-05-15-skill-helper-canonical-output-paths.md](changes/2026-05-15-skill-helper-canonical-output-paths.md)
@@ -175,14 +176,14 @@
 - `skill-helper-unique-temp-output` - [changes/2026-05-15-skill-helper-unique-temp-output.md](changes/2026-05-15-skill-helper-unique-temp-output.md)
 - `agent-context-generator-note` - [changes/2026-05-16-agent-context-generator-note.md](changes/2026-05-16-agent-context-generator-note.md)
 - `previous-scan-command-policy-values` - [changes/2026-05-16-previous-scan-command-policy-values.md](changes/2026-05-16-previous-scan-command-policy-values.md)
-- `previous-scan-unreadable-boundary` - [changes/2026-05-16-previous-scan-unreadable-boundary.md](changes/2026-05-16-previous-scan-unreadable-boundary.md)
+- `previous-scan-metadata-values` - [changes/2026-05-16-previous-scan-metadata-values.md](changes/2026-05-16-previous-scan-metadata-values.md)
 - `previous-scan-observed-file-freshness` - [changes/2026-05-16-previous-scan-observed-file-freshness.md](changes/2026-05-16-previous-scan-observed-file-freshness.md)
 - `previous-scan-preferred-values` - [changes/2026-05-16-previous-scan-preferred-values.md](changes/2026-05-16-previous-scan-preferred-values.md)
 - `previous-scan-schema-version-delta` - [changes/2026-05-16-previous-scan-schema-version-delta.md](changes/2026-05-16-previous-scan-schema-version-delta.md)
-- `previous-scan-metadata-values` - [changes/2026-05-16-previous-scan-metadata-values.md](changes/2026-05-16-previous-scan-metadata-values.md)
+- `previous-scan-unreadable-boundary` - [changes/2026-05-16-previous-scan-unreadable-boundary.md](changes/2026-05-16-previous-scan-unreadable-boundary.md)
 - `skill-helper-auto-previous-scan` - [changes/2026-05-16-skill-helper-auto-previous-scan.md](changes/2026-05-16-skill-helper-auto-previous-scan.md)
-- `v0-9-phase-boundary` - [changes/2026-05-16-v0-9-phase-boundary.md](changes/2026-05-16-v0-9-phase-boundary.md)
 - `v0-8-release-prep` - [changes/2026-05-16-v0-8-release-prep.md](changes/2026-05-16-v0-8-release-prep.md)
+- `v0-9-phase-boundary` - [changes/2026-05-16-v0-9-phase-boundary.md](changes/2026-05-16-v0-9-phase-boundary.md)
 
 ## Review Due
 
