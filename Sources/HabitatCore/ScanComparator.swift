@@ -89,7 +89,9 @@ public struct ScanComparator {
         return ScanChange(
             category: "package_manager",
             summary: "Package manager changed from \(oldValue) to \(newValue).",
-            impact: "Use the current project package manager before running build, test, or install commands."
+            impact: "Use the current project package manager before running build, test, or install commands.",
+            previousValues: [oldValue],
+            currentValues: [newValue]
         )
     }
 
@@ -108,7 +110,9 @@ public struct ScanComparator {
         return ScanChange(
             category: "lockfiles",
             summary: "Lockfiles changed: \(parts.joined(separator: "; ")).",
-            impact: "Re-check package manager selection and ask before dependency installs."
+            impact: "Re-check package manager selection and ask before dependency installs.",
+            previousValues: removed,
+            currentValues: added
         )
     }
 
