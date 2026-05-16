@@ -150,6 +150,20 @@ struct ScanComparisonTests {
         #expect(changes.first?.impact.contains("before assuming the local environment changed") == true)
         #expect(changes.first?.previousValues == ["0.0.9"])
         #expect(changes.first?.currentValues == [HabitatMetadata.generatorVersion])
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let scanResult = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(scanResult.contains("\"category\" : \"generator\""))
+        #expect(scanResult.contains("\"previousValues\" : ["))
+        #expect(scanResult.contains("\"0.0.9\""))
+        #expect(scanResult.contains("\"currentValues\" : ["))
+        #expect(scanResult.contains("\"\(HabitatMetadata.generatorVersion)\""))
+        #expect(context.contains("Generator version changed from 0.0.9 to \(HabitatMetadata.generatorVersion). Treat report-shape or policy differences as generator changes before assuming the local environment changed."))
+        #expect(report.contains("[generator] Generator version changed from 0.0.9 to \(HabitatMetadata.generatorVersion)."))
     }
 
     @Test
