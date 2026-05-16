@@ -242,18 +242,29 @@ artifact_text="$("$habitat_scan" scan --project "$project_path" --stdout "$stdou
 case "$artifact_role" in
   agent_context)
     expected_header="# Agent Context"
+    canonical_stdout_value="agent-context"
     ;;
   command_policy)
     expected_header="# Command Policy"
+    canonical_stdout_value="command-policy"
     ;;
   environment_report)
     expected_header="# Environment Report"
+    canonical_stdout_value="environment-report"
     ;;
   *)
     printf 'error: unsupported artifact role after metadata validation: %s\n' "$artifact_role" >&2
     exit 3
     ;;
 esac
+
+if [[ "$stdout_value" != "$canonical_stdout_value" ]]; then
+  canonical_artifact_text="$("$habitat_scan" scan --project "$project_path" --stdout "$canonical_stdout_value")"
+  if [[ "$artifact_text" != "$canonical_artifact_text" ]]; then
+    printf 'error: --stdout %s did not match --stdout %s output\n' "$stdout_value" "$canonical_stdout_value" >&2
+    exit 4
+  fi
+fi
 
 if [[ "$artifact_text" != "$expected_header"* ]]; then
   printf 'error: --stdout %s did not return %s\n' "$stdout_value" "$artifact_name" >&2

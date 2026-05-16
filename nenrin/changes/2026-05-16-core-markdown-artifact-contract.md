@@ -7,9 +7,11 @@ impact: unknown
 related_files:
   - Sources/HabitatCore/ReportWriter.swift
   - scripts/check_habitat_metadata.sh
+  - scripts/print_habitat_artifact.sh
   - Tests/HabitatCoreTests/CoreInfrastructureTests.swift
   - Tests/HabitatCoreTests/ScanExecutionInfrastructureTests.swift
   - docs/agent_contract.md
+  - README.md
   - docs/current_status.md
 review_after:
   tasks: 3
@@ -28,6 +30,9 @@ review_after:
 - Tightened release/local metadata helper checks so filename `--stdout` aliases
   must return the same content as their canonical artifact tokens before scripts
   pipe Markdown into an agent.
+- Tightened the local print helper with the same Markdown filename-alias check,
+  so direct stdout consumers cannot accept a same-heading but different
+  artifact body.
 
 ## Reason
 

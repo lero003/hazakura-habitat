@@ -277,7 +277,9 @@ This helper verifies the binary version, `generatorVersion`, expected preview
 `schemaVersion`, and requested artifact metadata before printing. For Markdown
 artifacts, that metadata includes the expected role, path, format, read order,
 read trigger, agent-use hint, entry section, and the `agent_context.md` line
-budget when applicable. It does not create or update
+budget when applicable. Filename requests are also checked against the matching
+dash-form stdout token before printing, so a filename alias cannot return a
+same-heading but different Markdown body. It does not create or update
 `habitat-report/`. The `habitat-report/filename` and absolute saved-report
 forms are accepted only when `habitat-report` is a real path component followed
 by the artifact filename; they still print a direct stdout artifact rather than
