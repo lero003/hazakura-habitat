@@ -218,7 +218,11 @@ step before choosing the slice, not a second workstream:
 
 - inspect the watched project's current `habitat-report/agent_context.md` when it exists
 - if the report is missing, stale, or contradicted by visible key files, run a fresh scan into a temporary output directory and compare only the command-changing result
-- check `hazakura-ai-mobile` for Gradle wrapper, validation-command, blocker, or stale-report signals, and `hazakura-nenrin` for Python workflow, ledger, no-op, and record-pressure signals
+- check `hazakura-ai-mobile` for Gradle wrapper, validation-command, blocker,
+  or stale-report signals; `hazakura-nenrin` for Python workflow, ledger,
+  no-op, and record-pressure signals; and `hazakura-llm-manager` for SwiftPM
+  macOS-app guidance, temporary-output Habitat adoption, saved-report absence,
+  and SwiftPM sandbox-fallback wording
 - carry back only one bounded Habitat improvement when the observed signal changes command choice, report freshness handling, generated guidance, fixture coverage, or automation wording
 - if the intake confirms current behavior, record the judgment briefly in the run report and continue with the best local Habitat slice or end as a clean no-op
 
