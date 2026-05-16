@@ -19,9 +19,10 @@ The core Markdown artifact contract is a narrow v1-stable candidate:
   secret-adjacent, or environment-sensitive commands.
 - `environment_report.md` is diagnostic and audit detail, not the normal first
   artifact.
-- Generated artifact metadata should keep the filename, role, `agentUse`,
-  `readTrigger`, `readOrder`, preferred entry section, and
-  `agent_context.md` line limit aligned with that reading contract.
+- Generated artifact metadata should keep the filename, report-relative path,
+  role, format, `agentUse`, `readTrigger`, `readOrder`, preferred entry
+  section, and `agent_context.md` line-limit status aligned with that reading
+  contract.
 - Release and stdout artifact helpers may verify this narrow core contract
   before trusting generated Markdown output; detailed section line numbers,
   character counts, and project metadata remain preview-scoped.

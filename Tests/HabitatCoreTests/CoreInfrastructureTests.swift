@@ -93,6 +93,81 @@ struct CoreInfrastructureTests {
     }
 
     @Test
+    func coreMarkdownArtifactMetadataPinsStableReadingContract() throws {
+        let report = ReportWriter().render(scanResult: ScanResult(
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(
+                detectedFiles: ["Package.swift"],
+                packageManager: "swiftpm",
+                packageManagerVersion: nil,
+                packageScripts: [],
+                runtimeHints: .init(node: nil, python: nil)
+            ),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["swift test"], askFirstCommands: ["swift package update"], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        ))
+
+        let stableContract = report.scanResult.artifacts.map {
+            StableMarkdownArtifactContract(
+                name: $0.name,
+                relativePath: $0.relativePath,
+                role: $0.role,
+                format: $0.format,
+                agentUse: $0.agentUse,
+                readTrigger: $0.readTrigger,
+                readOrder: $0.readOrder,
+                entrySection: $0.entrySection,
+                lineLimit: $0.lineLimit,
+                withinLineLimit: $0.withinLineLimit
+            )
+        }
+
+        #expect(stableContract == [
+            StableMarkdownArtifactContract(
+                name: "agent_context.md",
+                relativePath: "agent_context.md",
+                role: "agent_context",
+                format: "markdown",
+                agentUse: "read_first",
+                readTrigger: "before_any_project_command",
+                readOrder: 1,
+                entrySection: "Use",
+                lineLimit: 120,
+                withinLineLimit: true
+            ),
+            StableMarkdownArtifactContract(
+                name: "command_policy.md",
+                relativePath: "command_policy.md",
+                role: "command_policy",
+                format: "markdown",
+                agentUse: "consult_before_risky_commands",
+                readTrigger: "before_risky_remote_mutating_secret_or_environment_sensitive_commands",
+                readOrder: 2,
+                entrySection: "Review First",
+                lineLimit: nil,
+                withinLineLimit: nil
+            ),
+            StableMarkdownArtifactContract(
+                name: "environment_report.md",
+                relativePath: "environment_report.md",
+                role: "environment_report",
+                format: "markdown",
+                agentUse: "debug_audit_only",
+                readTrigger: "only_for_diagnostics_or_audit",
+                readOrder: 3,
+                entrySection: "Diagnostics",
+                lineLimit: nil,
+                withinLineLimit: nil
+            ),
+        ])
+    }
+
+    @Test
     func reportWriterRendersStdoutArtifactsFromSameGeneratedReport() throws {
         let result = ScanResult(
             schemaVersion: "0.1",
@@ -572,4 +647,17 @@ struct CoreInfrastructureTests {
         #expect(report.contains("go version failed with exit code 127"))
     }
 
+}
+
+private struct StableMarkdownArtifactContract: Equatable {
+    let name: String
+    let relativePath: String?
+    let role: String
+    let format: String
+    let agentUse: String?
+    let readTrigger: String?
+    let readOrder: Int?
+    let entrySection: String?
+    let lineLimit: Int?
+    let withinLineLimit: Bool?
 }
