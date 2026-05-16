@@ -9,6 +9,7 @@ related_files:
   - docs/current_status.md
   - docs/development_loop.md
   - docs/roadmap.md
+  - docs/self_use.md
 review_after:
   tasks: 3
   days: 7
@@ -23,6 +24,9 @@ review_after:
 - Moved the same boundary into recurring automation guidance and roadmap
   wording so future runs do not have to infer `v0.9` from the saved automation
   prompt alone.
+- Marked the older self-use snapshot as historical evidence instead of the
+  current work selector, and pointed active runs back to `current_status` plus
+  `development_loop`.
 
 ## Reason
 
@@ -49,11 +53,15 @@ The project had shipped the v0.8 Observation -> Action slice, but the status doc
 - Recurring runs can read `docs/development_loop.md` and `docs/roadmap.md` for
   the same v0.9 contract-sorting guidance that exists in the saved automation
   prompt.
+- Agents do not treat the 2026-05-09 v0.5 self-scan snapshot as current phase
+  guidance when choosing the next v0.9 hardening slice.
 
 ## Failure Signals
 
 - Recurring runs still describe the current lane as generic v0.8 observation.
 - Agents treat v0.9 as permission to broaden scanner domains or declare the whole JSON schema stable.
+- Agents use the old self-use snapshot as the main selector and re-open v0.5
+  maintainability work without fresh evidence.
 
 ## Result
 

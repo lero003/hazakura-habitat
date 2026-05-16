@@ -58,7 +58,13 @@ Use `nenrin/` as the companion observation ledger for changes to the self-use en
 
 When evaluating self-use output, discount guidance that merely repeats existing instructions. Stronger evidence is a repository fact that changes or constrains the next command: a conflicting lockfile, a missing preferred tool, a secret-bearing path that changes search shape, a generated-output mismatch, or a release/CI/GitHub risk that requires policy review. Also record when a strong `AGENTS.md` made Habitat unnecessary; that is not a product failure unless a later command mistake shows the skipped preflight mattered.
 
-## Current Self-Scan Snapshot
+## Historical Self-Scan Snapshot
+
+This snapshot is preserved as self-use evidence from the `v0.5` release slice,
+not as the current work selector. For the active `v0.9` Pre-1.0 hardening lane,
+use `docs/current_status.md` and `docs/development_loop.md` first, then refresh
+`habitat-report/` when current command, freshness, release, helper, or output
+contract decisions depend on repository facts.
 
 Snapshot date: 2026-05-09 (v0.5 release slice; `SecretFileDetector` extraction, test-suite decomposition, no-output-change catalog boundaries, secret-bearing evidence, and documented-validation-command evidence are present).
 
