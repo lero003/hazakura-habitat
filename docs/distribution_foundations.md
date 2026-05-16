@@ -75,10 +75,11 @@ scripts/print_habitat_artifact.sh /path/to/habitat-scan . agent_context.md 0.8.0
 ```
 
 Successful metadata checks prove the binary version, generated
-`generatorVersion`, expected preview `schemaVersion`, and generated Markdown
-artifact metadata agree. They do not prove that a saved old report is fresh;
-regenerate when key project files changed after the report's `Scanned at`
-timestamp.
+`generatorVersion`, expected preview `schemaVersion`, and core generated
+Markdown artifact metadata agree, including entry sections and the
+`agent_context.md` line budget. They do not prove that a saved old report is
+fresh; regenerate when key project files changed after the report's
+`Scanned at` timestamp.
 
 ## Downloaded Release Directory
 

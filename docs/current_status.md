@@ -70,16 +70,18 @@ Keep the current cycle focused:
   verifying generated Markdown artifact metadata for
   `agent_context.md`, `command_policy.md`, and `environment_report.md` through
   `--stdout scan-result`, including expected names, roles, relative paths,
-  formats, read order, read triggers, and agent-use metadata, plus the direct stdout
-  availability of `agent_context.md`, `command_policy.md`, and
-  `environment_report.md`, without creating or updating `habitat-report/`.
+  formats, read order, read triggers, agent-use metadata, entry sections, and
+  the `agent_context.md` line budget, plus the direct stdout availability of
+  `agent_context.md`, `command_policy.md`, and `environment_report.md`, without
+  creating or updating `habitat-report/`.
   It rejects binary paths that are not regular non-symlink executable files
   before attempting version or metadata checks.
 - `scripts/print_habitat_artifact.sh` gives local scripts a checked stdout path
   for printing one generated artifact after verifying binary version,
   `generatorVersion`, expected preview `schemaVersion`, and requested artifact
   metadata, including expected role, relative path, format, read order, read
-  trigger, and agent-use hint for generated Markdown artifacts. When
+  trigger, agent-use hint, entry section, and the `agent_context.md` line
+  budget when applicable for generated Markdown artifacts. When
   `scan_result.json` is requested by filename, the helper verifies that the
   filename alias returns the same schema and generator version as the dash-form
   `scan-result` path before printing it. Verification failures stay on stderr,

@@ -4,6 +4,8 @@
 
 ### Changed
 
+- Tightened local/release metadata helpers so generated Markdown artifact
+  checks include entry sections and the `agent_context.md` line budget.
 - Clarified `v0.9` automation guidance so recurring runs classify stable,
   preview, docs-only, and post-v1 boundaries instead of creating changes just
   because the loop ran.

@@ -705,7 +705,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":120,"withinLineLimit":true},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands","entrySection":"Review First"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only","entrySection":"Diagnostics"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
@@ -721,7 +721,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan_result.json" ]]; then
-              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":120,"withinLineLimit":true},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands","entrySection":"Review First"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only","entrySection":"Diagnostics"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent_context.md" ]]; then
@@ -1349,7 +1349,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":120,"withinLineLimit":true},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands","entrySection":"Review First"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only","entrySection":"Diagnostics"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent_context.md" ]]; then
@@ -1404,7 +1404,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":120,"withinLineLimit":true},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands","entrySection":"Review First"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only","entrySection":"Diagnostics"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent_context.md" ]]; then
@@ -1466,7 +1466,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"}]}\\n'
+              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":120,"withinLineLimit":true}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent_context.md" ]]; then
@@ -1629,7 +1629,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"}]}\\n'
+              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands","entrySection":"Review First"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent_context.md" ]]; then
@@ -1664,6 +1664,9 @@ struct ScanExecutionInfrastructureTests {
         #expect(error.contains("agent_context.md.readOrder expected 1 but found 2"))
         #expect(error.contains("agent_context.md.readTrigger expected 'before_any_project_command'"))
         #expect(error.contains("agent_context.md.agentUse expected 'read_first'"))
+        #expect(error.contains("agent_context.md.entrySection expected 'Use' but found 'Review First'"))
+        #expect(error.contains("agent_context.md.lineLimit expected 120 but found None"))
+        #expect(error.contains("agent_context.md.withinLineLimit expected True but found None"))
     }
 
     @Test
@@ -1853,7 +1856,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"schemaVersion":"9.9","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+              printf '{"schemaVersion":"9.9","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":120,"withinLineLimit":true},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands","entrySection":"Review First"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only","entrySection":"Diagnostics"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
@@ -1908,7 +1911,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.4","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.4","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":120,"withinLineLimit":true},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands","entrySection":"Review First"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only","entrySection":"Diagnostics"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
@@ -2018,7 +2021,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":2,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_any_project_command","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":2,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":99,"withinLineLimit":false},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_any_project_command","agentUse":"consult_before_risky_commands","entrySection":"Allowed"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only","entrySection":"Diagnostics"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
@@ -2053,7 +2056,10 @@ struct ScanExecutionInfrastructureTests {
         let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
         #expect(process.terminationStatus == 3)
         #expect(error.contains("agent_context.md.readOrder expected 1 but found 2"))
+        #expect(error.contains("agent_context.md.lineLimit expected 120 but found 99"))
+        #expect(error.contains("agent_context.md.withinLineLimit expected True but found False"))
         #expect(error.contains("command_policy.md.readTrigger expected 'before_risky_remote_mutating_secret_or_environment_sensitive_commands' but found 'before_any_project_command'"))
+        #expect(error.contains("command_policy.md.entrySection expected 'Review First' but found 'Allowed'"))
     }
 
     @Test
@@ -2074,7 +2080,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+              printf '{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":120,"withinLineLimit":true},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands","entrySection":"Review First"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only","entrySection":"Diagnostics"}]}\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
@@ -2191,7 +2197,7 @@ struct ScanExecutionInfrastructureTests {
           exit 0
         fi
         if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
-          printf '{"schemaVersion":"0.1","generatorVersion":"\(version)","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+          printf '{"schemaVersion":"0.1","generatorVersion":"\(version)","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":120,"withinLineLimit":true},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands","entrySection":"Review First"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only","entrySection":"Diagnostics"}]}\\n'
           exit 0
         fi
         if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent-context" ]]; then
@@ -2207,7 +2213,7 @@ struct ScanExecutionInfrastructureTests {
           exit 0
         fi
         if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan_result.json" ]]; then
-          printf '{"schemaVersion":"0.1","generatorVersion":"\(version)","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first"},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only"}]}\\n'
+          printf '{"schemaVersion":"0.1","generatorVersion":"\(version)","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":120,"withinLineLimit":true},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands","entrySection":"Review First"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only","entrySection":"Diagnostics"}]}\\n'
           exit 0
         fi
         if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "agent_context.md" ]]; then

@@ -232,7 +232,8 @@ The helper reads `scan_result.json` through `--stdout scan-result`, compares
 `schemaVersion` is the helper's expected preview schema, verifies the generated
 Markdown artifact metadata for `agent_context.md`, `command_policy.md`, and
 `environment_report.md` includes the expected names, roles, relative paths,
-formats, read order, read triggers, and agent-use hints, checks that
+formats, read order, read triggers, agent-use hints, entry sections, and the
+`agent_context.md` line budget, checks that
 `--stdout agent-context`, `--stdout command-policy`, and
 `--stdout environment-report` return the expected Markdown artifacts,
 and leaves `habitat-report/` untouched.
@@ -275,7 +276,8 @@ scripts/print_habitat_artifact.sh ./dist/habitat-scan . /path/to/project/habitat
 This helper verifies the binary version, `generatorVersion`, expected preview
 `schemaVersion`, and requested artifact metadata before printing. For Markdown
 artifacts, that metadata includes the expected role, path, format, read order,
-read trigger, and agent-use hint. It does not create or update
+read trigger, agent-use hint, entry section, and the `agent_context.md` line
+budget when applicable. It does not create or update
 `habitat-report/`. The `habitat-report/filename` and absolute saved-report
 forms are accepted only when `habitat-report` is a real path component followed
 by the artifact filename; they still print a direct stdout artifact rather than

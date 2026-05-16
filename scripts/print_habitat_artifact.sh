@@ -9,7 +9,8 @@ Prints one generated Habitat artifact to stdout after verifying:
 - habitat-scan --version matches scan_result.json generatorVersion
 - scan_result.json reports the expected schemaVersion for this helper
 - the requested artifact is present in generated metadata with the expected role,
-  path, format, read order, read trigger, and agent-use hint
+  path, format, read order, read trigger, agent-use hint, entry section, and
+  agent_context.md line budget when applicable
 - optional expected-version matches both values
 
 Artifact may be one of:
@@ -95,31 +96,41 @@ artifact_map = {
         "readOrder": 1,
         "readTrigger": "before_any_project_command",
         "agentUse": "read_first",
+        "entrySection": "Use",
+        "lineLimit": 120,
+        "withinLineLimit": True,
     }),
     "agent_context.md": ("agent_context.md", "agent_context", "agent_context.md", {
         "readOrder": 1,
         "readTrigger": "before_any_project_command",
         "agentUse": "read_first",
+        "entrySection": "Use",
+        "lineLimit": 120,
+        "withinLineLimit": True,
     }),
     "command-policy": ("command_policy.md", "command_policy", "command-policy", {
         "readOrder": 2,
         "readTrigger": "before_risky_remote_mutating_secret_or_environment_sensitive_commands",
         "agentUse": "consult_before_risky_commands",
+        "entrySection": "Review First",
     }),
     "command_policy.md": ("command_policy.md", "command_policy", "command_policy.md", {
         "readOrder": 2,
         "readTrigger": "before_risky_remote_mutating_secret_or_environment_sensitive_commands",
         "agentUse": "consult_before_risky_commands",
+        "entrySection": "Review First",
     }),
     "environment-report": ("environment_report.md", "environment_report", "environment-report", {
         "readOrder": 3,
         "readTrigger": "only_for_diagnostics_or_audit",
         "agentUse": "debug_audit_only",
+        "entrySection": "Diagnostics",
     }),
     "environment_report.md": ("environment_report.md", "environment_report", "environment_report.md", {
         "readOrder": 3,
         "readTrigger": "only_for_diagnostics_or_audit",
         "agentUse": "debug_audit_only",
+        "entrySection": "Diagnostics",
     }),
 }
 

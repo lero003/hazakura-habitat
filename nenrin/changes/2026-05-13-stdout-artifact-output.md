@@ -75,6 +75,10 @@ review_after:
 - Tightened the print helper contract so it also requires the requested
   Markdown artifact to carry the expected read order, read trigger, and
   agent-use metadata before printing it to stdout.
+- Tightened the metadata and print helper contracts again so core generated
+  Markdown artifacts must carry the expected entry sections, and
+  `agent_context.md` must carry the expected line budget before local or
+  release helpers trust the generated output.
 - Tightened the print helper contract again so `scan_result.json` filename
   requests verify the filename alias returns the same preview schema and
   generator version as the dash-form `scan-result` path before printing.

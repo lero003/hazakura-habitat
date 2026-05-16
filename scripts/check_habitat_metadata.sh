@@ -8,7 +8,7 @@ Usage: check_habitat_metadata.sh /path/to/habitat-scan /path/to/project [expecte
 Checks that:
 - habitat-scan --version reports the same version as scan_result.json generatorVersion
 - scan_result.json reports the expected schemaVersion for this helper
-- scan_result.json includes the core generated Markdown artifact names, roles, paths, formats, read order, read triggers, and agent-use hints
+- scan_result.json includes the core generated Markdown artifact names, roles, paths, formats, read order, read triggers, agent-use hints, entry sections, and agent_context.md line budget
 - --stdout agent-context, command-policy, and environment-report return the core Markdown artifacts
 - --stdout filename aliases return the matching core artifacts
 - optional expected-version matches both values
@@ -89,6 +89,9 @@ required_artifacts = {
         "readOrder": 1,
         "readTrigger": "before_any_project_command",
         "agentUse": "read_first",
+        "entrySection": "Use",
+        "lineLimit": 120,
+        "withinLineLimit": True,
     },
     "command_policy.md": {
         "role": "command_policy",
@@ -97,6 +100,7 @@ required_artifacts = {
         "readOrder": 2,
         "readTrigger": "before_risky_remote_mutating_secret_or_environment_sensitive_commands",
         "agentUse": "consult_before_risky_commands",
+        "entrySection": "Review First",
     },
     "environment_report.md": {
         "role": "environment_report",
@@ -105,6 +109,7 @@ required_artifacts = {
         "readOrder": 3,
         "readTrigger": "only_for_diagnostics_or_audit",
         "agentUse": "debug_audit_only",
+        "entrySection": "Diagnostics",
     },
 }
 

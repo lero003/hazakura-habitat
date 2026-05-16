@@ -22,6 +22,9 @@ The core Markdown artifact contract is a narrow v1-stable candidate:
 - Generated artifact metadata should keep the filename, role, `agentUse`,
   `readTrigger`, `readOrder`, preferred entry section, and
   `agent_context.md` line limit aligned with that reading contract.
+- Release and stdout artifact helpers may verify this narrow core contract
+  before trusting generated Markdown output; detailed section line numbers,
+  character counts, and project metadata remain preview-scoped.
 
 The rest of `scan_result.json` remains preview metadata unless a narrower
 contract says otherwise. Section line numbers, character counts, policy counts,
