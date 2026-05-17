@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- No unreleased changes yet.
+- Clarified post-`v1.0.0` docs wording for the `v1.x` deprecation posture, the
+  narrow stable machine-readable boundary, release-binary versus source-build
+  requirements, and post-v1 observation language.
 
 ## v1.0.0 - 2026-05-18
 

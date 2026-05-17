@@ -326,8 +326,8 @@ Keep the current cycle focused:
 - Additional Node package-manager version metadata beyond `package.json`, Volta pins, `engines.node`, `.tool-versions`, `mise.toml`, and `.mise.toml`.
 - Swift/Xcode scanner detail beyond safe first-command guidance; this should stay focused on build/test command selection and safety.
 - Broader scan comparison beyond the initial AI-actionable deltas; avoid adding this unless it changes agent behavior.
-- Linux support guarantee. Portability notes may be useful before `v1.0` only
-  to protect the macOS-first CLI contract from accidental platform assumptions.
+- Linux support guarantee. Portability notes are useful only when they protect
+  the macOS-first CLI contract from accidental platform assumptions.
 - Structured concurrency in scanner execution. Keep synchronous command capture until a measured scan-size or timeout problem justifies parallel execution.
 - GUI, MCP server, and redaction modes.
 
@@ -363,11 +363,10 @@ Keep the current cycle focused:
   or command-decision evidence justifies the extra surface area, and do not
   turn portability notes into Linux support work.
 - The Nenrin-derived Python validation-purpose candidate is now covered: Habitat no longer prefers `.venv/bin/python -m pytest` merely because `.venv/bin/python` exists, and repo-backed unittest signals win when pytest is not confirmed runnable. Do not expand Python runner taxonomy further unless repeated evidence shows another runner distinction changes the first command.
-- Keep cross-project observation and Nenrin integration thin through `v1.0`
-  readiness and post-v1 observation. Watched repositories may surface bounded
-  uncertainty or a single Habitat carry-back, but their backlogs should not
-  choose Habitat's work. Nenrin should record durable judgment changes, not
-  changelog history.
+- Keep cross-project observation and Nenrin integration thin through post-v1
+  observation. Watched repositories may surface bounded uncertainty or a single
+  Habitat carry-back, but their backlogs should not choose Habitat's work.
+  Nenrin should record durable judgment changes, not changelog history.
 - Shape future evidence around `repo fact -> short annotation -> command decision`: Habitat should produce `Facts`, `Hints`, `Warnings`, and `Open uncertainty`, not plans.
 - Avoid turning evidence into a broad upfront architecture layer; extract it from one measured command-decision problem at a time.
 - Discount generated context that only repeats `AGENTS.md`; prefer facts that an initial agent would otherwise miss.

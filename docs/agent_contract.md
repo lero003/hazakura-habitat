@@ -46,9 +46,10 @@ Use this posture for `v1.x` unless a narrower contract replaces it:
 - Additive fields may ship within the current preview schema when older
   consumers can ignore them and current Markdown remains the command-decision
   authority.
-- Prefer deprecation over removal before `v1.0`: document the replacement in
-  this contract and release notes, keep the older field or Markdown contract
-  readable where practical, and only remove it with a documented schema change.
+- Within `v1.x`, prefer documented deprecation before removal unless a schema
+  change is required: document the replacement in this contract and release
+  notes, keep the older field or Markdown contract readable where practical,
+  and only remove it with a documented schema change.
 - Promote another field or Markdown shape to stable status only when this document
   names the boundary and tests, representative examples, or helper checks cover
   the behavior that agents or scripts depend on.

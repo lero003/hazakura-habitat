@@ -221,6 +221,12 @@ See [Public Readiness](docs/public_readiness.md) for the completed `v0.1.0` publ
 
 ## Requirements
 
+For downloaded release binaries:
+
+- macOS 13 or later.
+
+For source builds and local development:
+
 - macOS 13 or later.
 - Swift 6.1 toolchain or a compatible Xcode toolchain.
 

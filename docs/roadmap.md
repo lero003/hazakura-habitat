@@ -723,7 +723,7 @@ Scope:
 - macOS-first SwiftPM CLI
 - read-only project scan
 - stable core outputs
-- stable core JSON schema
+- stable core Markdown artifact metadata and narrow machine-readable boundary
 - concise `agent_context.md`
 - explainable `command_policy.md`
 - no secret values read or emitted
