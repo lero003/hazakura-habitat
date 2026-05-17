@@ -87,12 +87,13 @@ Keep the current cycle focused:
   `generatorVersion`, expected preview `schemaVersion`, and requested artifact
   metadata, including expected role, relative path, format, read order, read
   trigger, agent-use hint, entry section, and the `agent_context.md` line
-  budget when applicable for generated Markdown artifacts. When
-  `scan_result.json` is requested by filename, the helper verifies that the
-  filename alias returns the same schema and generator version as the dash-form
-  `scan-result` path before printing it. Verification failures stay on stderr,
-  so stdout can be piped directly to an agent,
-  automation step, or local script without creating or updating
+  budget when applicable for generated Markdown artifacts. Filename requests
+  are checked against their dash-form stdout token before printing, so
+  `scan_result.json` must match `scan-result` metadata and Markdown aliases
+  such as `agent_context.md`, `command_policy.md`, and
+  `environment_report.md` cannot return a same-heading but different body.
+  Verification failures stay on stderr, so stdout can be piped directly to an
+  agent, automation step, or local script without creating or updating
   `habitat-report/`. The helper rejects binary paths that are not regular
   non-symlink executable files before attempting version or metadata checks.
 - `scripts/verify_habitat_release.sh` gives local scripts a checksum-first
