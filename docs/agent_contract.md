@@ -10,9 +10,9 @@ This contract defines Habitat output, not a replacement documentation system.
 For partial adoption in an existing repository, see
 [AI Agent Adoption Guide](adoption_guide.md).
 
-## v0.9 Stability Boundary
+## v1.0 Stability Boundary
 
-The core Markdown artifact contract is a narrow v1-stable candidate:
+The core Markdown artifact contract is stable in `v1.0.0`:
 
 - `agent_context.md` is the first working input.
 - `command_policy.md` is consulted before risky, mutating, remote,
@@ -30,12 +30,12 @@ The core Markdown artifact contract is a narrow v1-stable candidate:
 The rest of `scan_result.json` remains preview metadata unless a narrower
 contract says otherwise. Section line numbers, character counts, policy counts,
 change details, and project-specific metadata are useful for scripts and
-audits, but they should not be treated as a frozen full-schema promise before
-`v1.0`.
+audits, but they should not be treated as a frozen full-schema promise in
+`v1.0.0`.
 
-### Pre-v1 Compatibility and Deprecation Posture
+### Compatibility and Deprecation Posture
 
-Use this posture until a narrower `v1.0` contract replaces it:
+Use this posture for `v1.x` unless a narrower contract replaces it:
 
 - `schemaVersion` is the preview-format compatibility gate, not a full stable
   schema promise. Bump it before renaming, removing, or changing the meaning of
@@ -49,13 +49,13 @@ Use this posture until a narrower `v1.0` contract replaces it:
 - Prefer deprecation over removal before `v1.0`: document the replacement in
   this contract and release notes, keep the older field or Markdown contract
   readable where practical, and only remove it with a documented schema change.
-- Promote a field or Markdown shape to `v1.0` stability only when this document
+- Promote another field or Markdown shape to stable status only when this document
   names the boundary and tests, representative examples, or helper checks cover
   the behavior that agents or scripts depend on.
 
 ### Failure-Mode Classification
 
-Use these failure-mode boundaries during `v0.9` hardening. They are intentionally
+Use these failure-mode boundaries during `v1.x`. They are intentionally
 narrow; they describe how agents and helper scripts should react to existing
 contracts without making Habitat an installer, repair tool, or command
 enforcement layer.
@@ -150,7 +150,7 @@ Example:
 
 ## Notes
 - Scanned at: 2026-04-25T00:00:00Z
-- Generator: 0.9.0
+- Generator: 1.0.0
 - Project: /path/to/project
 ```
 
@@ -737,7 +737,7 @@ Representative top-level shape:
 ```json
 {
   "schemaVersion": "0.1",
-  "generatorVersion": "0.9.0",
+  "generatorVersion": "1.0.0",
   "artifacts": [
     {
       "name": "agent_context.md",
@@ -898,8 +898,8 @@ Representative top-level shape:
 
 Preview contract:
 
-- During `v0.9`, the core Markdown artifact metadata is a narrow v1-stable
-  candidate when it identifies the generated Markdown artifacts and their
+- In `v1.0.0`, the core Markdown artifact metadata is stable when it identifies
+  the generated Markdown artifacts and their
   reading contract: `artifacts.name`, `artifacts.relativePath`,
   `artifacts.role`, `artifacts.format`, `artifacts.agentUse`,
   `artifacts.readTrigger`, `artifacts.readOrder`, `artifacts.entrySection`,
@@ -907,7 +907,7 @@ Preview contract:
 - Detailed artifact navigation and sizing metadata remains preview-scoped:
   `artifacts.entryLine`, `artifacts.sections`, `artifacts.sectionLines`,
   `artifacts.lineCount`, `artifacts.characterCount`, and exact values inside
-  generated output counts may still change before `v1.0`.
+  generated output counts may still change in `v1.x` releases.
 - Agents may use these fields to choose what to open first, where to start
   inside a longer artifact, when to continue into policy or diagnostics, and
   decide whether the full policy is needed, but they should not treat the full
@@ -918,7 +918,8 @@ Preview contract:
 
 Compatibility:
 
-- Add fields freely during `0.x`.
+- Add preview-scoped fields when older consumers can ignore them and current
+  Markdown remains the command-decision authority.
 - Do not rename or remove fields without documenting a schema change.
 - `generatorVersion` records the Habitat generator release that produced the scan. Previous-scan comparison should surface schema-version and generator-version changes with structured `previousValues` / `currentValues` so agents and scripts do not mistake preview-format, report-shape, or policy-generator differences for local environment drift. When `schemaVersion` differs, comparison should stop at compatibility-boundary deltas instead of emitting lower-level package, freshness, preferred-command, or policy changes from an incompatible previous schema. When `generatorVersion` differs, comparison should likewise stop at the generator boundary so generated policy or detection changes are not misread as local environment drift.
 - `artifacts` records generated Markdown artifact names, report-relative paths, roles, formats, `agentUse`, `readTrigger`, read order, entry section, entry line, generated Markdown section headings, section heading line numbers, physical line counts, character counts, any hard line limit for budgeted agent-facing artifacts, and `withinLineLimit` when a line limit applies. Agents can use it to open the report-local file, read the short working context first, jump to useful sections in longer policy or audit outputs, and distinguish report size without parsing Markdown first. Current `agentUse` values are `read_first`, `consult_before_risky_commands`, and `debug_audit_only`. Current `readTrigger` values are `before_any_project_command`, `before_risky_remote_mutating_secret_or_environment_sensitive_commands`, and `only_for_diagnostics_or_audit`. Current primary `entrySection` values are `Use`, `Review First`, and `Diagnostics`; `entryLine` is a 1-based line number for that heading; `sectionLines` is the ordered list of generated headings with 1-based line numbers; if a conditional section such as `Review First` is omitted, `entrySection` must fall back to an existing Markdown heading rather than naming a section that was not generated.

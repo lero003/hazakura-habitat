@@ -59,33 +59,35 @@ Keep the correction narrow:
 
 This is part of finishing the work, not a separate planning project.
 
-## Post-v0.9 / v1.0 Readiness Handoff
+## Post-v1.0 Observation Handoff
 
-After the `v0.9.0 Developer Preview`, recurring Habitat work should start from
-the remaining narrow `v1.0` readiness gates. Treat the first Pre-1.0 hardening
-slice as shipped: version-gated previous-scan comparison, failure-mode
-boundaries, core Markdown artifact metadata, helper verification, and scoped
-large-repository evidence are no longer reasons to broaden the product surface.
+After the `v1.0.0` release, recurring Habitat work should protect the stable
+advisory generator scope and use observation before adding surface area. Treat
+the Pre-1.0 hardening line as shipped: version-gated previous-scan comparison,
+failure-mode boundaries, core Markdown artifact metadata, helper verification,
+and scoped large-repository evidence are no longer reasons to broaden the
+product surface.
 
 Use this section and `docs/current_status.md` as the current automation
 authority. Saved automation prompts or memory can lag behind the repository
-after a release; when they still frame the run as generic `v0.9` hardening,
-prefer the repo docs, name the drift briefly, and continue with the smallest
-current `v1.0` readiness question. Do not edit saved automation configuration
-from a normal repo run unless the user explicitly asks for prompt sync.
+after a release; when they still frame the run as generic `v0.9` or `v1.0`
+readiness, prefer the repo docs, name the drift briefly, and continue with the
+smallest current observation-backed hardening question. Do not edit saved
+automation configuration from a normal repo run unless the user explicitly asks
+for prompt sync.
 
-The `v0.9.0` tag and GitHub Release are public. Do not repeat release prep,
-retag, or replace assets. A patch-release handoff is justified only when a
+The `v1.0.0` tag and GitHub Release are public once published. Do not repeat
+release prep, retag, or replace assets. A patch-release handoff is justified
+only when a
 published artifact, checksum, install instruction, release note, or generated
 output claim is materially misleading; otherwise keep release observations as
 main-branch docs or future readiness input.
 
 Default priority for automation:
 
-- first, check whether the run has one concrete `v1.0` contract gap, such as
-  breaking-change policy, deprecation policy, schema migration notes, fixture
-  coverage review, release-consumption wording, or a stale stable/preview
-  boundary
+- first, check whether the run has one concrete observation-backed contract gap,
+  such as release-consumption wording, fixture coverage review, stable/preview
+  boundary drift, or a repeated command-decision mistake
 - second, prefer no-op when the current docs, examples, tests, and helper
   verification already support the next command decision
 - third, use docs-only work only when stale automation wording would choose the
@@ -97,9 +99,9 @@ Default priority for automation:
   command enforcement, automatic repair, broad Linux support, and whole-project
   intelligence remain deferred
 
-Good post-`v0.9.0` automation outcomes are:
+Good post-`v1.0.0` automation outcomes are:
 
-- a small contract-readiness change backed by docs, tests, examples, or helper
+- a small contract-hardening change backed by docs, tests, examples, or helper
   verification
 - a docs-only correction that prevents the next run from following stale
   automation language

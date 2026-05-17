@@ -2,18 +2,45 @@
 
 ## Unreleased
 
-- Anchored the pre-`v1.0` compatibility posture in the agent contract:
+- No unreleased changes yet.
+
+## v1.0.0 - 2026-05-18
+
+Stable advisory generator release.
+
+`v1.0.0` keeps Habitat narrow: advisory, read-only, macOS-first, and focused on
+helping AI coding agents choose a safer next command. This release does not add
+command enforcement, sandboxing, broad platform support, MCP integration, a GUI,
+automatic repair, or a generic evidence layer.
+
+### Changed
+
+- Anchored the `v1.x` compatibility posture in the agent contract:
   `schemaVersion` gates unsafe preview-format changes, `generatorVersion`
   remains release provenance, additive preview fields may continue, and removals
   should prefer documented deprecation before schema changes.
-- Clarified post-`v0.9.0` automation guidance so recurring runs treat the
+- Clarified post-`v1.0.0` automation guidance so recurring runs treat the
   release as complete, use repo docs as the current authority when saved prompts
-  lag, and select only concrete `v1.0` readiness gaps or verified no-op.
+  lag, and select only observation-backed hardening gaps or verified no-op.
 - Reframed the post-`v1.0` roadmap as an observation roadmap: deepen bounded
   core evidence before thin integration, keep platform expansion in the parking
   lot, and keep observation-led follow-ups such as Nenrin, representative
   examples, no-scan cases, Linux notes, and MCP evidence-gated rather than
   default feature lanes.
+- Promoted the generator version and public docs to `1.0.0` while keeping the
+  stable machine-readable boundary narrow: the core Markdown artifact reading
+  contract is stable, while detailed JSON counts, section navigation, policy
+  reason details, previous-scan values, and project metadata remain
+  preview-scoped.
+
+### Verified
+
+- `swift test`
+- `git diff --check`
+- Local release artifacts built with `scripts/build_release_artifacts.sh`.
+- Local checksums verified with `cd dist && shasum -c SHA256SUMS`.
+- Local release helper verification with
+  `scripts/verify_habitat_release.sh ./dist . 1.0.0`.
 
 ## v0.9.0 Developer Preview - 2026-05-17
 

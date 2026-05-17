@@ -2,15 +2,15 @@
 
 ## Current Phase
 
-CLI MVP is usable. The published `v0.9.0 Developer Preview` is the current public release. Main-branch work is moving toward the remaining narrow `v1.0` readiness gates.
+CLI MVP is usable. The `v1.0.0` line is the stable advisory generator scope. Main-branch work should now protect that narrow contract and use post-v1 observation before adding surface area.
 
 The goal is not broad Mac environment coverage. The goal is to keep AI-facing outputs short, conservative, stable, and useful enough that an AI coding agent avoids wrong or unsafe commands before touching a repository.
 
-The `v0.9.0 Developer Preview` milestone keeps Habitat advisory while sorting the first Pre-1.0 stability boundaries. Version-gated previous-scan comparison, unreadable previous-scan fallback, bounded schema/generator mismatch output, core Markdown artifact metadata, stdout/file artifact helper verification, and scoped large-repository evidence guidance are now the shipped hardening slice.
+The `v1.0.0` release keeps Habitat advisory while accepting the first stable scope. Version-gated previous-scan comparison, unreadable previous-scan fallback, bounded schema/generator mismatch output, core Markdown artifact metadata, stdout/file artifact helper verification, and scoped large-repository evidence guidance are now part of the supported advisory contract.
 
-Treat remaining `v0.9.x` work as small readiness follow-through before `v1.0`, not as permission to expand the product surface. Continue classifying contracts that v0.8 and v0.9 made visible: previous-scan comparison, report freshness, preferred-command deltas, generator traceability, release consumption, Markdown reading order, helper behavior, representative examples, adoption guidance, breaking-change policy, and schema migration notes.
+Treat `v1.x` work as observation-led hardening, not as permission to expand the product surface. Continue keeping contracts narrow: previous-scan comparison, report freshness, preferred-command deltas, generator traceability, release consumption, Markdown reading order, helper behavior, representative examples, adoption guidance, breaking-change policy, and schema migration notes.
 
-Do not add broad scanner domains, command enforcement, install repair, full MCP integration, Linux support work, or a generic evidence layer just because the release number advanced. Future distribution work belongs in remaining `v0.9.x` follow-through only when repeated consumption failures show it changes the next command or release trust decision.
+Do not add broad scanner domains, command enforcement, install repair, full MCP integration, Linux support work, or a generic evidence layer just because the release number advanced. Future distribution work belongs in `v1.x` hardening only when repeated consumption failures show it changes the next command or release trust decision.
 
 The large-repository direction is scoped evidence, not whole-project
 understanding. Habitat should help agents avoid the false confidence that comes
@@ -35,10 +35,10 @@ Keep the current cycle focused:
   small repo-local code, test, docs, fixture, helper, or output-contract slice,
   and treat handoff or Nenrin-only work as a fallback for stale guidance rather
   than the default outcome
-- after the public `v0.9.0` release, treat `docs/development_loop.md` as the
+- after the public `v1.0.0` release, treat `docs/development_loop.md` as the
   current automation handoff: saved prompt wording may lag, but recurring runs
-  should move from generic `v0.9` hardening to concrete `v1.0` readiness gaps,
-  docs-only stale-guidance fixes, or verified no-op
+  should protect the stable advisory contract, choose observation-backed
+  hardening, apply docs-only stale-guidance fixes, or end as verified no-op
 - use cross-project Habitat reports only as observation input for Habitat itself; the `hazakura-ai-mobile` report produced one bounded carry-back: executable Gradle wrappers can now become local validation guidance without expanding into Android environment auditing
 
 ## Implemented
@@ -333,9 +333,9 @@ Keep the current cycle focused:
 
 ## Next Useful Improvements
 
-- Treat `v0.9.0` as the current published Developer Preview and keep released tags and GitHub Release assets immutable. Use a transparent patch release only if a published artifact, checksum, install instruction, or generated-output claim is materially wrong.
-- Use remaining `v0.9.x` work to finish classifying what can become v1-stable, what remains preview metadata, what stays docs-only guidance, and what moves post-v1. Good candidates for narrow hardening are `schemaVersion`, `generatorVersion`, artifact filenames and roles, `policy.preferredCommands`, `policy.reasonCodes`, and `changes`; do not declare the whole JSON schema stable at once.
-- `docs/agent_contract.md` now anchors the pre-`v1.0` compatibility posture:
+- Treat `v1.0.0` as the current stable advisory generator release once published, and keep released tags and GitHub Release assets immutable. Use a transparent patch release only if a published artifact, checksum, install instruction, or generated-output claim is materially wrong.
+- Keep the stable `v1.0.0` machine-readable boundary narrow. Core Markdown artifact metadata is stable; detailed JSON counts, section navigation, policy reason details, previous-scan values, and project metadata remain preview-scoped unless `docs/agent_contract.md` promotes a narrower field.
+- `docs/agent_contract.md` now anchors the compatibility posture:
   `schemaVersion` gates unsafe preview-format changes, `generatorVersion`
   records release provenance, additive fields may remain preview-scoped, and
   removals should prefer documented deprecation before a schema change.
@@ -345,7 +345,7 @@ Keep the current cycle focused:
 - Next maintainability slice should stay similarly narrow: extract another cohesive command family only when adjacent behavior work needs it, or split scanner/package-manager fixture ownership without changing generated output. Keep reason-code definitions, rule ordering, fallback reasons, dependency-mutation fallback, broad credential/auth rewrites, DSLs, plugins, and external rule formats out of scope.
 - Keep the next cycle small: use Habitat during real Codex work, observe what changed the next command, then return the finding to policy, evidence fixtures, tests, or docs.
 - Use Nenrin during self-use and automation work to record why agent-facing guidance changed, what behavior was expected, and whether the change should be kept, removed, merged, narrowed, or moved.
-- Use the published `v0.9.0` artifacts during real Codex work and observe whether distribution consumption, freshness, previous-scan comparison, project-local validation, behavior-fixture, or Nenrin evidence changes the next command.
+- Use the published `v1.0.0` artifacts during real Codex work and observe whether distribution consumption, freshness, previous-scan comparison, project-local validation, behavior-fixture, or Nenrin evidence changes the next command.
 - The 2026-05-08 paired Habitat/Nenrin use report reinforced two post-`v0.5` observation candidates: stale scan reports may need a small machine-readable freshness check if they cause mistaken commands, and generic baseline `Do Not` guidance should not hide project-specific risk when the short context is crowded. Treat both as behavior evidence questions, not immediate feature expansion. If freshness work is chosen, start with date-aware bounded uncertainty: compare `Scanned at` with key repository facts or file mtimes, warn before trusting package-manager or validation guidance, and avoid cleanup or lifecycle automation until a measured mistake needs it.
 - The 2026-05-09 `hazakura-ai-mobile` observation produced one bounded carry-back: executable `gradlew` now selects Gradle wrapper validation and sanitized `./gradlew test` claims can align with repository facts. This closes the first generic-read-only gap without adding Android environment auditing; deeper Gradle evidence should wait for repeated wrapper-version, task-list, or Android-specific command mistakes.
 - The 2026-05-11 cross-project intake showed a useful automation-rule gap rather than a scanner gap: `hazakura-ai-mobile` had a saved report older than later docs/status edits but a fresh temporary scan still selected the Gradle wrapper, while `hazakura-nenrin` had no project-local Habitat report and a temporary scan selected `.venv/bin/python` with symlink review warnings. The carry-back is to make recurring Habitat automation perform a bounded read-only intake before choosing work, then proceed only when the signal changes a Habitat command decision or automation rule.

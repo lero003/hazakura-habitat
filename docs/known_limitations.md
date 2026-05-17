@@ -1,6 +1,6 @@
 # Known Limitations
 
-Hazakura Habitat is currently `v0.9.0 Developer Preview`.
+Hazakura Habitat is currently `v1.0.0`.
 
 The current goal is not broad coverage. The goal is useful, conservative, project-derived command context for AI coding agents.
 
@@ -21,7 +21,8 @@ Habitat does not guarantee that:
 - all secret-bearing files are detected
 - every package manager or runtime edge case is modeled
 - every generated policy entry is complete for every ecosystem
-- JSON fields remain stable during `v0.x`
+- preview-scoped JSON fields remain stable outside the documented `v1.0.0`
+  core Markdown artifact reading contract
 - non-macOS environments behave the same way
 
 ## Not Implemented

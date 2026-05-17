@@ -27,7 +27,7 @@
 
 ## Notes
 - Scanned at: example timestamp
-- Generator: 0.9.0
+- Generator: 1.0.0
 - Project: example Python uv project
 - Freshness: regenerate if key project files changed after this timestamp; compare key files with `scan_result.json` observed file mtimes.
 - Latest observed file: pyproject.toml modified at example timestamp (shortcut only; other observed files may become stale later).
