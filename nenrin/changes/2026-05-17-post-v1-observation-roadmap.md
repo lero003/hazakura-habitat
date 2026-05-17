@@ -21,8 +21,9 @@ review_after:
   of a feature expansion table.
 - Set the post-v1 priority order to core bounded evidence, then thin agent
   integration, then platform expansion parking lot.
-- Captured early post-v1 decisions for Nenrin minimization, representative
-  examples, no-scan validity, Linux feasibility notes, and MCP gating.
+- Captured early post-v1 judgment gates for the observation ledger,
+  representative examples, no-scan validity, Linux feasibility notes, and MCP
+  gating without fixing Nenrin's public role too early.
 
 ## Reason
 
@@ -37,8 +38,8 @@ things; it is reducing false confidence with short command-relevant evidence.
   confidence."
 - Agents treat no-scan success and verified no-op as valid evidence when no
   command mistake follows.
-- Nenrin remains a thin judgment-change ledger unless review cadence and
-  observed value justify a larger role.
+- Nenrin, or any successor ledger, stays focused on judgment changes unless
+  review cadence and observed value justify a larger role.
 
 ## Review After
 

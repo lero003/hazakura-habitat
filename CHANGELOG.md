@@ -7,8 +7,9 @@
   lag, and select only concrete `v1.0` readiness gaps or verified no-op.
 - Reframed the post-`v1.0` roadmap as an observation roadmap: deepen bounded
   core evidence before thin integration, keep platform expansion in the parking
-  lot, and treat Nenrin, representative examples, no-scan cases, Linux notes,
-  and MCP as evidence-gated follow-ups rather than default feature lanes.
+  lot, and keep observation-led follow-ups such as Nenrin, representative
+  examples, no-scan cases, Linux notes, and MCP evidence-gated rather than
+  default feature lanes.
 
 ## v0.9.0 Developer Preview - 2026-05-17
 

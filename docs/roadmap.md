@@ -777,23 +777,23 @@ Priority order:
 2. Thin agent integration.
 3. Platform expansion parking lot.
 
-### v1.0.x: Nenrin Treatment
+### v1.0.x: Observation Ledger Boundaries
 
-Decide how much Nenrin belongs in the product story before it becomes a
-maintenance burden.
+Keep the observation ledger lightweight enough that it supports Habitat's
+post-v1 judgment loop without becoming a second product surface.
 
-Preferred direction: minimize Nenrin to a judgment-change ledger. Record
-observations that changed later action, narrowed behavior, or justified pruning;
-do not mirror changelogs, routine daily work, or every small docs edit. If
-review backlog grows faster than useful observations, reduce recording pressure
-before adding more review process.
+Working direction: keep Nenrin, or any successor ledger, focused on judgments
+that changed later action, narrowed behavior, or justified pruning. Avoid
+mirroring changelogs, routine daily work, or every small docs edit. If review
+backlog grows faster than useful observations, reduce recording pressure before
+adding more review process.
 
-Open choices:
+Open shapes:
 
-- keep Nenrin as a visible product-adjacent ledger only if review cadence stays
-  healthy
-- internalize it if it distracts from Habitat's public contract
-- minimize it to the thin observation spine for post-v1 decisions
+- keep a visible product-adjacent ledger if review cadence stays healthy
+- keep it mostly as an internal development aid if that better protects
+  Habitat's public contract
+- narrow it to the thin observation spine for post-v1 decisions
 
 ### v1.1: Use-Observation Review
 
