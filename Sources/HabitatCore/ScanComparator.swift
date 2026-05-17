@@ -61,26 +61,44 @@ public struct ScanComparator {
 
     private func schemaVersionChange(previous: ScanResult, current: ScanResult) -> ScanChange? {
         guard previous.schemaVersion != current.schemaVersion else { return nil }
+        let previousVersion = compatibilityVersionLabel(previous.schemaVersion)
+        let currentVersion = compatibilityVersionLabel(current.schemaVersion)
 
         return ScanChange(
             category: "schema",
-            summary: "Scan result schema changed from \(previous.schemaVersion) to \(current.schemaVersion).",
+            summary: "Scan result schema changed from \(previousVersion) to \(currentVersion).",
             impact: "Treat previous scan metadata as preview-format context; rely on the current generated Markdown before making command decisions.",
-            previousValues: [previous.schemaVersion],
-            currentValues: [current.schemaVersion]
+            previousValues: [previousVersion],
+            currentValues: [currentVersion]
         )
     }
 
     private func generatorVersionChange(previous: ScanResult, current: ScanResult) -> ScanChange? {
         guard previous.generatorVersion != current.generatorVersion else { return nil }
+        let previousVersion = compatibilityVersionLabel(previous.generatorVersion)
+        let currentVersion = compatibilityVersionLabel(current.generatorVersion)
 
         return ScanChange(
             category: "generator",
-            summary: "Generator version changed from \(previous.generatorVersion) to \(current.generatorVersion).",
+            summary: "Generator version changed from \(previousVersion) to \(currentVersion).",
             impact: "Treat report-shape or policy differences as generator changes before assuming the local environment changed.",
-            previousValues: [previous.generatorVersion],
-            currentValues: [current.generatorVersion]
+            previousValues: [previousVersion],
+            currentValues: [currentVersion]
         )
+    }
+
+    private func compatibilityVersionLabel(_ value: String) -> String {
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, trimmed.count <= 40 else {
+            return "unknown"
+        }
+
+        let allowed = CharacterSet(charactersIn: "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789._+-")
+        guard trimmed.unicodeScalars.allSatisfy({ allowed.contains($0) }) else {
+            return "unknown"
+        }
+
+        return trimmed
     }
 
     private func packageManagerChange(previous: ScanResult, current: ScanResult) -> ScanChange {

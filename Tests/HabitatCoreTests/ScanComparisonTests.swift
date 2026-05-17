@@ -180,6 +180,54 @@ struct ScanComparisonTests {
     }
 
     @Test
+    func scanComparisonNormalizesUntrustedCompatibilityVersionLabels() throws {
+        let previous = ScanResult(
+            schemaVersion: "0.0\nInjected schema heading",
+            generatorVersion: "0.0.9\nInjected generator heading",
+            scannedAt: "2026-04-25T00:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["swift test"], askFirstCommands: [], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+        let current = ScanResult(
+            schemaVersion: HabitatMetadata.schemaVersion,
+            generatorVersion: HabitatMetadata.generatorVersion,
+            scannedAt: "2026-04-25T01:00:00Z",
+            projectPath: "/tmp/project",
+            system: .init(operatingSystemVersion: "macOS", architecture: "arm64", shell: "/bin/zsh", path: ["/usr/bin"]),
+            commands: [],
+            project: .init(detectedFiles: ["Package.swift"], packageManager: "swiftpm", packageManagerVersion: nil, packageScripts: [], runtimeHints: .init(node: nil, python: nil)),
+            tools: .init(resolvedPaths: [], versions: []),
+            policy: .init(preferredCommands: ["swift test"], askFirstCommands: [], forbiddenCommands: ["sudo"]),
+            warnings: [],
+            diagnostics: []
+        )
+
+        let changes = ScanComparator().compare(previous: previous, current: current)
+
+        #expect(changes.map(\.category) == ["schema", "generator"])
+        #expect(changes[0].summary == "Scan result schema changed from unknown to \(HabitatMetadata.schemaVersion).")
+        #expect(changes[0].previousValues == ["unknown"])
+        #expect(changes[1].summary == "Generator version changed from unknown to \(HabitatMetadata.generatorVersion).")
+        #expect(changes[1].previousValues == ["unknown"])
+
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: current.withChanges(changes), outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let report = try String(contentsOf: outputURL.appendingPathComponent("environment_report.md"), encoding: .utf8)
+
+        #expect(!context.contains("Injected"))
+        #expect(!report.contains("Injected"))
+        #expect(context.contains("Scan result schema changed from unknown to \(HabitatMetadata.schemaVersion)."))
+        #expect(report.contains("[generator] Generator version changed from unknown to \(HabitatMetadata.generatorVersion)."))
+    }
+
+    @Test
     func scanComparisonStopsAtGeneratorDeltaWhenGeneratorVersionDiffers() throws {
         let previous = ScanResult(
             schemaVersion: HabitatMetadata.schemaVersion,

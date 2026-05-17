@@ -59,7 +59,29 @@ Keep the correction narrow:
 
 This is part of finishing the work, not a separate planning project.
 
-## Post-v0.8 / v0.9 Automation Handoff
+## Post-v0.9 / v1.0 Readiness Handoff
+
+After the `v0.9.0 Developer Preview`, recurring Habitat work should start from
+the remaining narrow `v1.0` readiness gates. Treat the first Pre-1.0 hardening
+slice as shipped: version-gated previous-scan comparison, failure-mode
+boundaries, core Markdown artifact metadata, helper verification, and scoped
+large-repository evidence are no longer reasons to broaden the product surface.
+
+Default priority for automation:
+
+- first, check whether the run has one concrete `v1.0` contract gap, such as
+  breaking-change policy, deprecation policy, schema migration notes, fixture
+  coverage review, release-consumption wording, or a stale stable/preview
+  boundary
+- second, prefer no-op when the current docs, examples, tests, and helper
+  verification already support the next command decision
+- third, keep released tags and GitHub Release assets immutable unless an
+  explicit patch-release handoff is justified
+- fourth, keep post-v1 exploration out of this lane: MCP integration, GUI,
+  command enforcement, automatic repair, broad Linux support, and whole-project
+  intelligence remain deferred
+
+## Historical Post-v0.8 / v0.9 Automation Handoff
 
 After the `v0.8.0 Developer Preview`, recurring Habitat work should start from
 `v0.9` Pre-1.0 hardening. Treat the `v0.8` Observation -> Action work as a

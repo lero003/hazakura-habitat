@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+- No unreleased changes yet.
+
+## v0.9.0 Developer Preview - 2026-05-17
+
+Pre-1.0 hardening release.
+
+`v0.9.0` sorts the first narrow stability boundaries before `v1.0`.
+Habitat remains advisory, read-only, and macOS-first; this release does not add
+command enforcement, sandboxing, broad platform support, MCP integration, or a
+new scanner domain.
+
 ### Changed
 
 - Clarified the `scan_result.json` v0.9 boundary so core Markdown artifact
@@ -18,8 +29,22 @@
   metadata, stdout/output, previous-scan, freshness, and diagnostic-report
   mismatches resolve to explicit failure, bounded uncertainty, or docs-only
   misuse.
+- Hardened previous-scan structured values for package-manager version,
+  runtime-hint, sensitive-signal, project-symlink, missing-tool,
+  tool-verification, preferred-command, and command-policy deltas so scripts can
+  inspect `previousValues` / `currentValues` without scraping prose.
+- Normalized previous-scan schema and generator labels before rendering
+  compatibility-boundary summaries, so malformed external previous-scan metadata
+  does not inject raw multiline labels into generated Markdown.
+- Kept unreadable previous scans as bounded uncertainty rather than scan
+  failure, preserving current generated guidance while telling agents to pass a
+  readable previous report before relying on comparison output.
+- Added generated-artifact coverage for generator-version deltas so
+  `scan_result.json`, `agent_context.md`, and `environment_report.md` all expose
+  the same bounded generator-change boundary.
 - Tightened local/release metadata helpers so generated Markdown artifact
-  checks include entry sections and the `agent_context.md` line budget.
+  checks include entry sections, the `agent_context.md` line budget, and
+  matching stdout filename aliases.
 - Clarified `v0.9` automation guidance so recurring runs classify stable,
   preview, docs-only, and post-v1 boundaries instead of creating changes just
   because the loop ran.
@@ -31,6 +56,15 @@
 - Added large-repository development guidance that favors scoped entrypoints,
   nearby files, command-relevant evidence, and explicit uncertainty over
   whole-project interpretation.
+- Updated generated artifact metadata to report generator version `0.9.0`.
+
+### Verified
+
+- `swift test --disable-sandbox` passes with 368 tests in 34 suites.
+- `git diff --check` passes for the release-prep tree.
+- Local release artifacts were built with `scripts/build_release_artifacts.sh`,
+  checksummed with `shasum -c dist/SHA256SUMS`, and verified with
+  `scripts/verify_habitat_release.sh ./dist . 0.9.0`.
 
 ## v0.8.0 Developer Preview - 2026-05-16
 

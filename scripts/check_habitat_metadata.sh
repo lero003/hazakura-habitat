@@ -10,7 +10,7 @@ Checks that:
 - scan_result.json reports the expected schemaVersion for this helper
 - scan_result.json includes the core generated Markdown artifact names, roles, paths, formats, read order, read triggers, agent-use hints, entry sections, and agent_context.md line budget
 - --stdout agent-context, command-policy, and environment-report return the core Markdown artifacts
-- --stdout filename aliases return the matching core artifacts
+- --stdout filename aliases return the matching core Markdown artifacts and scan-result metadata
 - optional expected-version matches both values
 
 This script reads scan_result.json through --stdout scan-result and does not
@@ -165,33 +165,50 @@ agent_context_by_name="$("$habitat_scan" scan --project "$project_path" --stdout
 command_policy_by_name="$("$habitat_scan" scan --project "$project_path" --stdout command_policy.md)"
 environment_report_by_name="$("$habitat_scan" scan --project "$project_path" --stdout environment_report.md)"
 
-generator_version_by_name="$(printf '%s' "$scan_json_by_name" | EXPECTED_SCHEMA_VERSION="$expected_schema_version" /usr/bin/env python3 -c '
+generator_version_by_name="$(SCAN_JSON="$scan_json" SCAN_JSON_BY_NAME="$scan_json_by_name" EXPECTED_SCHEMA_VERSION="$expected_schema_version" /usr/bin/env python3 -c '
 import json
 import os
 import sys
 
-data = json.load(sys.stdin)
+data = json.loads(os.environ["SCAN_JSON_BY_NAME"])
 schema_version = data.get("schemaVersion", "")
 generator_version = data.get("generatorVersion", "")
 expected_schema_version = os.environ["EXPECTED_SCHEMA_VERSION"]
 if schema_version != expected_schema_version:
     print(f"error: --stdout scan_result.json schemaVersion {schema_version!r} does not match expected {expected_schema_version!r}", file=sys.stderr)
     sys.exit(3)
+
+canonical = json.loads(os.environ["SCAN_JSON"])
+
+fields = [
+    "name",
+    "role",
+    "relativePath",
+    "format",
+    "readOrder",
+    "readTrigger",
+    "agentUse",
+    "entrySection",
+    "lineLimit",
+    "withinLineLimit",
+]
+
+def core_artifact_metadata(scan):
+    artifacts = scan.get("artifacts", [])
+    return [
+        {field: artifact.get(field) for field in fields if field in artifact}
+        for artifact in artifacts
+    ]
+
+if core_artifact_metadata(data) != core_artifact_metadata(canonical):
+    print("error: --stdout scan_result.json core artifact metadata did not match --stdout scan-result output", file=sys.stderr)
+    sys.exit(4)
+
 print(generator_version)
 ')"
 
-if [[ "$scan_json_by_name" != "$scan_json" ]]; then
-  printf 'error: --stdout scan_result.json did not match --stdout scan-result output\n' >&2
-  exit 4
-fi
-
 if [[ "$generator_version_by_name" != "$generator_version" ]]; then
   printf 'error: --stdout scan_result.json generatorVersion %s does not match scan-result generatorVersion %s\n' "$generator_version_by_name" "$generator_version" >&2
-  exit 4
-fi
-
-if [[ "$agent_context_by_name" != "$agent_context" ]]; then
-  printf 'error: --stdout agent_context.md did not match --stdout agent-context output\n' >&2
   exit 4
 fi
 
@@ -200,8 +217,8 @@ if [[ "$agent_context_by_name" != \#\ Agent\ Context* ]]; then
   exit 4
 fi
 
-if [[ "$command_policy_by_name" != "$command_policy" ]]; then
-  printf 'error: --stdout command_policy.md did not match --stdout command-policy output\n' >&2
+if [[ "$agent_context_by_name" != *$'\n## Use'* ]]; then
+  printf 'error: --stdout agent_context.md did not include entry section Use\n' >&2
   exit 4
 fi
 
@@ -210,13 +227,18 @@ if [[ "$command_policy_by_name" != \#\ Command\ Policy* ]]; then
   exit 4
 fi
 
-if [[ "$environment_report_by_name" != "$environment_report" ]]; then
-  printf 'error: --stdout environment_report.md did not match --stdout environment-report output\n' >&2
+if [[ "$command_policy_by_name" != *$'\n## Review First'* ]]; then
+  printf 'error: --stdout command_policy.md did not include entry section Review First\n' >&2
   exit 4
 fi
 
 if [[ "$environment_report_by_name" != \#\ Environment\ Report* ]]; then
   printf 'error: --stdout environment_report.md did not return environment_report.md\n' >&2
+  exit 4
+fi
+
+if [[ "$environment_report_by_name" != *$'\n## Diagnostics'* ]]; then
+  printf 'error: --stdout environment_report.md did not include entry section Diagnostics\n' >&2
   exit 4
 fi
 

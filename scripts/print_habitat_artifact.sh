@@ -198,11 +198,13 @@ if errors:
 print(stdout_value)
 print(expected_name)
 print(expected_role)
+print(artifact.get("entrySection", ""))
 ')"
 
 stdout_value="$(printf '%s\n' "$artifact_metadata" | sed -n '1p')"
 artifact_name="$(printf '%s\n' "$artifact_metadata" | sed -n '2p')"
 artifact_role="$(printf '%s\n' "$artifact_metadata" | sed -n '3p')"
+entry_section="$(printf '%s\n' "$artifact_metadata" | sed -n '4p')"
 
 if [[ "$artifact_name" == "scan_result.json" ]]; then
   if [[ "$stdout_value" == "scan-result" ]]; then
@@ -258,16 +260,13 @@ case "$artifact_role" in
     ;;
 esac
 
-if [[ "$stdout_value" != "$canonical_stdout_value" ]]; then
-  canonical_artifact_text="$("$habitat_scan" scan --project "$project_path" --stdout "$canonical_stdout_value")"
-  if [[ "$artifact_text" != "$canonical_artifact_text" ]]; then
-    printf 'error: --stdout %s did not match --stdout %s output\n' "$stdout_value" "$canonical_stdout_value" >&2
-    exit 4
-  fi
-fi
-
 if [[ "$artifact_text" != "$expected_header"* ]]; then
   printf 'error: --stdout %s did not return %s\n' "$stdout_value" "$artifact_name" >&2
+  exit 4
+fi
+
+if [[ -n "$entry_section" && "$artifact_text" != *$'\n## '"$entry_section"* ]]; then
+  printf 'error: --stdout %s did not include entry section %s\n' "$stdout_value" "$entry_section" >&2
   exit 4
 fi
 

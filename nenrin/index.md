@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 189
+- observing: 190
 - reviewed: 12
 
 ## Active Changes
@@ -196,6 +196,7 @@
 - `v0-8-release-prep` - [changes/2026-05-16-v0-8-release-prep.md](changes/2026-05-16-v0-8-release-prep.md)
 - `v0-9-phase-boundary` - [changes/2026-05-16-v0-9-phase-boundary.md](changes/2026-05-16-v0-9-phase-boundary.md)
 - `policy-reason-code-order-contract` - [changes/2026-05-17-policy-reason-code-order-contract.md](changes/2026-05-17-policy-reason-code-order-contract.md)
+- `v0-9-release-prep` - [changes/2026-05-17-v0-9-release-prep.md](changes/2026-05-17-v0-9-release-prep.md)
 
 ## Review Due
 

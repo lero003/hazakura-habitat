@@ -713,7 +713,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
-              printf '# Command Policy\\n\\n## Allowed\\n'
+              printf '# Command Policy\\n\\n## Review First\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment-report" ]]; then
@@ -729,7 +729,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command_policy.md" ]]; then
-              printf '# Command Policy\\n\\n## Allowed\\n'
+              printf '# Command Policy\\n\\n## Review First\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment_report.md" ]]; then
@@ -795,7 +795,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && ( "$5" == "command-policy" || "$5" == "command_policy.md" ) ]]; then
-              printf '# Command Policy\\n\\n## Allowed\\n'
+              printf '# Command Policy\\n\\n## Review First\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && ( "$5" == "environment-report" || "$5" == "environment_report.md" ) ]]; then
@@ -822,7 +822,69 @@ struct ScanExecutionInfrastructureTests {
 
         let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
         #expect(process.terminationStatus == 4)
-        #expect(error.contains("--stdout agent_context.md did not match --stdout agent-context output"))
+        #expect(error.contains("--stdout agent_context.md did not include entry section Use"))
+    }
+
+    @Test
+    func metadataCheckScriptRejectsMismatchedScanResultFilenameAliasMetadata() throws {
+        let fileManager = FileManager.default
+        let tempURL = fileManager.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        let projectURL = tempURL.appendingPathComponent("project")
+        let binaryURL = tempURL.appendingPathComponent("habitat-scan")
+        try fileManager.createDirectory(at: projectURL, withIntermediateDirectories: true)
+
+        let canonicalScanJSON = #"{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":1,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":120,"withinLineLimit":true},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands","entrySection":"Review First"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only","entrySection":"Diagnostics"}]}"#
+        let aliasScanJSON = #"{"schemaVersion":"0.1","generatorVersion":"1.2.3","artifacts":[{"name":"agent_context.md","role":"agent_context","relativePath":"agent_context.md","format":"markdown","readOrder":2,"readTrigger":"before_any_project_command","agentUse":"read_first","entrySection":"Use","lineLimit":120,"withinLineLimit":true},{"name":"command_policy.md","role":"command_policy","relativePath":"command_policy.md","format":"markdown","readOrder":2,"readTrigger":"before_risky_remote_mutating_secret_or_environment_sensitive_commands","agentUse":"consult_before_risky_commands","entrySection":"Review First"},{"name":"environment_report.md","role":"environment_report","relativePath":"environment_report.md","format":"markdown","readOrder":3,"readTrigger":"only_for_diagnostics_or_audit","agentUse":"debug_audit_only","entrySection":"Diagnostics"}]}"#
+        try writeExecutableScript(
+            binaryURL,
+            contents: """
+            #!/usr/bin/env bash
+            set -euo pipefail
+            if [[ "$1" == "--version" ]]; then
+              printf 'habitat-scan 1.2.3\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan-result" ]]; then
+              printf '%s\\n' '\(canonicalScanJSON)'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "scan_result.json" ]]; then
+              printf '%s\\n' '\(aliasScanJSON)'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && ( "$5" == "agent-context" || "$5" == "agent_context.md" ) ]]; then
+              printf '# Agent Context\\n\\n## Use\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && ( "$5" == "command-policy" || "$5" == "command_policy.md" ) ]]; then
+              printf '# Command Policy\\n\\n## Review First\\n'
+              exit 0
+            fi
+            if [[ "$1" == "scan" && "$4" == "--stdout" && ( "$5" == "environment-report" || "$5" == "environment_report.md" ) ]]; then
+              printf '# Environment Report\\n\\n## Diagnostics\\n'
+              exit 0
+            fi
+            exit 2
+            """
+        )
+
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/bin/bash")
+        process.arguments = [
+            "scripts/check_habitat_metadata.sh",
+            binaryURL.path,
+            projectURL.path,
+            "1.2.3",
+        ]
+
+        let stderr = Pipe()
+        process.standardError = stderr
+        try process.run()
+        process.waitUntilExit()
+
+        let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
+        #expect(process.terminationStatus == 4)
+        #expect(error.contains("--stdout scan_result.json core artifact metadata did not match --stdout scan-result output"))
     }
 
     @Test
@@ -1800,7 +1862,7 @@ struct ScanExecutionInfrastructureTests {
         let error = String(decoding: stderr.fileHandleForReading.readDataToEndOfFile(), as: UTF8.self)
         #expect(process.terminationStatus == 4)
         #expect(output.isEmpty)
-        #expect(error.contains("--stdout agent_context.md did not match --stdout agent-context output"))
+        #expect(error.contains("--stdout agent_context.md did not include entry section Use"))
     }
 
     @Test
@@ -2056,7 +2118,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
-              printf '# Command Policy\\n\\n## Allowed\\n'
+              printf '# Command Policy\\n\\n## Review First\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment-report" ]]; then
@@ -2111,7 +2173,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
-              printf '# Command Policy\\n\\n## Allowed\\n'
+              printf '# Command Policy\\n\\n## Review First\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment-report" ]]; then
@@ -2166,7 +2228,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
-              printf '# Command Policy\\n\\n## Allowed\\n'
+              printf '# Command Policy\\n\\n## Review First\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment-report" ]]; then
@@ -2221,7 +2283,7 @@ struct ScanExecutionInfrastructureTests {
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
-              printf '# Command Policy\\n\\n## Allowed\\n'
+              printf '# Command Policy\\n\\n## Review First\\n'
               exit 0
             fi
             if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment-report" ]]; then
@@ -2397,7 +2459,7 @@ struct ScanExecutionInfrastructureTests {
           exit 0
         fi
         if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command-policy" ]]; then
-          printf '# Command Policy\\n\\n## Allowed\\n'
+          printf '# Command Policy\\n\\n## Review First\\n'
           exit 0
         fi
         if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment-report" ]]; then
@@ -2413,7 +2475,7 @@ struct ScanExecutionInfrastructureTests {
           exit 0
         fi
         if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "command_policy.md" ]]; then
-          printf '# Command Policy\\n\\n## Allowed\\n'
+          printf '# Command Policy\\n\\n## Review First\\n'
           exit 0
         fi
         if [[ "$1" == "scan" && "$4" == "--stdout" && "$5" == "environment_report.md" ]]; then

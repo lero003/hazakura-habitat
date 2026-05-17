@@ -130,7 +130,7 @@ Example:
 
 ## Notes
 - Scanned at: 2026-04-25T00:00:00Z
-- Generator: 0.8.0
+- Generator: 0.9.0
 - Project: /path/to/project
 ```
 
