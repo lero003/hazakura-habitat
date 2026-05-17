@@ -1,0 +1,63 @@
+---
+type: nenrin_change
+id: post-v1-observation-roadmap
+date: 2026-05-17
+status: observing
+impact: unknown
+related_files:
+  - docs/roadmap.md
+  - docs/current_status.md
+  - CHANGELOG.md
+review_after:
+  tasks: 3
+  days: 7
+---
+
+# Change: post-v1-observation-roadmap
+
+## Changed
+
+- Reframed post-`v1.0` roadmap work as observation-led judgment gates instead
+  of a feature expansion table.
+- Set the post-v1 priority order to core bounded evidence, then thin agent
+  integration, then platform expansion parking lot.
+- Captured early post-v1 decisions for Nenrin minimization, representative
+  examples, no-scan validity, Linux feasibility notes, and MCP gating.
+
+## Reason
+
+External planning discussion agreed that the current `v1.0` direction is sound,
+but post-v1 work needs a stronger guard against drifting into broad platform,
+integration, or ecosystem expansion. Habitat's advantage is not knowing more
+things; it is reducing false confidence with short command-relevant evidence.
+
+## Expected Behavior
+
+- Future post-v1 planning starts from "more bounded evidence, less false
+  confidence."
+- Agents treat no-scan success and verified no-op as valid evidence when no
+  command mistake follows.
+- Nenrin remains a thin judgment-change ledger unless review cadence and
+  observed value justify a larger role.
+
+## Review After
+
+- 3 related task(s)
+- 7 day(s)
+
+## Success Signals
+
+- `v1.1` / `v1.2` work deepens observed command-decision patterns before adding
+  new surfaces.
+- MCP, Linux, GUI, command enforcement, and broad scanner expansion stay parked
+  until measured blockers justify them.
+
+## Failure Signals
+
+- Post-v1 planning turns into a list of attractive integrations without
+  command-decision evidence.
+- Nenrin starts recording routine work again instead of judgment changes.
+
+## Result
+
+Unjudged.

@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 191
+- observing: 192
 - reviewed: 12
 
 ## Active Changes
@@ -197,6 +197,7 @@
 - `v0-9-phase-boundary` - [changes/2026-05-16-v0-9-phase-boundary.md](changes/2026-05-16-v0-9-phase-boundary.md)
 - `policy-reason-code-order-contract` - [changes/2026-05-17-policy-reason-code-order-contract.md](changes/2026-05-17-policy-reason-code-order-contract.md)
 - `post-v0-9-automation-docs` - [changes/2026-05-17-post-v0-9-automation-docs.md](changes/2026-05-17-post-v0-9-automation-docs.md)
+- `post-v1-observation-roadmap` - [changes/2026-05-17-post-v1-observation-roadmap.md](changes/2026-05-17-post-v1-observation-roadmap.md)
 - `v0-9-release-prep` - [changes/2026-05-17-v0-9-release-prep.md](changes/2026-05-17-v0-9-release-prep.md)
 
 ## Review Due

@@ -358,7 +358,11 @@ Keep the current cycle focused:
   or command-decision evidence justifies the extra surface area, and do not
   turn portability notes into Linux support work.
 - The Nenrin-derived Python validation-purpose candidate is now covered: Habitat no longer prefers `.venv/bin/python -m pytest` merely because `.venv/bin/python` exists, and repo-backed unittest signals win when pytest is not confirmed runnable. Do not expand Python runner taxonomy further unless repeated evidence shows another runner distinction changes the first command.
-- Keep cross-project observation and Nenrin integration thin during `v0.9`. Watched repositories may surface bounded uncertainty or a single Habitat carry-back, but their backlogs should not choose Habitat's work. Nenrin should record durable judgment changes, not changelog history.
+- Keep cross-project observation and Nenrin integration thin through `v1.0`
+  readiness and post-v1 observation. Watched repositories may surface bounded
+  uncertainty or a single Habitat carry-back, but their backlogs should not
+  choose Habitat's work. Nenrin should record durable judgment changes, not
+  changelog history.
 - Shape future evidence around `repo fact -> short annotation -> command decision`: Habitat should produce `Facts`, `Hints`, `Warnings`, and `Open uncertainty`, not plans.
 - Avoid turning evidence into a broad upfront architecture layer; extract it from one measured command-decision problem at a time.
 - Discount generated context that only repeats `AGENTS.md`; prefer facts that an initial agent would otherwise miss.
@@ -368,4 +372,9 @@ Keep the current cycle focused:
 - Capture new sanitized traces only when they show a new command-decision boundary, a regression, over-constraint, or a failure that can become an artifact improvement.
 - Turn evaluation failures into focused output-contract, fixture, test, or documentation improvements.
 - Prefer high-confidence SwiftPM and secret-bearing search depth over broad coverage unless another ecosystem shows a clear measured command-decision gain.
+- After `v1.0`, treat the roadmap as observation-led: core bounded evidence
+  first, thin integration only when file/stdout/skill paths are insufficient,
+  and platform expansion as parking-lot work until real use shows it would
+  change command decisions without weakening Habitat's "less false confidence"
+  posture.
 - Keep feature expansion deferred unless it directly improves a measured agent command decision.

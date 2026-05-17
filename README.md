@@ -134,7 +134,7 @@ The roadmap now prioritizes:
 
 1. Stable advisory generator scope (v1.0)
 2. Remaining Pre-1.0 stability boundaries that need one more narrow `v0.9.x` slice
-3. Post-v1 expansion only when repeated command-decision or release-trust evidence justifies it
+3. Post-v1 observation-led deepening before any expansion
 
 The goal is not to inspect everything on the machine. The goal is to generate concise, conservative context that changes an AI coding agent's next command choice.
 

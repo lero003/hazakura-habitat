@@ -5,6 +5,10 @@
 - Clarified post-`v0.9.0` automation guidance so recurring runs treat the
   release as complete, use repo docs as the current authority when saved prompts
   lag, and select only concrete `v1.0` readiness gaps or verified no-op.
+- Reframed the post-`v1.0` roadmap as an observation roadmap: deepen bounded
+  core evidence before thin integration, keep platform expansion in the parking
+  lot, and treat Nenrin, representative examples, no-scan cases, Linux notes,
+  and MCP as evidence-gated follow-ups rather than default feature lanes.
 
 ## v0.9.0 Developer Preview - 2026-05-17
 
