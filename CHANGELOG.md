@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Anchored the pre-`v1.0` compatibility posture in the agent contract:
+  `schemaVersion` gates unsafe preview-format changes, `generatorVersion`
+  remains release provenance, additive preview fields may continue, and removals
+  should prefer documented deprecation before schema changes.
 - Clarified post-`v0.9.0` automation guidance so recurring runs treat the
   release as complete, use repo docs as the current authority when saved prompts
   lag, and select only concrete `v1.0` readiness gaps or verified no-op.

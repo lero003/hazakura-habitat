@@ -33,6 +33,26 @@ change details, and project-specific metadata are useful for scripts and
 audits, but they should not be treated as a frozen full-schema promise before
 `v1.0`.
 
+### Pre-v1 Compatibility and Deprecation Posture
+
+Use this posture until a narrower `v1.0` contract replaces it:
+
+- `schemaVersion` is the preview-format compatibility gate, not a full stable
+  schema promise. Bump it before renaming, removing, or changing the meaning of
+  machine-consumed fields in a way that makes older reports unsafe to compare.
+- `generatorVersion` is release provenance. A different generator version is
+  enough to bound previous-scan comparison, but it does not by itself promise a
+  different schema.
+- Additive fields may ship within the current preview schema when older
+  consumers can ignore them and current Markdown remains the command-decision
+  authority.
+- Prefer deprecation over removal before `v1.0`: document the replacement in
+  this contract and release notes, keep the older field or Markdown contract
+  readable where practical, and only remove it with a documented schema change.
+- Promote a field or Markdown shape to `v1.0` stability only when this document
+  names the boundary and tests, representative examples, or helper checks cover
+  the behavior that agents or scripts depend on.
+
 ### Failure-Mode Classification
 
 Use these failure-mode boundaries during `v0.9` hardening. They are intentionally

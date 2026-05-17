@@ -692,9 +692,9 @@ decide how a small set of existing risks should surface:
 
 Focus:
 
-- breaking-change policy
-- deprecation policy
-- schema migration notes
+- apply the documented breaking-change, deprecation, and schema-migration
+  posture from `docs/agent_contract.md` to one stable-candidate boundary at a
+  time
 - fixture coverage review
 - flaky test review
 - docs cleanup
@@ -706,7 +706,8 @@ Completion criteria:
 
 - The v1.0 promise is clear.
 - Experimental areas are named.
-- Output breaking-change rules exist.
+- Output breaking-change rules exist in the agent contract and are applied to
+  promoted stable candidates.
 - Major known risks have documented policies.
 - The project can explain why each v1-stable field or Markdown contract is
   stable, tested, and still advisory.
