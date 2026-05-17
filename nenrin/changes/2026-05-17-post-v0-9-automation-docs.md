@@ -7,6 +7,7 @@ impact: unknown
 related_files:
   - docs/development_loop.md
   - docs/current_status.md
+  - docs/self_use.md
   - CHANGELOG.md
 review_after:
   tasks: 3
@@ -23,6 +24,9 @@ review_after:
   like generic `v0.9` hardening.
 - Kept prompt/config sync out of normal repo runs unless the user explicitly
   asks for it.
+- Synced the historical self-scan snapshot guidance so it points post-`v0.9.0`
+  runs to `v1.0` readiness, docs-only stale-guidance correction, or verified
+  no-op instead of the old active `v0.9` lane.
 
 ## Reason
 
@@ -34,7 +38,8 @@ instead of a concrete `v1.0` readiness gap or verified no-op.
 ## Expected Behavior
 
 - Future automation reads `docs/development_loop.md` and
-  `docs/current_status.md` as the current phase authority.
+  `docs/current_status.md` as the current phase authority; `docs/self_use.md`
+  must not pull the run back to the old active `v0.9` lane.
 - A stale saved prompt is reported as drift instead of driving the work.
 - Docs-only automation changes are reserved for wrong-phase, release-reopen,
   stability-overstatement, or readiness-gate drift.
