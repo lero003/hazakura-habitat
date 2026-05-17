@@ -732,12 +732,12 @@ Forbidden in MVP-generated policy:
 
 `scan_result.json` is preview metadata for audit, debug, and tooling use during `v0.x`.
 
-Top-level shape:
+Representative top-level shape:
 
 ```json
 {
   "schemaVersion": "0.1",
-  "generatorVersion": "0.6.0",
+  "generatorVersion": "0.9.0",
   "artifacts": [
     {
       "name": "agent_context.md",

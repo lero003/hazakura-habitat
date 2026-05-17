@@ -58,6 +58,13 @@ inventing a migration framework.
 - Future docs imply the whole `scan_result.json` schema is stable.
 - A machine-consumed field is removed or redefined without a schema-change note.
 
+## Follow-up Observation
+
+- A later contract pass found the `scan_result.json` shape example still used an
+  old generator version. The example now says it is representative and uses the
+  current `v0.9.0` generator baseline so future compatibility work does not
+  confuse release provenance with schema stability.
+
 ## Result
 
 Unjudged.
