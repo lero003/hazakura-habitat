@@ -172,7 +172,7 @@ The secondary output is:
 
 The MVP does not generate separate `env_changes.md` or `project_dependency_summary.md`; their useful parts are folded into `agent_context.md` and `command_policy.md`.
 
-In `v0.x`, `scan_result.json` is preview metadata for audit, debug, and tooling use. Its top-level purpose is stable, but individual fields may change before `v1.0`. For `v0.9`, only the core Markdown artifact reading contract is a narrow v1-stable candidate: artifact name, report-relative path, role, format, `agentUse`, `readTrigger`, `readOrder`, preferred entry section, and the `agent_context.md` line-limit status. Detailed counts, section line metadata, policy reason details, previous-scan values, and project metadata remain preview-scoped. Agent-facing guidance should start with `agent_context.md`.
+In `v0.x`, `scan_result.json` is preview metadata for audit, debug, and tooling use. Its top-level purpose is stable, but individual fields may change before `v1.0`. For `v0.9`, only the core Markdown artifact reading contract is a narrow v1-stable candidate: artifact filename (`name`), report-relative path (`relativePath`), role, format, `agentUse`, `readTrigger`, `readOrder`, preferred entry section (`entrySection`), and the `agent_context.md` line-limit status. Detailed counts, section line metadata, policy reason details, previous-scan values, and project metadata remain preview-scoped. Agent-facing guidance should start with `agent_context.md`.
 
 ## Privacy and Prompt-Injection Stance
 

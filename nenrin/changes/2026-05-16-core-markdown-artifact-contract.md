@@ -23,8 +23,9 @@ review_after:
 ## Changed
 
 - Centralized the three core Markdown artifact metadata definitions in
-  `ReportWriter`: filename, role, `agentUse`, `readTrigger`, `readOrder`,
-  preferred entry section, and line-limit boundary.
+  `ReportWriter`: artifact filename (`name`), report-relative path
+  (`relativePath`), role, `agentUse`, `readTrigger`, `readOrder`, preferred
+  entry section (`entrySection`), and line-limit boundary.
 - Documented this as a narrow v1-stable candidate while keeping detailed
   `scan_result.json` metadata preview-scoped.
 - Tightened release/local metadata helper checks so filename `--stdout` aliases
