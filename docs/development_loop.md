@@ -67,6 +67,19 @@ slice as shipped: version-gated previous-scan comparison, failure-mode
 boundaries, core Markdown artifact metadata, helper verification, and scoped
 large-repository evidence are no longer reasons to broaden the product surface.
 
+Use this section and `docs/current_status.md` as the current automation
+authority. Saved automation prompts or memory can lag behind the repository
+after a release; when they still frame the run as generic `v0.9` hardening,
+prefer the repo docs, name the drift briefly, and continue with the smallest
+current `v1.0` readiness question. Do not edit saved automation configuration
+from a normal repo run unless the user explicitly asks for prompt sync.
+
+The `v0.9.0` tag and GitHub Release are public. Do not repeat release prep,
+retag, or replace assets. A patch-release handoff is justified only when a
+published artifact, checksum, install instruction, release note, or generated
+output claim is materially misleading; otherwise keep release observations as
+main-branch docs or future readiness input.
+
 Default priority for automation:
 
 - first, check whether the run has one concrete `v1.0` contract gap, such as
@@ -75,11 +88,22 @@ Default priority for automation:
   boundary
 - second, prefer no-op when the current docs, examples, tests, and helper
   verification already support the next command decision
-- third, keep released tags and GitHub Release assets immutable unless an
+- third, use docs-only work only when stale automation wording would choose the
+  wrong phase, reopen release prep, overstate stability, or hide a concrete
+  `v1.0` readiness gate
+- fourth, keep released tags and GitHub Release assets immutable unless an
   explicit patch-release handoff is justified
-- fourth, keep post-v1 exploration out of this lane: MCP integration, GUI,
+- fifth, keep post-v1 exploration out of this lane: MCP integration, GUI,
   command enforcement, automatic repair, broad Linux support, and whole-project
   intelligence remain deferred
+
+Good post-`v0.9.0` automation outcomes are:
+
+- a small contract-readiness change backed by docs, tests, examples, or helper
+  verification
+- a docs-only correction that prevents the next run from following stale
+  automation language
+- a verified no-op that reports why no concrete readiness gap is justified
 
 ## Historical Post-v0.8 / v0.9 Automation Handoff
 

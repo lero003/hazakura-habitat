@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-- No unreleased changes yet.
+- Clarified post-`v0.9.0` automation guidance so recurring runs treat the
+  release as complete, use repo docs as the current authority when saved prompts
+  lag, and select only concrete `v1.0` readiness gaps or verified no-op.
 
 ## v0.9.0 Developer Preview - 2026-05-17
 

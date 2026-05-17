@@ -35,6 +35,10 @@ Keep the current cycle focused:
   small repo-local code, test, docs, fixture, helper, or output-contract slice,
   and treat handoff or Nenrin-only work as a fallback for stale guidance rather
   than the default outcome
+- after the public `v0.9.0` release, treat `docs/development_loop.md` as the
+  current automation handoff: saved prompt wording may lag, but recurring runs
+  should move from generic `v0.9` hardening to concrete `v1.0` readiness gaps,
+  docs-only stale-guidance fixes, or verified no-op
 - use cross-project Habitat reports only as observation input for Habitat itself; the `hazakura-ai-mobile` report produced one bounded carry-back: executable Gradle wrappers can now become local validation guidance without expanding into Android environment auditing
 
 ## Implemented
