@@ -5,6 +5,8 @@
 - Clarified post-`v1.0.0` docs wording for the `v1.x` deprecation posture, the
   narrow stable machine-readable boundary, release-binary versus source-build
   requirements, and post-v1 observation language.
+- Aligned the self-use historical snapshot handoff with the current post-v1
+  observation loop so recurring work does not reopen `v1.0` readiness.
 
 ## v1.0.0 - 2026-05-18
 

@@ -61,11 +61,12 @@ When evaluating self-use output, discount guidance that merely repeats existing 
 ## Historical Self-Scan Snapshot
 
 This snapshot is preserved as self-use evidence from the `v0.5` release slice,
-not as the current work selector. For post-`v0.9.0` recurring work, use
-`docs/current_status.md` and `docs/development_loop.md` first to choose a narrow
-`v1.0` readiness question, docs-only stale-guidance correction, or verified
-no-op, then refresh `habitat-report/` when current command, freshness, release,
-helper, or output-contract decisions depend on repository facts.
+not as the current work selector. For current post-`v1.0.0` recurring work, use
+`docs/current_status.md`, `docs/development_loop.md`, and the post-v1 roadmap
+first to protect the stable advisory contract, choose an observation-backed
+hardening question, apply a docs-only stale-guidance correction, or end as a
+verified no-op. Refresh `habitat-report/` only when current command, freshness,
+release, helper, or output-contract decisions depend on repository facts.
 
 Snapshot date: 2026-05-09 (v0.5 release slice; `SecretFileDetector` extraction, test-suite decomposition, no-output-change catalog boundaries, secret-bearing evidence, and documented-validation-command evidence are present).
 
