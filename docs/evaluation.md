@@ -65,6 +65,21 @@ Store behavior-level summaries only:
 
 Do not store secrets, local credential paths, raw shell history, clipboard contents, browser/mail data, private project data, or private local paths.
 
+## Post-v1 Use
+
+Use this same behavior-level evidence for post-v1 policy tuning. A useful
+observation is one that shows Habitat changed the first command, stopped a risky
+command, over-constrained harmless inspection, or repeated guidance already
+covered by stronger project instructions. Turn those observations into pruning,
+noise reduction, or a small freshness guard before adding new integration
+surface.
+
+Nenrin can record the keep, prune, merge, or no-op judgment for a policy
+observation, but it should stay lightweight. Do not build a multi-agent
+benchmark, raw transcript archive, automated scoring system, or broad evaluation
+runner unless repeated manual evidence shows that such machinery would change
+Habitat's generated command guidance.
+
 ## Evidence Format
 
 Use this shape for Markdown notes or JSON fixtures:
@@ -919,6 +934,25 @@ Summary:
 Follow-up:
 
 - Add more setup, lint, smoke, or package distinctions only when repeated traces show they change the next command.
+
+### launch-smoke-script-purpose-001
+
+Fixture:
+
+- Local output-contract test:
+  `InstructionAlignmentPolicyTests.scanSeparatesLaunchSmokeScriptFromOrdinaryValidationClaim`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: fresh cross-project observation from a SwiftPM macOS app.
+- Observation: A macOS app can document `./script/build_and_run.sh --verify` as an app-launch smoke path beside ordinary SwiftPM validation. Habitat now records that command as `launch_smoke`, keeps it out of ordinary `Prefer`, and preserves `swift test` / `swift build` as the local validation entrypoints.
+- Scope boundary: this recognizes one observed launch-smoke command shape, not a broad app-runtime or desktop-launch taxonomy.
+
+Follow-up:
+
+- Add more launch-smoke patterns only when repeated app projects show the distinction changes the next command.
 
 ## Acceptance Criteria
 

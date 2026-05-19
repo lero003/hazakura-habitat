@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+- Added post-`v1.0.0` automation guidance that narrows automatic work toward
+  observation-led policy tuning, minimal freshness guards, and lightweight
+  Nenrin judgment records before broader integration or distribution work.
+- Classified the observed macOS app `./script/build_and_run.sh --verify`
+  command as `launch_smoke`, keeping launch-smoke checks out of ordinary local
+  validation preference.
 - Clarified post-`v1.0.0` docs wording for the `v1.x` deprecation posture, the
   narrow stable machine-readable boundary, release-binary versus source-build
   requirements, and post-v1 observation language.

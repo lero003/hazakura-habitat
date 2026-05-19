@@ -431,6 +431,7 @@ public enum ValidationCommandPurpose: String, Codable, Equatable {
     case releaseArtifact = "release_artifact"
     case deviceVerification = "device_verification"
     case environmentCheck = "environment_check"
+    case launchSmoke = "launch_smoke"
 }
 
 public struct ValidationCommandClaim: Codable, Equatable {

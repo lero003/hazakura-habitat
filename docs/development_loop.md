@@ -99,6 +99,26 @@ Default priority for automation:
   command enforcement, automatic repair, broad Linux support, and whole-project
   intelligence remain deferred
 
+For post-v1 automated runs, use this adoption filter:
+
+- Choose observation-led policy tuning when a fresh self-use or cross-project
+  trace shows `agent_context.md` or `command_policy.md` changed, failed to
+  change, or over-constrained the first command. Prefer pruning duplicate or
+  noisy guidance before adding new policy families.
+- Choose a minimal freshness guard when a saved report's `Scanned at` time or
+  `scan_result.json` `project.observedFiles` mtimes would make an agent trust
+  stale command guidance. Start with helper wording, fixture coverage, or a
+  small report-consumption check before designing a broader mtime or hash
+  engine.
+- Use Nenrin only as a lightweight observation ledger for whether the generated
+  context affected the next command, verification order, or pruning decision.
+  Do not let a Nenrin-only note become the whole development outcome when a
+  repo-local contract gap is visible.
+- Leave read-only MCP prototypes, Homebrew distribution, notarization, GUI, and
+  broader integration work in the parking lot unless repeated real adoption or
+  release-trust failures show that they change the next command or release
+  consumption decision.
+
 Good post-`v1.0.0` automation outcomes are:
 
 - a small contract-hardening change backed by docs, tests, examples, or helper

@@ -2,16 +2,26 @@ import Foundation
 
 enum ProjectLocalValidationScript {
     static let knownValidationCommands = [
-        "./scripts/assemble-debug.sh"
+        "./scripts/assemble-debug.sh",
+        "./script/build_and_run.sh --verify"
+    ]
+
+    private static let scriptCommandPrefixes = [
+        "./scripts/",
+        "./script/"
     ]
 
     static func validationCommands(in line: String) -> [String] {
+        let knownCommandsInLine = knownValidationCommands.filter { line.contains($0) }
         let extracted = scriptCommands(in: line).filter { command in
             command.hasSuffix(".sh")
                 && isCommand(command)
                 && !isReleaseArtifactScript(command)
+                && !knownCommandsInLine.contains { known in
+                    known.hasPrefix(command + " ")
+                }
         }
-        return unique(knownValidationCommands + extracted).filter { command in
+        return unique(knownCommandsInLine + extracted).filter { command in
             line.contains(command)
         }
     }
@@ -28,9 +38,11 @@ enum ProjectLocalValidationScript {
     }
 
     static func isCommand(_ command: String) -> Bool {
-        command.hasPrefix("./scripts/")
-            && !command.contains("..")
-            && !command.contains("\0")
+        guard let executable = executableToken(command) else { return false }
+        return scriptCommandPrefixes.contains { executable.hasPrefix($0) }
+            && executable.hasSuffix(".sh")
+            && !executable.contains("..")
+            && !executable.contains("\0")
     }
 
     static func isReleaseArtifactCommand(_ command: String) -> Bool {
@@ -47,38 +59,48 @@ enum ProjectLocalValidationScript {
         command == "./scripts/dev-env-check.sh"
     }
 
+    static func isLaunchSmokeCommand(_ command: String) -> Bool {
+        command == "./script/build_and_run.sh --verify"
+    }
+
     private static func isReleaseArtifactScript(_ command: String) -> Bool {
         isReleaseArtifactCommand(command)
     }
 
     static func isExecutable(command: String, projectPath: String) -> Bool {
-        guard isCommand(command) else { return false }
+        guard isCommand(command),
+              let executable = executableToken(command)
+        else { return false }
 
         let scriptPath = URL(fileURLWithPath: projectPath)
-            .appendingPathComponent(String(command.dropFirst(2)))
+            .appendingPathComponent(String(executable.dropFirst(2)))
             .path
         return FileManager.default.isExecutableFile(atPath: scriptPath)
     }
 
     private static func scriptCommands(in line: String) -> [String] {
-        var commands: [String] = []
         var searchStart = line.startIndex
 
-        while let range = line.range(of: "./scripts/", range: searchStart..<line.endIndex) {
-            var end = range.upperBound
-            while end < line.endIndex, isScriptPathCharacter(line[end]) {
-                end = line.index(after: end)
-            }
+        var matches: [(index: String.Index, command: String)] = []
 
-            let command = trimmingTrailingPunctuation(String(line[range.lowerBound..<end]))
-            if command.count <= 96 {
-                commands.append(command)
-            }
+        for prefix in scriptCommandPrefixes {
+            searchStart = line.startIndex
+            while let range = line.range(of: prefix, range: searchStart..<line.endIndex) {
+                var end = range.upperBound
+                while end < line.endIndex, isScriptPathCharacter(line[end]) {
+                    end = line.index(after: end)
+                }
 
-            searchStart = end
+                let command = trimmingTrailingPunctuation(String(line[range.lowerBound..<end]))
+                if command.count <= 96 {
+                    matches.append((range.lowerBound, command))
+                }
+
+                searchStart = end
+            }
         }
 
-        return commands
+        return matches.sorted { $0.index < $1.index }.map(\.command)
     }
 
     private static func isScriptPathCharacter(_ character: Character) -> Bool {
@@ -106,5 +128,9 @@ enum ProjectLocalValidationScript {
                 result.append(command)
             }
         }
+    }
+
+    private static func executableToken(_ command: String) -> String? {
+        command.split(whereSeparator: \.isWhitespace).first.map(String.init)
     }
 }

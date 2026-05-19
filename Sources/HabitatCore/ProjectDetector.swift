@@ -497,17 +497,22 @@ public struct ProjectDetector {
         for command: String,
         in line: String
     ) -> ValidationCommandPurpose {
-        if command.hasPrefix("./scripts/"),
+        if ProjectLocalValidationScript.isCommand(command),
+           ProjectLocalValidationScript.isLaunchSmokeCommand(command) {
+            return .launchSmoke
+        }
+
+        if ProjectLocalValidationScript.isCommand(command),
            ProjectLocalValidationScript.isDeviceVerificationCommand(command) {
             return .deviceVerification
         }
 
-        if command.hasPrefix("./scripts/"),
+        if ProjectLocalValidationScript.isCommand(command),
            ProjectLocalValidationScript.isEnvironmentCheckCommand(command) {
             return .environmentCheck
         }
 
-        if command.hasPrefix("./scripts/"),
+        if ProjectLocalValidationScript.isCommand(command),
            (ProjectLocalValidationScript.isReleaseArtifactCommand(command)
                || lineMentionsReleaseArtifactValidation(line)) {
             return .releaseArtifact
@@ -525,7 +530,7 @@ public struct ProjectDetector {
             return true
         }
 
-        if command.hasPrefix("./scripts/") {
+        if ProjectLocalValidationScript.isCommand(command) {
             return line.contains("test")
                 || line.contains("build")
                 || line.contains("validat")

@@ -18,9 +18,11 @@ public struct DocumentedValidationCommandEvidence {
         let releaseArtifactClaims = claims.filter { $0.purpose == .releaseArtifact }
         let deviceVerificationClaims = claims.filter { $0.purpose == .deviceVerification }
         let environmentCheckClaims = claims.filter { $0.purpose == .environmentCheck }
+        let launchSmokeClaims = claims.filter { $0.purpose == .launchSmoke }
         let scopedAnnotations = releaseArtifactAnnotations(for: releaseArtifactClaims.first)
             + deviceVerificationAnnotations(for: deviceVerificationClaims.first)
             + environmentCheckAnnotations(for: environmentCheckClaims.first)
+            + launchSmokeAnnotations(for: launchSmokeClaims.first)
         guard let firstClaim = ordinaryClaims.first else {
             return scopedAnnotations
         }
@@ -86,6 +88,13 @@ public struct DocumentedValidationCommandEvidence {
         guard let claim else { return [] }
         return [
             "Fact: Project instructions mention environment check `\(claim.command)`; keep it for setup/preflight checks, not ordinary local validation."
+        ]
+    }
+
+    private func launchSmokeAnnotations(for claim: ValidationCommandClaim?) -> [String] {
+        guard let claim else { return [] }
+        return [
+            "Fact: Project instructions mention launch smoke verification `\(claim.command)`; keep it for app-launch smoke checks, not ordinary local validation."
         ]
     }
 

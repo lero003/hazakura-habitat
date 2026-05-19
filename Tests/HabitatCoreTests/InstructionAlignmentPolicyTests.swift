@@ -348,6 +348,7 @@ struct InstructionAlignmentPolicyTests {
         )
 
         let result = HabitatScanner(runner: FakeCommandRunner(results: [
+            "/usr/bin/which -a swift": .init(name: "/usr/bin/which", args: ["-a", "swift"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/swift", stderr: ""),
             "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Swift version 6.1", stderr: ""),
             "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: "")
         ])).scan(projectURL: projectURL)
@@ -470,6 +471,58 @@ struct InstructionAlignmentPolicyTests {
         #expect(context.contains("Hint: Prefer `./scripts/assemble-debug.sh` when repository docs make it the validation entrypoint."))
         #expect(!context.contains("- Prefer `./scripts/dev-env-check.sh`."))
         #expect(scanJSON.contains("\"purpose\" : \"environment_check\""))
+    }
+
+    @Test
+    func scanSeparatesLaunchSmokeScriptFromOrdinaryValidationClaim() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": """
+            // swift-tools-version: 6.1
+            import PackageDescription
+            let package = Package(name: "Demo")
+            """,
+            "docs/development_loop.md": """
+            Run swift test for ordinary local validation.
+            Use ./script/build_and_run.sh --verify for the app launch smoke check.
+            """
+        ])
+        try writeExecutableScript(
+            projectURL.appendingPathComponent("script/build_and_run.sh"),
+            contents: "#!/bin/sh\n"
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [
+            "/usr/bin/which -a swift": .init(name: "/usr/bin/which", args: ["-a", "swift"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/swift", stderr: ""),
+            "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Swift version 6.1", stderr: ""),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: "")
+        ])).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let scanJSON = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+        let writtenResult = try JSONDecoder().decode(
+            ScanResult.self,
+            from: Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        )
+
+        assertAgentContextContract(context)
+        #expect(result.project.validationCommandClaims == [
+            ValidationCommandClaim(source: "docs/development_loop.md", command: "swift test"),
+            ValidationCommandClaim(
+                source: "docs/development_loop.md",
+                command: "./script/build_and_run.sh --verify",
+                purpose: .launchSmoke
+            )
+        ])
+        #expect(writtenResult.policy.preferredCommands == ["swift test", "swift build"])
+        #expect(!writtenResult.policy.preferredCommands.contains("./script/build_and_run.sh --verify"))
+        #expect(context.contains("Fact: Project instructions and repository files both support SwiftPM validation."))
+        #expect(context.contains("Fact: Project instructions mention launch smoke verification `./script/build_and_run.sh --verify`; keep it for app-launch smoke checks, not ordinary local validation."))
+        #expect(context.contains("Hint: Prefer `swift test` for local validation."))
+        #expect(!context.contains("- Prefer `./script/build_and_run.sh --verify`."))
+        #expect(scanJSON.contains("\"command\" : \"./script/build_and_run.sh --verify\""))
+        #expect(scanJSON.contains("\"purpose\" : \"launch_smoke\""))
+        #expect(!scanJSON.contains("app launch smoke check"))
     }
 
     @Test
