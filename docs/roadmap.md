@@ -75,6 +75,23 @@ should be pruned. The default `v1.2` lane is a minimal freshness guard: build on
 `Scanned at` and `project.observedFiles` before inventing a broader mtime/hash
 engine or new report lifecycle.
 
+Use a narrow observation-to-action gate:
+
+- One observation can justify a docs-only correction when stale wording would
+  make the next run choose the wrong phase, reopen release prep, or overstate
+  Habitat's stability, freshness, platform, enforcement, or automation scope.
+- Policy, fixture, helper, generated-output, or maintainability-decomposition
+  changes need repeated evidence, or one high-confidence trace, showing that
+  Habitat context changed, failed to change, over-constrained an agent's next
+  command, or exposed a nearby scanner/catalog boundary before adding more
+  behavior there.
+- Pruning is preferred over addition when the observed guidance duplicates
+  repo docs, hides the relevant command, or adds approval noise without changing
+  a real safety decision.
+- MCP, distribution, platform, GUI, or broader integration work needs repeated
+  adoption or release-consumption failures; an attractive external suggestion
+  is not enough by itself.
+
 Keep read-only MCP prototypes, Homebrew taps, notarization, GUI work, broader
 distribution, and generic agent integration in the parking lot until repeated
 real-use evidence shows they improve the next command choice or release
@@ -818,6 +835,9 @@ Focus:
 
 - collect cases where `agent_context.md` or `command_policy.md` changed the next
   command
+- include concrete positive cases where runtime-version warnings or
+  project-local validation hints changed verification order, such as choosing
+  the documented build command before cleanup work
 - prune guidance that mostly repeats `AGENTS.md` or does not change behavior
 - make `no-scan is valid` a product principle for tiny Q&A, formatting-only
   edits, already-read fresh reports, and low-risk work where repo guidance is
@@ -932,6 +952,12 @@ impossible." Do not let the notes imply a support guarantee.
 - Linux or Windows support guarantee
 
 Parking Lot does not mean never. It means not in the current roadmap.
+
+Cleanup-intelligence ideas such as dead asset or unused-file detection belong
+here unless repeated real-use evidence shows they change the agent's safe next
+command, validation choice, or mutation boundary. Prefer existing package,
+runtime, script, freshness, and safety signals over turning Habitat into a
+general code-quality scanner.
 
 ## Issue Triage
 

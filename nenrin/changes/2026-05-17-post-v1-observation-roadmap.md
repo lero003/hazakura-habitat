@@ -66,3 +66,17 @@ first post-v1 runs repeatedly ended as verified no-op or bounded stale-report
 intake without creating product churn, which is the intended behavior. Keep
 Nenrin visible enough to record command-decision judgments, but do not record
 routine automation history or use backlog pressure as a Habitat work selector.
+
+Follow-up on 2026-05-20: an external Habitat review again suggested promoting a
+read-only MCP prototype and making observation-to-action criteria more explicit.
+Keep MCP parked until repeated file/stdout consumption failures make it
+command-changing, but clarify the roadmap gate for when observations become
+docs-only corrections, policy/output changes, pruning, or broader integration
+work.
+
+Follow-up on 2026-05-20: an external Astro asset-cleanup walkthrough reported
+that Habitat's Node runtime mismatch warning and `npm run build` hint changed
+verification behavior in a real cleanup task. Keep that as positive `v1.1`
+use-observation evidence. The same walkthrough suggested dead asset detection;
+park it as cleanup intelligence until repeated traces show it changes command
+safety, validation choice, or mutation boundaries.

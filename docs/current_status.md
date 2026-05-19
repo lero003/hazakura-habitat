@@ -19,6 +19,13 @@ changed or should prune an agent's first command. Keep MCP, Homebrew,
 notarization, GUI, and broader integration work parked unless repeated real-use
 evidence makes them command-changing.
 
+The first external post-v1 use report supports this filter: Habitat's Node
+runtime mismatch warning and `npm run build` validation hint changed the
+agent's verification posture during an asset-cleanup task. The same report's
+dead asset detection idea is useful feedback, but remains parked as
+cleanup-intelligence unless repeated traces show that unused-file detection
+changes command safety, validation choice, or mutation boundaries.
+
 The large-repository direction is scoped evidence, not whole-project
 understanding. Habitat should help agents avoid the false confidence that comes
 from trying to read everything by preferring repository entrypoints, nearby
