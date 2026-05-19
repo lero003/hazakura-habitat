@@ -2,8 +2,8 @@
 type: nenrin_change
 id: post-v1-observation-roadmap
 date: 2026-05-17
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - docs/roadmap.md
   - docs/current_status.md
@@ -61,4 +61,8 @@ things; it is reducing false confidence with short command-relevant evidence.
 
 ## Result
 
-Unjudged.
+Reviewed on 2026-05-19: keep, but narrow to the thin observation spine. The
+first post-v1 runs repeatedly ended as verified no-op or bounded stale-report
+intake without creating product churn, which is the intended behavior. Keep
+Nenrin visible enough to record command-decision judgments, but do not record
+routine automation history or use backlog pressure as a Habitat work selector.
