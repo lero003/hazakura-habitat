@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added repository follow-up safeguards for post-`v1.0.0` use: CODEOWNERS,
+  Dependabot version-update coverage for GitHub Actions and SwiftPM, local
+  secret/credential ignore patterns, and clearer agent-skill install review
+  wording.
 - Added post-`v1.0.0` automation guidance that narrows automatic work toward
   observation-led policy tuning, minimal freshness guards, and lightweight
   Nenrin judgment records before broader integration or distribution work.

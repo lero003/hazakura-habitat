@@ -89,6 +89,12 @@ For AI-first workflows, the preferred entrypoint is the bundled agent skill:
 npx skills add lero003/hazakura-habitat@hazakura-habitat -g
 ```
 
+Before running the install command, verify what `npx skills` resolves to in your
+environment and inspect the referenced repository/ref. For stricter supply-chain
+control, treat this as an ephemeral package execution path: pin the `skills` CLI
+to a reviewed exact version when your workflow supports it, and prefer release
+assets with checksums for installing `habitat-scan` itself.
+
 The skill teaches an AI coding agent to run Habitat before substantial project work, dependency or lockfile changes, Git/GitHub mutations, and secret-adjacent operations. It also gives the agent a conservative setup path when `habitat-scan` is not installed yet.
 
 The skill lives at [skills/hazakura-habitat](skills/hazakura-habitat).

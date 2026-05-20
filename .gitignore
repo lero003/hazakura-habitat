@@ -7,3 +7,15 @@ skills/*
 !skills/hazakura-habitat/
 !skills/hazakura-habitat/**
 *.xcresult
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.mobileprovision
+id_rsa
+id_rsa.pub
+.aws/
+.gcloud/
+.netrc
