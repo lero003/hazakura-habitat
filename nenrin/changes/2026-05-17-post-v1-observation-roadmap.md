@@ -80,3 +80,11 @@ verification behavior in a real cleanup task. Keep that as positive `v1.1`
 use-observation evidence. The same walkthrough suggested dead asset detection;
 park it as cleanup intelligence until repeated traces show it changes command
 safety, validation choice, or mutation boundaries.
+
+Follow-up on 2026-05-21: a second external web cleanup walkthrough again
+reported useful mutation guards, Node mismatch visibility, and `npm run build`
+validation guidance during CSS pruning. Treat this as enough evidence to keep
+the post-v1 automation loop active at low frequency. The walkthrough also asked
+for automatic re-scan hooks and CSS/asset dead-code detection; keep both parked
+unless repeated stale-report over-trust or cleanup-command mistakes show they
+change Habitat's command-decision boundary.

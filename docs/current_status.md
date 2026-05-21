@@ -19,12 +19,16 @@ changed or should prune an agent's first command. Keep MCP, Homebrew,
 notarization, GUI, and broader integration work parked unless repeated real-use
 evidence makes them command-changing.
 
-The first external post-v1 use report supports this filter: Habitat's Node
-runtime mismatch warning and `npm run build` validation hint changed the
-agent's verification posture during an asset-cleanup task. The same report's
-dead asset detection idea is useful feedback, but remains parked as
-cleanup-intelligence unless repeated traces show that unused-file detection
-changes command safety, validation choice, or mutation boundaries.
+The first external post-v1 use reports support this filter: Habitat's Node
+runtime mismatch warnings, `npm run build` validation hints, and mutation
+guards changed agent verification posture during asset and CSS cleanup tasks.
+The same reports' dead asset / CSS dead-code detection ideas are useful
+feedback, but remain parked as cleanup-intelligence unless repeated traces show
+that unused-file or unused-style detection changes command safety, validation
+choice, or mutation boundaries. A request for automatic report refresh after
+code changes belongs with freshness work only if stale reports repeatedly cause
+over-trust; do not make build or commit hooks mutate `habitat-report/` by
+default.
 
 The large-repository direction is scoped evidence, not whole-project
 understanding. Habitat should help agents avoid the false confidence that comes
