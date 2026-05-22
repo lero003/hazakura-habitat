@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added a post-`v1.0.0` behavior fixture for external web cleanup reports,
+  preserving the useful Node runtime / `npm run build` / mutation-guard signal
+  while keeping dead asset detection, CSS dead-code scanning, and automatic
+  re-scan hooks parked until command-decision evidence justifies them.
 - Added repository follow-up safeguards for post-`v1.0.0` use: CODEOWNERS,
   Dependabot version-update coverage for GitHub Actions and SwiftPM, local
   secret/credential ignore patterns, and clearer agent-skill install review

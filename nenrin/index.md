@@ -2,7 +2,7 @@
 
 ## Active Summary
 
-- observing: 191
+- observing: 192
 - reviewed: 14
 
 ## Active Changes
@@ -198,6 +198,7 @@
 - `post-v0-9-automation-docs` - [changes/2026-05-17-post-v0-9-automation-docs.md](changes/2026-05-17-post-v0-9-automation-docs.md)
 - `schema-migration-posture` - [changes/2026-05-17-schema-migration-posture.md](changes/2026-05-17-schema-migration-posture.md)
 - `v0-9-release-prep` - [changes/2026-05-17-v0-9-release-prep.md](changes/2026-05-17-v0-9-release-prep.md)
+- `web-cleanup-behavior-fixture` - [changes/2026-05-23-web-cleanup-behavior-fixture.md](changes/2026-05-23-web-cleanup-behavior-fixture.md)
 
 ## Review Due
 

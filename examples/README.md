@@ -64,3 +64,4 @@ For guidance on how much of this pattern to adopt in another repository, see
 - `behavior-evaluation/cross-project-nenrin-freshness-001.json`: sanitized behavior fixture for treating Nenrin ledger files as report-freshness signals.
 - `behavior-evaluation/cross-project-intake-noop-001.json`: sanitized behavior fixture for stopping external intake as no-op when fresh scans confirm existing guidance.
 - `behavior-evaluation/cross-project-previous-scan-preferred-delta-001.json`: sanitized behavior fixture for using `--previous-scan` to expose stale preferred-command drift during cross-project intake.
+- `behavior-evaluation/cross-project-web-cleanup-validation-001.json`: sanitized behavior fixture for preserving web cleanup validation and mutation-guard signals without promoting cleanup-intelligence scope.
