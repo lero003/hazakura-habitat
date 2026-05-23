@@ -331,9 +331,18 @@ The intended AI-first direction is that agents trigger this scan themselves befo
 
 Use `nenrin/` to track whether changes to Habitat's agent-facing working environment actually improved later agent behavior.
 
-Before substantial self-use, automation, release-prep, or docs workflow changes, read `nenrin/index.md` after the Habitat scan context. If the task changes docs, skills, handoff guidance, roadmap, release rules, QA criteria, or automation prompts, create or update a Nenrin change record. If the task exercises an active change, create a Nenrin observation record after the work.
+Before substantial self-use, automation, release-prep, or docs workflow changes,
+read `nenrin/index.md` after the Habitat scan context, but do not let the
+ledger backlog choose Habitat's work. In post-v1 runs, create or update a
+Nenrin record only when the slice changes a durable command-decision,
+report-freshness, generated-guidance, fixture, helper, automation-wording, or
+pruning judgment. A routine docs edit, verified no-op, or already-covered
+observation can end without a new record.
 
-Keep this loop lightweight. Nenrin is for the retrospective question: did this improvement help enough to keep, remove, merge, narrow, or move it?
+If the task exercises an active change and produces behavior-level evidence,
+create a Nenrin observation record after the work. Keep this loop lightweight.
+Nenrin is for the retrospective question: did this improvement help enough to
+keep, remove, merge, narrow, or move it?
 
 The common handoff pattern is:
 

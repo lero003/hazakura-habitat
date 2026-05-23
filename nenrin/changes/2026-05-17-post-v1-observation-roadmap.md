@@ -88,3 +88,10 @@ the post-v1 automation loop active at low frequency. The walkthrough also asked
 for automatic re-scan hooks and CSS/asset dead-code detection; keep both parked
 unless repeated stale-report over-trust or cleanup-command mistakes show they
 change Habitat's command-decision boundary.
+
+Follow-up on 2026-05-24: development-loop and ledger README wording now match
+the thin-spine decision. Create or update Nenrin records only when a slice
+changes a later command decision, report-freshness judgment, generated guidance,
+fixture/helper behavior, automation wording, or pruning judgment; routine docs
+edits, verified no-ops, and already-covered observations can end without adding
+ledger pressure.

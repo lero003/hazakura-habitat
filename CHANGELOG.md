@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Narrowed the post-`v1.0.0` Nenrin ledger guidance so routine docs edits,
+  verified no-ops, and already-covered observations do not create records unless
+  they change a later command-decision, freshness, generated-guidance, fixture,
+  helper, automation-wording, or pruning judgment.
 - Added a post-`v1.0.0` behavior fixture for external web cleanup reports,
   preserving the useful Node runtime / `npm run build` / mutation-guard signal
   while keeping dead asset detection, CSS dead-code scanning, and automatic

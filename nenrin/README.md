@@ -2,13 +2,19 @@
 
 This directory is an improvement observation ledger for the AI agent working environment.
 
-Use this ledger for changes to agent-facing artifacts such as rules, skills, handoffs, roadmaps, release checklists, and QA gates.
+Use this ledger for changes to agent-facing artifacts only when the change
+should affect a later command decision, report-freshness judgment, pruning
+choice, or keep/remove/merge/narrow review. It is intentionally visible but
+sparse after `v1.0.0`.
 
 ## Workflow
 
-1. Create a change record when an agent-facing artifact changes.
-2. Create observation records after related work.
-3. Review whether the improvement should be kept, removed, merged, narrowed, moved to a skill, moved to a handoff, or kept observing.
+1. Create a change record when an agent-facing artifact changes future agent
+   behavior, not for every routine edit.
+2. Create observation records after related work only when the observation adds
+   behavior-level evidence.
+3. Review whether the improvement should be kept, removed, merged, narrowed,
+   moved to a skill, moved to a handoff, or kept observing.
 
 ## What Nenrin Is Not
 
@@ -18,6 +24,8 @@ Use this ledger for changes to agent-facing artifacts such as rules, skills, han
 - Not an agent runtime.
 
 It is a lightweight improvement observation ledger.
+
+It is not a changelog mirror or a Habitat work selector.
 
 ## Frontmatter
 
