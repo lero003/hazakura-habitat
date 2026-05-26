@@ -7,6 +7,7 @@ impact: effective
 related_files:
   - docs/roadmap.md
   - docs/current_status.md
+  - docs/self_use.md
   - CHANGELOG.md
 review_after:
   tasks: 3
@@ -95,3 +96,9 @@ changes a later command decision, report-freshness judgment, generated guidance,
 fixture/helper behavior, automation wording, or pruning judgment; routine docs
 edits, verified no-ops, and already-covered observations can end without adding
 ledger pressure.
+
+Follow-up on 2026-05-26: self-use guidance now carries the same post-v1
+thin-spine condition, so future Habitat docs or automation edits do not create
+Nenrin records unless they change a command decision, freshness judgment,
+generated guidance, fixture/helper behavior, automation wording, or pruning
+review.
