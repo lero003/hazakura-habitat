@@ -289,7 +289,18 @@ Keep this observational:
 - feed only durable Habitat lessons back into this repository as docs, fixtures, tests, examples, or roadmap notes
 - do not turn the watched project into a second Habitat workstream, do not copy raw report output into Nenrin, and do not make Habitat produce a plan for that project
 
-The current Android-first `hazakura-ai-mobile` observation is a good example: its report was useful as a weak signal because it detected only `AGENTS.md` and `README.md`, emitted no primary package-manager guidance, and therefore kept agents on read-only inspection. A later read-only comparison found real Gradle wrapper and Kotlin build files while a fresh Habitat scan still emitted the same no-primary-package-manager guidance. The first carry-back is intentionally narrow: executable `gradlew` can now select Gradle wrapper validation and align sanitized `./gradlew test` claims with repository facts. Treat further Gradle or Android work as a new measured command-decision gap, not as permission for broad ecosystem coverage.
+The Android-first `hazakura-ai-mobile` observation is a good example of how
+this intake should evolve without becoming a second workstream. Its earliest
+report was useful as a weak signal because it detected only `AGENTS.md` and
+`README.md`, emitted no primary package-manager guidance, and therefore kept
+agents on read-only inspection. Later read-only comparisons found real Gradle
+wrapper and Kotlin build files, and the bounded carry-back was intentionally
+narrow: executable `gradlew` can now select Gradle wrapper validation and align
+sanitized `./gradlew test` claims with repository facts. Current saved reports
+for that project may now prefer a project-local wrapper such as
+`./scripts/assemble-debug.sh`; treat that as confirmation of the wrapper-script
+contract, not as permission for broad Gradle or Android coverage. Further
+Android work still needs a new measured command-decision gap.
 
 For recurring Habitat automation, make cross-project observation a short intake
 step before choosing the slice, not a second workstream:

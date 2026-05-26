@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+- Clarified the cross-project observation example so the older Android
+  no-primary-package-manager signal does not override the current project-local
+  wrapper guidance.
 - Narrowed the post-`v1.0.0` Nenrin ledger guidance so routine docs edits,
   verified no-ops, and already-covered observations do not create records unless
   they change a later command-decision, freshness, generated-guidance, fixture,

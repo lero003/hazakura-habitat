@@ -102,3 +102,9 @@ thin-spine condition, so future Habitat docs or automation edits do not create
 Nenrin records unless they change a command decision, freshness judgment,
 generated guidance, fixture/helper behavior, automation wording, or pruning
 review.
+
+Follow-up on 2026-05-26: the cross-project observation example now names the
+old `hazakura-ai-mobile` no-primary-package-manager report as historical and
+treats the current `./scripts/assemble-debug.sh` wrapper guidance as
+confirmation of the existing wrapper-script contract, not as a reason to expand
+Gradle or Android coverage.
