@@ -819,12 +819,13 @@ mirroring changelogs, routine daily work, or every small docs edit. If review
 backlog grows faster than useful observations, reduce recording pressure before
 adding more review process.
 
-Open shapes:
-
-- keep a visible product-adjacent ledger if review cadence stays healthy
-- keep it mostly as an internal development aid if that better protects
-  Habitat's public contract
-- narrow it to the thin observation spine for post-v1 decisions
+Current shape: keep a visible but sparse product-adjacent ledger, narrowed to
+the thin observation spine for post-v1 decisions. That means recording only
+judgments that change later command decisions, report-freshness handling,
+generated guidance, fixture/helper behavior, automation wording, or
+keep/remove/merge/narrow review. If review backlog starts growing faster than
+useful command-decision evidence, reduce recording pressure again before adding
+review process.
 
 ### v1.1: Use-Observation Review
 

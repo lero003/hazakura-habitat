@@ -108,3 +108,10 @@ old `hazakura-ai-mobile` no-primary-package-manager report as historical and
 treats the current `./scripts/assemble-debug.sh` wrapper guidance as
 confirmation of the existing wrapper-script contract, not as a reason to expand
 Gradle or Android coverage.
+
+Follow-up on 2026-05-27: the `v1.0.x` observation-ledger roadmap now names the
+current shape directly: keep Nenrin visible but sparse, narrowed to the thin
+observation spine for post-v1 command-decision, freshness, generated-guidance,
+fixture/helper, automation-wording, or pruning-review judgments. This removes
+the remaining three-way wording that made the ledger role look unresolved after
+the thin-spine review.
