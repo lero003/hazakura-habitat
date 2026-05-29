@@ -2,8 +2,8 @@
 type: nenrin_change
 id: package-manager-credential-command-family
 date: 2026-05-03
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog.swift
   - Sources/HabitatCore/Scanner.swift
@@ -50,4 +50,4 @@ The v0.3 self-use policy review kept the next command on SwiftPM verification an
 
 ## Result
 
-Unjudged.
+Reviewed via `review-package-manager-credential-command-family-2026-05-29`. Judgment: `keep`.
