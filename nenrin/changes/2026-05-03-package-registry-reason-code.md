@@ -2,8 +2,8 @@
 type: nenrin_change
 id: package-registry-reason-code
 date: 2026-05-03
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog.swift
   - Tests/HabitatCoreTests/HabitatCoreTests.swift
@@ -49,4 +49,4 @@ The v0.3 self-use policy review showed that long command policies are only usefu
 
 ## Result
 
-Unjudged.
+Reviewed via `review-package-registry-reason-code-2026-06-05`. Judgment: `keep`.
