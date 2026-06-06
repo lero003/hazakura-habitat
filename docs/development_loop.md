@@ -114,6 +114,15 @@ For post-v1 automated runs, use this adoption filter:
   context affected the next command, verification order, or pruning decision.
   Do not let a Nenrin-only note become the whole development outcome when a
   repo-local contract gap is visible.
+- Light cross-project intake may include real Habitat usage in
+  `hazakura-ai-mobile`, `hazakura-note` / `hazakura editor`,
+  `hazakura-nenrin`, and `hazakura-llm-manager`. Keep those repositories
+  read-only. Carry back only command-changing signals such as validation-flow
+  disagreement, stale saved reports, over-broad approval noise, generated
+  guidance drift, helper friction, fixture needs, or automation wording drift.
+  A single npm + Cargo / Tauri validation-flow uncertainty is useful intake
+  evidence, but it should stay in observation until it repeats or clearly
+  changes Habitat's generated guidance.
 - Leave read-only MCP prototypes, Homebrew distribution, notarization, GUI, and
   broader integration work in the parking lot unless repeated real adoption or
   release-trust failures show that they change the next command or release

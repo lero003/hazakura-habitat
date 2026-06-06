@@ -63,3 +63,11 @@ Unjudged.
   `swift test` / `swift build`. Treat this as a usage-observation source for
   temporary-output adoption, saved-report absence, and SwiftPM sandbox-fallback
   wording, not as permission to take over LLM manager app work.
+- 2026-06-06: The user asked to fold heavy `hazakura-note` / `hazakura editor`
+  usage into the daily observation loop. A fresh scan of that Tauri app selected
+  npm and safe package scripts, but also surfaced `Open uncertainty` because the
+  app's current automation docs require a mixed npm + Cargo verification gate
+  for code changes. Treat this as useful validation-flow disagreement intake
+  and a saved-report freshness source, while keeping the watched app read-only.
+  Do not add a fixture or validation taxonomy from this single observation
+  unless later runs show repeated command-choice drift.

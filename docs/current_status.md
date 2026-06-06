@@ -32,6 +32,17 @@ default. This web-cleanup signal is now captured as a behavior fixture, so
 future intake can add another narrow fixture or remain no-op before proposing
 cleanup-intelligence scope.
 
+`hazakura-note` / `hazakura editor` is now another bounded usage-observation
+source for the post-v1 loop. A fresh scan of that Tauri app correctly selected
+npm as the package manager while surfacing `Open uncertainty` around multiple
+documented validation workflows: package scripts such as `npm run test` exist,
+but the current automation docs require a mixed `npm run build:vite` plus
+Cargo-format/test plus full Tauri build gate for code changes. Treat that as
+cross-project intake for validation-flow disagreement and stale-report checks,
+not as permission to edit the watched app or immediately expand Habitat's
+validation taxonomy. Repeated traces may justify a narrow fixture or wording
+change; a single matching observation can remain no-op.
+
 The large-repository direction is scoped evidence, not whole-project
 understanding. Habitat should help agents avoid the false confidence that comes
 from trying to read everything by preferring repository entrypoints, nearby

@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Added `hazakura-note` / `hazakura editor` as a bounded cross-project
+  observation source for the post-v1 automation loop, treating its npm + Cargo
+  validation-flow uncertainty as intake evidence rather than a watched-project
+  workstream or immediate scanner expansion.
 - Clarified the `v1.0.x` observation-ledger roadmap so Nenrin's current
   post-v1 shape is visible but sparse, narrowed to the thin observation spine
   instead of an unresolved product-surface choice.
