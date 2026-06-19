@@ -2,8 +2,8 @@
 type: nenrin_change
 id: corepack-package-manager-activation-reason
 date: 2026-05-04
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog.swift
   - Sources/HabitatCore/Scanner.swift
@@ -53,4 +53,4 @@ The v0.3 self-use policy review showed Corepack commands were already Ask First,
 
 ## Result
 
-Unjudged.
+Reviewed via `review-corepack-package-manager-activation-reason-2026-06-19`. Judgment: `keep`.
