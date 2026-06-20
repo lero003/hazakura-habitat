@@ -65,13 +65,13 @@ When a script already has a chosen Habitat binary path, check the binary and
 generated metadata before using saved or piped guidance:
 
 ```bash
-scripts/check_habitat_metadata.sh /path/to/habitat-scan . 1.0.0
+scripts/check_habitat_metadata.sh /path/to/habitat-scan . 1.1.0
 ```
 
 To print one verified artifact without creating `habitat-report/`:
 
 ```bash
-scripts/print_habitat_artifact.sh /path/to/habitat-scan . agent_context.md 1.0.0
+scripts/print_habitat_artifact.sh /path/to/habitat-scan . agent_context.md 1.1.0
 ```
 
 Successful metadata checks prove the binary version, generated
@@ -88,14 +88,14 @@ asset in the same downloaded release directory. Verify checksums before any
 downloaded binary runs:
 
 ```bash
-scripts/verify_habitat_release.sh /path/to/downloaded-release . 1.0.0
+scripts/verify_habitat_release.sh /path/to/downloaded-release . 1.1.0
 ```
 
 To pipe one verified release artifact to an agent or automation step:
 
 ```bash
-scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . agent_context.md 1.0.0
-scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . habitat-report/agent_context.md 1.0.0
+scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . agent_context.md 1.1.0
+scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . habitat-report/agent_context.md 1.1.0
 ```
 
 The release helpers reject checksum paths that escape the release directory,

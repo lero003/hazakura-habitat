@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+- No changes yet.
+
+## v1.1.0 - 2026-06-21
+
+Post-v1 observation hardening release.
+
+`v1.1.0` keeps Habitat advisory, read-only, and macOS-first while carrying
+forward real self-use observations into scanner freshness, validation-claim
+handling, documentation, fixtures, and repository maintenance.
+
+### Changed
+
+- Added `docs/current-work.md` and `docs/current-status.md` as bounded
+  project-guidance freshness inputs and sanitized validation-command claim
+  sources, matching current Hazakura Editor usage.
+- Recognized `Verification` headings and selected package.json-backed package
+  scripts such as `npm run build:vite` as validation-command claims without
+  promoting broader release or planning prose.
 - Added `hazakura-note` / `hazakura editor` as a bounded cross-project
   observation source for the post-v1 automation loop, treating its npm + Cargo
   validation-flow uncertainty as intake evidence rather than a watched-project
@@ -35,6 +53,15 @@
   requirements, and post-v1 observation language.
 - Aligned the self-use historical snapshot handoff with the current post-v1
   observation loop so recurring work does not reopen `v1.0` readiness.
+
+### Verified
+
+- `swift test`
+- `git diff --check`
+- Local release artifacts built with `scripts/build_release_artifacts.sh`.
+- Local checksums verified with `cd dist && shasum -c SHA256SUMS`.
+- Local release helper verification with
+  `scripts/verify_habitat_release.sh ./dist . 1.1.0`.
 
 ## v1.0.0 - 2026-05-18
 

@@ -25,7 +25,7 @@ explicit when the repository facts are not enough.
 
 It does not execute, approve, block, or sandbox commands.
 
-Status: `v1.0.0` - stable advisory generator - no command enforcement - macOS-first.
+Status: `v1.1.0` - stable advisory generator - no command enforcement - macOS-first.
 
 ## AI Agent Entry Point
 
@@ -134,11 +134,11 @@ safe command, and these questions remain unknown."
 5. Short agent context over exhaustive reports.
 6. Scoped evidence over broad project interpretation.
 
-Hazakura Habitat is developed around output quality, not feature breadth. The `v1.0.0` line is the stable advisory generator scope: it keeps the core Markdown reading contract, release-consumption checks, helper verification, and scoped evidence boundaries while preserving the advisory, read-only boundary.
+Hazakura Habitat is developed around output quality, not feature breadth. The `v1.1.0` line continues the stable advisory generator scope: it keeps the core Markdown reading contract, release-consumption checks, helper verification, and scoped evidence boundaries while preserving the advisory, read-only boundary.
 
 The roadmap now prioritizes:
 
-1. Keep the `v1.0.0` advisory contract stable and understandable
+1. Keep the `v1.x` advisory contract stable and understandable
 2. Use patch releases only for material artifact, checksum, install, or generated-output corrections
 3. Post-v1 observation-led deepening before any expansion
 
@@ -221,7 +221,7 @@ For project context and contribution:
 
 ## Current Status
 
-The repository contains the `v1.0.0` stable advisory generator implementation of the AI-first CLI. See [Current Status](docs/current_status.md) for what is implemented and what should come next.
+The repository contains the `v1.1.0` stable advisory generator implementation of the AI-first CLI. See [Current Status](docs/current_status.md) for what is implemented and what should come next.
 
 See [Public Readiness](docs/public_readiness.md) for the completed `v0.1.0` publication checklist and scope boundaries.
 
@@ -269,7 +269,7 @@ For local scripts that only need this metadata check, use the bundled helper
 with a verified binary path:
 
 ```bash
-scripts/check_habitat_metadata.sh ./dist/habitat-scan . 1.0.0
+scripts/check_habitat_metadata.sh ./dist/habitat-scan . 1.1.0
 ```
 
 The helper reads `scan_result.json` through `--stdout scan-result`, compares
@@ -293,7 +293,7 @@ For downloaded release directories, use the release verification helper before
 any script depends on the binary:
 
 ```bash
-scripts/verify_habitat_release.sh /path/to/downloaded-release . 1.0.0
+scripts/verify_habitat_release.sh /path/to/downloaded-release . 1.1.0
 ```
 
 The helper runs `shasum -c SHA256SUMS` first, extracts
@@ -312,10 +312,10 @@ print helper. Verification failures go to stderr, so stdout remains the
 requested artifact:
 
 ```bash
-scripts/print_habitat_artifact.sh ./dist/habitat-scan . agent_context.md 1.0.0
-scripts/print_habitat_artifact.sh ./dist/habitat-scan . command_policy.md 1.0.0
-scripts/print_habitat_artifact.sh ./dist/habitat-scan . habitat-report/agent_context.md 1.0.0
-scripts/print_habitat_artifact.sh ./dist/habitat-scan . /path/to/project/habitat-report/agent_context.md 1.0.0
+scripts/print_habitat_artifact.sh ./dist/habitat-scan . agent_context.md 1.1.0
+scripts/print_habitat_artifact.sh ./dist/habitat-scan . command_policy.md 1.1.0
+scripts/print_habitat_artifact.sh ./dist/habitat-scan . habitat-report/agent_context.md 1.1.0
+scripts/print_habitat_artifact.sh ./dist/habitat-scan . /path/to/project/habitat-report/agent_context.md 1.1.0
 ```
 
 This helper verifies the binary version, `generatorVersion`, expected preview
@@ -335,8 +335,8 @@ needs a verified artifact from the zip or standalone release asset without
 managing the extracted binary path:
 
 ```bash
-scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . agent_context.md 1.0.0
-scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . habitat-report/agent_context.md 1.0.0
+scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . agent_context.md 1.1.0
+scripts/print_habitat_release_artifact.sh /path/to/downloaded-release . habitat-report/agent_context.md 1.1.0
 ```
 
 This helper keeps the same checksum-first release boundary, writes verification

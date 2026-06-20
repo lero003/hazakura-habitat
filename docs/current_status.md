@@ -2,11 +2,11 @@
 
 ## Current Phase
 
-CLI MVP is usable. The `v1.0.0` line is the stable advisory generator scope. Main-branch work should now protect that narrow contract and use post-v1 observation before adding surface area.
+CLI MVP is usable. The `v1.1.0` line is the current stable advisory generator scope. Main-branch work should protect the narrow `v1.x` contract and use post-v1 observation before adding surface area.
 
 The goal is not broad Mac environment coverage. The goal is to keep AI-facing outputs short, conservative, stable, and useful enough that an AI coding agent avoids wrong or unsafe commands before touching a repository.
 
-The `v1.0.0` release keeps Habitat advisory while accepting the first stable scope. Version-gated previous-scan comparison, unreadable previous-scan fallback, bounded schema/generator mismatch output, core Markdown artifact metadata, stdout/file artifact helper verification, and scoped large-repository evidence guidance are now part of the supported advisory contract.
+The `v1.1.0` release keeps Habitat advisory while carrying post-v1 self-use observations into bounded freshness and validation-claim behavior. Version-gated previous-scan comparison, unreadable previous-scan fallback, bounded schema/generator mismatch output, core Markdown artifact metadata, stdout/file artifact helper verification, and scoped large-repository evidence guidance remain part of the supported advisory contract.
 
 Treat `v1.x` work as observation-led hardening, not as permission to expand the product surface. Continue keeping contracts narrow: previous-scan comparison, report freshness, preferred-command deltas, generator traceability, release consumption, Markdown reading order, helper behavior, representative examples, adoption guidance, breaking-change policy, and schema migration notes.
 

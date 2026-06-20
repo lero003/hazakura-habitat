@@ -20,7 +20,7 @@
 
 ## Notes
 - Scanned at: example timestamp
-- Generator: 1.0.0
+- Generator: 1.1.0
 - Project: example Node project with mixed lockfiles
 - Freshness: regenerate if key project files changed after this timestamp; compare key files with `scan_result.json` observed file mtimes.
 - Latest observed file: package.json modified at example timestamp (shortcut only; other observed files may become stale later).
