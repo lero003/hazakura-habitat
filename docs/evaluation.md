@@ -898,6 +898,24 @@ Follow-up:
 
 - If agents still hand-compare stale reports instead of using `--previous-scan`, update automation wording before adding report lifecycle features.
 
+### cross-project-hyphenated-current-docs-001
+
+Fixture:
+
+- `examples/behavior-evaluation/cross-project-hyphenated-current-docs-001.json`
+
+Summary:
+
+- Result: Pass.
+- Primary metric: risk-aware behavior.
+- Context mode: fresh temporary scan with a saved sibling-project report passed as `--previous-scan`.
+- Observation: Hazakura Editor uses `docs/current-work.md` as the active queue and `docs/current-status.md` as implementation truth, but a fresh scan did not include those hyphenated current-doc paths in observed-file freshness. Habitat now observes both paths when present and reads sanitized validation-command claims from `docs/current-work.md`, including lines headed `Verification` and selected package-manager scripts such as `npm run build:vite` when `package.json` contains that script.
+- Boundary: this is a narrow freshness and instruction-alignment carry-back. It does not add Tauri-specific planning, whole-project documentation intelligence, watched-project edits, or report lifecycle automation.
+
+Follow-up:
+
+- Only add more current-doc aliases when another real repository shows a command-decision file is missing from `observedFiles`.
+
 ### cross-project-web-cleanup-validation-001
 
 Fixture:

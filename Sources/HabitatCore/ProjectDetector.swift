@@ -78,6 +78,8 @@ public struct ProjectDetector {
         ".netrc",
         "AGENTS.md",
         "docs/agent-usage.md",
+        "docs/current-work.md",
+        "docs/current-status.md",
         "docs/current_status.md",
         "docs/development_automation.md",
         "docs/development_environment.md",
@@ -135,7 +137,12 @@ public struct ProjectDetector {
             packageManagerVersion: packageManagerVersion.version,
             packageManagerVersionSource: packageManagerVersion.source,
             packageScripts: packageJSON.scripts,
-            validationCommandClaims: validationCommandClaims(projectURL: projectURL, symlinkedFiles: symlinkedFiles),
+            validationCommandClaims: validationCommandClaims(
+                projectURL: projectURL,
+                symlinkedFiles: symlinkedFiles,
+                packageManager: packageManager,
+                packageScripts: packageJSON.scripts
+            ),
             runtimeHints: RuntimeHints(
                 node: firstAvailableLineIfSafe(
                     projectURL.appendingPathComponent(".nvmrc"),
@@ -354,7 +361,12 @@ public struct ProjectDetector {
         )
     }
 
-    private func validationCommandClaims(projectURL: URL, symlinkedFiles: [String]) -> [ValidationCommandClaim] {
+    private func validationCommandClaims(
+        projectURL: URL,
+        symlinkedFiles: [String],
+        packageManager: String?,
+        packageScripts: [String]
+    ) -> [ValidationCommandClaim] {
         let symlinked = Set(symlinkedFiles)
         return validationClaimFiles(projectURL: projectURL).flatMap { source -> [ValidationCommandClaim] in
             guard !symlinked.contains(source),
@@ -363,7 +375,11 @@ public struct ProjectDetector {
                 return []
             }
 
-            let parsedClaims = validationCommandClaims(in: content)
+            let parsedClaims = validationCommandClaims(
+                in: content,
+                packageManager: packageManager,
+                packageScripts: packageScripts
+            )
                 + inferredPythonTestClaims(in: content, source: source)
 
             return parsedClaims.map {
@@ -381,6 +397,8 @@ public struct ProjectDetector {
         [
             "AGENTS.md",
             "README.md",
+            "docs/current-work.md",
+            "docs/current-status.md",
             "docs/development_loop.md",
             "docs/development_environment.md",
             "docs/release-checklist.md",
@@ -419,12 +437,18 @@ public struct ProjectDetector {
         return Array(files.prefix(20))
     }
 
-    private func validationCommandClaims(in content: String) -> [(command: String, purpose: ValidationCommandPurpose)] {
+    private func validationCommandClaims(
+        in content: String,
+        packageManager: String?,
+        packageScripts: [String]
+    ) -> [(command: String, purpose: ValidationCommandPurpose)] {
         let lines = content
             .lowercased()
             .split(whereSeparator: \.isNewline)
             .map(String.init)
-        let candidates = [
+        let candidates = orderedUnique(
+            packageScriptValidationCommands(packageManager: packageManager, packageScripts: packageScripts)
+            + [
             "swift test",
             "swift build",
             "npm test",
@@ -452,7 +476,8 @@ public struct ProjectDetector {
             "./gradlew build",
             "bundle exec",
             "xcodebuild test"
-        ]
+            ]
+        )
 
         return lines.flatMap { line in
             let lineCandidates = orderedUnique(
@@ -460,8 +485,8 @@ public struct ProjectDetector {
                     + ProjectLocalValidationScript.validationCommands(in: line)
                     + ProjectLocalValidationScript.releaseArtifactCommands(in: line)
             )
-            return lineCandidates.compactMap { candidate -> (command: String, purpose: ValidationCommandPurpose)? in
-                guard line.contains(candidate),
+            return validationCandidatesInLineOrder(lineCandidates, line: line).compactMap { candidate -> (command: String, purpose: ValidationCommandPurpose)? in
+                guard lineContainsCommand(line, candidate),
                       lineLooksLikeValidationClaim(line, command: candidate)
                 else {
                     return nil
@@ -475,6 +500,62 @@ public struct ProjectDetector {
                 commands.append(command)
             }
         }
+    }
+
+    private func validationCandidatesInLineOrder(_ candidates: [String], line: String) -> [String] {
+        candidates.sorted { lhs, rhs in
+            let lhsIndex = line.range(of: lhs)?.lowerBound ?? line.endIndex
+            let rhsIndex = line.range(of: rhs)?.lowerBound ?? line.endIndex
+            if lhsIndex == rhsIndex {
+                return lhs.count > rhs.count
+            }
+            return lhsIndex < rhsIndex
+        }
+    }
+
+    private func packageScriptValidationCommands(packageManager: String?, packageScripts: [String]) -> [String] {
+        guard let packageManager else { return [] }
+
+        return packageScripts.flatMap { script -> [String] in
+            switch (packageManager, script) {
+            case ("bun", "test"):
+                return ["bun test"]
+            case ("bun", _):
+                return ["bun run \(script)"]
+            case ("npm", "test"):
+                return ["npm run test", "npm test"]
+            case ("npm", _):
+                return ["npm run \(script)"]
+            case ("pnpm", _), ("yarn", _):
+                return ["\(packageManager) run \(script)"]
+            default:
+                return []
+            }
+        }
+    }
+
+    private func lineContainsCommand(_ line: String, _ command: String) -> Bool {
+        var searchRange = line.startIndex..<line.endIndex
+
+        while let range = line.range(of: command, range: searchRange) {
+            if commandBoundaryMatches(line, before: range.lowerBound, after: range.upperBound) {
+                return true
+            }
+
+            searchRange = range.upperBound..<line.endIndex
+        }
+
+        return false
+    }
+
+    private func commandBoundaryMatches(_ line: String, before start: String.Index, after end: String.Index) -> Bool {
+        let prefixOK = start == line.startIndex || isCommandBoundary(line[line.index(before: start)])
+        let suffixOK = end == line.endIndex || isCommandBoundary(line[end])
+        return prefixOK && suffixOK
+    }
+
+    private func isCommandBoundary(_ character: Character) -> Bool {
+        character.isWhitespace || "`'\"()[]{}<>,;.".contains(character)
     }
 
     private func inferredPythonTestClaims(
@@ -543,17 +624,26 @@ public struct ProjectDetector {
         let markers = [
             "validat",
             "verify",
+            "verification",
             "check",
             "before commit",
             "before committing",
-            "ci",
             "quality",
             "確認",
             "検証"
         ]
 
-        return markers.contains {
+        return lineContainsCIWord(line) || markers.contains {
             line.contains($0)
+        }
+    }
+
+    private func lineContainsCIWord(_ line: String) -> Bool {
+        line.split { character in
+            !character.isLetter && !character.isNumber
+        }
+        .contains { token in
+            token == "ci"
         }
     }
 

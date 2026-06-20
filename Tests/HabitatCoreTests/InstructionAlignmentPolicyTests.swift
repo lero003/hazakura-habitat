@@ -220,6 +220,53 @@ struct InstructionAlignmentPolicyTests {
     }
 
     @Test
+    func scanReadsValidationClaimsFromHyphenatedCurrentWorkDocs() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": """
+            {
+              "scripts": {
+                "test": "vitest run",
+                "build": "vite build",
+                "build:vite": "vite build",
+                "build:app-store-submit": "tauri build"
+              }
+            }
+            """,
+            "package-lock.json": "{}",
+            "docs/current-work.md": """
+            Start with this queue before choosing a slice.
+            Verification: `npm run test -- src/example.test.ts`, `npm run build:vite`.
+            `npm run build:app-store-submit` uses App Store-specific Tauri config.
+            """
+        ])
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/node", stderr: ""),
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.0.0", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/npm", stderr: ""),
+            "/usr/bin/env npm --version": .init(name: "/usr/bin/env", args: ["npm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "10.0.0", stderr: "")
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let scanJSON = try String(contentsOf: outputURL.appendingPathComponent("scan_result.json"), encoding: .utf8)
+
+        assertAgentContextContract(context)
+        #expect(result.project.validationCommandClaims == [
+            ValidationCommandClaim(source: "docs/current-work.md", command: "npm run test"),
+            ValidationCommandClaim(source: "docs/current-work.md", command: "npm run build:vite")
+        ])
+        #expect(context.contains("Fact: Project instructions and repository files both support npm validation."))
+        #expect(scanJSON.contains("\"source\" : \"docs/current-work.md\""))
+        #expect(scanJSON.contains("\"command\" : \"npm run test\""))
+        #expect(scanJSON.contains("\"command\" : \"npm run build:vite\""))
+        #expect(!scanJSON.contains("\"command\" : \"npm run build\""))
+        #expect(!scanJSON.contains("\"command\" : \"npm run build:app-store-submit\""))
+        #expect(!context.contains("Start with this queue"))
+    }
+
+    @Test
     func scanPromotesKnownProjectLocalValidationScriptWithoutExtraUncertainty() throws {
         let projectURL = try makeProject(files: [
             "settings.gradle.kts": "pluginManagement {}\n",

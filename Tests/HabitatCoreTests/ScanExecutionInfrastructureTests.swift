@@ -2415,13 +2415,15 @@ struct ScanExecutionInfrastructureTests {
             "Package.swift": "// swift package",
             "README.md": "# Project",
             "docs/current_status.md": "# Current Status",
+            "docs/current-work.md": "# Current Work",
+            "docs/current-status.md": "# Current Status",
             "docs/development_automation.md": "# Development Automation",
             "docs/development_environment.md": "# Development Environment",
             "nenrin/index.md": "# Nenrin",
             "nenrin/metrics.md": "# Metrics",
             ".github/workflows/ci.yml": "name: CI",
         ])
-        let readmeURL = projectURL.appendingPathComponent("docs/current_status.md")
+        let readmeURL = projectURL.appendingPathComponent("docs/current-work.md")
         let newestDate = Date(timeIntervalSince1970: 1_800_000_000)
         try FileManager.default.setAttributes([.modificationDate: newestDate], ofItemAtPath: readmeURL.path)
 
@@ -2431,6 +2433,8 @@ struct ScanExecutionInfrastructureTests {
         #expect(observedFiles.map(\.path).contains("Package.swift"))
         #expect(observedFiles.map(\.path).contains("README.md"))
         #expect(observedFiles.map(\.path).contains("docs/current_status.md"))
+        #expect(observedFiles.map(\.path).contains("docs/current-work.md"))
+        #expect(observedFiles.map(\.path).contains("docs/current-status.md"))
         #expect(observedFiles.map(\.path).contains("docs/development_automation.md"))
         #expect(observedFiles.map(\.path).contains("docs/development_environment.md"))
         #expect(observedFiles.map(\.path).contains("nenrin/index.md"))
@@ -2438,8 +2442,8 @@ struct ScanExecutionInfrastructureTests {
         #expect(observedFiles.map(\.path).contains(".github/workflows/ci.yml"))
         #expect(observedFiles.allSatisfy { !$0.modifiedAt.isEmpty })
         #expect(observedFiles.allSatisfy { !$0.modifiedAt.contains(projectURL.path) })
-        #expect(result.project.latestObservedFilePath == "docs/current_status.md")
-        #expect(result.project.latestObservedFileModifiedAt == observedFiles.first { $0.path == "docs/current_status.md" }?.modifiedAt)
+        #expect(result.project.latestObservedFilePath == "docs/current-work.md")
+        #expect(result.project.latestObservedFileModifiedAt == observedFiles.first { $0.path == "docs/current-work.md" }?.modifiedAt)
     }
 
     private func releaseVerificationFakeBinaryScript(version: String) -> String {
