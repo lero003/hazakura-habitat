@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-- No changes yet.
+### Changed
+
+- Clarified current-status release-consumption wording so `v1.1.0` is treated
+  as the current stable advisory generator while preserving the narrow
+  `v1.0.0` machine-readable boundary.
 
 ## v1.1.0 - 2026-06-21
 
