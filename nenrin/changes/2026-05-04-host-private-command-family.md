@@ -2,8 +2,8 @@
 type: nenrin_change
 id: host-private-command-family
 date: 2026-05-04
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog+HostPrivate.swift
   - Sources/HabitatCore/PolicyReasonCatalog.swift
@@ -52,4 +52,4 @@ The v0.3 self-use context kept host-private actions visible in the short Do Not 
 
 ## Result
 
-Unjudged.
+Reviewed via `review-host-private-command-family-2026-06-26`. Judgment: `keep`.
