@@ -80,6 +80,7 @@ public struct ProjectDetector {
         "docs/agent-usage.md",
         "docs/current-work.md",
         "docs/current-status.md",
+        "docs/internal/app-store-candidates/latest.json",
         "docs/current_status.md",
         "docs/development_automation.md",
         "docs/development_environment.md",

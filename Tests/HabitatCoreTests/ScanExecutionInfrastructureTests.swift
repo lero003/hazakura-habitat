@@ -2417,6 +2417,7 @@ struct ScanExecutionInfrastructureTests {
             "docs/current_status.md": "# Current Status",
             "docs/current-work.md": "# Current Work",
             "docs/current-status.md": "# Current Status",
+            "docs/internal/app-store-candidates/latest.json": #"{"version":"1.2.3","build":"45","smoke":"skipped"}"#,
             "docs/development_automation.md": "# Development Automation",
             "docs/development_environment.md": "# Development Environment",
             "nenrin/index.md": "# Nenrin",
@@ -2435,6 +2436,7 @@ struct ScanExecutionInfrastructureTests {
         #expect(observedFiles.map(\.path).contains("docs/current_status.md"))
         #expect(observedFiles.map(\.path).contains("docs/current-work.md"))
         #expect(observedFiles.map(\.path).contains("docs/current-status.md"))
+        #expect(observedFiles.map(\.path).contains("docs/internal/app-store-candidates/latest.json"))
         #expect(observedFiles.map(\.path).contains("docs/development_automation.md"))
         #expect(observedFiles.map(\.path).contains("docs/development_environment.md"))
         #expect(observedFiles.map(\.path).contains("nenrin/index.md"))

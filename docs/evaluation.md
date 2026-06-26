@@ -910,11 +910,12 @@ Summary:
 - Primary metric: risk-aware behavior.
 - Context mode: fresh temporary scan with a saved sibling-project report passed as `--previous-scan`.
 - Observation: Hazakura Editor uses `docs/current-work.md` as the active queue and `docs/current-status.md` as implementation truth, but a fresh scan did not include those hyphenated current-doc paths in observed-file freshness. Habitat now observes both paths when present and reads sanitized validation-command claims from `docs/current-work.md`, including lines headed `Verification` and selected package-manager scripts such as `npm run build:vite` when `package.json` contains that script.
+- Follow-up observation: Later Hazakura Editor release-candidate work made `docs/internal/app-store-candidates/latest.json` the single source of truth for local App Store / TestFlight candidate version, build, package path, checksum, commit, and smoke status. Habitat now observes that exact file path when present so saved reports can become stale when candidate metadata changes, without scanning broader `docs/internal/` content or interpreting private review drafts.
 - Boundary: this is a narrow freshness and instruction-alignment carry-back. It does not add Tauri-specific planning, whole-project documentation intelligence, watched-project edits, or report lifecycle automation.
 
 Follow-up:
 
-- Only add more current-doc aliases when another real repository shows a command-decision file is missing from `observedFiles`.
+- Only add more current-doc aliases or exact release-candidate metadata paths when another real repository shows a command-decision file is missing from `observedFiles`.
 
 ### cross-project-web-cleanup-validation-001
 
