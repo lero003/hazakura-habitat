@@ -25,9 +25,13 @@ restating project prose or expanding into a general instruction linter.
   current `1.1.0` generator as a report-shape change, not as evidence that the
   local environment changed.
 - A fresh `hazakura-llm-manager` scan detected multiple documented validation
-  workflows, emitted `Open uncertainty`, preferred `swift test`, and kept
-  `./script/build_and_run.sh --verify` scoped to launch smoke. That narrowed
-  command selection instead of confidently choosing one conflicting claim.
+  workflows, emitted `Open uncertainty`, and kept
+  `./script/build_and_run.sh --verify` scoped to launch smoke. It also exposed a
+  remaining command-purpose gap: the bare `./script/build_and_run.sh` app-launch
+  path is currently classified as ordinary validation and appears before
+  `swift test`, despite the repository's SwiftPM-first verification guidance.
+  This is bounded evidence to keep the instruction-alignment direction, not a
+  reason to claim the generated preference is already correct.
 - `DocumentedValidationCommandEvidence` and its focused instruction-alignment,
   CI-presence, and project-local-script tests preserve the same
   fact/uncertainty boundary without broad prose parsing.
@@ -41,7 +45,9 @@ restating project prose or expanding into a general instruction linter.
 
 ## Cleanup
 
-- No cleanup now. Keep future instruction-alignment work limited to measured
-  command-decision gaps. Do not broaden this into generic prose linting, plan
+- No cleanup in this review. Keep future instruction-alignment work limited to
+  measured command-decision gaps, including the observed llm-manager
+  app-launch-versus-source-verification classification when that becomes the
+  selected slice. Do not broaden this into generic prose linting, plan
   generation, or routine scanning when repository guidance already answers a
   low-risk question.
