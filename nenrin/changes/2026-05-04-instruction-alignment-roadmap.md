@@ -2,8 +2,8 @@
 type: nenrin_change
 id: instruction-alignment-roadmap
 date: 2026-05-04
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - README.md
   - docs/roadmap.md
@@ -58,4 +58,4 @@ Real cross-project use showed that Habitat is weak when its output mostly repeat
 
 ## Result
 
-Unjudged.
+Reviewed via `review-instruction-alignment-roadmap-2026-07-03`. Judgment: `keep`.
