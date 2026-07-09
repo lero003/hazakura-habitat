@@ -573,6 +573,77 @@ struct InstructionAlignmentPolicyTests {
     }
 
     @Test
+    func scanDoesNotPromoteBareBuildAndRunScriptIntoOrdinaryValidation() throws {
+        let projectURL = try makeProject(files: [
+            "Package.swift": """
+            // swift-tools-version: 6.1
+            import PackageDescription
+            let package = Package(name: "Demo")
+            """,
+            "AGENTS.md": """
+            Keep changes small and verify them with SwiftPM.
+
+            swift test
+            """,
+            "README.md": """
+            ## Local Development
+
+            Build and test:
+
+            ```bash
+            swift build
+            swift test
+            ```
+
+            Run the macOS app bundle:
+
+            ```bash
+            ./script/build_and_run.sh
+            ```
+
+            Verify launch:
+
+            ```bash
+            ./script/build_and_run.sh --verify
+            ```
+            """
+        ])
+        try writeExecutableScript(
+            projectURL.appendingPathComponent("script/build_and_run.sh"),
+            contents: "#!/bin/sh\n"
+        )
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [
+            "/usr/bin/which -a swift": .init(name: "/usr/bin/which", args: ["-a", "swift"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/swift", stderr: ""),
+            "/usr/bin/env swift --version": .init(name: "/usr/bin/env", args: ["swift", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Swift version 6.1", stderr: ""),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: "")
+        ])).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+        let writtenResult = try JSONDecoder().decode(
+            ScanResult.self,
+            from: Data(contentsOf: outputURL.appendingPathComponent("scan_result.json"))
+        )
+
+        assertAgentContextContract(context)
+        #expect(result.project.validationCommandClaims == [
+            ValidationCommandClaim(source: "AGENTS.md", command: "swift test"),
+            ValidationCommandClaim(
+                source: "README.md",
+                command: "./script/build_and_run.sh --verify",
+                purpose: .launchSmoke
+            )
+        ])
+        #expect(writtenResult.policy.preferredCommands == ["swift test", "swift build"])
+        #expect(!writtenResult.policy.preferredCommands.contains("./script/build_and_run.sh"))
+        #expect(context.contains("Hint: Prefer `swift test` for local validation."))
+        #expect(context.contains("Fact: Project instructions mention launch smoke verification `./script/build_and_run.sh --verify`; keep it for app-launch smoke checks, not ordinary local validation."))
+        #expect(!context.contains("- Prefer `./script/build_and_run.sh`."))
+        #expect(!context.contains("project-local validation script `./script/build_and_run.sh`."))
+    }
+
+    @Test
     func scanDeduplicatesSameValidationCommandAcrossInstructionFiles() throws {
         let projectURL = try makeProject(files: [
             "settings.gradle.kts": "pluginManagement {}\n",

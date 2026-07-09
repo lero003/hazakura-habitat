@@ -608,18 +608,26 @@ public struct ProjectDetector {
             return false
         }
 
-        if command.contains("test") || command.contains("pytest") {
-            return true
+        if ProjectLocalValidationScript.isCommand(command) {
+            if ProjectLocalValidationScript.isLaunchSmokeCommand(command)
+                || ProjectLocalValidationScript.isDeviceVerificationCommand(command)
+                || ProjectLocalValidationScript.isEnvironmentCheckCommand(command)
+                || ProjectLocalValidationScript.isReleaseArtifactCommand(command) {
+                return true
+            }
+
+            let surroundingText = line.replacingOccurrences(of: command, with: " ")
+            return surroundingText.contains("test")
+                || surroundingText.contains("build")
+                || surroundingText.contains("validat")
+                || surroundingText.contains("verify")
+                || surroundingText.contains("check")
+                || surroundingText.contains("確認")
+                || surroundingText.contains("検証")
         }
 
-        if ProjectLocalValidationScript.isCommand(command) {
-            return line.contains("test")
-                || line.contains("build")
-                || line.contains("validat")
-                || line.contains("verify")
-                || line.contains("check")
-                || line.contains("確認")
-                || line.contains("検証")
+        if command.contains("test") || command.contains("pytest") {
+            return true
         }
 
         let markers = [

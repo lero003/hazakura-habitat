@@ -4,6 +4,9 @@
 
 ### Changed
 
+- Avoid promoting bare macOS build-and-run helper scripts into ordinary local
+  validation when only the `--verify` form is documented as launch-smoke
+  verification.
 - Clarified current-status release-consumption wording so `v1.1.0` is treated
   as the current stable advisory generator while preserving the narrow
   `v1.0.0` machine-readable boundary.
