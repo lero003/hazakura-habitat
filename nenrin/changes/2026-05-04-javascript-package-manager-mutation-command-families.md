@@ -2,8 +2,8 @@
 type: nenrin_change
 id: javascript-package-manager-mutation-command-families
 date: 2026-05-04
-status: observing
-impact: unknown
+status: reviewed
+impact: effective
 related_files:
   - Sources/HabitatCore/PolicyReasonCatalog+JavaScriptPackageManager.swift
   - Sources/HabitatCore/PolicyReasonCatalog.swift
@@ -55,4 +55,4 @@ The v0.3 self-use report kept the next implementation path on policy review befo
 
 ## Result
 
-Unjudged.
+Reviewed via `review-javascript-package-manager-mutation-command-families-2026-07-10`. Judgment: `keep`.
