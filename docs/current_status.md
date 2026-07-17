@@ -2,11 +2,26 @@
 
 ## Current Phase
 
-CLI MVP is usable. The `v1.1.0` line is the current stable advisory generator scope. Main-branch work should protect the narrow `v1.x` contract and use post-v1 observation before adding surface area.
+CLI MVP is usable. The source tree is preparing a `v1.1.1` patch candidate on
+top of the published `v1.1.0` stable advisory generator. Main-branch work
+should protect the narrow `v1.x` contract and use post-v1 observation before
+adding surface area.
 
 The goal is not broad Mac environment coverage. The goal is to keep AI-facing outputs short, conservative, stable, and useful enough that an AI coding agent avoids wrong or unsafe commands before touching a repository.
 
-The `v1.1.0` release keeps Habitat advisory while carrying post-v1 self-use observations into bounded freshness and validation-claim behavior. Version-gated previous-scan comparison, unreadable previous-scan fallback, bounded schema/generator mismatch output, core Markdown artifact metadata, stdout/file artifact helper verification, and scoped large-repository evidence guidance remain part of the supported advisory contract.
+The `v1.1.1` candidate keeps Habitat advisory while adding two bounded
+post-release corrections: exact release-candidate metadata freshness and safer
+classification of bare macOS build-and-run helpers. Version-gated previous-scan
+comparison, unreadable previous-scan fallback, bounded schema/generator mismatch
+output, core Markdown artifact metadata, stdout/file artifact helper
+verification, and scoped large-repository evidence guidance remain part of the
+supported advisory contract.
+
+The local `v1.1.1` candidate has passed `swift test`, release-artifact creation,
+checksum verification, and `scripts/verify_habitat_release.sh ./dist . 1.1.1`.
+It remains untagged and unpublished. Any later publication should create a new
+`v1.1.1` tag and GitHub Release; do not move or replace the published `v1.1.0`
+tag or assets.
 
 Treat `v1.x` work as observation-led hardening, not as permission to expand the product surface. Continue keeping contracts narrow: previous-scan comparison, report freshness, preferred-command deltas, generator traceability, release consumption, Markdown reading order, helper behavior, representative examples, adoption guidance, breaking-change policy, and schema migration notes.
 
@@ -376,7 +391,7 @@ Keep the current cycle focused:
 
 ## Next Useful Improvements
 
-- Treat published `v1.x` releases as immutable once published. The current stable advisory generator release is `v1.1.0`; keep released tags and GitHub Release assets immutable. Use a transparent patch release only if a published artifact, checksum, install instruction, or generated-output claim is materially wrong.
+- Treat published `v1.x` releases as immutable once published. The current published stable advisory generator is `v1.1.0`, and the source tree is preparing `v1.1.1`; keep released tags and GitHub Release assets immutable.
 - Keep the stable `v1.0.0` machine-readable boundary narrow. Core Markdown artifact metadata is stable; detailed JSON counts, section navigation, policy reason details, previous-scan values, and project metadata remain preview-scoped unless `docs/agent_contract.md` promotes a narrower field.
 - `docs/agent_contract.md` now anchors the compatibility posture:
   `schemaVersion` gates unsafe preview-format changes, `generatorVersion`

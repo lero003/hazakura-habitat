@@ -2,14 +2,35 @@
 
 ## Unreleased
 
+No changes yet.
+
+## v1.1.1 - 2026-07-18
+
+Observation-led freshness and validation correction patch.
+
+`v1.1.1` keeps the stable advisory contract unchanged while carrying two
+bounded post-release observations into generated guidance and report freshness.
+
 ### Changed
 
+- Observe the exact `docs/internal/app-store-candidates/latest.json` path when
+  present so saved reports can become stale when local release-candidate
+  provenance changes, without scanning broader internal documentation.
 - Avoid promoting bare macOS build-and-run helper scripts into ordinary local
   validation when only the `--verify` form is documented as launch-smoke
   verification.
 - Clarified current-status release-consumption wording so `v1.1.0` is treated
   as the current stable advisory generator while preserving the narrow
   `v1.0.0` machine-readable boundary.
+
+### Verified
+
+- `swift test`
+- `git diff --check`
+- Local release artifacts built with `scripts/build_release_artifacts.sh`.
+- Local checksums verified with `cd dist && shasum -c SHA256SUMS`.
+- Local release helper verification with
+  `scripts/verify_habitat_release.sh ./dist . 1.1.1`.
 
 ## v1.1.0 - 2026-06-21
 

@@ -1,6 +1,7 @@
 # Known Limitations
 
-Hazakura Habitat is currently `v1.1.0`.
+Hazakura Habitat is currently preparing the `v1.1.1` release candidate; the
+published stable release remains `v1.1.0`.
 
 The current goal is not broad coverage. The goal is useful, conservative, project-derived command context for AI coding agents.
 
