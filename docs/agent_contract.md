@@ -731,7 +731,9 @@ Forbidden in MVP-generated policy:
 
 ## Machine Artifact: scan_result.json
 
-`scan_result.json` is preview metadata for audit, debug, and tooling use during `v0.x`.
+`scan_result.json` is a mixed-contract artifact in `v1.x`: the core Markdown
+artifact metadata described below is stable, while the remaining fields stay
+preview-scoped for audit, debug, and tooling use.
 
 Representative top-level shape:
 
