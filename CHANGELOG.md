@@ -4,12 +4,16 @@
 
 No changes yet.
 
-## v1.1.1 - 2026-07-18
+## v1.1.1 Candidate (unpublished) - 2026-07-18
 
 Observation-led freshness and validation correction patch.
 
-`v1.1.1` keeps the stable advisory contract unchanged while carrying two
-bounded post-release observations into generated guidance and report freshness.
+This section records a locally verified source candidate; the current
+published stable release remains `v1.1.0`.
+
+The `v1.1.1` candidate keeps the stable advisory contract unchanged while
+carrying two bounded post-release observations into generated guidance and
+report freshness.
 
 ### Changed
 
