@@ -92,7 +92,7 @@ Default priority for automation:
   verification already support the next command decision
 - third, use docs-only work only when stale automation wording would choose the
   wrong phase, reopen release prep, overstate stability, or hide a concrete
-  `v1.0` readiness gate
+  current `v1.x` observation gate
 - fourth, keep released tags and GitHub Release assets immutable unless an
   explicit patch-release handoff is justified
 - fifth, keep post-v1 exploration out of this lane: MCP integration, GUI,
