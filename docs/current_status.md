@@ -114,8 +114,8 @@ Keep the current cycle focused:
   generator-side boundary: artifact filename (`name`), report-relative path
   (`relativePath`), role, format, `agentUse`, `readTrigger`, `readOrder`,
   preferred entry section (`entrySection`), and the `agent_context.md`
-  line-limit status. Treat that narrow contract as a
-  v1-stable candidate while keeping detailed `scan_result.json` metadata
+  line-limit status. Treat that narrow contract as part of the
+  v1-stable boundary while keeping detailed `scan_result.json` metadata
   preview-scoped unless a smaller contract hardens it.
 - `habitat-scan scan --project ... --stdout scan-result`, `--stdout agent-context`,
   `--stdout command-policy`, and `--stdout environment-report` print the
