@@ -917,6 +917,18 @@ Follow-up:
 
 - Only add more current-doc aliases or exact release-candidate metadata paths when another real repository shows a command-decision file is missing from `observedFiles`.
 
+### cross-project-app-validation-boundaries-001
+
+Fixture: `examples/behavior-evaluation/cross-project-app-validation-boundaries-001.json`
+
+Read-only app intake separates declared delivery helpers from ordinary local
+validation, replaces assumed workflow disagreement with scope uncertainty, and
+observes operational handoff/automation changes before trusting saved context.
+Swift package checks stay separate from Xcode app and device acceptance.
+Result: **Pass** for bounded regression checks and fresh temporary rescans.
+Further intake should narrow noisy namespaces or guidance paths before adding
+new app-specific detection.
+
 ### cross-project-web-cleanup-validation-001
 
 Fixture:

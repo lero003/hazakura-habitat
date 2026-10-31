@@ -2,7 +2,20 @@
 
 ## Unreleased
 
-No changes yet.
+- Keep documented JavaScript delivery script families (`testflight`, `release`,
+  `publish`, `deploy`, and platform-scoped Store helpers) under
+  `release_artifact`, separate from ordinary local validation. Only declared,
+  bounded script identifiers contribute claims; script bodies are not analyzed.
+- Describe multiple validation workflows as a scope question instead of an
+  instruction disagreement. A direct root `Package.swift` alongside an Xcode
+  project can support companion package checks while app scheme selection stays
+  separate.
+- Observe `docs/handoff.md` and `docs/development-automation.md` for freshness;
+  read sanitized validation claims from both automation filename variants.
+  Nested instruction inputs reject symlinked parent directories as well as
+  directly symlinked files.
+- Use relative, in-archive symlink fixtures so release-helper tests reach
+  Habitat's rejection check on current macOS `unzip`.
 
 ## v1.1.1 Candidate (unpublished) - 2026-07-18
 

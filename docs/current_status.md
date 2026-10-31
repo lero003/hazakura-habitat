@@ -17,11 +17,34 @@ output, core Markdown artifact metadata, stdout/file artifact helper
 verification, and scoped large-repository evidence guidance remain part of the
 supported advisory contract.
 
-The local `v1.1.1` candidate has passed `swift test`, release-artifact creation,
+The earlier local `v1.1.1` candidate passed `swift test`, release-artifact creation,
 checksum verification, and `scripts/verify_habitat_release.sh ./dist . 1.1.1`.
-It remains untagged and unpublished. Any later publication should create a new
+Those artifact checks predate the unreleased changes below; rebuild and verify
+artifacts from the intended source before publication. It remains untagged and
+unpublished. Any later publication should create a new
 `v1.1.1` tag and GitHub Release; do not move or replace the published `v1.1.0`
 tag or assets.
+
+Read-only intake across nine local app projects on 2026-10-31 produced three
+bounded changes:
+
+- Declared JavaScript delivery namespaces are release/artifact claims, including
+  TestFlight and platform-scoped Store helpers; ordinary preferred validation
+  commands remain separate. Script bodies do not establish purpose or permission.
+- Mixed validation workflows raise scope uncertainty rather than asserting that
+  instructions disagree. A direct root Swift package can complement an Xcode
+  app; package checks do not prove app or device acceptance.
+- `docs/handoff.md` and hyphenated automation guidance now participate in report
+  freshness. Both automation filename variants contribute sanitized validation
+  claims; handoff contents remain outside claim extraction. Direct and ancestor
+  symlinks are excluded from instruction reads.
+
+See the [intake evidence and deferred scope](../nenrin/changes/2026-10-31-cross-project-validation-boundaries.md).
+The 64 KiB instruction-read bound, advisory policy, schema/version metadata, and
+published release state are unchanged. Current main requires fresh packaging
+verification before any release.
+Validation: `swift test` passed all 384 tests in 36 suites; metadata helper
+verification passed for the current debug binary, schema, and core artifacts.
 
 Treat `v1.x` work as observation-led hardening, not as permission to expand the product surface. Continue keeping contracts narrow: previous-scan comparison, report freshness, preferred-command deltas, generator traceability, release consumption, Markdown reading order, helper behavior, representative examples, adoption guidance, breaking-change policy, and schema migration notes.
 
@@ -50,7 +73,8 @@ cleanup-intelligence scope.
 `hazakura-note` / `hazakura editor` is now another bounded usage-observation
 source for the post-v1 loop. Fresh scans of that Tauri app correctly selected
 npm as the package manager while surfacing `Open uncertainty` around multiple
-documented validation workflows: package scripts such as `npm run test` exist,
+documented validation workflows, which may cover complementary parts of the app:
+package scripts such as `npm run test` exist,
 but the current automation docs require a mixed `npm run build:vite` plus
 Cargo-format/test plus full Tauri build gate for code changes. Later editor
 intake showed a narrower freshness gap: the active queue and implementation

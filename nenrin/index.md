@@ -2,11 +2,12 @@
 
 ## Active Summary
 
-- observing: 187
+- observing: 188
 - reviewed: 20
 
 ## Active Changes
 
+- `cross-project-validation-boundaries` - [changes/2026-10-31-cross-project-validation-boundaries.md](changes/2026-10-31-cross-project-validation-boundaries.md)
 - `package-manager-mutation-review-map` - [changes/2026-05-04-package-manager-mutation-review-map.md](changes/2026-05-04-package-manager-mutation-review-map.md)
 - `roadmap-policy-finding-foundation` - [changes/2026-05-04-roadmap-policy-finding-foundation.md](changes/2026-05-04-roadmap-policy-finding-foundation.md)
 - `swiftpm-dependency-resolution-command-family` - [changes/2026-05-04-swiftpm-dependency-resolution-command-family.md](changes/2026-05-04-swiftpm-dependency-resolution-command-family.md)

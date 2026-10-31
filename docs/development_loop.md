@@ -328,6 +328,16 @@ Do not edit the watched project, copy raw report text into this repository, or
 let the watched project's backlog choose Habitat's work. The useful shape is
 still `repo fact -> short annotation -> command decision`.
 
+Recent app intake adds three useful checks: keep declared delivery helpers out
+of ordinary validation claims, distinguish complementary validation workflows
+from unsupported command claims, and include operational handoff/automation
+documents in freshness checks. Script names provide bounded purpose hints;
+they do not prove script behavior or authorize uploads. Package tests, app
+builds, and device acceptance remain separate evidence. Retain the instruction
+size limit and symlink boundaries when adding a fixed guidance path. See the
+[2026-10-31 intake](../nenrin/changes/2026-10-31-cross-project-validation-boundaries.md)
+for concrete evidence and intentionally deferred items.
+
 ## Self-Use Before Substantial Work
 
 Before larger Habitat changes, use the bundled `hazakura-habitat` skill or run Habitat on this repository and read the generated agent context:

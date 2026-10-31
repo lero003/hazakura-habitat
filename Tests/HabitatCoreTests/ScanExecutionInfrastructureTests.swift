@@ -1137,7 +1137,7 @@ struct ScanExecutionInfrastructureTests {
         let zipRootURL = tempURL.appendingPathComponent("zip-root")
         let zipDistURL = zipRootURL.appendingPathComponent("dist")
         let zipBinaryURL = zipDistURL.appendingPathComponent("habitat-scan")
-        let outsideBinaryURL = tempURL.appendingPathComponent("outside-habitat-scan")
+        let binaryTargetURL = zipDistURL.appendingPathComponent("real-habitat-scan")
         let markerURL = tempURL.appendingPathComponent("binary-ran")
         let zipURL = releaseURL.appendingPathComponent("habitat-scan-macos.zip")
         try fileManager.createDirectory(at: releaseURL, withIntermediateDirectories: true)
@@ -1145,19 +1145,20 @@ struct ScanExecutionInfrastructureTests {
         try fileManager.createDirectory(at: zipDistURL, withIntermediateDirectories: true)
 
         try writeExecutableScript(
-            outsideBinaryURL,
+            binaryTargetURL,
             contents: """
             #!/usr/bin/env bash
             printf 'ran\\n' > "\(markerURL.path)"
             exit 0
             """
         )
-        try fileManager.createSymbolicLink(at: zipBinaryURL, withDestinationURL: outsideBinaryURL)
+        // Keep the link inside the archive so unzip can reach Habitat's own symlink guard.
+        try fileManager.createSymbolicLink(atPath: zipBinaryURL.path, withDestinationPath: "real-habitat-scan")
 
         let zipProcess = Process()
         zipProcess.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
         zipProcess.currentDirectoryURL = zipRootURL
-        zipProcess.arguments = ["-qry", zipURL.path, "dist/habitat-scan"]
+        zipProcess.arguments = ["-qry", zipURL.path, "dist/habitat-scan", "dist/real-habitat-scan"]
         try zipProcess.run()
         zipProcess.waitUntilExit()
         #expect(zipProcess.terminationStatus == 0)
@@ -1348,7 +1349,7 @@ struct ScanExecutionInfrastructureTests {
         let zipRootURL = tempURL.appendingPathComponent("zip-root")
         let zipDistURL = zipRootURL.appendingPathComponent("dist")
         let zipBinaryURL = zipDistURL.appendingPathComponent("habitat-scan")
-        let outsideBinaryURL = tempURL.appendingPathComponent("outside-habitat-scan")
+        let binaryTargetURL = zipDistURL.appendingPathComponent("real-habitat-scan")
         let markerURL = tempURL.appendingPathComponent("binary-ran")
         let zipURL = releaseURL.appendingPathComponent("habitat-scan-macos.zip")
         try fileManager.createDirectory(at: releaseURL, withIntermediateDirectories: true)
@@ -1356,19 +1357,20 @@ struct ScanExecutionInfrastructureTests {
         try fileManager.createDirectory(at: zipDistURL, withIntermediateDirectories: true)
 
         try writeExecutableScript(
-            outsideBinaryURL,
+            binaryTargetURL,
             contents: """
             #!/usr/bin/env bash
             printf 'ran\\n' > "\(markerURL.path)"
             exit 0
             """
         )
-        try fileManager.createSymbolicLink(at: zipBinaryURL, withDestinationURL: outsideBinaryURL)
+        // Keep the link inside the archive so unzip can reach Habitat's own symlink guard.
+        try fileManager.createSymbolicLink(atPath: zipBinaryURL.path, withDestinationPath: "real-habitat-scan")
 
         let zipProcess = Process()
         zipProcess.executableURL = URL(fileURLWithPath: "/usr/bin/zip")
         zipProcess.currentDirectoryURL = zipRootURL
-        zipProcess.arguments = ["-qry", zipURL.path, "dist/habitat-scan"]
+        zipProcess.arguments = ["-qry", zipURL.path, "dist/habitat-scan", "dist/real-habitat-scan"]
         try zipProcess.run()
         zipProcess.waitUntilExit()
         #expect(zipProcess.terminationStatus == 0)
@@ -2417,14 +2419,16 @@ struct ScanExecutionInfrastructureTests {
             "docs/current_status.md": "# Current Status",
             "docs/current-work.md": "# Current Work",
             "docs/current-status.md": "# Current Status",
+            "docs/handoff.md": "# Handoff",
             "docs/internal/app-store-candidates/latest.json": #"{"version":"1.2.3","build":"45","smoke":"skipped"}"#,
+            "docs/development-automation.md": "# Development Automation",
             "docs/development_automation.md": "# Development Automation",
             "docs/development_environment.md": "# Development Environment",
             "nenrin/index.md": "# Nenrin",
             "nenrin/metrics.md": "# Metrics",
             ".github/workflows/ci.yml": "name: CI",
         ])
-        let readmeURL = projectURL.appendingPathComponent("docs/current-work.md")
+        let readmeURL = projectURL.appendingPathComponent("docs/handoff.md")
         let newestDate = Date(timeIntervalSince1970: 1_800_000_000)
         try FileManager.default.setAttributes([.modificationDate: newestDate], ofItemAtPath: readmeURL.path)
 
@@ -2436,7 +2440,9 @@ struct ScanExecutionInfrastructureTests {
         #expect(observedFiles.map(\.path).contains("docs/current_status.md"))
         #expect(observedFiles.map(\.path).contains("docs/current-work.md"))
         #expect(observedFiles.map(\.path).contains("docs/current-status.md"))
+        #expect(observedFiles.map(\.path).contains("docs/handoff.md"))
         #expect(observedFiles.map(\.path).contains("docs/internal/app-store-candidates/latest.json"))
+        #expect(observedFiles.map(\.path).contains("docs/development-automation.md"))
         #expect(observedFiles.map(\.path).contains("docs/development_automation.md"))
         #expect(observedFiles.map(\.path).contains("docs/development_environment.md"))
         #expect(observedFiles.map(\.path).contains("nenrin/index.md"))
@@ -2444,8 +2450,8 @@ struct ScanExecutionInfrastructureTests {
         #expect(observedFiles.map(\.path).contains(".github/workflows/ci.yml"))
         #expect(observedFiles.allSatisfy { !$0.modifiedAt.isEmpty })
         #expect(observedFiles.allSatisfy { !$0.modifiedAt.contains(projectURL.path) })
-        #expect(result.project.latestObservedFilePath == "docs/current-work.md")
-        #expect(result.project.latestObservedFileModifiedAt == observedFiles.first { $0.path == "docs/current-work.md" }?.modifiedAt)
+        #expect(result.project.latestObservedFilePath == "docs/handoff.md")
+        #expect(result.project.latestObservedFileModifiedAt == observedFiles.first { $0.path == "docs/handoff.md" }?.modifiedAt)
     }
 
     private func releaseVerificationFakeBinaryScript(version: String) -> String {

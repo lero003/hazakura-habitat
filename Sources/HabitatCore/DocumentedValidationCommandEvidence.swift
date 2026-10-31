@@ -42,6 +42,12 @@ public struct DocumentedValidationCommandEvidence {
             return projectScriptAnnotations(claim: firstClaim) + scopedAnnotations
         }
 
+        if actualWorkflow == "xcodebuild", claimedWorkflow == "swiftpm",
+           project.detectedFiles.contains("Package.swift"),
+           !project.symlinkedFiles.contains("Package.swift") {
+            return companionSwiftPackageAnnotations(claim: firstClaim) + scopedAnnotations
+        }
+
         if claimedWorkflow != nil, actualWorkflow == nil {
             return unknownRepositoryWorkflowAnnotations(claim: firstClaim) + scopedAnnotations
         }
@@ -59,7 +65,7 @@ public struct DocumentedValidationCommandEvidence {
 
         var lines = [
             "Fact: Project instructions mention multiple validation workflows: \(workflows.map(workflowName).joined(separator: ", ")).",
-            "Open uncertainty: Instruction files disagree on local validation; verify the intended command before following one documented claim."
+            "Open uncertainty: Validation workflows may cover different parts of the project; verify which checks the changed area requires before choosing commands."
         ]
 
         if let preferred = preferredValidationCommand {
@@ -134,6 +140,14 @@ public struct DocumentedValidationCommandEvidence {
         }
 
         return lines
+    }
+
+    private func companionSwiftPackageAnnotations(claim: ValidationCommandClaim) -> [String] {
+        [
+            "Fact: `Package.swift` is present alongside the primary Xcode project and instructions mention `\(claim.command)`.",
+            "Hint: Keep `\(claim.command)` scoped to package validation; select an Xcode scheme separately for app checks.",
+            "Hint: Package checks do not establish app or device acceptance."
+        ]
     }
 
     private func projectScriptAnnotations(claim: ValidationCommandClaim) -> [String] {

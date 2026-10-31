@@ -82,6 +82,8 @@ public struct ProjectDetector {
         "docs/current-status.md",
         "docs/internal/app-store-candidates/latest.json",
         "docs/current_status.md",
+        "docs/handoff.md",
+        "docs/development-automation.md",
         "docs/development_automation.md",
         "docs/development_environment.md",
         "docs/development_loop.md",
@@ -371,6 +373,7 @@ public struct ProjectDetector {
         let symlinked = Set(symlinkedFiles)
         return validationClaimFiles(projectURL: projectURL).flatMap { source -> [ValidationCommandClaim] in
             guard !symlinked.contains(source),
+                  !hasSymbolicLinkAncestor(relativePath: source, projectURL: projectURL),
                   let content = safeInstructionFileContent(projectURL.appendingPathComponent(source))
             else {
                 return []
@@ -400,6 +403,8 @@ public struct ProjectDetector {
             "README.md",
             "docs/current-work.md",
             "docs/current-status.md",
+            "docs/development-automation.md",
+            "docs/development_automation.md",
             "docs/development_loop.md",
             "docs/development_environment.md",
             "docs/release-checklist.md",
@@ -518,6 +523,7 @@ public struct ProjectDetector {
         guard let packageManager else { return [] }
 
         return packageScripts.flatMap { script -> [String] in
+            guard isSafePackageScriptName(script) else { return [] }
             switch (packageManager, script) {
             case ("bun", "test"):
                 return ["bun test"]
@@ -533,6 +539,14 @@ public struct ProjectDetector {
                 return []
             }
         }
+    }
+
+    private func isSafePackageScriptName(_ script: String) -> Bool {
+        !script.isEmpty && script.count <= 96
+            && script.allSatisfy {
+                $0.isASCII && ($0.isLetter || $0.isNumber || "_.-:/".contains($0))
+            }
+            && script.split(separator: ":", omittingEmptySubsequences: false).allSatisfy { !$0.isEmpty }
     }
 
     private func lineContainsCommand(_ line: String, _ command: String) -> Bool {
@@ -579,6 +593,10 @@ public struct ProjectDetector {
         for command: String,
         in line: String
     ) -> ValidationCommandPurpose {
+        if isPackageReleaseArtifactCommand(command) {
+            return .releaseArtifact
+        }
+
         if ProjectLocalValidationScript.isCommand(command),
            ProjectLocalValidationScript.isLaunchSmokeCommand(command) {
             return .launchSmoke
@@ -603,9 +621,31 @@ public struct ProjectDetector {
         return .ordinaryLocal
     }
 
+    private func isPackageReleaseArtifactCommand(_ command: String) -> Bool {
+        let tokens = command.split(whereSeparator: \.isWhitespace)
+        guard tokens.count == 3,
+              ["npm", "pnpm", "yarn", "bun"].contains(String(tokens[0])),
+              tokens[1] == "run"
+        else { return false }
+
+        let components = tokens[2].split(separator: ":", omittingEmptySubsequences: false)
+        guard let family = components.first else { return false }
+        if ["testflight", "release", "publish", "deploy"].contains(String(family)) {
+            return true
+        }
+
+        return components.count >= 2
+            && ["mac", "macos", "ios"].contains(String(family))
+            && components[1] == "store"
+    }
+
     private func lineLooksLikeValidationClaim(_ line: String, command: String) -> Bool {
         if lineTreatsCommandAsNonClaim(line, command: command) {
             return false
+        }
+
+        if isPackageReleaseArtifactCommand(command) {
+            return true
         }
 
         if ProjectLocalValidationScript.isCommand(command) {

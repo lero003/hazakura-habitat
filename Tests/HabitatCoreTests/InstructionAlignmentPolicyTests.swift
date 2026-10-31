@@ -69,7 +69,7 @@ struct InstructionAlignmentPolicyTests {
     }
 
     @Test
-    func scanEmitsOpenUncertaintyWhenDocumentedValidationClaimsDisagree() throws {
+    func scanEmitsScopeUncertaintyWhenInstructionsMentionMultipleValidationWorkflows() throws {
         let projectURL = try makeProject(files: [
             "Package.swift": """
             // swift-tools-version: 6.1
@@ -96,11 +96,99 @@ struct InstructionAlignmentPolicyTests {
             ValidationCommandClaim(source: "README.md", command: "npm test")
         ])
         #expect(context.contains("Fact: Project instructions mention multiple validation workflows: SwiftPM, npm."))
-        #expect(context.contains("Open uncertainty: Instruction files disagree on local validation; verify the intended command before following one documented claim."))
+        #expect(context.contains("Open uncertainty: Validation workflows may cover different parts of the project; verify which checks the changed area requires before choosing commands."))
+        #expect(context.contains("Instruction files disagree") == false)
         #expect(context.contains("Hint: Prefer `swift test` only for ordinary local validation when repository facts still support it."))
         #expect(!context.contains("Project instructions and repository files both support SwiftPM validation."))
         #expect(!context.contains("Run npm test before committing changes."))
         #expect(!context.contains("Use swift test for validation."))
+    }
+
+    @Test
+    func scanKeepsComplementaryFrontendAndNativeValidationScoped() throws {
+        let projectURL = try makeProject(files: [
+            "package.json": "{\"scripts\":{\"test\":\"vitest run\",\"build\":\"vite build\"}}",
+            "package-lock.json": "{}",
+            "src-tauri/Cargo.toml": "[package]\nname = \"native-demo\"\nversion = \"0.1.0\"",
+            "AGENTS.md": """
+            Frontend validation: npm test.
+            Native validation: cargo test --manifest-path src-tauri/Cargo.toml.
+            """
+        ])
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a node": .init(name: "/usr/bin/which", args: ["-a", "node"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/node", stderr: ""),
+            "/usr/bin/env node --version": .init(name: "/usr/bin/env", args: ["node", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "v22.0.0", stderr: ""),
+            "/usr/bin/which -a npm": .init(name: "/usr/bin/which", args: ["-a", "npm"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/npm", stderr: ""),
+            "/usr/bin/env npm --version": .init(name: "/usr/bin/env", args: ["npm", "--version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "10.0.0", stderr: "")
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        assertAgentContextContract(context)
+        #expect(result.project.packageManager == "npm")
+        #expect(result.project.validationCommandClaims.map(\.command) == ["npm test", "cargo test"])
+        #expect(context.contains("Fact: Project instructions mention multiple validation workflows: npm, Cargo."))
+        #expect(context.contains("Validation workflows may cover different parts of the project"))
+        #expect(context.contains("Instruction files disagree") == false)
+        #expect(context.contains("Warning: Project instructions mention") == false)
+        #expect(context.contains("Hint: Prefer `npm run test` only for ordinary local validation when repository facts still support it."))
+    }
+
+    @Test
+    func scanAcknowledgesSwiftPackageValidationAlongsidePrimaryXcodeProject() throws {
+        let projectURL = try makeProject(files: [
+            "Demo App.xcodeproj/project.pbxproj": "// synthetic project marker",
+            "Package.swift": "// swift-tools-version: 6.1\nimport PackageDescription\nlet package = Package(name: \"Core\")",
+            "AGENTS.md": "Use swift test for package validation."
+        ])
+        let runner = FakeCommandRunner(results: [
+            "/usr/bin/which -a xcodebuild": .init(name: "/usr/bin/which", args: ["-a", "xcodebuild"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/usr/bin/xcodebuild", stderr: ""),
+            "/usr/bin/env xcodebuild -version": .init(name: "/usr/bin/env", args: ["xcodebuild", "-version"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "Xcode 16.3\nBuild version 16E140", stderr: ""),
+            "/usr/bin/xcode-select -p": .init(name: "/usr/bin/xcode-select", args: ["-p"], exitCode: 0, durationMs: 1, timedOut: false, available: true, stdout: "/Applications/Xcode.app/Contents/Developer", stderr: "")
+        ])
+
+        let result = HabitatScanner(runner: runner).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        assertAgentContextContract(context)
+        #expect(result.project.packageManager == "xcodebuild")
+        #expect(result.policy.preferredCommands == ["xcodebuild -list -project 'Demo App.xcodeproj'"])
+        #expect(context.contains("Fact: `Package.swift` is present alongside the primary Xcode project and instructions mention `swift test`."))
+        #expect(context.contains("Hint: Keep `swift test` scoped to package validation; select an Xcode scheme separately for app checks."))
+        #expect(context.contains("Hint: Package checks do not establish app or device acceptance."))
+        #expect(context.contains("Warning: Project instructions mention `swift test`") == false)
+        #expect(context.contains("Ask before `xcodebuild build/test/archive before selecting a scheme`."))
+    }
+
+    @Test(arguments: [false, true])
+    func scanDoesNotConfirmCompanionSwiftPackageWithoutDirectManifest(symlinkedManifest: Bool) throws {
+        let projectURL = try makeProject(files: [
+            "Demo App.xcodeproj/project.pbxproj": "// synthetic project marker",
+            "AGENTS.md": "Use swift test for package validation."
+        ])
+        if symlinkedManifest {
+            let externalPackage = try makeProject(files: ["Package.swift": "// external package marker"])
+            try FileManager.default.createSymbolicLink(
+                at: projectURL.appendingPathComponent("Package.swift"),
+                withDestinationURL: externalPackage.appendingPathComponent("Package.swift")
+            )
+        }
+
+        let result = HabitatScanner(runner: FakeCommandRunner(results: [:])).scan(projectURL: projectURL)
+        let outputURL = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        try ReportWriter().write(scanResult: result, outputURL: outputURL)
+        let context = try String(contentsOf: outputURL.appendingPathComponent("agent_context.md"), encoding: .utf8)
+
+        assertAgentContextContract(context)
+        #expect(result.project.packageManager == "xcodebuild")
+        #expect(context.contains("Warning: Project instructions mention `swift test`, but repository facts select Xcode validation."))
+        #expect(context.contains("alongside the primary Xcode project") == false)
+        #expect(context.contains("Keep `swift test` scoped to package validation") == false)
     }
 
     @Test

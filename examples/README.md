@@ -66,3 +66,4 @@ For guidance on how much of this pattern to adopt in another repository, see
 - `behavior-evaluation/cross-project-previous-scan-preferred-delta-001.json`: sanitized behavior fixture for using `--previous-scan` to expose stale preferred-command drift during cross-project intake.
 - `behavior-evaluation/cross-project-hyphenated-current-docs-001.json`: sanitized behavior fixture for treating hyphenated current queue/status docs as report-freshness and validation-claim inputs.
 - `behavior-evaluation/cross-project-web-cleanup-validation-001.json`: sanitized behavior fixture for preserving web cleanup validation and mutation-guard signals without promoting cleanup-intelligence scope.
+- `behavior-evaluation/cross-project-app-validation-boundaries-001.json`: sanitized intake fixture for delivery-purpose separation, complementary validation scopes, and operational-document freshness.
