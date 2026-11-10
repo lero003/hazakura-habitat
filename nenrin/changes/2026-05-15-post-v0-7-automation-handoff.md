@@ -7,7 +7,7 @@ impact: unknown
 related_files:
   - docs/current_status.md
   - docs/development_loop.md
-  - /Users/keisetsu/.codex/automations/hazakura-habitat-1/automation.toml
+  - ~/.codex/automations/hazakura-habitat-1/automation.toml
 review_after:
   tasks: 3
   days: 7

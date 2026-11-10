@@ -12,7 +12,7 @@ tracked_files:
   - docs/development_loop.md
   - docs/roadmap.md
   - CHANGELOG.md
-  - /Users/keisetsu/.codex/automations/hazakura-habitat-1/automation.toml
+  - ~/.codex/automations/hazakura-habitat-1/automation.toml
 ---
 
 # Change: narrow-depth-platform-boundary
